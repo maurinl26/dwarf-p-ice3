@@ -50,15 +50,15 @@ def allocate_state(
 
     return {
         "time": datetime(year=2024, month=1, day=1),
-        "sigqsat": allocate_f(),
-        "exnref": allocate_f(),  # ref exner pression
-        "exn": allocate_f(),
-        "rhodref": allocate_f(),
-        "pabs": allocate_f(),  # absolute pressure at t
-        "sigs": allocate_f(),  # Sigma_s at time t
-        "cf_mf": allocate_f(),  # convective mass flux fraction
-        "rc_mf": allocate_f(),  # convective mass flux liquid mixing ratio
-        "ri_mf": allocate_f(),
+        "f_sigqsat": allocate_f(),
+        "f_exnref": allocate_f(),  # ref exner pression
+        "f_exn": allocate_f(),
+        "f_rhodref": allocate_f(),
+        "f_pabs": allocate_f(),  # absolute pressure at t
+        "f_sigs": allocate_f(),  # Sigma_s at time t
+        "f_cf_mf": allocate_f(),  # convective mass flux fraction
+        "f_rc_mf": allocate_f(),  # convective mass flux liquid mixing ratio
+        "f_ri_mf": allocate_f(),
     }
 
 
@@ -67,15 +67,15 @@ def initialize_state_with_constant(
 ) -> None:
 
     keys = [
-        "sigqsat",
-        "exnref",  # ref exner pression
-        "exn",
-        "rhodref",
-        "pabs",  # absolute pressure at t
-        "sigs",  # Sigma_s at time t
-        "cf_mf",  # convective mass flux fraction
-        "rc_mf",  # convective mass flux liquid mixing ratio
-        "ri_mf",
+        "f_sigqsat",
+        "f_exnref",  # ref exner pression
+        "f_exn",
+        "f_rhodref",
+        "f_pabs",  # absolute pressure at t
+        "f_sigs",  # Sigma_s at time t
+        "f_cf_mf",  # convective mass flux fraction
+        "f_rc_mf",  # convective mass flux liquid mixing ratio
+        "f_ri_mf",
     ]
 
     for name in keys:

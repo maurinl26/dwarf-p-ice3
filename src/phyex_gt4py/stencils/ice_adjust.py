@@ -7,7 +7,10 @@ from phyex_gt4py.functions.compute_ice_frac import compute_frac_ice
 from phyex_gt4py.functions.src_1d import src_1d
 from phyex_gt4py.functions.temperature import update_temperature
 
-from phyex_gt4py.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
+from phyex_gt4py.functions.ice_adjust import (
+    vaporisation_latent_heat,
+    sublimation_latent_heat,
+)
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
@@ -31,7 +34,6 @@ def ice_adjust(
     rr: Field["float"],  # rain water m.r. to adjust
     rs: Field["float"],  # aggregate m.r. to adjust
     rg: Field["float"],  # graupel m.r. to adjust
-    rh: Field["float"],  # hail m.r. to adjust (if nrr = 7)
     ths: Field["float"],  # theta source
     rvs: Field["float"],  # water vapour m.r. source
     rcs: Field["float"],  # cloud water m.r. source
@@ -122,9 +124,6 @@ def ice_adjust(
     # TODO : fix number of moist variables to 6 (without hail)
     # 2.4 specific heat for moist air at t+1
     with computation(PARALLEL), interval(...):
-        if nrr == 7:
-            cph = cpd + cpv * rv_tmp + Cl * (rc_tmp + rr) + Ci * (ri_tmp + rs + rg + rh)
-
         if nrr == 6:
             cph = cpd + cpv * rv_tmp + Cl * (rc_tmp + rr) + Ci * (ri_tmp + rs + rg)
         if nrr == 5:

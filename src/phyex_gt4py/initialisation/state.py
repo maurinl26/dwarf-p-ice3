@@ -43,6 +43,7 @@ def allocate_state(
     allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
 
     return {
+        "time": datetime(year=2024, month=1, day=1),
         "zzf": allocate_f(),
         "rhodj": allocate_f(),
         "exnref": allocate_f(),
@@ -56,10 +57,27 @@ def allocate_state(
         "cf_mf": allocate_f(),
     }
 
-def initialize_state_with_constant(state: DataArrayDict, C: float, gt4py_config: GT4PyConfig) -> None:
 
-    for name in state.keys():
-        state[name] = C * ones(state[name].shape, backend=gt4py_config.backend)
+def initialize_state_with_constant(
+    state: DataArrayDict, C: float, gt4py_config: GT4PyConfig
+) -> None:
+
+    keys = [
+        "zzf",
+        "rhodj",
+        "exnref",
+        "rhodref",
+        "pabsm",
+        "tht",
+        "sigs",
+        "mfconv",
+        "rc_mf",
+        "ri_mf",
+        "cf_mf",
+    ]
+
+    for name in keys:
+        state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
 
 
 def get_state(
