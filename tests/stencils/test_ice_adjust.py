@@ -4,7 +4,7 @@ import logging
 from functools import partial
 from typing import TYPE_CHECKING
 import sys
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -49,6 +49,7 @@ def allocate_state(
     # allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
 
     return {
+        "time": datetime(year=2024, month=1, day=1),
         "sigqsat": allocate_f(),
         "exnref": allocate_f(),  # ref exner pression
         "exn": allocate_f(),
@@ -65,7 +66,19 @@ def initialize_state_with_constant(
     state: DataArrayDict, C: float, gt4py_config: GT4PyConfig
 ) -> None:
 
-    for name in state.keys():
+    keys = [
+        "sigqsat",
+        "exnref",  # ref exner pression
+        "exn",
+        "rhodref",
+        "pabs",  # absolute pressure at t
+        "sigs",  # Sigma_s at time t
+        "cf_mf",  # convective mass flux fraction
+        "rc_mf",  # convective mass flux liquid mixing ratio
+        "ri_mf",
+    ]
+
+    for name in keys:
         logging.debug(f"{name}, {state[name].shape}")
         state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
 
