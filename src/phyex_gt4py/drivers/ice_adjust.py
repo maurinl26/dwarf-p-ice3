@@ -32,29 +32,37 @@ class IceAdjust(ImplicitTendencyComponent):
         externals.update(asdict(phyex.nebn))
         externals.update(asdict(phyex.cst))
         externals.update(asdict(phyex.param_icen))
-        externals.update({
-            "nrr": 6,
-            "criautc": 0,
-            "acriauti": 0,
-            "bcriauti": 0,
-            "criauti": 0,
-            "tstep": 1,
-        })
+        externals.update(
+            {
+                "nrr": 6,
+                "criautc": 0,
+                "acriauti": 0,
+                "bcriauti": 0,
+                "criauti": 0,
+                "tstep": 1,
+            }
+        )
 
         self.ice_adjust = self.compile_stencil("ice_adjust", externals)
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "sigqsat":{"grid": (I, J, K), "units": ""},  # coeff applied to qsat variance
-            "exnref":{"grid": (I, J, K), "units": ""},  # ref exner pression
+            "sigqsat": {
+                "grid": (I, J, K),
+                "units": "",
+            },  # coeff applied to qsat variance
+            "exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
             "exn": {"grid": (I, J, K), "units": ""},
             "rhodref": {"grid": (I, J, K), "units": ""},  #
             "pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
             "sigs": {"grid": (I, J, K), "units": ""},  # Sigma_s at time t
             "cf_mf": {"grid": (I, J, K), "units": ""},  # convective mass flux fraction
-            "rc_mf": {"grid": (I, J, K), "units": ""},  # convective mass flux liquid mixing ratio
-            "ri_mf": {"grid": (I, J, K), "units": ""}
+            "rc_mf": {
+                "grid": (I, J, K),
+                "units": "",
+            },  # convective mass flux liquid mixing ratio
+            "ri_mf": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
@@ -93,7 +101,6 @@ class IceAdjust(ImplicitTendencyComponent):
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {
-            "cpd": {"grid": (I, J, K), "units": ""},
             "rt": {
                 "grid": (I, J, K),
                 "units": "",
@@ -117,25 +124,55 @@ class IceAdjust(ImplicitTendencyComponent):
         out_tendencies: NDArrayLikeDict,
         out_diagnostics: NDArrayLikeDict,
         overwrite_tendencies: Dict[str, bool],
-    ):
+    ) -> None:
 
         with managed_temporary_storage(
             self.computational_grid,
+            *repeat(((I, J, K), "float"), 21),
             gt4py_config=self.gt4py_config,
-        ) as ():
-            inputs = {
-                "in_" + name.split("_", maxsplit=1)[1]: state[name]
-                for name in self.input_properties
-            }
+        ) as (
+            rt,
+            pv,
+            piv,
+            qsl,
+            qsi,
+            frac_tmp,
+            cond_tmp,
+            a,
+            sbar,
+            sigma,
+            q1,
+            icldfr,
+            wcldfr,
+            ssio,
+            ssiu,
+            srcs,
+            ifr,
+            hlc_hrc,
+            hlc_hcf,
+            hli_hri,
+            hli_hcf,
+        ):
+            inputs = {name: state[name] for name in self.input_properties}
             tendencies = {
-                "out_tnd_loc_" + name.split("_", maxsplit=1)[1]: out_tendencies[name]
-                for name in self.tendency_properties
+                name: out_tendencies[name] for name in self.tendency_properties
             }
             diagnostics = {
-                "out_" + name.split("_", maxsplit=1)[1]: out_diagnostics[name]
-                for name in self.diagnostic_properties
+                name: out_diagnostics[name] for name in self.diagnostic_properties
             }
-            temporaries = {}
+            temporaries = {
+                "rt": rt,
+                "pv": pv,
+                "piv": piv,
+                "qsl": qsl,
+                "qsi": qsi,
+                "frac_tmp": frac_tmp,
+                "cond_tmp": cond_tmp,
+                "a": a,
+                "sbar": sbar,
+                "sigma": sigma,
+                "q1": q1,
+            }
 
             self.ice_adjust(
                 **inputs,
