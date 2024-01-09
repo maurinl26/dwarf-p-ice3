@@ -10,7 +10,7 @@ from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
-from phyex_gt4py.drivers.ice_adjust import IceAdjust
+from phyex_gt4py.components.ice_adjust import IceAdjust
 from phyex_gt4py.initialisation.state import allocate_data_array, allocate_state
 from phyex_gt4py.initialisation.utils import initialize_field
 from phyex_gt4py.phyex_common.phyex import Phyex
@@ -115,13 +115,22 @@ if __name__ == "__main__":
     ice_adjust = IceAdjust(grid, gt4py_config, phyex_config)
 
     # Test 1
+    logging.debug("Test with 0")
     state = get_state_with_constant(grid, gt4py_config, 0)
     tends, diags = ice_adjust(state, dt)
+    logging.debug(f"State : {state.keys()}")
+    logging.debug(f"Tendencies : {tends.keys()}")
+    logging.debug(f"Diagnostics : {diags.keys()}")
+    logging.debug("Test passed")
 
     # Test 2
+    logging.debug("Test with 1")
     state = get_state_with_constant(grid, gt4py_config, 1)
     tends, diags = ice_adjust(state, dt)
+    logging.debug("Test passed")
 
     # Test 3
+    logging.debug("Test with 0.5")
     state = get_state_with_constant(grid, gt4py_config, 0.5)
     tends, diags = ice_adjust(state, dt)
+    logging.debug("Test passed")
