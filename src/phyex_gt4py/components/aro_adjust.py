@@ -39,7 +39,6 @@ class AroAdjust(ImplicitTendencyComponent):
                 "acriauti": 0,
                 "bcriauti": 0,
                 "criauti": 0,
-                "tstep": 1,
             }
         )
 
@@ -48,54 +47,62 @@ class AroAdjust(ImplicitTendencyComponent):
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "zz": {"grid": (I, J, K), "units": ""},
-            "rhodj": {"grid": (I, J, K), "units": ""},
-            "exnref": {"grid": (I, J, K), "units": ""},
-            "rhodref": {"grid": (I, J, K), "units": ""},
-            "pabsm": {"grid": (I, J, K), "units": ""},
-            "tht": {"grid": (I, J, K), "units": ""},
-            "mfconv": {"grid": (I, J, K), "units": ""},
-            "sigs": {"grid": (I, J, K), "units": ""},
+            "f_sigqsat": {
+                "grid": (I, J, K),
+                "units": "",
+            },  # coeff applied to qsat variance
+            "f_exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
+            "f_exn": {"grid": (I, J, K), "units": ""},
+            "f_rhodref": {"grid": (I, J, K), "units": ""},  #
+            "f_pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
+            "f_sigs": {"grid": (I, J, K), "units": ""},  # Sigma_s at time t
+            "f_cf_mf": {
+                "grid": (I, J, K),
+                "units": "",
+            },  # convective mass flux fraction
+            "f_rc_mf": {
+                "grid": (I, J, K),
+                "units": "",
+            },  # convective mass flux liquid mixing ratio
+            "f_ri_mf": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
         return {
-            "ths": {"grid": (I, J, K), "units": ""},
-            "rvs": {"grid": (I, J, K), "units": ""},  # PRS(1)
-            "rcs": {"grid": (I, J, K), "units": ""},  # PRS(2)
-            "ris": {"grid": (I, J, K), "units": ""},  # PRS(4)
-            "th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
-            "rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
-            "rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
-            "rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
-            "ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
-            "rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
-            "rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
-            "cldfr": {"grid": (I, J, K), "units": ""},
-            "sigqsat": {"grid": (I, J, K), "units": ""},
-            "ice_cld_wgt": {"grid": (I, J, K), "units": ""},
+            "f_ths": {"grid": (I, J, K), "units": ""},
+            "f_rvs": {"grid": (I, J, K), "units": ""},  # PRS(1)
+            "f_rcs": {"grid": (I, J, K), "units": ""},  # PRS(2)
+            "f_ris": {"grid": (I, J, K), "units": ""},  # PRS(4)
+            "f_th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
+            "f_rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
+            "f_rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
+            "f_rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
+            "f_ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
+            "f_rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
+            "f_rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
+            "f_cldfr": {"grid": (I, J, K), "units": ""},
+            # "f_ice_cld_wgt": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
         return {
-            "icldfr": {"grid": (I, J, K), "units": ""},
-            "wcldfr": {"grid": (I, J, K), "units": ""},
-            "ssio": {"grid": (I, J, K), "units": ""},
-            "ssiu": {"grid": (I, J, K), "units": ""},
-            "srcs": {"grid": (I, J, K), "units": ""},
-            "ifr": {"grid": (I, J, K), "units": ""},
-            "hlc_hrc": {"grid": (I, J, K), "units": ""},
-            "hlc_hcf": {"grid": (I, J, K), "units": ""},
-            "hli_hri": {"grid": (I, J, K), "units": ""},
-            "hli_hcf": {"grid": (I, J, K), "units": ""},
+            # "f_icldfr": {"grid": (I, J, K), "units": ""},
+            # "f_wcldfr": {"grid": (I, J, K), "units": ""},
+            # "f_ssio": {"grid": (I, J, K), "units": ""},
+            # "f_ssiu": {"grid": (I, J, K), "units": ""},
+            # "f_srcs": {"grid": (I, J, K), "units": ""},
+            "f_ifr": {"grid": (I, J, K), "units": ""},
+            "f_hlc_hrc": {"grid": (I, J, K), "units": ""},
+            "f_hlc_hcf": {"grid": (I, J, K), "units": ""},
+            "f_hli_hri": {"grid": (I, J, K), "units": ""},
+            "f_hli_hcf": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {
-            "cpd": {"grid": (I, J, K), "units": ""},
             "rt": {
                 "grid": (I, J, K),
                 "units": "",
@@ -110,6 +117,16 @@ class AroAdjust(ImplicitTendencyComponent):
             "sbar": {"grid": (I, J, K), "units": ""},
             "sigma": {"grid": (I, J, K), "units": ""},
             "q1": {"grid": (I, J, K), "units": ""},
+            # Missing fields
+            "lv": {"grid": (I, J, K), "units": ""},
+            "ls": {"grid": (I, J, K), "units": ""},
+            "cph": {"grid": (I, J, K), "units": ""},
+            "criaut": {"grid": (I, J, K), "units": ""},
+            "sigrc": {"grid": (I, J, K), "units": ""},
+            "rv_tmp": {"grid": (I, J, K), "units": ""},
+            "ri_tmp": {"grid": (I, J, K), "units": ""},
+            "rc_tmp": {"grid": (I, J, K), "units": ""},
+            "t_tmp": {"grid": (I, J, K), "units": ""},
         }
 
     def array_call(
@@ -119,29 +136,70 @@ class AroAdjust(ImplicitTendencyComponent):
         out_tendencies: NDArrayLikeDict,
         out_diagnostics: NDArrayLikeDict,
         overwrite_tendencies: Dict[str, bool],
-    ):
+    ) -> None:
 
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J), "float"), 6),
-            ((I, J), "bool"),
-            ((K,), "int"),
+            *repeat(((I, J, K), "float"), 20),
             gt4py_config=self.gt4py_config,
-        ) as ():
+        ) as (
+            rt,
+            pv,
+            piv,
+            qsl,
+            qsi,
+            frac_tmp,
+            cond_tmp,
+            a,
+            sbar,
+            sigma,
+            q1,
+            lv,
+            ls,
+            cph,
+            criaut,
+            sigrc,
+            rv_tmp,
+            ri_tmp,
+            rc_tmp,
+            t_tmp,
+        ):
             inputs = {
-                "in_" + name.split("_", maxsplit=1)[1]: state[name]
+                name.split("_", maxsplit=1)[1]: state[name]
                 for name in self.input_properties
             }
             tendencies = {
-                "out_tnd_loc_" + name.split("_", maxsplit=1)[1]: out_tendencies[name]
+                name.split("_", maxsplit=1)[1]: out_tendencies[name]
                 for name in self.tendency_properties
             }
             diagnostics = {
-                "out_" + name.split("_", maxsplit=1)[1]: out_diagnostics[name]
+                name.split("_", maxsplit=1)[1]: out_diagnostics[name]
                 for name in self.diagnostic_properties
             }
-            temporaries = {}
+            temporaries = {
+                "rt": rt,
+                "pv": pv,
+                "piv": piv,
+                "qsl": qsl,
+                "qsi": qsi,
+                "frac_tmp": frac_tmp,
+                "cond_tmp": cond_tmp,
+                "a": a,
+                "sbar": sbar,
+                "sigma": sigma,
+                "q1": q1,
+                "lv": lv,
+                "ls": ls,
+                "cph": cph,
+                "criaut": criaut,
+                "sigrc": sigrc,
+                "rv_tmp": rv_tmp,
+                "ri_tmp": ri_tmp,
+                "rc_tmp": rc_tmp,
+                "t_tmp": t_tmp,
+            }
 
+            # Condensation adjustments
             self.ice_adjust(
                 **inputs,
                 **tendencies,
