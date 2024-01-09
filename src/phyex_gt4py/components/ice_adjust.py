@@ -123,11 +123,6 @@ class IceAdjust(ImplicitTendencyComponent):
             "cph": {"grid": (I, J, K), "units": ""},
             "criaut": {"grid": (I, J, K), "units": ""},
             "sigrc": {"grid": (I, J, K), "units": ""},
-            # TODO change category of output fields
-            "th_out": {"grid": (I, J, K), "units": ""},
-            "rv_out": {"grid": (I, J, K), "units": ""},
-            "ri_out": {"grid": (I, J, K), "units": ""},
-            "rc_out": {"grid": (I, J, K), "units": ""},
             "rv_tmp": {"grid": (I, J, K), "units": ""},
             "ri_tmp": {"grid": (I, J, K), "units": ""},
             "rc_tmp": {"grid": (I, J, K), "units": ""},
@@ -145,7 +140,7 @@ class IceAdjust(ImplicitTendencyComponent):
 
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 24),
+            *repeat(((I, J, K), "float"), 20),
             gt4py_config=self.gt4py_config,
         ) as (
             rt,
@@ -164,11 +159,6 @@ class IceAdjust(ImplicitTendencyComponent):
             cph,
             criaut,
             sigrc,
-            # TODO change category of output fields
-            th_out,
-            rv_out,
-            ri_out,
-            rc_out,
             rv_tmp,
             ri_tmp,
             rc_tmp,
@@ -203,11 +193,6 @@ class IceAdjust(ImplicitTendencyComponent):
                 "cph": cph,
                 "criaut": criaut,
                 "sigrc": sigrc,
-                # TODO change category of output fields
-                "th_out": th_out,
-                "rv_out": rv_out,
-                "ri_out": ri_out,
-                "rc_out": rc_out,
                 "rv_tmp": rv_tmp,
                 "ri_tmp": ri_tmp,
                 "rc_tmp": rc_tmp,

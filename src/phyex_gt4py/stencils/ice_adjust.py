@@ -13,7 +13,8 @@ from phyex_gt4py.functions.ice_adjust import (
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 
-
+# TODO: remove POUT (not used in aro_adjust)
+# TODO: add SSIO, SSIU, IFR, SRCS
 @stencil_collection("ice_adjust")
 def ice_adjust(
     # IN - Inputs
@@ -46,11 +47,6 @@ def ice_adjust(
     hlc_hcf: Field["float"],
     hli_hri: Field["float"],
     hli_hcf: Field["float"],
-    # TODO : rework, remove unused fields
-    th_out: Field["float"],  # theta out
-    rv_out: Field["float"],  # water vapour m.r. source
-    rc_out: Field["float"],  # cloud water m.r. source
-    ri_out: Field["float"],  # cloud ice m.r. source
     # Temporary fields
     sigrc: Field["float"],
     rv_tmp: Field["float"],
@@ -121,7 +117,7 @@ def ice_adjust(
     #                   IF jiter = 1; CALL ITERATION()
     # jiter > 0
 
-    # TODO : fix number of moist variables to 6 (without hail)
+    # numer of moist variables fixed to 6 (without hail)
     # 2.4 specific heat for moist air at t+1
     with computation(PARALLEL), interval(...):
         if nrr == 6:
@@ -138,9 +134,9 @@ def ice_adjust(
     with computation(PARALLEL), interval(...):
         cldfr[0, 0, 0] = 0
         sigrc[0, 0, 0] = 0
-        rv_out[0, 0, 0] = 0
-        rc_out[0, 0, 0] = 0
-        ri_out[0, 0, 0] = 0
+        rv_tmp[0, 0, 0] = 0
+        rc_tmp[0, 0, 0] = 0
+        ri_tmp[0, 0, 0] = 0
 
         # local fields
         # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
@@ -234,14 +230,14 @@ def ice_adjust(
         )
 
         # # Translation notes : 506 -> 514 (not ocnd2)
-        rc_out[0, 0, 0] = (1 - frac_tmp[0, 0, 0]) * cond_tmp[
+        rc_tmp[0, 0, 0] = (1 - frac_tmp[0, 0, 0]) * cond_tmp[
             0, 0, 0
         ]  # liquid condensate
-        ri_out[0, 0, 0] = frac_tmp[0, 0, 0] * cond_tmp[0, 0, 0]  # solid condensate
+        ri_tmp[0, 0, 0] = frac_tmp[0, 0, 0] * cond_tmp[0, 0, 0]  # solid condensate
         t_tmp[0, 0, 0] = update_temperature(
-            t_tmp, rc_tmp, rc_out, ri_tmp, ri_out, lv, ls, cpd
+            t_tmp, rc_tmp, rc_tmp, ri_tmp, ri_tmp, lv, ls, cpd
         )
-        rv_out[0, 0, 0] = rt[0, 0, 0] - rc_out[0, 0, 0] - ri_out[0, 0, 0] * prifact
+        rv_tmp[0, 0, 0] = rt[0, 0, 0] - rc_tmp[0, 0, 0] - ri_tmp[0, 0, 0] * prifact
 
         sigrc[0, 0, 0] = sigrc[0, 0, 0] * min(3, max(1, 1 - q1[0, 0, 0]))
 
@@ -355,22 +351,4 @@ def ice_adjust(
         hli_hcf = min(1, hli_hcf + hli_hcf)
         hli_hri += hli_hri
 
-    # Subgrid mass fluxes
-    with computation(PARALLEL), interval(...):
-        w1 = rc_mf
-        w2 = ri_mf
-
-        if w1 + w2 > rv_out[0, 0, 0]:
-            w1 *= rv_tmp / (w1 + w2)
-            w2 = rv_tmp - w1
-
-        rc_tmp[0, 0, 0] += w1
-        ri_tmp[0, 0, 0] += w2
-        rv_tmp[0, 0, 0] -= w1 + w2
-        t_tmp += (w1 * lv + w2 * ls) / cph
-
-        # TODO : remove unused out variables
-        rv_out[0, 0, 0] = rv_tmp[0, 0, 0]
-        ri_out[0, 0, 0] = ri_tmp[0, 0, 0]
-        rc_out[0, 0, 0] = rc_tmp[0, 0, 0]
-        th_out[0, 0, 0] = t_tmp[0, 0, 0] / exn[0, 0, 0]
+    # Translation note : 402 -> 427 (removed pout_x not present )
