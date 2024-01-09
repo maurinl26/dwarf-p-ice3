@@ -27,7 +27,6 @@ def ice_adjust(
     cf_mf: Field["float"],  # convective mass flux fraction
     rc_mf: Field["float"],  # convective mass flux liquid mixing ratio
     ri_mf: Field["float"],  # convective mass flux ice mixing ratio
-    # INOUT - Tendencies
     th: Field["float"],
     rv: Field["float"],  # water vapour m.r. to adjust
     rc: Field["float"],  # cloud water m.r. to adjust
@@ -35,13 +34,18 @@ def ice_adjust(
     rr: Field["float"],  # rain water m.r. to adjust
     rs: Field["float"],  # aggregate m.r. to adjust
     rg: Field["float"],  # graupel m.r. to adjust
+    # INOUT - Tendencies
     ths: Field["float"],  # theta source
     rvs: Field["float"],  # water vapour m.r. source
     rcs: Field["float"],  # cloud water m.r. source
     ris: Field["float"],  # cloud ice m.r. at t+1
+    # OUT - Diagnostics
     cldfr: Field["float"],
     # srcs: Field["float"],  # second order flux s at time t+1
-    # OUT - Diagnostics
+    # wcldfr: Field["float"],
+    # icldfr: Field["float"],
+    # ssio: Field["float"],
+    # ssiu: Field["float"],
     ifr: Field["float"],  # ratio cloud ice moist part to dry part
     hlc_hrc: Field["float"],
     hlc_hcf: Field["float"],
