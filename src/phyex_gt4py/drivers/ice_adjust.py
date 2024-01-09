@@ -39,7 +39,6 @@ class IceAdjust(ImplicitTendencyComponent):
                 "acriauti": 0,
                 "bcriauti": 0,
                 "criauti": 0,
-                "tstep": 1,
             }
         )
 
@@ -220,7 +219,7 @@ class IceAdjust(ImplicitTendencyComponent):
                 **tendencies,
                 **diagnostics,
                 **temporaries,
-                # dt=timestep.total_seconds(),
+                dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,

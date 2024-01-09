@@ -73,6 +73,7 @@ def ice_adjust(
     sbar: Field["float"],
     sigma: Field["float"],
     q1: Field["float"],
+    dt: "float",
 ):
     """_summary_
 
@@ -98,7 +99,6 @@ def ice_adjust(
         Rd,
         Rv,
         criautc,
-        tstep,
         criauti,
         acriauti,
         bcriauti,
@@ -250,8 +250,8 @@ def ice_adjust(
     ##### 5.     COMPUTE THE SOURCES AND STORES THE CLOUD FRACTION #####
     with computation(PARALLEL), interval(...):
         # 5.0 compute the variation of mixing ratio
-        w1 = (rc_tmp[0, 0, 0] - rc[0, 0, 0]) / tstep
-        w2 = (ri_tmp[0, 0, 0] - ri[0, 0, 0]) / tstep
+        w1 = (rc_tmp[0, 0, 0] - rc[0, 0, 0]) / dt
+        w2 = (ri_tmp[0, 0, 0] - ri[0, 0, 0]) / dt
 
         # 5.1 compute the sources
         w1 = max(w1, -rcs[0, 0, 0]) if w1 > 0 else min(w1, rvs[0, 0, 0])
@@ -262,15 +262,15 @@ def ice_adjust(
         w2 = max(w2, -ris[0, 0, 0]) if w1 > 0 else min(w2, rvs[0, 0, 0])
 
         if subg_cond == 0:
-            if rcs[0, 0, 0] + ris[0, 0, 0] > 1e-12 / tstep:
+            if rcs[0, 0, 0] + ris[0, 0, 0] > 1e-12 / dt:
                 cldfr[0, 0, 0] = 1
             else:
                 cldfr[0, 0, 0] = 0
 
         # Translation note : LSUBG_COND = TRUE for Arome
         else:
-            w1 = rc_mf[0, 0, 0] / tstep
-            w2 = ri_mf[0, 0, 0] / tstep
+            w1 = rc_mf[0, 0, 0] / dt
+            w2 = ri_mf[0, 0, 0] / dt
 
             if w1 + w2 > rvs[0, 0, 0]:
                 w1 *= rvs[0, 0, 0] / (w1 + w2)
@@ -289,30 +289,30 @@ def ice_adjust(
         criaut = criautc / rhodref[0, 0, 0]
 
         if subg_mf_pdf == 0:
-            if w1 * tstep > cf_mf[0, 0, 0] * criaut:
-                hlc_hrc += w1 * tstep
+            if w1 * dt > cf_mf[0, 0, 0] * criaut:
+                hlc_hrc += w1 * dt
                 hlc_hcf = min(1, hlc_hcf[0, 0, 0] + cf_mf[0, 0, 0])
 
         elif subg_mf_pdf == 1:
-            if w1 * tstep > cf_mf[0, 0, 0] * criaut:
-                hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w1 * tstep)
-                hr = w1 * tstep - (criaut * cf_mf[0, 0, 0]) ** 3 / (
-                    3 * max(1e-20, w1 * tstep)
+            if w1 * dt > cf_mf[0, 0, 0] * criaut:
+                hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w1 * dt)
+                hr = w1 * dt - (criaut * cf_mf[0, 0, 0]) ** 3 / (
+                    3 * max(1e-20, w1 * dt)
                 )
 
-            elif 2 * w1 * tstep <= cf_mf[0, 0, 0] * criaut:
+            elif 2 * w1 * dt <= cf_mf[0, 0, 0] * criaut:
                 hcf = 0
                 hr = 0
 
             else:
-                hcf = (2 * w1 * tstep - criaut * cf_mf[0, 0, 0]) ** 2 / (
-                    2.0 * max(1.0e-20, w1 * tstep) ** 2
+                hcf = (2 * w1 * dt - criaut * cf_mf[0, 0, 0]) ** 2 / (
+                    2.0 * max(1.0e-20, w1 * dt) ** 2
                 )
                 hr = (
-                    4.0 * (w1 * tstep) ** 3
-                    - 3.0 * w1 * tstep * (criaut * cf_mf[0, 0, 0]) ** 2
+                    4.0 * (w1 * dt) ** 3
+                    - 3.0 * w1 * dt * (criaut * cf_mf[0, 0, 0]) ** 2
                     + (criaut * cf_mf[0, 0, 0]) ** 3
-                ) / (3 * max(1.0e-20, w1 * tstep) ** 2)
+                ) / (3 * max(1.0e-20, w1 * dt) ** 2)
 
             hcf *= cf_mf[0, 0, 0]
             hlc_hcf = min(1, hlc_hcf + hcf)
@@ -326,30 +326,30 @@ def ice_adjust(
         )
 
         if subg_mf_pdf == 0:
-            if w2 * tstep > cf_mf[0, 0, 0] * criaut:
-                hli_hri += w2 * tstep
+            if w2 * dt > cf_mf[0, 0, 0] * criaut:
+                hli_hri += w2 * dt
                 hli_hcf = min(1, hli_hcf[0, 0, 0] + cf_mf[0, 0, 0])
 
         elif subg_mf_pdf == 1:
-            if w2 * tstep > cf_mf[0, 0, 0] * criaut:
-                hli_hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w2 * tstep)
-                hli_hri = w2 * tstep - (criaut * cf_mf[0, 0, 0]) ** 3 / (
-                    3 * max(1e-20, w2 * tstep)
+            if w2 * dt > cf_mf[0, 0, 0] * criaut:
+                hli_hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w2 * dt)
+                hli_hri = w2 * dt - (criaut * cf_mf[0, 0, 0]) ** 3 / (
+                    3 * max(1e-20, w2 * dt)
                 )
 
-        elif 2 * w2 * tstep <= cf_mf[0, 0, 0] * criaut:
+        elif 2 * w2 * dt <= cf_mf[0, 0, 0] * criaut:
             hli_hcf = 0
             hli_hri = 0
 
         else:
-            hli_hcf = (2 * w2 * tstep - criaut * cf_mf[0, 0, 0]) ** 2 / (
-                2.0 * max(1.0e-20, w2 * tstep) ** 2
+            hli_hcf = (2 * w2 * dt - criaut * cf_mf[0, 0, 0]) ** 2 / (
+                2.0 * max(1.0e-20, w2 * dt) ** 2
             )
             hli_hri = (
-                4.0 * (w2 * tstep) ** 3
-                - 3.0 * w2 * tstep * (criaut * cf_mf[0, 0, 0]) ** 2
+                4.0 * (w2 * dt) ** 3
+                - 3.0 * w2 * dt * (criaut * cf_mf[0, 0, 0]) ** 2
                 + (criaut * cf_mf[0, 0, 0]) ** 3
-            ) / (3 * max(1.0e-20, w2 * tstep) ** 2)
+            ) / (3 * max(1.0e-20, w2 * dt) ** 2)
 
         hli_hcf *= cf_mf[0, 0, 0]
         hli_hcf = min(1, hli_hcf + hli_hcf)
