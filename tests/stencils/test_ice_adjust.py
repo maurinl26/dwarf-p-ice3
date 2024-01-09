@@ -28,40 +28,6 @@ logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
 
-def allocate_state(
-    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
-) -> DataArrayDict:
-    def _allocate(
-        grid_id: Tuple[DimSymbol, ...],
-        units: str,
-        dtype: Literal["bool", "float", "int"],
-    ) -> DataArray:
-        return allocate_data_array(
-            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
-        )
-
-    # allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
-    allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
-    # allocate_f_h = partial(
-    #     _allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float"
-    # )
-    # allocate_f_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
-    # allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
-
-    return {
-        "time": datetime(year=2024, month=1, day=1),
-        "f_sigqsat": allocate_f(),
-        "f_exnref": allocate_f(),  # ref exner pression
-        "f_exn": allocate_f(),
-        "f_rhodref": allocate_f(),
-        "f_pabs": allocate_f(),  # absolute pressure at t
-        "f_sigs": allocate_f(),  # Sigma_s at time t
-        "f_cf_mf": allocate_f(),  # convective mass flux fraction
-        "f_rc_mf": allocate_f(),  # convective mass flux liquid mixing ratio
-        "f_ri_mf": allocate_f(),
-    }
-
-
 def initialize_state_with_constant(
     state: DataArrayDict, C: float, gt4py_config: GT4PyConfig
 ) -> None:
@@ -76,6 +42,13 @@ def initialize_state_with_constant(
         "f_cf_mf",  # convective mass flux fraction
         "f_rc_mf",  # convective mass flux liquid mixing ratio
         "f_ri_mf",
+        "f_th",
+        "f_rv",
+        "f_rc",
+        "f_rr",
+        "f_ri",
+        "f_rs",
+        "f_rg",
     ]
 
     for name in keys:

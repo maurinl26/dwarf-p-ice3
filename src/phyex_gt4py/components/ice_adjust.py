@@ -52,6 +52,7 @@ class IceAdjust(ImplicitTendencyComponent):
                 "units": "",
             },  # coeff applied to qsat variance
             "f_exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
+            # TODO : remove exn (exn and exnref are equals in apl_arome)
             "f_exn": {"grid": (I, J, K), "units": ""},
             "f_rhodref": {"grid": (I, J, K), "units": ""},  #
             "f_pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
@@ -65,6 +66,14 @@ class IceAdjust(ImplicitTendencyComponent):
                 "units": "",
             },  # convective mass flux liquid mixing ratio
             "f_ri_mf": {"grid": (I, J, K), "units": ""},
+            "f_th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
+            "f_rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
+            "f_rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
+            "f_rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
+            "f_ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
+            "f_rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
+            "f_rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
+            # "f_ice_cld_wgt": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
@@ -74,15 +83,6 @@ class IceAdjust(ImplicitTendencyComponent):
             "f_rvs": {"grid": (I, J, K), "units": ""},  # PRS(1)
             "f_rcs": {"grid": (I, J, K), "units": ""},  # PRS(2)
             "f_ris": {"grid": (I, J, K), "units": ""},  # PRS(4)
-            "f_th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
-            "f_rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
-            "f_rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
-            "f_rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
-            "f_ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
-            "f_rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
-            "f_rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
-            "f_cldfr": {"grid": (I, J, K), "units": ""},
-            # "f_ice_cld_wgt": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
@@ -93,6 +93,7 @@ class IceAdjust(ImplicitTendencyComponent):
             # "f_ssio": {"grid": (I, J, K), "units": ""},
             # "f_ssiu": {"grid": (I, J, K), "units": ""},
             # "f_srcs": {"grid": (I, J, K), "units": ""},
+            "f_cldfr": {"grid": (I, J, K), "units": ""},
             "f_ifr": {"grid": (I, J, K), "units": ""},
             "f_hlc_hrc": {"grid": (I, J, K), "units": ""},
             "f_hlc_hcf": {"grid": (I, J, K), "units": ""},
@@ -117,7 +118,6 @@ class IceAdjust(ImplicitTendencyComponent):
             "sbar": {"grid": (I, J, K), "units": ""},
             "sigma": {"grid": (I, J, K), "units": ""},
             "q1": {"grid": (I, J, K), "units": ""},
-            # Missing fields
             "lv": {"grid": (I, J, K), "units": ""},
             "ls": {"grid": (I, J, K), "units": ""},
             "cph": {"grid": (I, J, K), "units": ""},
