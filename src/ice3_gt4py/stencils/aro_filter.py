@@ -109,7 +109,7 @@ def aro_filter(
         )
         ris[0, 0, 0] = ris[0, 0, 0] - cor_tmp[0, 0, 0]
 
-    # 9. Transform sources (*= 2 dt)
+    # 9. Transform sources to tendencies (*= 2 dt)
     with computation(PARALLEL), interval(...):
 
         rvs[0, 0, 0] = rvs[0, 0, 0] * 2 * dt

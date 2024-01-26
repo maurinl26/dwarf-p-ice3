@@ -66,7 +66,7 @@ def ice_adjust(
     q1: Field["float"],
     dt: "float",
 ):
-    """_summary_
+    """Microphysical adjustments for specific contents due to condensation.
 
     Args:
         sigqsat (Field[float]): _description_
@@ -105,16 +105,16 @@ def ice_adjust(
         ls (Field[float]): sublimation latent heat - guess at t+1
         criaut (Field[float]): autoconversion thresholds
         rt (Field[float]): total water m.r.
-        pv (Field[float]): _description_
-        piv (Field[float]): _description_
-        qsl (Field[float]): _description_
-        qsi (Field[float]): _description_
-        frac_tmp (Field[float]): _description_
-        cond_tmp (Field[float]): _description_
+        pv (Field[IJ, float]): saturation pressure over water 
+        piv (Field[IJ, float]): saturation pressure over ice
+        qsl (Field[float]): liquid created due to supersaturation
+        qsi (Field[float]): ice created due to supersaturation
+        frac_tmp (Field[float]): fraction of ice with respect to ice + liquid specific contents
+        cond_tmp (Field[float]): normalized stauration deficit
         a (Field[float]): _description_
-        sbar (Field[float]): _description_
-        sigma (Field[float]): _description_
-        q1 (Field[float]): _description_
+        sbar (Field[float]): supersaturation mean
+        sigma (Field[float]): total standard deviation (turbulence + convection)
+        q1 (Field[float]): deficit of stauration
         dt (float): timestep in seconds
     """
 
@@ -201,7 +201,7 @@ def ice_adjust(
         # Translation note : 276 -> 310 (not osigmas) skipped (osigmas = True) for Arome default version
         # Translation note : 316 -> 331 (ocnd2 == True) skipped
 
-        #
+        # 
         pv[0, 0, 0] = min(
             exp(alpw - betaw / t_tmp[0, 0, 0] - gamw * log(t_tmp[0, 0, 0])),
             0.99 * pabs[0, 0, 0],
@@ -238,7 +238,7 @@ def ice_adjust(
         sigma[0, 0, 0] = max(1e-10, sigma[0, 0, 0])
 
         # Translation notes : 469 -> 504 (hcondens = "CB02")
-        # normalized saturation deficit
+        # 9.2.3 Fractional cloudiness and cloud condensate
         q1[0, 0, 0] = sbar[0, 0, 0] / sigma[0, 0, 0]
         if q1 > 0:
             if q1 <= 2:
