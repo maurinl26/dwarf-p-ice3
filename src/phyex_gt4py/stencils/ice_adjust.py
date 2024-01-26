@@ -78,7 +78,31 @@ def ice_adjust(
     """_summary_
 
     Args:
-
+        sigqsat (Field[float]): 
+        exnref (Field[float]): reference exner pressure
+        exn (Field[float]): true exner pressure
+        rhodref (Field[float]): reference density
+        pabs (Field[float]): absolute pressure at t
+        sigs (Field[float]): standard deviation for subgrid supersaturation
+        cf_mf (Field[float]): cloud fraction mass flux from shallow convection
+        rc_mf (Field[float]): cloud droplet mass flux from shallow convection
+        ri_mf (Field[float]): ice mass flux from shallow convection 
+         
+        rv (Field[float]): water vapour content
+        ifr (Field[float]): ice 
+        hlc_hcf (Field[float]): _description_
+        hli_hri (Field[float]): _description_
+        hli_hcf (Field[float]): _description_
+        sigrc (Field[float]): _description_
+        rv_tmp (Field[float]): _description_
+        ri_tmp (Field[float]): _description_
+        rc_tmp (Field[float]): _description_
+        t_tmp (Field[float]): _description_
+        cph (Field[float]): _description_
+        frac_tmp (Field[float]): _description_
+        sigma (Field[float]): _description_
+        q1 (Field[float]): _description_
+        dt (float): _description_
     """
 
     from __externals__ import (

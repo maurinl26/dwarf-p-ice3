@@ -29,6 +29,25 @@ def aro_adjust(
     cph_tmp: Field["float"],
     cor_tmp: Field["float"],
 ):
+    """_summary_
+
+    Args:
+        dt (float): _description_
+        exnref (Field[float): _description_
+        tht (Field[float): _description_
+        ths (Field[float): _description_
+        rcs (Field[float): _description_
+        rrs (Field[float): _description_
+        ris (Field[float): _description_
+        rvs (Field[float): _description_
+        rgs (Field[float): _description_
+        rss (Field[float): _description_
+        t_tmp (Field[float): _description_
+        ls_tmp (Field[float): _description_
+        lv_tmp (Field[float): _description_
+        cph_tmp (Field[float): _description_
+        cor_tmp (Field[float): _description_
+    """
 
     # 3.1. Remove negative values
     with computation(PARALLEL), interval(...):
@@ -90,7 +109,7 @@ def aro_adjust(
         )
         ris[0, 0, 0] = ris[0, 0, 0] - cor_tmp[0, 0, 0]
 
-    # 9. Transform sources (*= 2 dt)
+    # 9. Transform sources to tendencies (*= 2 dt)
     with computation(PARALLEL), interval(...):
 
         rvs[0, 0, 0] = rvs[0, 0, 0] * 2 * dt
