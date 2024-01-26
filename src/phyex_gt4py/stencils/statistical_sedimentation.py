@@ -315,7 +315,7 @@ def terminal_velocity(
         cexvt,
         dc
     )
-    wlbda_tmp = 6.6e-8 * (101325 / pabst[0, 0, 0])*(tht[0, 0, 0] / 293.15)
+    wlbda_tmp = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
     wlbdc_tmp = (lbc * conc3d / (rhodref * content)) ** lbexc
     cc_tmp = cc * (1 + 1.26 * wlbda_tmp * wlbdc_tmp / ray)
     wsedw1 = rhodref ** (-cexvt) * wlbdc_tmp * (-dc) * cc_tmp * fsedc
