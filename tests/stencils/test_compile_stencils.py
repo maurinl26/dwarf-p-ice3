@@ -60,8 +60,8 @@ if __name__ == "__main__":
         "tt": 0,
     }
 
-    aro_adjust = compile_stencil(
-        "aro_adjust", default_python_config.gt4py_config, externals=externals
+    aro_filter = compile_stencil(
+        "aro_filter", default_python_config.gt4py_config, externals=externals
     )
 
     logging.info("Compilation succeeded")
