@@ -11,7 +11,7 @@ from phyex_gt4py.functions.ice_adjust import (
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
-@stencil_collection("aro_adjust")
+@stencil_collection("aro_filter")
 def aro_adjust(
     dt: "float",
     exnref: Field["float"],
