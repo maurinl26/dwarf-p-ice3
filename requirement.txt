@@ -1,3 +1,4 @@
+ifs_physics_common @ git+https://github.com/stubbiali/ifs-physics-common.git@main
 asttokens==2.4.1
 attrs==23.1.0
 black==23.10.1

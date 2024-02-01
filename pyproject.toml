@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "dwarf-phyex-gt4py"
 version = "0.1.0"
-description = "Externalized App for Arome/Meso-NH Microphysics in GT4Py"
+description = "Externalized App for ICE3 Microphysics in GT4Py"
 authors = ["Loïc Maurin <loic.maurin@meteo.fr>"]
 license = "\"CeCILL-C\""
 readme = "README.md"
