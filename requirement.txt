@@ -33,12 +33,12 @@ python-dateutil==2.8.2
 pytz==2023.3.post1
 scipy==1.11.3
 six==1.16.0
-sympl==0.4.1
+sympl
 tabulate==0.9.0
 tomli==2.0.1
 toolz==0.12.0
 typing-inspect==0.9.0
-typing_extensions==4.8.0
+typing_extensions
 tzdata==2023.3
 xarray==2023.10.1
 xxhash==3.0.0
