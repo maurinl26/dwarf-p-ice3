@@ -15,6 +15,7 @@ def ice4_fast_rg(
     ri_in: Field["float"],      # Pristine ice mixing ratio at time t (PRIT in f90)
     rg_in: Field["float"],      # Graupel mixing ratio at time t
     rc_in: Field["float"],      # Cloud droplets mixing ratio at time t
+    rs_in: Field["float"],      # Snow mixing ratio at time t
     ci_t: Field["float"],       # Pristine ice concentration at time t
     lbdar: Field["float"],      # Slope parameter of the raindrop distribution
     lbdas: Field["float"],      # Slope parameter of the aggregate distribution
@@ -37,6 +38,7 @@ def ice4_fast_rg(
         i_rtmin,
         r_rtmin,
         g_rtmin,
+        s_rtmin,
         icfrr,
         rcfri,
         exicfrr,
