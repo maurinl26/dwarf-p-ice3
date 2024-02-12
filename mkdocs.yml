@@ -2,7 +2,7 @@ site_name: dwarf-ice3-gt4py
 
 nav:
   - Home: index.md
-  - dwarf-ice3-gt4py: dwarf_ice3_gt4py.md
+  - Translation Notes: translation_notes.md
   - phyex_gt4py:
     - stencils: 
       - aro_filter: phyex_gt4py/stencils/aro_filter.md

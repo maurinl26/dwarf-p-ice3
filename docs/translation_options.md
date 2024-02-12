@@ -24,12 +24,9 @@ The options below have been retained concerning keys, in order to reproduce AROM
     l402 to l427 removed
 
 - JITER = 1 is retained since option to run many iterations cannot be passed as a configuration parameter in Fortran sources.
-    ITERATION subroutine have been removed and merged with ice_adjust main stencil
-
-    JITER evolve between 1 and ITERMAX in ice_adjust.F90, and ITERMAX=1 is hard coded in ice_adjust.F90
-
-
-    Following Langlois (1973), a unique iteration is needed to find zeros with satisfying precision
+    - ITERATION subroutine have been removed and merged with ice_adjust main stencil
+    - JITER evolve between 1 and ITERMAX in _ice_adjust.F90_, and ITERMAX=1 is hard coded in _ice_adjust.F90_
+    - Following Langlois (1973), a unique iteration is needed to find zeros with satisfying precision
 
 
 
