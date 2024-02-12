@@ -60,6 +60,8 @@ def allocate_state(
         "f_ri": allocate_f(),
         "f_rs": allocate_f(),
         "f_rg": allocate_f(),
+        "f_tht": allocate_f(),
+        "f_zzf": allocate_f(),
     }
 
 
