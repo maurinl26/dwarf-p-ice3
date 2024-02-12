@@ -12,8 +12,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 
 @stencil_collection("aro_filter")
-def aro_adjust(
-    dt: "float",
+def aro_filter(
     exnref: Field["float"],
     tht: Field["float"],
     ths: Field["float"],
@@ -28,7 +27,27 @@ def aro_adjust(
     lv_tmp: Field["float"],
     cph_tmp: Field["float"],
     cor_tmp: Field["float"],
+    dt: "float",
 ):
+    """_summary_
+
+    Args:
+        exnref (Field[float]): reference exner pressure
+        tht (Field[float]): potential temperature at time t
+        ths (Field[float]): potential temperature source
+        rcs (Field[float]): cloud droplets source
+        rrs (Field[float]): rain source 
+        ris (Field[float]): ice source
+        rvs (Field[float]): water vapour source 
+        rgs (Field[float]): graupel source
+        rss (Field[float]): snow source
+        t_tmp (Field[float]): temperature
+        ls_tmp (Field[float]): latent heat of sublimation
+        lv_tmp (Field[float]): latent heat of vapour
+        cph_tmp (Field[float]): specific heat of parcel
+        cor_tmp (Field[float]): temporary array for excess of vapour
+        dt (float): time step un seconds
+    """
 
     # 3.1. Remove negative values
     with computation(PARALLEL), interval(...):
