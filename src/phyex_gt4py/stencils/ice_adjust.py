@@ -18,58 +18,49 @@ from ifs_physics_common.framework.stencil import stencil_collection
 @stencil_collection("ice_adjust")
 def ice_adjust(
     # IN - Inputs
-    sigqsat: Field["float"],  # coeff applied to qsat variance
-    exnref: Field["float"],  # ref exner pression
+    sigqsat: Field["float"],    
+    exnref: Field["float"],     
     exn: Field["float"],
-    rhodref: Field["float"],  #
-    pabs: Field["float"],  # absolute pressure at t
-    sigs: Field["float"],  # Sigma_s at time t
-    cf_mf: Field["float"],  # convective mass flux fraction
-    rc_mf: Field["float"],  # convective mass flux liquid mixing ratio
-    ri_mf: Field["float"],  # convective mass flux ice mixing ratio
+    rhodref: Field["float"],  
+    pabs: Field["float"],  
+    sigs: Field["float"],  
+    cf_mf: Field["float"],  
+    rc_mf: Field["float"], 
+    ri_mf: Field["float"],  
     th: Field["float"],
-    rv: Field["float"],  # water vapour m.r. to adjust
-    rc: Field["float"],  # cloud water m.r. to adjust
-    ri: Field["float"],  # cloud ice m.r. to adjust
-    rr: Field["float"],  # rain water m.r. to adjust
-    rs: Field["float"],  # aggregate m.r. to adjust
-    rg: Field["float"],  # graupel m.r. to adjust
-    # INOUT - Tendencies
-    ths: Field["float"],  # theta source
-    rvs: Field["float"],  # water vapour m.r. source
-    rcs: Field["float"],  # cloud water m.r. source
-    ris: Field["float"],  # cloud ice m.r. at t+1
-    # OUT - Diagnostics
+    rv: Field["float"],  
+    rc: Field["float"], 
+    ri: Field["float"],  
+    rr: Field["float"],
+    rs: Field["float"],  
+    rg: Field["float"],  
+    ths: Field["float"],
+    rvs: Field["float"], 
+    rcs: Field["float"],
+    ris: Field["float"],
     cldfr: Field["float"],
-    # srcs: Field["float"],  # second order flux s at time t+1
-    # wcldfr: Field["float"],
-    # icldfr: Field["float"],
-    # ssio: Field["float"],
-    # ssiu: Field["float"],
-    ifr: Field["float"],  # ratio cloud ice moist part to dry part
+    ifr: Field["float"],  
     hlc_hrc: Field["float"],
     hlc_hcf: Field["float"],
     hli_hri: Field["float"],
     hli_hcf: Field["float"],
-    # Temporary fields
     sigrc: Field["float"],
     rv_tmp: Field["float"],
     ri_tmp: Field["float"],
     rc_tmp: Field["float"],
     t_tmp: Field["float"],
-    cph: Field["float"],  # guess of the CPh for the mixing
-    lv: Field["float"],  # guess of the Lv at t+1
-    ls: Field["float"],  # guess of the Ls at t+1
-    criaut: Field["float"],  # autoconversion thresholds
-    # Temporary fields # Condensation
-    rt: Field["float"],  # work array for total water mixing ratio
-    pv: Field["float"],  # thermodynamics
-    piv: Field["float"],  # thermodynamics
-    qsl: Field["float"],  # thermodynamics
+    cph: Field["float"],  
+    lv: Field["float"], 
+    ls: Field["float"],  
+    criaut: Field["float"],  
+    rt: Field["float"],  
+    pv: Field["float"],  
+    piv: Field["float"],  
+    qsl: Field["float"],  
     qsi: Field["float"],
-    frac_tmp: Field["float"],  # ice fraction
-    cond_tmp: Field["float"],  # condensate
-    a: Field["float"],  # related to computation of Sig_s
+    frac_tmp: Field["float"],  
+    cond_tmp: Field["float"],
+    a: Field["float"],  
     sbar: Field["float"],
     sigma: Field["float"],
     q1: Field["float"],
@@ -78,7 +69,53 @@ def ice_adjust(
     """_summary_
 
     Args:
-
+        sigqsat (Field[float]): _description_
+        exnref (Field[float]): reference exner pressure 
+        exn (Field[float]): true exner pressure
+        rhodref (Field[float]): reference density
+        pabs (Field[float]): absolute pressure at time t
+        sigs (Field[float]): _description_
+        cf_mf (Field[float]): convective mass flux cloud fraction             (from shallow convection)
+        rc_mf (Field[float]): convective mass flux liquid mixing ratio  (from shallow convection)
+        ri_mf (Field[float]): convective mass flux ice mixing ratio     (from shallow convection)
+        th (Field[float]): potential temperature
+        rv (Field[float]): water vapour m.r. to adjust
+        rc (Field[float]): cloud water m.r. to adjust
+        ri (Field[float]): cloud ice m.r. to adjust
+        rr (Field[float]): rain water m.r. to adjust
+        rs (Field[float]): snow m.r. to adjust
+        rg (Field[float]): graupel m.r. to adjust
+        ths (Field[float]): potential temperature source
+        rvs (Field[float]): water vapour source
+        rcs (Field[float]): cloud droplets source
+        ris (Field[float]): ice source
+        cldfr (Field[float]): cloud fraction
+        ifr (Field[float]): ratio cloud ice moist part to dry part 
+        hlc_hrc (Field[float]): _description_
+        hlc_hcf (Field[float]): _description_
+        hli_hri (Field[float]): _description_
+        hli_hcf (Field[float]): _description_
+        sigrc (Field[float]): _description_
+        rv_tmp (Field[float]): temp. array for vapour m.r.
+        ri_tmp (Field[float]): temp. array for ice m.r. 
+        rc_tmp (Field[float]): temp. array for cloud droplets m.r.
+        t_tmp (Field[float]): temp. array for temperature
+        cph (Field[float]): total specific heat
+        lv (Field[float]): vaporisation latent heat - guess at t+1
+        ls (Field[float]): sublimation latent heat - guess at t+1
+        criaut (Field[float]): autoconversion thresholds
+        rt (Field[float]): total water m.r.
+        pv (Field[float]): _description_
+        piv (Field[float]): _description_
+        qsl (Field[float]): _description_
+        qsi (Field[float]): _description_
+        frac_tmp (Field[float]): _description_
+        cond_tmp (Field[float]): _description_
+        a (Field[float]): _description_
+        sbar (Field[float]): _description_
+        sigma (Field[float]): _description_
+        q1 (Field[float]): _description_
+        dt (float): timestep in seconds
     """
 
     from __externals__ import (
