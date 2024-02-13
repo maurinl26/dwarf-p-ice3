@@ -1,27 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import logging
-from functools import partial
 from typing import TYPE_CHECKING
 import sys
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
-from phyex_gt4py.components.ice_adjust import IceAdjust
-from phyex_gt4py.initialisation.state import allocate_data_array, allocate_state
-from phyex_gt4py.initialisation.utils import initialize_field
+from phyex_gt4py.components.aro_adjust import AroAdjust
+from phyex_gt4py.initialisation.state import allocate_state
 from phyex_gt4py.phyex_common.phyex import Phyex
-from phyex_gt4py.drivers.config import default_python_config
 
 if TYPE_CHECKING:
-    from typing import Literal, Tuple
-
     from ifs_physics_common.framework.config import GT4PyConfig
-    from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
-    from ifs_physics_common.utils.typingx import DataArray, DataArrayDict
+    from ifs_physics_common.framework.grid import ComputationalGrid
+    from ifs_physics_common.utils.typingx import DataArrayDict
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -36,6 +31,7 @@ def initialize_state_with_constant(
         "f_sigqsat",
         "f_exnref",  # ref exner pression
         "f_exn",
+        "f_tht",
         "f_rhodref",
         "f_pabs",  # absolute pressure at t
         "f_sigs",  # Sigma_s at time t
@@ -89,12 +85,12 @@ if __name__ == "__main__":
     grid = ComputationalGrid(nx, ny, nz)
     dt = timedelta(seconds=1)
 
-    ice_adjust = IceAdjust(grid, gt4py_config, phyex_config)
+    aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
 
     # Test 1
     logging.debug("Test with 0")
     state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = ice_adjust(state, dt)
+    tends, diags = aro_adjust(state, dt)
     logging.debug(f"State : {state.keys()}")
     logging.debug(f"Tendencies : {tends.keys()}")
     logging.debug(f"Diagnostics : {diags.keys()}")
@@ -103,11 +99,11 @@ if __name__ == "__main__":
     # Test 2
     logging.debug("Test with 1")
     state = get_state_with_constant(grid, gt4py_config, 1)
-    tends, diags = ice_adjust(state, dt)
+    tends, diags = aro_adjust(state, dt)
     logging.debug("Test passed")
 
     # Test 3
     logging.debug("Test with 0.5")
     state = get_state_with_constant(grid, gt4py_config, 0.5)
-    tends, diags = ice_adjust(state, dt)
+    tends, diags = aro_adjust(state, dt)
     logging.debug("Test passed")
