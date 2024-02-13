@@ -228,12 +228,15 @@ class AroAdjust(ImplicitTendencyComponent):
                 name.split("_", maxsplit=1)[1]: state[name]
                 for name in self.input_properties
             }
+            # drop fields used for filtering
             inputs.pop("tht")
 
             tendencies = {
                 name.split("_", maxsplit=1)[1]: out_tendencies[name]
                 for name in self.tendency_properties
             }
+
+            # drop fields used for filtering
             tendencies.pop("rrs")
             tendencies.pop("rss")
             tendencies.pop("rgs")
