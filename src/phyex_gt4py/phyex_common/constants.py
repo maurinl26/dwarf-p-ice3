@@ -12,19 +12,19 @@ class Constants:
     Args:
 
         # 1. Fondamental constants
-        pi (float):
-        karman (float):
-        lightspeed (float):
-        planck (float):
-        boltz (float):
-        avogadro (float):
+        pi: (float)
+        karman: (float)
+        lightspeed: (float)
+        planck: (float)
+        boltz: (float)
+        avogadro: (float)
 
         # 2. Astronomical constants
-        day (float): day duration
-        siyea (float): sideral year duration
-        siday (float): sidearl day duration
-        nsday (int): number of seconds in a day
-        omega (flaot): earth rotation
+        day: (float) day duration
+        siyea: (float) sideral year duration
+        siday: (float) sidearl day duration
+        nsday: (int) number of seconds in a day
+        omega: (flaot) earth rotation
 
         # 3. Terrestrial geoide constants
         radius: (float): earth radius

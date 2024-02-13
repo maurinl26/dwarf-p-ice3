@@ -16,7 +16,40 @@ class VerticalLevelOrder(Enum):
 
 @dataclass
 class DIMPhyex:
-    """Specify dimensions and index for Phyex"""
+    """Specify index boundaries for PHYEX domain
+
+    Not used in dwarf-ice3-gt4py but reproduced for translation support
+    
+    # x dimension
+    nit: int  # Array dim
+    nib: int = field(init=False)  # First index
+    nie: int = field(init=False)  # Last index
+
+    # y dimension
+    njt: int
+    njb: int = field(init=False)
+    nje: int = field(init=False)
+
+    # z dimension
+    nkt: int  # Array total dimension on z (nz)
+    nkles: int  # Total physical k dimension
+
+    nka: int  # Near ground array index
+    nku: int  # Uppest atmosphere array index
+
+    nkb: int  # Near ground physical array index
+    nke: int  # Uppest atmosphere physical array index
+
+    nktb: int  # smaller index for the physical domain
+    nkte: int  # greater index for the physical domain
+
+    nibc: int
+    njbc: int
+    niec: int
+    nijt: int = field(init=False)  # horizontal packing
+    nijb: int = field(init=False)  # first index for horizontal packing
+    nije: int = field(init=False)  # last index for horizontal packing
+    """
 
     # x dimension
     nit: int  # Array dim
