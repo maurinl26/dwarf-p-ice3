@@ -6,6 +6,11 @@ from ifs_physics_common.utils.f2py import ported_class
 
 
 class FracIceAdjust(Enum):
+    """Enumeration for ice fraction adjustments modes
+    
+    T in case of AROME
+    
+    """
     T = 0
     O = 1
     N = 2
@@ -13,7 +18,12 @@ class FracIceAdjust(Enum):
 
 
 class FracIceShallow(Enum):
+    """Enumeration of ice fraction for shallow mass fluxes
+
+    T in case of AROME
+    """
     T = 0
+    S = 1
 
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_nebn.F90")
@@ -38,19 +48,17 @@ class Neb:
 
     hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    tminmix: float = field(default=273.16)  # minimum temperature for mixed phase
-    tmaxmix: float = field(default=253.16)  # maximum temperature for mixed phase
-    hgt_qs: float = field(default=False)  # switch for height dependant VQSIGSAT
-    frac_ice_adjust: FracIceAdjust = field(default="S")  # ice fraction for adjustments
-    frac_ice_shallow: str = field(default="S")  # ice fraction for shallow_mf
-    vsigqsat: float = field(default=0.02)  # coeff applied to qsat variance contribution
-    condens: str = field(default="CB02")  # subgrid condensation PDF
-    lambda3: str = field(default="CB")  # lambda3 choice for subgrid cloud scheme
-    statnw: bool = field(default=False)  # updated full statistical cloud scheme
-    sigmas: bool = field(
-        default=True
-    )  # switch for using sigma_s from turbulence scheme
-    subg_cond: bool = field(default=False)  # switch for subgrid condensation
+    tminmix: float = field(default=273.16)  
+    tmaxmix: float = field(default=253.16)  
+    hgt_qs: float = field(default=False)  
+    frac_ice_adjust: FracIceAdjust = field(default="S") 
+    frac_ice_shallow: str = field(default="S")  
+    vsigqsat: float = field(default=0.02)  
+    condens: str = field(default="CB02")  
+    lambda3: str = field(default="CB")  
+    statnw: bool = field(default=False)  
+    sigmas: bool = field(default=True)  
+    subg_cond: bool = field(default=False)  
 
     def __post_init__(self):
         if self.hprogram == "AROME":
