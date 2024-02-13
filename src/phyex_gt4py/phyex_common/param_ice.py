@@ -15,6 +15,65 @@ class SubGridMassFluxPDF(Enum):
 @ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
 @dataclass
 class ParamIce:
+    """
+    
+    hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
+
+    lwarm: bool             # Formation of rain by warm processes
+    lsedic: bool            # Enable the droplets sedimentation
+    ldeposc: bool           # Enable cloud droplets deposition
+
+    vdeposc: float          # Droplet deposition velocity
+
+    pristine_ice:           # Pristine ice type PLAT, COLU, or BURO
+    sedim: str              # Sedimentation calculation mode
+
+    lred: bool              # To use modified ice3/ice4 - to reduce time step dependency
+    lfeedbackt: bool 
+    levlimit: bool
+    lnullwetg: bool 
+    lwetgpost: bool
+    lnullweth: bool 
+    lwethpost: bool
+    snowriming: str         # OLD or M90 for Murakami 1990 formulation
+    fracm90: float
+    nmaxiter_micro: int     # max number of iterations for mixing ratio
+    mrstep: float           # max mixing ratio for mixing ratio splitting
+    lconvhg: bool           # Allow the conversion from hail to graupel
+    lcrflimit: bool         # Limit rain contact freezing to possible heat exchange
+
+    step_ts: float          # Approximative time step for time-splitting
+
+    subg_rc_rr_accr: str    # subgrid rc-rr accretion
+    subg_rr_evap: str       # subgrid rr evaporation
+    subg_rr_pdf: str        # pdf for subgrid precipitation
+    subg_aucv_rc: str       # type of subgrid rc->rr autoconv. method
+    subg_aucv_ri: str       # type of subgrid ri->rs autoconv. method
+    subg_mf_pdf: str        # PDF to use for MF cloud autoconversions
+
+    ladj_before: bool       # must we perform an adjustment before rain_ice call
+    ladj_after: bool        # must we perform an adjustment after rain_ice call
+    lsedim_after: bool      # sedimentation done before (.FALSE.) or after (.TRUE.) microphysics
+
+    split_maxcfl: float     # Maximum CFL number allowed for SPLIT scheme
+    lsnow_t: bool           # Snow parameterization from Wurtz (2021)
+
+    lpack_interp: bool
+    lpack_micro: bool 
+    lcriauti: bool 
+
+    npromicro: int
+
+    criauti_nam: float = field(default=0.2e-4)
+    acriauti_nam: float = field(default=0.06)
+    brcriauti_nam: float = field(default=-3.5)
+    t0criauti_nam: float = field(init=False)
+    criautc_nam: float = field(default=0.5e-3)
+    rdepsred_nam: float = field(default=1)
+    rdepgred_nam: float = field(default=1)
+    lcond2: bool = field(default=False)
+    frmin_nam: np.ndarray = field(init=False)
+    """
 
     hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
 
