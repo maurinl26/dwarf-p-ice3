@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from ifs_physics_common.framework.stencil import compile_stencil
 from phyex_gt4py.drivers.config import default_python_config
+from ifs_physics_common.framework.config import GT4PyConfig
 import sys
 import logging
 
@@ -9,59 +10,67 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 if __name__ == "__main__":
 
-    logging.info("Compile ice_adjust stencil")
+    for backend in ["numpy", "gt:cpu_ifirst", "gt:gpu", "cuda", "dace:cpu", "dace:gpu"]:
 
-    externals = {
-        "lvtt": 0,
-        "lstt": 0,
-        "tt": 0,
-        "subg_mf_pdf": 0,
-        "subg_cond": 0,
-        "cpd": 0,
-        "cpv": 0,
-        "Cl": 0,
-        "Ci": 0,
-        "tt": 0,
-        "alpw": 0,
-        "betaw": 0,
-        "gamw": 0,
-        "alpi": 0,
-        "betai": 0,
-        "gami": 0,
-        "Rd": 0,
-        "Rv": 0,
-        "frac_ice_adjust": 0,
-        "tmaxmix": 0,
-        "tminmix": 0,
-        "criautc": 0,
-        "tstep": 0,
-        "criauti": 0,
-        "acriauti": 0,
-        "bcriauti": 0,
-        "nrr": 6,
-    }
+        logging.info(f"Building on backend : {backend}")
 
-    ice_adjust = compile_stencil(
-        "ice_adjust", default_python_config.gt4py_config, externals=externals
-    )
+        gt4py_config = GT4PyConfig(
+            backend=backend, rebuild=True, validate_args=True, verbose=True
+        )
 
-    logging.info("Compilation succeeded")
+        logging.info("Compile ice_adjust stencil")
 
-    logging.info("Compile aro_adjust stencil")
+        externals = {
+            "lvtt": 0,
+            "lstt": 0,
+            "tt": 0,
+            "subg_mf_pdf": 0,
+            "subg_cond": 0,
+            "cpd": 0,
+            "cpv": 0,
+            "Cl": 0,
+            "Ci": 0,
+            "tt": 0,
+            "alpw": 0,
+            "betaw": 0,
+            "gamw": 0,
+            "alpi": 0,
+            "betai": 0,
+            "gami": 0,
+            "Rd": 0,
+            "Rv": 0,
+            "frac_ice_adjust": 0,
+            "tmaxmix": 0,
+            "tminmix": 0,
+            "criautc": 0,
+            "tstep": 0,
+            "criauti": 0,
+            "acriauti": 0,
+            "bcriauti": 0,
+            "nrr": 6,
+        }
 
-    externals = {
-        "lvtt": 0,
-        "lstt": 0,
-        "tt": 0,
-        "cpd": 0,
-        "cpv": 0,
-        "Cl": 0,
-        "Ci": 0,
-        "tt": 0,
-    }
+        ice_adjust = compile_stencil(
+            "ice_adjust", default_python_config.gt4py_config, externals=externals
+        )
 
-    aro_filter = compile_stencil(
-        "aro_filter", default_python_config.gt4py_config, externals=externals
-    )
+        logging.info("Compilation succeeded")
 
-    logging.info("Compilation succeeded")
+        logging.info("Compile aro_adjust stencil")
+
+        externals = {
+            "lvtt": 0,
+            "lstt": 0,
+            "tt": 0,
+            "cpd": 0,
+            "cpv": 0,
+            "Cl": 0,
+            "Ci": 0,
+            "tt": 0,
+        }
+
+        aro_filter = compile_stencil(
+            "aro_filter", default_python_config.gt4py_config, externals=externals
+        )
+
+        logging.info("Compilation succeeded")
