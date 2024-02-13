@@ -29,16 +29,16 @@ def aro_filter(
     cor_tmp: Field["float"],
     dt: "float",
 ):
-    """_summary_
+    """Negativity filter for sources
 
     Args:
         exnref (Field[float]): reference exner pressure
         tht (Field[float]): potential temperature at time t
         ths (Field[float]): potential temperature source
         rcs (Field[float]): cloud droplets source
-        rrs (Field[float]): rain source 
+        rrs (Field[float]): rain source
         ris (Field[float]): ice source
-        rvs (Field[float]): water vapour source 
+        rvs (Field[float]): water vapour source
         rgs (Field[float]): graupel source
         rss (Field[float]): snow source
         t_tmp (Field[float]): temperature
