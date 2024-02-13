@@ -2,9 +2,9 @@ site_name: dwarf-ice3-gt4py
 
 nav:
   - Home: index.md
-  - Translation Notes: translation_notes.md
+  - Translation Notes: translation_options.md
   - phyex_gt4py:
-    - stencils: 
+    - stencils:
       - aro_filter: phyex_gt4py/stencils/aro_filter.md
       - ice_adjust: phyex_gt4py/stencils/ice_adjust.md
     - components:
@@ -45,4 +45,3 @@ plugins:
   - mkdocstrings
 watch:
   - .
-
