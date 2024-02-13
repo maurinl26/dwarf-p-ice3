@@ -16,6 +16,12 @@ from phyex_gt4py.phyex_common.phyex import Phyex
 
 
 class IceAdjust(ImplicitTendencyComponent):
+    """Implicit Tendency Component calling
+    ice_adjust : saturation adjustment of temperature and mixing ratios
+
+    ice_adjust stencil is ice_adjust.F90 in PHYEX
+    """
+
     def __init__(
         self,
         computational_grid: ComputationalGrid,
@@ -52,7 +58,6 @@ class IceAdjust(ImplicitTendencyComponent):
                 "units": "",
             },  # coeff applied to qsat variance
             "f_exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
-            # TODO : remove exn (exn and exnref are equals in apl_arome)
             "f_exn": {"grid": (I, J, K), "units": ""},
             "f_rhodref": {"grid": (I, J, K), "units": ""},  #
             "f_pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
@@ -73,7 +78,6 @@ class IceAdjust(ImplicitTendencyComponent):
             "f_ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
             "f_rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
             "f_rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
-            # "f_ice_cld_wgt": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
@@ -88,11 +92,6 @@ class IceAdjust(ImplicitTendencyComponent):
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
         return {
-            # "f_icldfr": {"grid": (I, J, K), "units": ""},
-            # "f_wcldfr": {"grid": (I, J, K), "units": ""},
-            # "f_ssio": {"grid": (I, J, K), "units": ""},
-            # "f_ssiu": {"grid": (I, J, K), "units": ""},
-            # "f_srcs": {"grid": (I, J, K), "units": ""},
             "f_cldfr": {"grid": (I, J, K), "units": ""},
             "f_ifr": {"grid": (I, J, K), "units": ""},
             "f_hlc_hrc": {"grid": (I, J, K), "units": ""},
