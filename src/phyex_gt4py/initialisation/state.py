@@ -25,6 +25,16 @@ if TYPE_CHECKING:
 def allocate_state(
     computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
 ) -> NDArrayLikeDict:
+    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
+
+    Args:
+        computational_grid (ComputationalGrid): grid indexes
+        gt4py_config (GT4PyConfig): gt4py configuration
+
+    Returns:
+        NDArrayLikeDict: dictionnary of field with associated keys for field name
+    """
+
     def _allocate(
         grid_id: Tuple[DimSymbol, ...],
         units: str,
@@ -61,13 +71,20 @@ def allocate_state(
         "f_rs": allocate_f(),
         "f_rg": allocate_f(),
         "f_tht": allocate_f(),
-        "f_zzf": allocate_f(),
+        # "f_zzf": allocate_f(),
     }
 
 
 def initialize_state_with_constant(
     state: DataArrayDict, C: float, gt4py_config: GT4PyConfig
 ) -> None:
+    """Initialize fields of state dictionnary with a constant field.
+
+    Args:
+        state (DataArrayDict): dictionnary of state
+        C (float): constant value for initialization
+        gt4py_config (GT4PyConfig): configuration of gt4py
+    """
 
     keys = [
         "f_sigqsat",
@@ -86,6 +103,7 @@ def initialize_state_with_constant(
         "f_ri",
         "f_rs",
         "f_rg",
+        "f_tht",
     ]
 
     for name in keys:
@@ -95,6 +113,15 @@ def initialize_state_with_constant(
 def get_state(
     computational_grid: ComputationalGrid, *, gt4py_config: GT4PyConfig
 ) -> DataArrayDict:
+    """Create state dictionnary with allocation of tables and setup to a constant value.
+
+    Args:
+        computational_grid (ComputationalGrid): grid indexes
+        gt4py_config (GT4PyConfig): configuration for gt4py
+
+    Returns:
+        DataArrayDict: initialized dictionnary of state
+    """
     state = allocate_state(computational_grid, gt4py_config=gt4py_config)
     initialize_state_with_constant(state, 0.5)
     return state

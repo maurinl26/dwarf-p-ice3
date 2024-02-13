@@ -12,6 +12,14 @@ if TYPE_CHECKING:
 
 
 def initialize_storage_2d(storage: NDArrayLike, buffer: NDArray) -> None:
+    """Assign storage for 2D field in buffer
+
+    GPU (cupy) / CPU (numpy) compatible
+
+    Args:
+        storage (NDArrayLike): storage slot
+        buffer (NDArray): 2D field in buffer
+    """
     ni = storage.shape[0]
     mi = buffer.size
     nb = ni // mi
@@ -21,6 +29,14 @@ def initialize_storage_2d(storage: NDArrayLike, buffer: NDArray) -> None:
 
 
 def initialize_storage_3d(storage: NDArrayLike, buffer: NDArray) -> None:
+    """Assign storage for 3D field in buffer
+
+    GPU (cupy) / CPU (numpy) compatible
+
+    Args:
+        storage (NDArrayLike): storage slot
+        buffer (NDArray): 3D field in buffer
+    """
     ni, _, nk = storage.shape
     mi, mk = buffer.shape
     lk = min(nk, mk)
@@ -31,6 +47,15 @@ def initialize_storage_3d(storage: NDArrayLike, buffer: NDArray) -> None:
 
 
 def initialize_field(field: DataArray, buffer: NDArray) -> None:
+    """Initialize storage for a given field with dimension descriptor
+
+    Args:
+        field (DataArray): field to assign
+        buffer (NDArray): buffer
+
+    Raises:
+        ValueError: restriction to 2D or 3D fields
+    """
     if field.ndim == 2:
         initialize_storage_2d(field.data, buffer)
     elif field.ndim == 3:
