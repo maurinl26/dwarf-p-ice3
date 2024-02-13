@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 
 @dataclass
 class TBudgetConf:
+    """_summary_"""
+
     bu_enable: bool = field(default=False)
     budget_u: bool = field(default=False)
     budget_v: bool = field(default=False)

@@ -9,91 +9,89 @@ from ifs_physics_common.utils.f2py import ported_class
 class Constants:
     """Data class for physical constants
 
-    Args:
+    # 1. Fondamental constants
+    pi: (float)
+    karman: (float)
+    lightspeed: (float)
+    planck: (float)
+    boltz: (float)
+    avogadro: (float)
 
-        # 1. Fondamental constants
-        pi: (float)
-        karman: (float)
-        lightspeed: (float)
-        planck: (float)
-        boltz: (float)
-        avogadro: (float)
+    # 2. Astronomical constants
+    day: (float) day duration
+    siyea: (float) sideral year duration
+    siday: (float) sidearl day duration
+    nsday: (int) number of seconds in a day
+    omega: (flaot) earth rotation
 
-        # 2. Astronomical constants
-        day: (float) day duration
-        siyea: (float) sideral year duration
-        siday: (float) sidearl day duration
-        nsday: (int) number of seconds in a day
-        omega: (flaot) earth rotation
+    # 3. Terrestrial geoide constants
+    radius: (float): earth radius
+    gravity0: (float): gravity constant
 
-        # 3. Terrestrial geoide constants
-        radius: (float): earth radius
-        gravity0: (float): gravity constant
+    # 4. Reference pressure
+    # Ocean model cst same as 1D/CMO SURFEX
+    p00ocean: (float)  Ref pressure for ocean model
+    rho0ocean: (float) Ref density for ocean model
+    th00ocean: (float) Ref value for pot temp in ocean model
+    sa00ocean: (float) Ref value for salinity in ocean model
 
-        # 4. Reference pressure
-        # Ocean model cst same as 1D/CMO SURFEX
-        p00ocean: (float)  Ref pressure for ocean model
-        rho0ocean: (float) Ref density for ocean model
-        th00ocean: (float) Ref value for pot temp in ocean model
-        sa00ocean: (float) Ref value for salinity in ocean model
+    # Atmospheric model
+    p00: (float) Reference pressure
+    th00: (float) Ref value for potential temperature
 
-        # Atmospheric model
-        p00: (float) Reference pressure
-        th00: (float) Ref value for potential temperature
+    # 5. Radiation constants
+    stefan: (float) Stefan-Boltzman constant
+    io: (float) Solar constant
 
-        # 5. Radiation constants
-        stefan: (float) Stefan-Boltzman constant
-        io: (float) Solar constant
+    # 6. Thermodynamic constants
+    Md: float          # Molar mass of dry air
+    Mv: float          # Molar mass of water vapour
+    Rd: float          # Gas constant for dry air
+    Rv: float          # Gas constant for vapour
+    epsilo: float      # Mv / Md
+    cpd: float         # Cpd (dry air)
+    cpv: float         # Cpv (vapour)
+    rholw: float       # Volumic mass of liquid water
+    Cl: float          # Cl (liquid)
+    Ci: float          # Ci (ice)
+    tt: float          # triple point temperature
+    lvtt: float        # vaporisation heat constant
+    lstt: float        # sublimation heat constant
+    lmtt: float        # melting heat constant
+    estt: float        # Saturation vapor pressure at triple point temperature
 
-        # 6. Thermodynamic constants
-        Md: float          # Molar mass of dry air
-        Mv: float          # Molar mass of water vapour
-        Rd: float          # Gas constant for dry air
-        Rv: float          # Gas constant for vapour
-        epsilo: float      # Mv / Md
-        cpd: float         # Cpd (dry air)
-        cpv: float         # Cpv (vapour)
-        rholw: float       # Volumic mass of liquid water
-        Cl: float          # Cl (liquid)
-        Ci: float          # Ci (ice)
-        tt: float          # triple point temperature
-        lvtt: float        # vaporisation heat constant
-        lstt: float        # sublimation heat constant
-        lmtt: float        # melting heat constant
-        estt: float        # Saturation vapor pressure at triple point temperature
+    alpw: float        # Constants for saturation vapor pressure function
+    betaw: float
+    gamw: float
 
-        alpw: float        # Constants for saturation vapor pressure function
-        betaw: float
-        gamw: float
+    alpi: float        # Constants for saturation vapor pressure function over solid ice
+    betai: float
+    gami: float
 
-        alpi: float        # Constants for saturation vapor pressure function over solid ice
-        betai: float
-        gami: float
+    condi: float       # Thermal conductivity of ice (W m-1 K-1)
+    alphaoc: float     # Thermal expansion coefficient for ocean (K-1)
+    betaoc: float      # Haline contraction coeff for ocean (S-1)
+    roc: float = 0.69  # coeff for SW penetration in ocean (Hoecker et al)
+    d1: float = 1.1    # coeff for SW penetration in ocean (Hoecker et al)
+    d2: float = 23.0   # coeff for SW penetration in ocean (Hoecker et al)
 
-        condi: float       # Thermal conductivity of ice (W m-1 K-1)
-        alphaoc: float     # Thermal expansion coefficient for ocean (K-1)
-        betaoc: float      # Haline contraction coeff for ocean (S-1)
-        roc: float = 0.69  # coeff for SW penetration in ocean (Hoecker et al)
-        d1: float = 1.1    # coeff for SW penetration in ocean (Hoecker et al)
-        d2: float = 23.0   # coeff for SW penetration in ocean (Hoecker et al)
+    rholi: float       # Volumic mass of ice
 
-        rholi: float       # Volumic mass of ice
+    # 7. Precomputed constants
+    Rd_Rv: float       # Rd / Rv
+    Rd_cpd: float      # Rd / cpd
+    invxp00: float     # 1 / p00
 
-        # 7. Precomputed constants
-        Rd_Rv: float       # Rd / Rv
-        Rd_cpd: float      # Rd / cpd
-        invxp00: float     # 1 / p00
-
-        # 8. Machine precision
-        mnh_tiny: float    # minimum real on this machine
-        mnh_tiny_12: float # sqrt(minimum real on this machine)
-        mnh_epsilon: float # minimum space with 1.0
-        mnh_huge: float    # minimum real on this machine
-        mnh_huge_12_log: float # maximum log(sqrt(real)) on this machine
-        eps_dt: float      # default value for dt
-        res_flat_cart: float   # default     flat&cart residual tolerance
-        res_other: float   # default not flat&cart residual tolerance
-        res_prep: float    # default     prep      residual tolerance
+    # 8. Machine precision
+    mnh_tiny: float    # minimum real on this machine
+    mnh_tiny_12: float # sqrt(minimum real on this machine)
+    mnh_epsilon: float # minimum space with 1.0
+    mnh_huge: float    # minimum real on this machine
+    mnh_huge_12_log: float # maximum log(sqrt(real)) on this machine
+    eps_dt: float      # default value for dt
+    res_flat_cart: float   # default     flat&cart residual tolerance
+    res_other: float   # default not flat&cart residual tolerance
+    res_prep: float    # default     prep      residual tolerance
 
     """
 
