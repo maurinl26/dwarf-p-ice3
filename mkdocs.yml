@@ -24,6 +24,15 @@ nav:
       - subgrid_mf: phyex_gt4py/functions/subgrid_mf
       - temperature: phyex_gt4py/functions/temperature
       - tiwmx: phyex_gt4py/functions/tiwmx
+    - phyex_common:
+      - budget: phyex_gt4py/phyex_common/budget
+      - constants: phyex_gt4py/phyex_common/constants
+      - dimphyex: phyex_gt4py/phyex_common/dimphyex
+      - nebn: phyex_gt4py/phyex_common/nebn
+      - param_ice: phyex_gt4py/phyex_common/param_ice
+      - phyex: phyex_gt4py/phyex_common/phyex
+      - rain_ice_descr: phyex_gt4py/phyex_common/rain_ice_descr
+      - rain_ice_param: phyex_gt4py/phyex_common/rain_ice_param
 
 theme: readthedocs
 plugins:
