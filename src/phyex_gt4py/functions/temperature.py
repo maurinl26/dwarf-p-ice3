@@ -14,7 +14,22 @@ def update_temperature(
     lv: Field["float"],
     ls: Field["float"],
     cpd: float,
-):
+) -> Field["float"]:
+    """Compute temperature given a change of mixing ratio in ice and liquid 
+
+    Args:
+        t (Field[float]): temperature to update
+        rc_in (Field[float]): previous cloud droplets m.r.
+        rc_out (Field[float]): updated cloud droplets m.r.
+        ri_in (Field[float]): previous ice m.r.
+        ri_out (Field[float]): updated ice m.r.
+        lv (Field[float]): latent heat of vaporisation
+        ls (Field[float]): latent heat of sublimation
+        cpd (float): specific heat at constant pressure for dry air
+
+    Returns:
+        Field[float]: updated temperature 
+    """
     t = (
         t[0, 0, 0]
         + (

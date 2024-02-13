@@ -9,7 +9,17 @@ from gt4py.cartesian.gtscript import Field, function
 @function
 def compute_frac_ice(
     t: Field["float"],
-):
+) -> Field["float"]:
+    """Compute ice fraction based on temperature
+    
+    frac_ice_adjust is the mode of calculation
+
+    Args:
+        t (Field[float&]): _description_
+
+    Returns:
+        _type_: _description_
+    """
 
     from __externals__ import frac_ice_adjust, tmaxmix, tminmix, tt
     

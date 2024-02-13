@@ -18,12 +18,12 @@ def subgrid_mf(
 
     Args:
         criaut (Field[float]): _description_
-        subg_mf_pdf (Field[float]): _description_
+        subg_mf_pdf (Field[float]): subgrid mass flux density of probability
         hl_hr (Field[float]): _description_
         hl_hc (Field[float]): _description_
-        cf_mf (Field[float]): _description_
+        cf_mf (Field[float]): cloud fraci
         w (Field[float]): _description_
-        tstep (float): time step
+        tstep (float): physical parametrization time step
 
     Returns:
         _type_: _description_
