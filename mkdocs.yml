@@ -33,6 +33,12 @@ nav:
       - phyex: phyex_gt4py/phyex_common/phyex
       - rain_ice_descr: phyex_gt4py/phyex_common/rain_ice_descr
       - rain_ice_param: phyex_gt4py/phyex_common/rain_ice_param
+    - initialisation:
+      - utils: phyex_gt4py/initialisation/utils
+      - reference: phyex_gt4py/initialisation/reference
+      - state: phyex_gt4py/initialisation/state
+    - drivers:
+      - config: phyex_gt4py/drivers/config
 
 theme: readthedocs
 plugins:
