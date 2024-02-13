@@ -14,6 +14,9 @@ class Phyex:
     """Data class for physics parametrizations
 
     Args:
+        program (Literal): Switch between Meso-NH and AROME
+        timestep (float): timestep for physical parametrizations
+    
         cst (Constants): Physical constants description
         param_icen (ParamIce): Control parameters for microphysics
         rain_ice_descrn (RainIceDescr): Microphysical descriptive constants
