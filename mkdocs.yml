@@ -10,6 +10,20 @@ nav:
     - components:
       - aro_adjust: phyex_gt4py/components/aro_adjust.md
       - ice_adjust: phyex_gt4py/components/ice_adjust.md
+    - functions:
+      - backup: phyex_gt4py/functions/backup
+      - compute_ice_frac: phyex_gt4py/functions/compute_ice_frac
+      - condensation_src_1d: phyex_gt4py/functions/condensation_src_1d
+      - erf: phyex_gt4py/functions/erf
+      - gamma: phyex_gt4py/functions/gamma
+      - ice_adjust: phyex_gt4py/functions/ice_adjust
+      - ice4_sedimentation_stat: phyex_gt4py/functions/ice4_sedimentation_stat
+      - icecloud: phyex_gt4py/functions/icecloud
+      - sign: phyex_gt4py/functions/sign
+      - src_1d: phyex_gt4py/functions/src_1d
+      - subgrid_mf: phyex_gt4py/functions/subgrid_mf
+      - temperature: phyex_gt4py/functions/temperature
+      - tiwmx: phyex_gt4py/functions/tiwmx
 
 theme: readthedocs
 plugins:
