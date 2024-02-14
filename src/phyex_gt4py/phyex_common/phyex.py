@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from typing import Literal, Tuple
+from phyex_gt4py.drivers.namel2config import Namparar
 
 from phyex_gt4py.phyex_common.constants import Constants
 from phyex_gt4py.phyex_common.nebn import Neb
@@ -16,7 +17,7 @@ class Phyex:
     Args:
         program (Literal): Switch between Meso-NH and AROME
         timestep (float): timestep for physical parametrizations
-    
+
         cst (Constants): Physical constants description
         param_icen (ParamIce): Control parameters for microphysics
         rain_ice_descrn (RainIceDescr): Microphysical descriptive constants
@@ -45,6 +46,7 @@ class Phyex:
     program: Literal["AROME", "MESO-NH"]
     timestep: float = field(default=1)
 
+    namparar: Namparar
     cst: Constants = field(init=False)
     param_icen: ParamIce = field(init=False)
     rain_ice_descrn: RainIceDescr = field(init=False)
