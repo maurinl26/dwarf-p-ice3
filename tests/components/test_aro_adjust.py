@@ -79,7 +79,7 @@ if __name__ == "__main__":
     phyex_config = Phyex(cprogram)
 
     gt4py_config = GT4PyConfig(
-        backend="numpy", rebuild=False, validate_args=True, verbose=True
+        backend="numpy", rebuild=False, validate_args=False, verbose=True
     )
 
     grid = ComputationalGrid(nx, ny, nz)
