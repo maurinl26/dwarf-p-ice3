@@ -1,10 +1,10 @@
-which python3
+echo "Check python version"
+python -c "import sys; print(sys.version)"
 
-echo "Updating PHYEX as a submodule"
+echo "Loading PHYEX as a submodule"
 git submodule update --init --recursive
 
 echo "Creating environment"
-
 python3 -m venv .venv
 
 echo "Installing requirements"
