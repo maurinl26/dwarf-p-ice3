@@ -5,6 +5,8 @@ import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
 from enum import Enum
 
+from phyex_gt4py.drivers.namel2config import Namparar
+
 
 class SubGridMassFluxPDF(Enum):
 
@@ -16,7 +18,7 @@ class SubGridMassFluxPDF(Enum):
 @dataclass
 class ParamIce:
     """
-    
+
     hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
 
     lwarm: bool             # Formation of rain by warm processes
@@ -29,20 +31,6 @@ class ParamIce:
     sedim: str              # Sedimentation calculation mode
 
     lred: bool              # To use modified ice3/ice4 - to reduce time step dependency
-    lfeedbackt: bool 
-    levlimit: bool
-    lnullwetg: bool 
-    lwetgpost: bool
-    lnullweth: bool 
-    lwethpost: bool
-    snowriming: str         # OLD or M90 for Murakami 1990 formulation
-    fracm90: float
-    nmaxiter_micro: int     # max number of iterations for mixing ratio
-    mrstep: float           # max mixing ratio for mixing ratio splitting
-    lconvhg: bool           # Allow the conversion from hail to graupel
-    lcrflimit: bool         # Limit rain contact freezing to possible heat exchange
-
-    step_ts: float          # Approximative time step for time-splitting
 
     subg_rc_rr_accr: str    # subgrid rc-rr accretion
     subg_rr_evap: str       # subgrid rr evaporation
@@ -59,8 +47,8 @@ class ParamIce:
     lsnow_t: bool           # Snow parameterization from Wurtz (2021)
 
     lpack_interp: bool
-    lpack_micro: bool 
-    lcriauti: bool 
+    lpack_micro: bool
+    lcriauti: bool
 
     npromicro: int
 
@@ -86,49 +74,34 @@ class ParamIce:
     pristine_ice: str = field(default="PLAT")  # Pristine ice type PLAT, COLU, or BURO
     sedim: str = field(default="SPLI")  # Sedimentation calculation mode
 
-    lred: bool = field(
-        default=True
-    )  # To use modified ice3/ice4 - to reduce time step dependency
-    lfeedbackt: bool = field(default=True)
-    levlimit: bool = field(default=True)
-    lnullwetg: bool = field(default=True)
-    lwetgpost: bool = field(default=True)
-    lnullweth: bool = field(default=True)
-    lwethpost: bool = field(default=True)
-    snowriming: str = field(default="M90")  # OLD or M90 for Murakami 1990 formulation
-    fracm90: float = field(default=0.1)
-    nmaxiter_micro: int = field(default=5)  # max number of iterations for mixing ratio
-    mrstep: float = field(default=5.0e-5)  # max mixing ratio for mixing ratio splitting
-    lconvhg: bool = field(default=False)  # Allow the conversion from hail to graupel
-    lcrflimit: bool = field(
-        default=True
-    )  # Limit rain contact freezing to possible heat exchange
-
-    step_ts: float = field(default=0)  # Approximative time step for time-splitting
+    # To use modified ice3/ice4 - to reduce time step dependency
+    lred: bool = field(default=True)
 
     subg_rc_rr_accr: str = field(default="NONE")  # subgrid rc-rr accretion
     subg_rr_evap: str = field(default="NONE")  # subgrid rr evaporation
     subg_rr_pdf: str = field(default="SIGM")  # pdf for subgrid precipitation
     subg_aucv_rc: str = field(default="NONE")  # type of subgrid rc->rr autoconv. method
     subg_aucv_ri: str = field(default="NONE")  # type of subgrid ri->rs autoconv. method
-    subg_mf_pdf: int = field(
-        default=SubGridMassFluxPDF.TRIANGLE.value
-    )  # PDF to use for MF cloud autoconversions
 
-    ladj_before: bool = field(
-        default=True
-    )  # must we perform an adjustment before rain_ice call
-    ladj_after: bool = field(
-        default=True
-    )  # must we perform an adjustment after rain_ice call
-    lsedim_after: bool = field(
-        default=False
-    )  # sedimentation done before (.FALSE.) or after (.TRUE.) microphysics
+    # PDF to use for MF cloud autoconversions
+    subg_mf_pdf: int = field(default=SubGridMassFluxPDF.TRIANGLE.value)
 
-    split_maxcfl: float = field(
-        default=0.8
-    )  # Maximum CFL number allowed for SPLIT scheme
-    lsnow_t: bool = field(default=False)  # Snow parameterization from Wurtz (2021)
+    # key for adjustment before rain_ice call
+    ladj_before: bool = field(default=True)
+
+    # key for adjustment after rain_ice call
+    ladj_after: bool = field(default=True)
+
+    # switch to perform sedimentation
+    # before (.FALSE.)
+    # or after (.TRUE.) microphysics
+    lsedim_after: bool = field(default=False)
+
+    # Maximum CFL number allowed for SPLIT scheme
+    split_maxcfl: float = field(default=0.8)
+
+    # Snow parameterization from Wurtz (2021)
+    lsnow_t: bool = field(default=False)
 
     lpack_interp: bool = field(default=True)
     lpack_micro: bool = field(default=True)

@@ -9,7 +9,7 @@ from ifs_physics_common.utils.f2py import ported_class
 class Constants:
     """Data class for physical constants
 
-    # 1. Fondamental constants
+    1. Fondamental constants
     pi: (float)
     karman: (float)
     lightspeed: (float)
@@ -17,33 +17,33 @@ class Constants:
     boltz: (float)
     avogadro: (float)
 
-    # 2. Astronomical constants
+    2. Astronomical constants
     day: (float) day duration
     siyea: (float) sideral year duration
     siday: (float) sidearl day duration
     nsday: (int) number of seconds in a day
     omega: (flaot) earth rotation
 
-    # 3. Terrestrial geoide constants
+    3. Terrestrial geoide constants
     radius: (float): earth radius
     gravity0: (float): gravity constant
 
-    # 4. Reference pressure
-    # Ocean model cst same as 1D/CMO SURFEX
+    4. Reference pressure
+    Ocean model constants identical to 1D/CMO SURFEX
     p00ocean: (float)  Ref pressure for ocean model
     rho0ocean: (float) Ref density for ocean model
     th00ocean: (float) Ref value for pot temp in ocean model
     sa00ocean: (float) Ref value for salinity in ocean model
 
-    # Atmospheric model
+    Atmospheric model
     p00: (float) Reference pressure
     th00: (float) Ref value for potential temperature
 
-    # 5. Radiation constants
+    5. Radiation constants
     stefan: (float) Stefan-Boltzman constant
     io: (float) Solar constant
 
-    # 6. Thermodynamic constants
+    6. Thermodynamic constants
     Md: float          # Molar mass of dry air
     Mv: float          # Molar mass of water vapour
     Rd: float          # Gas constant for dry air
@@ -60,7 +60,7 @@ class Constants:
     lmtt: float        # melting heat constant
     estt: float        # Saturation vapor pressure at triple point temperature
 
-    alpw: float        # Constants for saturation vapor pressure function
+    alpw: float        # Constants for saturation vapor pressure function over water
     betaw: float
     gamw: float
 
@@ -77,12 +77,12 @@ class Constants:
 
     rholi: float       # Volumic mass of ice
 
-    # 7. Precomputed constants
+    7. Precomputed constants
     Rd_Rv: float       # Rd / Rv
     Rd_cpd: float      # Rd / cpd
     invxp00: float     # 1 / p00
 
-    # 8. Machine precision
+    8. Machine precision
     mnh_tiny: float    # minimum real on this machine
     mnh_tiny_12: float # sqrt(minimum real on this machine)
     mnh_epsilon: float # minimum space with 1.0
