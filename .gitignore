@@ -2,7 +2,6 @@
 .venv
 data
 sandbox
-namelists
 
 .gt_cache/
 src/phyex_gt4py/__pycache__/
