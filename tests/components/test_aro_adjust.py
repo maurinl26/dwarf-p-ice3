@@ -108,6 +108,22 @@ if __name__ == "__main__":
     tends, diags = aro_adjust(state, dt)
     logging.debug("Test passed")
 
+    logging.info("gt:gpu backend")
+    gt4py_config = GT4PyConfig(
+        backend="gt:gpu", rebuild=False, validate_args=False, verbose=True
+    )
+
+    grid = ComputationalGrid(nx, ny, nz)
+    dt = timedelta(seconds=1)
+
+    aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
+
+    # Test 1
+    logging.debug("Test with 0")
+    state = get_state_with_constant(grid, gt4py_config, 0)
+    tends, diags = aro_adjust(state, dt)
+    logging.debug("Test passed")
+
     logging.info("dace:gpu backend")
     gt4py_config = GT4PyConfig(
         backend="dace:gpu", rebuild=False, validate_args=False, verbose=True
