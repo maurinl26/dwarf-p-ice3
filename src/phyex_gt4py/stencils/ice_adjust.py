@@ -18,28 +18,28 @@ from ifs_physics_common.framework.stencil import stencil_collection
 @stencil_collection("ice_adjust")
 def ice_adjust(
     # IN - Inputs
-    sigqsat: Field["float"],    
-    exnref: Field["float"],     
+    sigqsat: Field["float"],
+    exnref: Field["float"],
     exn: Field["float"],
-    rhodref: Field["float"],  
-    pabs: Field["float"],  
-    sigs: Field["float"],  
-    cf_mf: Field["float"],  
-    rc_mf: Field["float"], 
-    ri_mf: Field["float"],  
+    rhodref: Field["float"],
+    pabs: Field["float"],
+    sigs: Field["float"],
+    cf_mf: Field["float"],
+    rc_mf: Field["float"],
+    ri_mf: Field["float"],
     th: Field["float"],
-    rv: Field["float"],  
-    rc: Field["float"], 
-    ri: Field["float"],  
+    rv: Field["float"],
+    rc: Field["float"],
+    ri: Field["float"],
     rr: Field["float"],
-    rs: Field["float"],  
-    rg: Field["float"],  
+    rs: Field["float"],
+    rg: Field["float"],
     ths: Field["float"],
-    rvs: Field["float"], 
+    rvs: Field["float"],
     rcs: Field["float"],
     ris: Field["float"],
     cldfr: Field["float"],
-    ifr: Field["float"],  
+    ifr: Field["float"],
     hlc_hrc: Field["float"],
     hlc_hcf: Field["float"],
     hli_hri: Field["float"],
@@ -49,18 +49,18 @@ def ice_adjust(
     ri_tmp: Field["float"],
     rc_tmp: Field["float"],
     t_tmp: Field["float"],
-    cph: Field["float"],  
-    lv: Field["float"], 
-    ls: Field["float"],  
-    criaut: Field["float"],  
-    rt: Field["float"],  
-    pv: Field["float"],  
-    piv: Field["float"],  
-    qsl: Field["float"],  
+    cph: Field["float"],
+    lv: Field["float"],
+    ls: Field["float"],
+    criaut: Field["float"],
+    rt: Field["float"],
+    pv: Field["float"],
+    piv: Field["float"],
+    qsl: Field["float"],
     qsi: Field["float"],
-    frac_tmp: Field["float"],  
+    frac_tmp: Field["float"],
     cond_tmp: Field["float"],
-    a: Field["float"],  
+    a: Field["float"],
     sbar: Field["float"],
     sigma: Field["float"],
     q1: Field["float"],
@@ -70,7 +70,7 @@ def ice_adjust(
 
     Args:
         sigqsat (Field[float]): _description_
-        exnref (Field[float]): reference exner pressure 
+        exnref (Field[float]): reference exner pressure
         exn (Field[float]): true exner pressure
         rhodref (Field[float]): reference density
         pabs (Field[float]): absolute pressure at time t
@@ -90,14 +90,14 @@ def ice_adjust(
         rcs (Field[float]): cloud droplets source
         ris (Field[float]): ice source
         cldfr (Field[float]): cloud fraction
-        ifr (Field[float]): ratio cloud ice moist part to dry part 
+        ifr (Field[float]): ratio cloud ice moist part to dry part
         hlc_hrc (Field[float]): _description_
         hlc_hcf (Field[float]): _description_
         hli_hri (Field[float]): _description_
         hli_hcf (Field[float]): _description_
         sigrc (Field[float]): _description_
         rv_tmp (Field[float]): temp. array for vapour m.r.
-        ri_tmp (Field[float]): temp. array for ice m.r. 
+        ri_tmp (Field[float]): temp. array for ice m.r.
         rc_tmp (Field[float]): temp. array for cloud droplets m.r.
         t_tmp (Field[float]): temp. array for temperature
         cph (Field[float]): total specific heat
@@ -280,6 +280,7 @@ def ice_adjust(
         )
         rv_tmp[0, 0, 0] = rt[0, 0, 0] - rc_tmp[0, 0, 0] - ri_tmp[0, 0, 0] * prifact
 
+        # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
         sigrc[0, 0, 0] = sigrc[0, 0, 0] * min(3, max(1, 1 - q1[0, 0, 0]))
 
     # Translation note : end jiter
@@ -293,11 +294,15 @@ def ice_adjust(
         # 5.1 compute the sources
         w1 = max(w1, -rcs[0, 0, 0]) if w1 > 0 else min(w1, rvs[0, 0, 0])
         rvs[0, 0, 0] -= w1
-        rc_tmp[0, 0, 0] += w1
+        rcs[0, 0, 0] += w1
         ths[0, 0, 0] += w1 * lv[0, 0, 0] / (cph[0, 0, 0] * exnref[0, 0, 0])
 
-        w2 = max(w2, -ris[0, 0, 0]) if w1 > 0 else min(w2, rvs[0, 0, 0])
+        w2 = max(w2, -ris[0, 0, 0]) if w2 > 0 else min(w2, rvs[0, 0, 0])
+        rvs[0, 0, 0] -= w2
+        rcs[0, 0, 0] += w2
+        ths[0, 0, 0] += w2 * ls[0, 0, 0] / (cph[0, 0, 0] * exnref[0, 0, 0])
 
+        # 5.2  compute the cloud fraction cldfr
         if subg_cond == 0:
             if rcs[0, 0, 0] + ris[0, 0, 0] > 1e-12 / dt:
                 cldfr[0, 0, 0] = 1
@@ -334,7 +339,7 @@ def ice_adjust(
             if w1 * dt > cf_mf[0, 0, 0] * criaut:
                 hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w1 * dt)
                 hr = w1 * dt - (criaut * cf_mf[0, 0, 0]) ** 3 / (
-                    3 * max(1e-20, w1 * dt)
+                    3 * max(1e-20, w1 * dt) ** 2
                 )
 
             elif 2 * w1 * dt <= cf_mf[0, 0, 0] * criaut:
@@ -369,9 +374,9 @@ def ice_adjust(
 
         elif subg_mf_pdf == 1:
             if w2 * dt > cf_mf[0, 0, 0] * criaut:
-                hli_hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w2 * dt)
+                hli_hcf = 1 - 0.5 * ((criaut * cf_mf[0, 0, 0]) / (w2 * dt)) ** 2
                 hli_hri = w2 * dt - (criaut * cf_mf[0, 0, 0]) ** 3 / (
-                    3 * max(1e-20, w2 * dt)
+                    3 * (w2 * dt) ** 2
                 )
 
         elif 2 * w2 * dt <= cf_mf[0, 0, 0] * criaut:
@@ -380,13 +385,13 @@ def ice_adjust(
 
         else:
             hli_hcf = (2 * w2 * dt - criaut * cf_mf[0, 0, 0]) ** 2 / (
-                2.0 * max(1.0e-20, w2 * dt) ** 2
+                2.0 * (w2 * dt) ** 2
             )
             hli_hri = (
                 4.0 * (w2 * dt) ** 3
                 - 3.0 * w2 * dt * (criaut * cf_mf[0, 0, 0]) ** 2
                 + (criaut * cf_mf[0, 0, 0]) ** 3
-            ) / (3 * max(1.0e-20, w2 * dt) ** 2)
+            ) / (3 * (w2 * dt) ** 2)
 
         hli_hcf *= cf_mf[0, 0, 0]
         hli_hcf = min(1, hli_hcf + hli_hcf)
