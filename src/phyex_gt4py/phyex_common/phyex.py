@@ -46,7 +46,6 @@ class Phyex:
     program: Literal["AROME", "MESO-NH"]
     timestep: float = field(default=1)
 
-    namparar: Namparar
     cst: Constants = field(init=False)
     param_icen: ParamIce = field(init=False)
     rain_ice_descrn: RainIceDescr = field(init=False)
