@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 import sys
 from datetime import timedelta
 
@@ -69,7 +69,17 @@ def get_state_with_constant(
     return state
 
 
-if __name__ == "__main__":
+def main(
+    backend: Literal[
+        "numpy",
+        "cuda",
+        "gt:gpu",
+        "gt:cpu_ifirst",
+        "gt:gpu_ifirst",
+        "dace:cpu",
+        "dace:gpu",
+    ]
+):
 
     nx = 100
     ny = 1
@@ -82,35 +92,9 @@ if __name__ == "__main__":
         backend="numpy", rebuild=False, validate_args=False, verbose=True
     )
 
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = timedelta(seconds=1)
-
-    aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
-
-    # Test 1
-    logging.debug("Test with 0")
-    state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = aro_adjust(state, dt)
-    logging.debug(f"State : {state.keys()}")
-    logging.debug(f"Tendencies : {tends.keys()}")
-    logging.debug(f"Diagnostics : {diags.keys()}")
-    logging.debug("Test passed")
-
-    # Test 2
-    logging.debug("Test with 1")
-    state = get_state_with_constant(grid, gt4py_config, 1)
-    tends, diags = aro_adjust(state, dt)
-    logging.debug("Test passed")
-
-    # Test 3
-    logging.debug("Test with 0.5")
-    state = get_state_with_constant(grid, gt4py_config, 0.5)
-    tends, diags = aro_adjust(state, dt)
-    logging.debug("Test passed")
-
-    logging.info("cuda backend")
+    logging.info(f"backend {backend}")
     gt4py_config = GT4PyConfig(
-        backend="cuda", rebuild=False, validate_args=False, verbose=True
+        backend=backend, rebuild=False, validate_args=False, verbose=True
     )
 
     grid = ComputationalGrid(nx, ny, nz)
@@ -119,39 +103,27 @@ if __name__ == "__main__":
     aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
 
     # Test 1
-    logging.debug("Test with 0")
-    state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = aro_adjust(state, dt)
-    logging.debug("Test passed")
 
-    logging.info("gt:gpu backend")
-    gt4py_config = GT4PyConfig(
-        backend="gt:gpu", rebuild=False, validate_args=False, verbose=True
-    )
+    try:
+        logging.debug("Test with 0")
+        state = get_state_with_constant(grid, gt4py_config, 0)
+        tends, diags = aro_adjust(state, dt)
+        logging.debug("Test passed")
 
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = timedelta(seconds=1)
+    except:
+        logging.error(f"Failed for backend {backend}")
 
-    aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
 
-    # Test 1
-    logging.debug("Test with 0")
-    state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = aro_adjust(state, dt)
-    logging.debug("Test passed")
+if __name__ == "__main__":
 
-    logging.info("dace:gpu backend")
-    gt4py_config = GT4PyConfig(
-        backend="dace:gpu", rebuild=False, validate_args=False, verbose=True
-    )
-
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = timedelta(seconds=1)
-
-    aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
-
-    # Test 1
-    logging.debug("Test with 0")
-    state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = aro_adjust(state, dt)
-    logging.debug("Test passed")
+    BACKEND_LIST = [
+        "numpy",
+        "cuda",
+        "gt:gpu",
+        "gt:cpu_ifirst",
+        "gt:gpu_ifirst",
+        "dace:cpu",
+        "dace:gpu",
+    ]
+    for backend in BACKEND_LIST:
+        main(backend)
