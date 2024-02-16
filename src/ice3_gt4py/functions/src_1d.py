@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 from gt4py.cartesian.gtscript import function
+
 
 @function
 def src_1d(inq: int):

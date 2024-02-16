@@ -49,7 +49,7 @@ def cph(
     rs: Field["float"],
     rg: Field["float"],
 ) -> Field["float"]:
-    """Compute specific heat at constant pressure for a 
+    """Compute specific heat at constant pressure for a
     moist parcel given mixing ratios
 
     Returns:

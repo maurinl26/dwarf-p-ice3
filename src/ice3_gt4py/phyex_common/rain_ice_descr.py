@@ -11,7 +11,7 @@ from ifs_physics_common.utils.f2py import ported_class
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90")
 @dataclass
-class RainIceDescr:  
+class RainIceDescr:
     """Stores and compute distributions parameters for sedimentation
 
     m(D)    = XAx * D**XBx      : Mass-MaxDim relationship

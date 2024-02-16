@@ -19,7 +19,7 @@ class DIMPhyex:
     """Specify index boundaries for PHYEX domain
 
     Not used in dwarf-ice3-gt4py but reproduced for translation support
-    
+
     # x dimension
     nit: int  # Array dim
     nib: int = field(init=False)  # First index

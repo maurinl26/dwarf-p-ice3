@@ -7,10 +7,11 @@ from ifs_physics_common.utils.f2py import ported_class
 
 class FracIceAdjust(Enum):
     """Enumeration for ice fraction adjustments modes
-    
+
     T in case of AROME
-    
+
     """
+
     T = 0
     O = 1
     N = 2
@@ -22,6 +23,7 @@ class FracIceShallow(Enum):
 
     T in case of AROME
     """
+
     T = 0
     S = 1
 
@@ -48,17 +50,17 @@ class Neb:
 
     hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    tminmix: float = field(default=273.16)  
-    tmaxmix: float = field(default=253.16)  
-    hgt_qs: float = field(default=False)  
-    frac_ice_adjust: FracIceAdjust = field(default="S") 
-    frac_ice_shallow: str = field(default="S")  
-    vsigqsat: float = field(default=0.02)  
-    condens: str = field(default="CB02")  
-    lambda3: str = field(default="CB")  
-    statnw: bool = field(default=False)  
-    sigmas: bool = field(default=True)  
-    subg_cond: bool = field(default=False)  
+    tminmix: float = field(default=273.16)
+    tmaxmix: float = field(default=253.16)
+    hgt_qs: float = field(default=False)
+    frac_ice_adjust: FracIceAdjust = field(default="S")
+    frac_ice_shallow: str = field(default="S")
+    vsigqsat: float = field(default=0.02)
+    condens: str = field(default="CB02")
+    lambda3: str = field(default="CB")
+    statnw: bool = field(default=False)
+    sigmas: bool = field(default=True)
+    subg_cond: bool = field(default=False)
 
     def __post_init__(self):
         if self.hprogram == "AROME":

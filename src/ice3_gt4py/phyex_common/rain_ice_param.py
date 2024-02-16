@@ -15,7 +15,7 @@ from ifs_physics_common.utils.f2py import ported_class
 @dataclass
 class RainIceParam:
     """Constants for RainIce parametrization and source computation
-    
+
     # Constants dependencies
     cst: Constants
     rid: RainIceDescr
@@ -24,20 +24,20 @@ class RainIceParam:
     # Parameters for microphysical sources and transformations
     fsedc: Tuple[float]     # Constants for sedimentation fluxes of C
     fsedr: float            # Constants for sedimentation
-    exsedr: float 
-    fsedi: float  
-    excsedi: float  
-    exrsedi: float  
-    fseds: float 
-    exseds: float 
-    fsedg: float 
-    exsedg: float 
+    exsedr: float
+    fsedi: float
+    excsedi: float
+    exrsedi: float
+    fseds: float
+    exseds: float
+    fsedg: float
+    exsedg: float
 
     # Constants for heterogeneous ice nucleation HEN
-    nu10: float 
+    nu10: float
     alpha1: float = 4.5
     beta1: float = 0.6
-    nu20: float 
+    nu20: float
     alpha2: float = 12.96
     beta2: float = 0.639
     mnu0: float = 6.88e-13  # Mass of nucleated ice crystal
@@ -45,72 +45,72 @@ class RainIceParam:
     # Constants for homogeneous ice nucleation HON
     alpha3: float = -3.075
     beta3: float = 81.00356
-    hon: float 
+    hon: float
 
     # Constants for raindrop and evaporation EVA
-    scfac: float 
-    o0evar: float 
-    o1evar: float 
-    ex0evar: float 
-    ex1evar: float 
+    scfac: float
+    o0evar: float
+    o1evar: float
+    ex0evar: float
+    ex1evar: float
     o0depi: float           # deposition DEP on Ice
-    o2depi: float 
+    o2depi: float
     o0deps: float           # on Snow
-    o1deps: float 
-    ex0deps: float 
-    ex1deps: float 
-    rdepsred: float 
+    o1deps: float
+    ex0deps: float
+    ex1deps: float
+    rdepsred: float
     o0depg: float           # on Graupel
-    o1depg: float 
-    ex0depg: float 
-    ex1depg: float 
-    rdepgred: float 
+    o1depg: float
+    ex0depg: float
+    ex1depg: float
+    rdepgred: float
 
     # Constants for pristine ice autoconversion : AUT
     timauti: float = 1e-3   # Time constant at T=T_t
     texauti: float = 0.015
-    criauti: float 
-    t0criauti: float 
-    acriauti: float 
-    bcriauti: float 
+    criauti: float
+    t0criauti: float
+    acriauti: float
+    bcriauti: float
 
     # Constants for snow aggregation : AGG
     colis: float = 0.25     # Collection efficiency of I + S
     colexis: float = 0.05   # Temperature factor of the I+S collection efficiency
-    fiaggs: float 
-    exiaggs: float 
+    fiaggs: float
+    exiaggs: float
 
     # Constants for cloud droplet autoconversion AUT
     timautc: float = 1e-3
-    criautc: float 
+    criautc: float
 
     # Constants for cloud droplets accretion on raindrops : ACC
-    fcaccr: float 
-    excaccr: float 
+    fcaccr: float
+    excaccr: float
 
     # Constants for the riming of the aggregates : RIM
     dcslim: float = 0.007
     colcs: float = 1.0
-    excrimss: float 
-    crimss: float 
-    excrimsg: float 
-    crimsg: float 
+    excrimss: float
+    crimss: float
+    excrimsg: float
+    crimsg: float
 
-    excrimsg: float 
-    crimsg: float 
-    exsrimcg: float 
-    crimcg: float 
-    exsrimcg2: float 
-    rimcg2: float 
-    srimcg3: float 
+    excrimsg: float
+    crimsg: float
+    exsrimcg: float
+    crimcg: float
+    exsrimcg2: float
+    rimcg2: float
+    srimcg3: float
 
-    gaminc_bound_min: float 
-    gaminc_bound_max: float 
-    rimintp1: float 
-    rimintp2: float 
+    gaminc_bound_min: float
+    gaminc_bound_max: float
+    rimintp1: float
+    rimintp2: float
 
     ngaminc: int   # Number of tab. Lbda_s
-    
+
     """
 
     # Constants dependencies

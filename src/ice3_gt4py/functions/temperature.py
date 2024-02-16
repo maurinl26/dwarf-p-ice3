@@ -15,7 +15,7 @@ def update_temperature(
     ls: Field["float"],
     cpd: float,
 ) -> Field["float"]:
-    """Compute temperature given a change of mixing ratio in ice and liquid 
+    """Compute temperature given a change of mixing ratio in ice and liquid
 
     Args:
         t (Field[float]): temperature to update
@@ -28,7 +28,7 @@ def update_temperature(
         cpd (float): specific heat at constant pressure for dry air
 
     Returns:
-        Field[float]: updated temperature 
+        Field[float]: updated temperature
     """
     t = (
         t[0, 0, 0]

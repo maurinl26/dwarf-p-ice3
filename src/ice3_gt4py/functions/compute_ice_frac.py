@@ -11,7 +11,7 @@ def compute_frac_ice(
     t: Field["float"],
 ) -> Field["float"]:
     """Compute ice fraction based on temperature
-    
+
     frac_ice_adjust is the mode of calculation
 
     Args:
@@ -22,7 +22,7 @@ def compute_frac_ice(
     """
 
     from __externals__ import frac_ice_adjust, tmaxmix, tminmix, tt
-    
+
     frac_ice = 0
 
     # using temperature

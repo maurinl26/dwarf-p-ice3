@@ -11,7 +11,7 @@ def erf(
     pi: float,
     z: Field["float"],
 ) -> Tuple[float, float]:
-    """Compute the error function erf 
+    """Compute the error function erf
 
     Args:
         pi (float): pi constant
