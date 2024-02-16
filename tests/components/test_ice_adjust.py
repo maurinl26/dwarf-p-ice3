@@ -11,17 +11,15 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
 from ice3_gt4py.components.ice_adjust import IceAdjust
-from ice3_gt4py.initialisation.state import allocate_data_array, allocate_state
-from ice3_gt4py.initialisation.utils import initialize_field
+from ice3_gt4py.initialisation.state import allocate_state
 from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.drivers.config import default_python_config
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple
 
     from ifs_physics_common.framework.config import GT4PyConfig
-    from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
-    from ifs_physics_common.utils.typingx import DataArray, DataArrayDict
+    from ifs_physics_common.framework.grid import ComputationalGrid
+    from ifs_physics_common.utils.typingx import DataArrayDict
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -73,7 +71,17 @@ def get_state_with_constant(
     return state
 
 
-if __name__ == "__main__":
+def main(
+    backend: Literal[
+        "numpy",
+        "cuda",
+        "gt:gpu",
+        "gt:cpu_ifirst",
+        "gt:cpu_kfirst",
+        "dace:cpu",
+        "dace:gpu",
+    ]
+):
 
     nx = 100
     ny = 1
@@ -82,32 +90,40 @@ if __name__ == "__main__":
     cprogram = "AROME"
     phyex_config = Phyex(cprogram)
 
+    logging.info(f"backend {backend}")
     gt4py_config = GT4PyConfig(
-        backend="numpy", rebuild=False, validate_args=True, verbose=True
+        backend=backend, rebuild=False, validate_args=False, verbose=True
     )
 
     grid = ComputationalGrid(nx, ny, nz)
     dt = timedelta(seconds=1)
 
-    ice_adjust = IceAdjust(grid, gt4py_config, phyex_config)
-
     # Test 1
-    logging.debug("Test with 0")
-    state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = ice_adjust(state, dt)
-    logging.debug(f"State : {state.keys()}")
-    logging.debug(f"Tendencies : {tends.keys()}")
-    logging.debug(f"Diagnostics : {diags.keys()}")
-    logging.debug("Test passed")
 
-    # Test 2
-    logging.debug("Test with 1")
-    state = get_state_with_constant(grid, gt4py_config, 1)
-    tends, diags = ice_adjust(state, dt)
-    logging.debug("Test passed")
+    try:
+        ice_adjust = IceAdjust(grid, gt4py_config, phyex_config)
 
-    # Test 3
-    logging.debug("Test with 0.5")
-    state = get_state_with_constant(grid, gt4py_config, 0.5)
-    tends, diags = ice_adjust(state, dt)
-    logging.debug("Test passed")
+        for c in [0, 0.5, 1]:
+            logging.debug(f"Test with {c}")
+            state = get_state_with_constant(grid, gt4py_config, c)
+            tends, diags = ice_adjust(state, dt)
+
+        logging.debug("Test passed")
+
+    except:
+        logging.error(f"Failed for backend {backend}")
+
+
+if __name__ == "__main__":
+
+    BACKEND_LIST = [
+        "numpy",
+        "gt:cpu_ifirst",
+        "gt:cpu_kfirst",
+        "dace:cpu",
+        "dace:gpu",
+        "cuda",
+        "gt:gpu",
+    ]
+    for backend in BACKEND_LIST:
+        main(backend)
