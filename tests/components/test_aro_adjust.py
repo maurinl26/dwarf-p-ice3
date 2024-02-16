@@ -118,12 +118,12 @@ if __name__ == "__main__":
 
     BACKEND_LIST = [
         "numpy",
-        "cuda",
-        "gt:gpu",
         "gt:cpu_ifirst",
-        "gt:gpu_ifirst",
+        "gt:cpu_kfirst",
         "dace:cpu",
         "dace:gpu",
+        "cuda",
+        "gt:gpu",
     ]
     for backend in BACKEND_LIST:
         main(backend)
