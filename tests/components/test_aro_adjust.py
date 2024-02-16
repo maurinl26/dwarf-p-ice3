@@ -75,7 +75,7 @@ def main(
         "cuda",
         "gt:gpu",
         "gt:cpu_ifirst",
-        "gt:gpu_ifirst",
+        "gt:cpu_kfirst",
         "dace:cpu",
         "dace:gpu",
     ]
@@ -87,10 +87,6 @@ def main(
 
     cprogram = "AROME"
     phyex_config = Phyex(cprogram)
-
-    gt4py_config = GT4PyConfig(
-        backend="numpy", rebuild=False, validate_args=False, verbose=True
-    )
 
     logging.info(f"backend {backend}")
     gt4py_config = GT4PyConfig(

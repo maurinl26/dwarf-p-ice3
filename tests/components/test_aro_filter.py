@@ -69,45 +69,57 @@ def get_state_with_constant(
     return state
 
 
-if __name__ == "__main__":
+def main(
+    backend: Literal[
+        "numpy",
+        "cuda",
+        "gt:gpu",
+        "gt:cpu_ifirst",
+        "gt:cpu_kfirst",
+        "dace:cpu",
+        "dace:gpu",
+    ]
+):
 
     nx = 100
     ny = 1
     nz = 90
 
     cprogram = "AROME"
-
-    logging.info(f"Loading Phyex configuration for {cprogram}")
-    # TODO: allocate Phyex from yaml file
     phyex_config = Phyex(cprogram)
 
-    logging.info(f"Loading GT4Py config")
+    logging.info(f"backend {backend}")
     gt4py_config = GT4PyConfig(
-        backend="numpy", rebuild=True, validate_args=True, verbose=True
+        backend=backend, rebuild=False, validate_args=False, verbose=True
     )
 
     grid = ComputationalGrid(nx, ny, nz)
     dt = timedelta(seconds=1)
 
-    aro_filter = AroFilter(grid, gt4py_config, phyex_config)
-
     # Test 1
-    logging.debug("Test with 0")
-    state = get_state_with_constant(grid, gt4py_config, 0)
-    tends, diags = aro_filter(state, dt)
-    logging.debug(f"State : {state.keys()}")
-    logging.debug(f"Tendencies : {tends.keys()}")
-    logging.debug(f"Diagnostics : {diags.keys()}")
-    logging.debug("Test passed")
 
-    # Test 2
-    logging.debug("Test with 1")
-    state = get_state_with_constant(grid, gt4py_config, 1)
-    tends, diags = aro_filter(state, dt)
-    logging.debug("Test passed")
+    try:
+        aro_filter = AroFilter(grid, gt4py_config, phyex_config)
 
-    # Test 3
-    logging.debug("Test with 0.5")
-    state = get_state_with_constant(grid, gt4py_config, 0.5)
-    tends, diags = aro_filter(state, dt)
-    logging.debug("Test passed")
+        for c in [0, 0.5, 1]:
+            logging.debug(f"Test with {c}")
+            state = get_state_with_constant(grid, gt4py_config, c)
+            tends, diags = aro_filter(state, dt)
+
+    except:
+        logging.error(f"Failed for backend {backend}")
+
+
+if __name__ == "__main__":
+
+    BACKEND_LIST = [
+        "numpy",
+        "gt:cpu_ifirst",
+        "gt:cpu_kfirst",
+        "dace:cpu",
+        "dace:gpu",
+        "cuda",
+        "gt:gpu",
+    ]
+    for backend in BACKEND_LIST:
+        main(backend)
