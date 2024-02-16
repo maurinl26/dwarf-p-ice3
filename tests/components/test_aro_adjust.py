@@ -100,11 +100,10 @@ def main(
     grid = ComputationalGrid(nx, ny, nz)
     dt = timedelta(seconds=1)
 
-    aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
-
     # Test 1
 
     try:
+        aro_adjust = AroAdjust(grid, gt4py_config, phyex_config)
         logging.debug("Test with 0")
         state = get_state_with_constant(grid, gt4py_config, 0)
         tends, diags = aro_adjust(state, dt)
