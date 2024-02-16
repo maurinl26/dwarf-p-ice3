@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
 
-from phyex_gt4py.functions.ice_adjust import (
+from ice3_gt4py.functions.ice_adjust import (
     cph,
     vaporisation_latent_heat,
     sublimation_latent_heat,

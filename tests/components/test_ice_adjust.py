@@ -10,11 +10,11 @@ from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
-from phyex_gt4py.components.ice_adjust import IceAdjust
-from phyex_gt4py.initialisation.state import allocate_data_array, allocate_state
-from phyex_gt4py.initialisation.utils import initialize_field
-from phyex_gt4py.phyex_common.phyex import Phyex
-from phyex_gt4py.drivers.config import default_python_config
+from ice3_gt4py.components.ice_adjust import IceAdjust
+from ice3_gt4py.initialisation.state import allocate_data_array, allocate_state
+from ice3_gt4py.initialisation.utils import initialize_field
+from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3_gt4py.drivers.config import default_python_config
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple

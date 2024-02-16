@@ -9,9 +9,9 @@ from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
-from phyex_gt4py.components.aro_adjust import AroAdjust
-from phyex_gt4py.initialisation.state import allocate_state
-from phyex_gt4py.phyex_common.phyex import Phyex
+from ice3_gt4py.components.aro_adjust import AroAdjust
+from ice3_gt4py.initialisation.state import allocate_state
+from ice3_gt4py.phyex_common.phyex import Phyex
 
 if TYPE_CHECKING:
     from ifs_physics_common.framework.config import GT4PyConfig

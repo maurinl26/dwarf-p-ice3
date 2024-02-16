@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from ifs_physics_common.framework.stencil import compile_stencil
-from phyex_gt4py.drivers.config import default_python_config
+from ice3_gt4py.drivers.config import default_python_config
 from ifs_physics_common.framework.config import GT4PyConfig
 import sys
 import logging

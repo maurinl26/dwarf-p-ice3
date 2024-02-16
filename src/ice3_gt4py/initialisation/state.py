@@ -8,7 +8,7 @@ from gt4py.storage import ones
 
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
-from phyex_gt4py.initialisation.utils import initialize_field
+from ice3_gt4py.initialisation.utils import initialize_field
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple

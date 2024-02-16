@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from typing import Literal, Tuple
-from phyex_gt4py.drivers.namel2config import Namparar
+from ice3_gt4py.drivers.namel2config import Namparar
 
-from phyex_gt4py.phyex_common.constants import Constants
-from phyex_gt4py.phyex_common.nebn import Neb
-from phyex_gt4py.phyex_common.rain_ice_param import ParamIce, RainIceDescr, RainIceParam
+from ice3_gt4py.phyex_common.constants import Constants
+from ice3_gt4py.phyex_common.nebn import Neb
+from ice3_gt4py.phyex_common.rain_ice_param import ParamIce, RainIceDescr, RainIceParam
 from ifs_physics_common.utils.f2py import ported_class
 
 

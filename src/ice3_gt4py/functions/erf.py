@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, exp, function, sqrt
 from typing import Tuple
-from phyex_gt4py.functions.sign import sign
+from ice3_gt4py.functions.sign import sign
 
 
 @function

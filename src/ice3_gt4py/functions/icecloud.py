@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from gt4py.cartesian.gtscript import IJ, Field, function, sqrt
 
-from phyex_gt4py.functions.tiwmx import esati, esatw
+from ice3_gt4py.functions.tiwmx import esati, esatw
 
 
 @function

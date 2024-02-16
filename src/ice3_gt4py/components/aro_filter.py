@@ -13,7 +13,7 @@ from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.utils.typingx import PropertyDict, NDArrayLikeDict
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
-from phyex_gt4py.phyex_common.phyex import Phyex
+from ice3_gt4py.phyex_common.phyex import Phyex
 
 
 class AroFilter(ImplicitTendencyComponent):

@@ -4,8 +4,8 @@ from math import gamma
 from typing import List, Tuple
 
 import numpy as np
-from phyex_gt4py.phyex_common.constants import Constants
-from phyex_gt4py.phyex_common.param_ice import ParamIce
+from ice3_gt4py.phyex_common.constants import Constants
+from ice3_gt4py.phyex_common.param_ice import ParamIce
 from ifs_physics_common.utils.f2py import ported_class
 
 

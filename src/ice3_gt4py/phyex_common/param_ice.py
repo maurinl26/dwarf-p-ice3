@@ -5,7 +5,7 @@ import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
 from enum import Enum
 
-from phyex_gt4py.drivers.namel2config import Namparar
+from ice3_gt4py.drivers.namel2config import Namparar
 
 
 class SubGridMassFluxPDF(Enum):
