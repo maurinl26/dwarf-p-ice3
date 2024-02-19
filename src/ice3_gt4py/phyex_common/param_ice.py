@@ -18,6 +18,8 @@ class SubGridMassFluxPDF(Enum):
 @dataclass
 class ParamIce:
     """
+    Parameters for ice processes
+    Default values are taken from modd_param_icen.F90
 
     hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
 
