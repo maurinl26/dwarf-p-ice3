@@ -1,0 +1,2 @@
+ifs_physics_common @ git+https://github.com/maurinl26/ifs-physics-common
+f90nml==1.4.4

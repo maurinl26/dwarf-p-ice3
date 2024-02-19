@@ -1,0 +1,47 @@
+site_name: dwarf-ice3-gt4py
+
+nav:
+  - Home: index.md
+  - Translation Notes: translation_options.md
+  - phyex_gt4py:
+    - stencils:
+      - aro_filter: phyex_gt4py/stencils/aro_filter.md
+      - ice_adjust: phyex_gt4py/stencils/ice_adjust.md
+    - components:
+      - aro_adjust: phyex_gt4py/components/aro_adjust.md
+      - ice_adjust: phyex_gt4py/components/ice_adjust.md
+    - functions:
+      - backup: phyex_gt4py/functions/backup
+      - compute_ice_frac: phyex_gt4py/functions/compute_ice_frac
+      - condensation_src_1d: phyex_gt4py/functions/condensation_src_1d
+      - erf: phyex_gt4py/functions/erf
+      - gamma: phyex_gt4py/functions/gamma
+      - ice_adjust: phyex_gt4py/functions/ice_adjust
+      - ice4_sedimentation_stat: phyex_gt4py/functions/ice4_sedimentation_stat
+      - icecloud: phyex_gt4py/functions/icecloud
+      - sign: phyex_gt4py/functions/sign
+      - src_1d: phyex_gt4py/functions/src_1d
+      - subgrid_mf: phyex_gt4py/functions/subgrid_mf
+      - temperature: phyex_gt4py/functions/temperature
+      - tiwmx: phyex_gt4py/functions/tiwmx
+    - phyex_common:
+      - budget: phyex_gt4py/phyex_common/budget
+      - constants: phyex_gt4py/phyex_common/constants
+      - dimphyex: phyex_gt4py/phyex_common/dimphyex
+      - nebn: phyex_gt4py/phyex_common/nebn
+      - param_ice: phyex_gt4py/phyex_common/param_ice
+      - phyex: phyex_gt4py/phyex_common/phyex
+      - rain_ice_descr: phyex_gt4py/phyex_common/rain_ice_descr
+      - rain_ice_param: phyex_gt4py/phyex_common/rain_ice_param
+    - initialisation:
+      - utils: phyex_gt4py/initialisation/utils
+      - reference: phyex_gt4py/initialisation/reference
+      - state: phyex_gt4py/initialisation/state
+    - drivers:
+      - config: phyex_gt4py/drivers/config
+
+theme: readthedocs
+plugins:
+  - mkdocstrings
+watch:
+  - .

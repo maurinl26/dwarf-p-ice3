@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "dwarf-phyex-gt4py"
+version = "0.1.0"
+description = "Externalized App for ICE3 Microphysics in GT4Py"
+authors = ["Loïc Maurin <loic.maurin@meteo.fr>"]
+license = "\"CeCILL-C\""
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+ifs-physics-common = {git = "https://github.com/maurinl26/ifs-physics-common.git"}
+gt4py = "^1.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+virtualenv = "^20.25.0"
+pre-commit = "^3.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
