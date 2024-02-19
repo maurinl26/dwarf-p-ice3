@@ -72,3 +72,23 @@ The options below have been retained concerning keys, in order to reproduce AROM
 
 - option with hail (nrr=7) is not implemented
     therefore, PRH is not present
+
+
+### Rain ice
+
+- OELEC = .False. meaning electric charges are not sedimented
+    PQXT, PQXS, PPQXS are omitted in mode_ice4_sedimentation_split.F90
+
+    l465 to l475 removed in mode_ice4_sedimentation_split.F90
+    l486 to l489 removed in mode_ice4_sedimentation_split.F90
+    l504 to l512 removed in mode_ice4_sedimentation_split.F90 
+    l517 to l526 removed in mode_ice4_sedimentation_split.F90
+
+- OSEDIM_BEARD = .False. meaning electric forces have no effect on sedimentation
+    PEFIELDW
+
+- #ifdef REPRO48 set to True
+
+
+
+

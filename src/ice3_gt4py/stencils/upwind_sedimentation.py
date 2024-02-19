@@ -66,7 +66,17 @@ def upstream_sedimentation(
     # remaining time to be initialized
 
     # 2. Compute the fluxes
+    # l219 to l262
+    rcs_tnd -= rc_in / dt
+    ris_tnd -= ri_in / dt
+    rrs_tnd -= rr_in / dt
+    rss_tnd -= rs_in / dt
+    rgs_tnd -= rg_in / dt
+
+    # in internal_sedim_split
     # For cloud droplets
+    # TODO : encapsulation in do while
+    # TODO: extend by functions to other species
     with computation(PARALLEL), interval(...):
 
         wlbdc = (lbc_in * conc3d_in / (rhodref * rc_in)) ** lbexc
@@ -81,26 +91,94 @@ def upstream_sedimentation(
     # l723 : main part
     with computation(PARALLEL), interval(...):
 
-        # l726
-        if rc_in > c_rtmin and wsed_tmp > 1e-20 and remaining_time > 0:
-            max_tstep[0, 0] = min(
-                max_tstep,
-                split_maxcfl
-                * rhodref[0, 0, 0]
-                * rc_in[0, 0, 0]
-                * dz[0, 0, 0]
-                / wsed_tmp[0, 0, 0],
-            )
+        max_tstep = maximum_time_step(
+            c_rtmin, rhodref, max_tstep, rc_in, dz, wsed_tmp, remaining_time
+        )
 
     # l733
     # Ground level
     with computation(PARALLEL), interval(0, 1):
         remaining_time[0, 0] -= max_tstep[0, 0]
-        inst_rc_out[0, 0] += wsed_tmp[0, 0, 0] / rholw * (max_tstep / dt)
+        inst_rc_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
 
     # l738
     with computation(PARALLEL), interval(...):
-        mrchange_tmp = max[0, 0] * oorhodz * (wsed_tmp[0, 0, 1] - wsed_tmp[0, 0, 0])
-        rc_in += mrchange_tmp + rcs_tnd * max_tstep
-        rcs_tnd += mrchange_tmp / dt
-        fpr_c_out += wsed_tmp * (max_tstep / dt)
+        rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rcs_tnd, rc_in, dt)
+        fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
+
+
+@function
+def upper_air_flux(
+    wsed_tmp: Field["float"],
+    max_tstep: Field[IJ, "float"],
+    dt: "float",
+):
+
+    return wsed_tmp * (max_tstep / dt)
+
+
+@function
+def mixing_ratio_update(
+    max_tstep: Field[IJ, "float"],
+    oorhodz: Field["float"],
+    wsed: Field["float"],
+    rs_tnd: Field["float"],
+    r_in: Field["float"],
+    dt: "float",
+) -> Field["float"]:
+    """Update mixing ratio
+
+    Args:
+        max_tstep (Field[IJ, float]): maximum time step to use
+        oorhodz (Field[float]): 1 / (rho * dz)
+        wsed (Field[float]): sedimentation flux
+        rs_tnd (Field[float]): tendency for mixing ratio
+        r_in (Field[float]): mixing ratio at time t
+        dt (float): time step
+
+    Returns:
+        Field[float]: mixing ratio up to date
+    """
+
+    mrchange_tmp = max_tstep[0, 0] * oorhodz * (wsed[0, 0, 1] - wsed[0, 0, 0])
+    r_in += mrchange_tmp + rs_tnd * max_tstep
+    rs_tnd += mrchange_tmp / dt
+
+    return rs_tnd
+
+
+@function
+def maximum_time_step(
+    rtmin: "float",
+    rhodref: Field["float"],
+    max_tstep: Field[IJ, "float"],
+    r: Field["float"],
+    dz: Field["float"],
+    wsed_tmp: Field["float"],
+    remaining_time: Field["float"],
+):
+    from __externals__ import split_maxcfl
+
+    tstep = max_tstep
+    if r > rtmin and wsed_tmp > 1e-20 and remaining_time > 0:
+        tstep[0, 0] = min(
+            max_tstep,
+            split_maxcfl
+            * rhodref[0, 0, 0]
+            * r[0, 0, 0]
+            * dz[0, 0, 0]
+            / wsed_tmp[0, 0, 0],
+        )
+
+    return tstep
+
+
+@function
+def instant_precipitation(
+    wsed_tmp: Field["float"], max_tstep: Field["float"], dt: "float"
+) -> Field["float"]:
+
+    from __externals__ import rholw
+
+    return wsed_tmp[0, 0, 0] / rholw * (max_tstep / dt)
+
