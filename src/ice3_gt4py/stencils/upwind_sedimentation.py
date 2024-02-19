@@ -10,8 +10,8 @@ from ice3_gt4py.functions.temperature import update_temperature
 
 from ifs_physics_common.framework.stencil import stencil_collection
 
-# 
+#
 @stencil_collection("upstream_sedimentation")
 def upstream_sedimentation():
-    
+
     NotImplemented
