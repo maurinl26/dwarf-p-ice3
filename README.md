@@ -23,4 +23,8 @@ dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original sourc
 
 ## Microphysical Adjustments (Ice Adjust)
 
+There are three components available for microphysical adjustments, under _/src/ice3_gt4py/components_ directory:
+- IceAdjust (ice_adjust.py) : performs condensation and adjustements following supersaturation, and is the mirror of PHYEX's ice_adjust.F90,
+- AroFilter (aro_filter.py) : performs non-negative filtering on specific contents
+- AroAdjust (aro_adjust.py) : combines both stencil collections to reproduce aro_adjust.F90.
 ## Rain Ice
