@@ -4,6 +4,7 @@ import logging
 from typing import TYPE_CHECKING
 import sys
 from datetime import timedelta
+from typing import Literal
 
 from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
