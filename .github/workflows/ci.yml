@@ -30,11 +30,10 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: export PYTHONPATH=$PYTHONPATH:/home/runner/work/dwarf-p-ice3/dwarf-p-ice3/src
       - run: pip install mkdocs
       - run: pip install mkdocs-material
       - run: pip install mkdocstrings
       - run: pip install mkdocstrings-python
 
 
-      - run: mkdocs gh-deploy --force
+      - run: export PYTHONPATH=$PYTHONPATH:/home/runner/work/dwarf-p-ice3/dwarf-p-ice3/src && mkdocs gh-deploy --force
