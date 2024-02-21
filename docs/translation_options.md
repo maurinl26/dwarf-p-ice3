@@ -92,3 +92,5 @@ The options below have been retained concerning keys, in order to reproduce AROM
     It has been chosen to keep RERPO48 to True because it enforces a more compatible version of RainIce with operational settings
 
     To date (19-02-2024) the operational cycles runs with REPRO48 set to True
+
+    mode_ice4_fast_rs.F90
