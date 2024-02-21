@@ -21,7 +21,7 @@ def subgrid_mf(
         subg_mf_pdf (Field[float]): subgrid mass flux density of probability
         hl_hr (Field[float]): _description_
         hl_hc (Field[float]): _description_
-        cf_mf (Field[float]): cloud fraci
+        cf_mf (Field[float]): cloud fraction mass flux due to convection updraft
         w (Field[float]): _description_
         tstep (float): physical parametrization time step
 

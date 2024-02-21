@@ -11,14 +11,14 @@ def erf(
     pi: float,
     z: Field["float"],
 ) -> Tuple[float, float]:
-    """Compute the error function erf
+    """Compute the error function erf for gaussian distribution
 
     Args:
         pi (float): pi constant
         z (Field[float]): value for erf compuation
 
     Returns:
-        Tuple: reduced abscisse and erf value at z
+        Tuple: reduced value for x (x = - z / sqrt(2)) and erf value at z
     """
     gc = -z / sqrt(2)
     gv = 1 - sign(1, gc) * sqrt(1 - exp(-4 * gc**2 / pi))

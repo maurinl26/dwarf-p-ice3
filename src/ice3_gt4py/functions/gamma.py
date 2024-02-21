@@ -13,6 +13,14 @@ ZPI = 3.141592654
 
 
 def gamma(x: float) -> float:
+    """Return value of gamma law given x
+
+    Args:
+        x (float): _description_
+
+    Returns:
+        float: gamma law value
+    """
     if x < 0:
         zx = 1 - x
     else:
