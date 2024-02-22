@@ -14,6 +14,21 @@ class SubGridMassFluxPDF(Enum):
     TRIANGLE = 1
 
 
+# Stands for CSUBG_RC_RR_ACCR in modd_param_icen.F90
+# Default to NONE
+class SubgRRRCAccr(Enum):
+
+    NONE = 0
+    PRFR = 1
+
+
+class SubgRREvap(Enum):
+
+    NONE = 0
+    CLFR = 1
+    PRFR = 2
+
+
 @ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
 @dataclass
 class ParamIce:
@@ -79,8 +94,10 @@ class ParamIce:
     # To use modified ice3/ice4 - to reduce time step dependency
     lred: bool = field(default=True)
 
-    subg_rc_rr_accr: str = field(default="NONE")  # subgrid rc-rr accretion
-    subg_rr_evap: str = field(default="NONE")  # subgrid rr evaporation
+    subg_rc_rr_accr: int = field(
+        default=SubgRRRCAccr.NONE.value
+    )  # subgrid rc-rr accretion
+    subg_rr_evap: int = field(default=SubgRREvap.NONE.value)  # subgrid rr evaporation
     subg_rr_pdf: str = field(default="SIGM")  # pdf for subgrid precipitation
     subg_aucv_rc: str = field(default="NONE")  # type of subgrid rc->rr autoconv. method
     subg_aucv_ri: str = field(default="NONE")  # type of subgrid ri->rs autoconv. method
