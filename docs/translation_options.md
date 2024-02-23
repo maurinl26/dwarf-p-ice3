@@ -94,3 +94,5 @@ The options below have been retained concerning keys, in order to reproduce AROM
     To date (19-02-2024) the operational cycles runs with REPRO48 set to True
 
     mode_ice4_fast_rs.F90
+    mode_ice4_slow.F90      l118 to l120 // l138 to l142 kept
+                            l126 to l26  // l143 to l150 omitted
