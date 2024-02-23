@@ -31,6 +31,31 @@ def ice4_slow(
     ri_auts_tnd: Field["float"],
     rv_depg_tnd: Field["float"],
 ):
+    """Compute the slow processes
+
+    Args:
+        ldcompute (Field[float]): switch to activate processes computation on column
+        rhodref (Field[float]): reference density
+        t (Field[float]): temperature
+        ssi (Field[float]): supersaturation over ice
+        lv_fact (Field[float]): vaporisation latent heat
+        ls_fact (Field[float]): sublimation latent heat
+        rv_t (Field[float]): vapour mixing ratio at t
+        ri_t (Field[float]): ice m.r. at t
+        rs_t (Field[float]): snow m.r. at t
+        rg_t (Field[float]): graupel m.r. at t
+        lbdag (Field[float]): slope parameter of the graupel distribution
+        lbdas (Field[float]): slope parameter of the snow distribution
+        ai (Field[float]): thermodynamical function
+        cj (Field[float]): function to compute the ventilation factor
+        hli_hcf (Field[float]): low clouds cloud fraction
+        hli_hri (Field[float]): low clouds ice mixing ratio
+        rc_honi_tnd (Field[float]): homogeneous nucelation
+        rv_deps_tnd (Field[float]): deposition on snow
+        ri_aggs_tnd (Field[float]): aggregation on snow
+        ri_auts_tnd (Field[float]): autoconversion of ice
+        rv_depg_tnd (Field[float]): deposition on graupel
+    """
 
     from __externals__ import (
         tt,

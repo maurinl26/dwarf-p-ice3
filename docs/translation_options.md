@@ -83,6 +83,9 @@ The options below have been retained concerning keys, in order to reproduce AROM
     l486 to l489 removed in mode_ice4_sedimentation_split.F90
     l504 to l512 removed in mode_ice4_sedimentation_split.F90
     l517 to l526 removed in mode_ice4_sedimentation_split.F90
+    l151 is omitted in mode_ice4_slow.F90
+
+    PLATHAM_IAGGS field is omitted (contribution of electrical field to aggregation)
 
 - OSEDIM_BEARD = .False. meaning electric forces have no effect on sedimentation
     PEFIELDW
