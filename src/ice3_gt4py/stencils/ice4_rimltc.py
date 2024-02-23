@@ -8,29 +8,40 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 @stencil_collection("ice4_rimltc")
 def ice4_rimltc(
+    ldcompute: Field["float"],
     t: Field["float"],
     exn: Field["float"],
     lv_fact: Field["float"],
     ls_fact: Field["float"],
     tht: Field["float"],  # theta at time t
-    ri_in: Field["float"],  # rain water mixing ratio at t
-    rimltc_mr_out: Field["float"],
-    ld_compute: Field["float"],  # mask of computation
+    ri_t: Field["float"],  # rain water mixing ratio at t
+    rimltc_mr: Field["float"],
 ):
+    """Compute cloud ice melting process RIMLTC
+
+    Args:
+        ldcompute (Field[float]): switch to activate microphysical sources computation on column
+        t (Field[float]): temperature
+        exn (Field[float]): exner pressure
+        lv_fact (Field[float]): vaporisation latent heat
+        ls_fact (Field[float]): sublimation latent heat
+        tht (Field[float]): potential temperature at t
+        ri_t (Field[float]): cloud ice mixing ratio at t
+        rimltc_mr (Field[float]): mixing ratio change due to cloud ice melting
+    """
 
     from __externals__ import (
         tt,
         lfeedbackt,
     )
 
-    if ri_in > 0 and t > tt and ld_compute == 1:
-        rimltc_mr_out = ri_in
-        if lfeedbackt:
-            rimltc_mr_out = min(
-                rimltc_mr_out, max(0, (tht - tt / exn) / (ls_fact - lv_fact))
-            )
+    # 7.1 cloud ice melting
+    if ri_t > 0 and t > tt and ldcompute == 1:
+        rimltc_mr = ri_t
+
+        # limitation due to zero crossing of temperature
+        if lfeedbackt == 1:
+            rimltc_mr = min(rimltc_mr, max(0, (tht - tt / exn) / (ls_fact - lv_fact)))
 
     else:
-        rimltc_mr_out = 0
-
-    # TODO : stencil after rrhong in tendencies (3.3)
+        rimltc_mr = 0
