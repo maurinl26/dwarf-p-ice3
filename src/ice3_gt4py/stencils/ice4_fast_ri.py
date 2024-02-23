@@ -10,7 +10,7 @@ from ifs_physics_common.utils.f2py import ported_method
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_ri.F90")
 @stencil_collection("ice4_fast_ri")
 def ice4_fast_ri(
-    lcompute: Field["bool"],  # if bool is possible
+    ldcompute: Field["bool"],  # if bool is possible
     rhodref: Field["float"],
     lv_fact: Field["float"],
     ls_fact: Field["float"],
@@ -30,8 +30,8 @@ def ice4_fast_ri(
         lcompute (Field[bool]): switch to compute microphysical processes
         lv_fact (Field[float]): latent heat of vaporisation
         ls_fact (Field[float]): latent heat of sublimation
-        ai (Field[float]): _description_
-        cj (Field[float]): _description_
+        ai (Field[float]): thermodynamical function
+        cj (Field[float]): function to compute ventilation factor
         ci_t (Field[float]): _description_
         ssi (Field[float]): supersaturation over ice
         rc_in (Field[float]): cloud droplets mixing ratio at t
@@ -41,6 +41,7 @@ def ice4_fast_ri(
 
     from __externals__ import c_rtmin, i_rtmin, lbi, lbexi, o0depi, o2depi, di
 
+    # 7.2 Bergeron-Findeisen effect: RCBERI
     with computation(PARALLEL), interval(...):
 
         if (
@@ -48,7 +49,7 @@ def ice4_fast_ri(
             and rc_in > c_rtmin
             and ri_in > i_rtmin
             and ci_in > 1e-20
-            and lcompute
+            and ldcompute == 1
         ):
 
             rc_beri_tnd = min(
