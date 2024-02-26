@@ -99,3 +99,6 @@ The options below have been retained concerning keys, in order to reproduce AROM
     mode_ice4_fast_rs.F90
     mode_ice4_slow.F90      l118 to l120 // l138 to l142 kept
                             l126 to l26  // l143 to l150 omitted
+- A choice has been maid to remove hail from scheme since it is not used in Arome operationnal config
+
+    mode_ice4_fast_rg.F90   l300 to l316 removed
