@@ -31,6 +31,7 @@ def ice4_slow(
     rc_autr: Field["float"],  # autoconversion of rc for rr production
     rc_accr: Field["float"],  # accretion of r_c for r_r production
     rr_evap: Field["float"],  # evaporation of rr
+    ldsoft: int,
 ):
 
     from __externals__ import (
@@ -55,6 +56,8 @@ def ice4_slow(
         ex0evar,
         o1evar,
         ex1evar,
+        cpd,
+        epsilo,
     )
 
     # 4.2 compute the autoconversion of r_c for r_r : RCAUTR
@@ -99,4 +102,47 @@ def ice4_slow(
                     o0evar * lbda_r**ex0evar + o1evar * cj * ex1evar
                 )
 
-        # TODO : translate second option from line 178 to 227
+    # TODO : translate second option from line 178 to 227
+    # HSUBG_RR_EVAP=='CLFR' .OR. HSUBG_RR_EVAP=='PRFR'
+    with computation(PARALLEL), interval(...):
+
+        # HSUBG_RR_EVAP=='CLFR'
+        if subg_rr_evap == 1:
+            zw4 = 1  # precipitation fraction
+            zw3 = lbda_r
+
+        # HSUBG_RR_EVAP=='PRFR'
+        elif subg_rr_evap == 2:
+            zw4 = rf  # precipitation fraction
+            zw3 = lbda_r_rf
+
+        if rr_t > r_rtmin and zw4 > cf and ldcompute == 1:
+            if ldsoft == 0:
+
+                # outside the cloud (environment) the use of T^u (unsaturated) instead of T
+                # ! Bechtold et al. 1993
+
+                # ! T_l
+                thlt_tmp = tht - lvtt * tht / cpd / t * rc_t
+
+                # T^u = T_l = theta_l * (T/theta)
+                zw2 = thlt_tmp * t / tht
+
+                # saturation over water
+                rr_evav = exp(alpw - betaw / zw2 - gamw * log(zw2))
+
+                # s, undersaturation over water (with new theta^u)
+                usw = 1 - rv_t * (pres - rr_evav) / (epsilo * rr_evav)
+
+                rr_evav = (lvtt + (cpv - Cl) * (zw2 - tt)) ** 2 / (
+                    ka * Rv * zw2**2
+                ) + Rv * zw2 / (dv * rr_evav)
+                rr_evav = (
+                    max(0, usw)
+                    / (rhodref * rr_evav)
+                    * (o0evar * zw3**ex0evar + o1evar * cj * zw3**ex1evar)
+                )
+                rr_evav = rr_evav * (zw4 - cf)
+
+        else:
+            rr_evav = 0
