@@ -77,6 +77,7 @@ def ice4_fast_rg(
         fidryg,
         colexig,
         colig,
+        ldsoft,
     )
 
     # 6.1 rain contact freezing
@@ -84,25 +85,28 @@ def ice4_fast_rg(
 
         if ri_t > i_rtmin and rr_t > r_rtmin and ldcompute == 1:
 
-            ricfrrg = icfrr * ri_t * lbdar**exicfrr * rhodref ** (-cexvt)
-            rrcfrig = rcfri * ci_t * lbdar**exrcfri * rhodref ** (-cexvt)
+            # not LDSOFT : compute the tendencies
+            if ldsoft == 0:
 
-            if crflimit:
-                zw0d = max(
-                    0,
-                    min(
-                        1,
-                        (ricfrrg * Ci + rrcfrig * Cl)
-                        * (tt - t)
-                        / max(1e-20, lvtt * rrcfrig),
-                    ),
-                )
-                rrcfrig = zw0d * rrcfrig
-                ricffr = (1 - zw0d) * rrcfrig
-                ricfrrg = zw0d * ricfrrg
+                ricfrrg = icfrr * ri_t * lbdar**exicfrr * rhodref ** (-cexvt)
+                rrcfrig = rcfri * ci_t * lbdar**exrcfri * rhodref ** (-cexvt)
 
-            else:
-                ricfrr = 0
+                if crflimit:
+                    zw0d = max(
+                        0,
+                        min(
+                            1,
+                            (ricfrrg * Ci + rrcfrig * Cl)
+                            * (tt - t)
+                            / max(1e-20, lvtt * rrcfrig),
+                        ),
+                    )
+                    rrcfrig = zw0d * rrcfrig
+                    ricffr = (1 - zw0d) * rrcfrig
+                    ricfrrg = zw0d * ricfrrg
+
+                else:
+                    ricfrr = 0
 
         else:
             ricfrrg = 0
@@ -114,16 +118,19 @@ def ice4_fast_rg(
 
         if rg_t > g_rtmin and rc_t > r_rtmin and ldcompute == 1:
 
-            rg_rcdry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
-            rg_rcdry_tnd = rg_rcdry_tnd * fcdryg * rc_t
+            if ldsoft == 0:
+                rg_rcdry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
+                rg_rcdry_tnd = rg_rcdry_tnd * fcdryg * rc_t
 
         else:
             rg_rcdry_tnd = 0
 
         if rg_t > g_rtmin and ri_t > i_rtmin and ldcompute == 1:
-            rg_ridry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
-            rg_ridry_tnd = fidryg * exp(colexig * (t - tt)) * ri_t * rg_ridry_tnd
-            rg_riwet_tnd = rg_ridry_tnd / (colig * exp(colexig * (t - tt)))
+
+            if ldsoft == 0:
+                rg_ridry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
+                rg_ridry_tnd = fidryg * exp(colexig * (t - tt)) * ri_t * rg_ridry_tnd
+                rg_riwet_tnd = rg_ridry_tnd / (colig * exp(colexig * (t - tt)))
 
         else:
             rg_ridry_tnd = 0
@@ -141,7 +148,10 @@ def ice4_fast_rg(
             rg_rsdry_tnd = 0
             rg_rswet_tnd = 0
 
-    # TODO: translation from line 180
+    # TODO: l182 to 212
+    # if ldsoft == 0:
+    # Call interp micro
+
     # Translation note : #ifdef REPRO48 l191 to l198 kept in mode_ice4_fast_rg.F90
     # Translation note : #else REPRO49  l200 to l207 omitted in mode_ice4_fast_rg.F90
     # with computation(PARALLEL), interval(...):
