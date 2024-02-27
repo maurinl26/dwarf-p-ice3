@@ -6,7 +6,7 @@ from gt4py.cartesian.gtscript import Field, function, exp, log
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
-@stencil_collection("ice4_rimltc")
+@stencil_collection("ice4_warm")
 def ice4_slow(
     ldcompute: Field["int"],  # boolean field for microphysics computation
     rhodref: Field["float"],

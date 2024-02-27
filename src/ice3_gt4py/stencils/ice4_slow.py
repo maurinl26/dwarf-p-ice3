@@ -6,7 +6,7 @@ from gt4py.cartesian.gtscript import Field, function, exp
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
-@stencil_collection("ice4_rimltc")
+@stencil_collection("ice4_slow")
 def ice4_slow(
     ldcompute: Field["float"],  # boolean field to locate processes computation
     rhodref: Field["float"],
