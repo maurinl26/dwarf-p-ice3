@@ -79,16 +79,21 @@ The options below have been retained concerning keys, in order to reproduce AROM
 - OELEC = .False. meaning electric charges are not sedimented
     PQXT, PQXS, PPQXS are omitted in mode_ice4_sedimentation_split.F90
 
-    l465 to l475 removed in mode_ice4_sedimentation_split.F90
-    l486 to l489 removed in mode_ice4_sedimentation_split.F90
-    l504 to l512 removed in mode_ice4_sedimentation_split.F90
-    l517 to l526 removed in mode_ice4_sedimentation_split.F90
-    l151 is omitted in mode_ice4_slow.F90
+    - mode_ice4_sedimentation_split.F90
+        - l465 to l475 removed
+        - l486 to l489 removed
+        - l504 to l512 removed
+        - l517 to l526 removed
+    - mode_ice4_slow.F90
+        - l151 is omitted
 
-    PLATHAM_IAGGS field is omitted (contribution of electrical field to aggregation)
+
+- PLATHAM_IAGGS field is omitted (contribution of electrical field to aggregation)
+
 
 - OSEDIM_BEARD = .False. meaning electric forces have no effect on sedimentation
     PEFIELDW
+
 
 - #ifdef REPRO48 set to True
     REPRO48 is a flag to keep consistent results with cy48
@@ -96,9 +101,36 @@ The options below have been retained concerning keys, in order to reproduce AROM
 
     To date (19-02-2024) the operational cycles runs with REPRO48 set to True
 
-    mode_ice4_fast_rs.F90
-    mode_ice4_slow.F90      l118 to l120 // l138 to l142 kept
-                            l126 to l26  // l143 to l150 omitted
+    - mode_ice4_fast_rs.F90
+        - l115 to l117 kept
+        - l170 to l172 kept
+        - l189 to l191 kept
+        - l214 to l217 kept
+        - l360 to l365 kept
+        - l119 to l121 removed
+        - l174 to l178 removed
+        - l193 to l197 removed
+        - l219 to l223 removed
+        - l367 to l374 removed
+
+    - mode_ice4_slow.F90:
+        - l118 to l120 kept
+        - l138 to l142 kept
+        - l126 to l26  removed
+        - l143 to l150 removed
+    - mode_ice4_fast_rg.F90
+        - l192 to l198 kept
+        - l200 to l206 removed
+
+
 - A choice has been maid to remove hail from scheme since it is not used in Arome operationnal config
 
-    mode_ice4_fast_rg.F90   l300 to l316 removed
+    - mode_ice4_fast_rg.F90
+        - l300 to l316 removed
+    - mode_ice4_fast_rh.F90 is entirely removed
+
+- ice4_nucleation.func.h
+    - l65 to l71 removed : converted into the following statement statement
+    ```
+    if t < tt and rv_t > v_rtmin:
+    ```
