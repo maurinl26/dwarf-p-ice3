@@ -8,21 +8,21 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 @stencil_collection("ice4_slow")
 def ice4_slow(
-    ldcompute: Field["float"],  # boolean field to locate processes computation
+    ldcompute: Field["float"],
     rhodref: Field["float"],
     t: Field["float"],
-    ssi: Field["float"],  # supersaturation over ice
+    ssi: Field["float"],
     lv_fact: Field["float"],
     ls_fact: Field["float"],
-    rv_t: Field["float"],  # vapour mr at time t
+    rv_t: Field["float"],
     rc_t: Field["float"],
     ri_t: Field["float"],
     rs_t: Field["float"],
     rg_t: Field["float"],
-    lbdas: Field["float"],  # Slope parameter of the aggregate distribution
-    lbdag: Field["float"],  # Slope parameter of the graupel distribution
-    ai: Field["float"],  # Thermodynamical function PAI
-    cj: Field["float"],  # to compute the ventilation coeff
+    lbdas: Field["float"],
+    lbdag: Field["float"],
+    ai: Field["float"],
+    cj: Field["float"],
     hli_hcf: Field["float"],
     hli_hri: Field["float"],
     rc_honi_tnd: Field["float"],

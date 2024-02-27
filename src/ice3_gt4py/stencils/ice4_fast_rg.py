@@ -13,6 +13,7 @@ def ice4_fast_rg(
     ldcompute: Field["int"],
     t: Field["float"],
     rhodref: Field["float"],
+    pres: Field["float"],
     rv_t: Field["float"],
     rr_t: Field["float"],
     ri_t: Field["float"],
@@ -39,10 +40,11 @@ def ice4_fast_rg(
     rg_freez2_tnd: Field["float"],
     rg_mltr: Field["float"],
     gdry: Field["int"],
-    ldwetg: Field["int"], # bool, true if graupel grows in wet mode (out)
-    lldryg: Field["int"], # linked to gdry + temporary
+    ldwetg: Field["int"],  # bool, true if graupel grows in wet mode (out)
+    lldryg: Field["int"],  # linked to gdry + temporary
     rdryg_init_tmp: Field["float"],
-    rwetg_init_tmp: Field["float"]
+    rwetg_init_tmp: Field["float"],
+    zw_tmp: Field["float"],  # ZZW in Fortran
 ):
     """Compute fast graupel sources
 
@@ -51,14 +53,14 @@ def ice4_fast_rg(
         t (Field[float]): temperature
         rhodref (Field[float]): reference density
         ri_t (Field[float]): ice mixing ratio at t
-        
+
         rg_t (Field[float]): graupel m.r. at t
         rc_t (Field[float]): cloud droplets m.r. at t
         rs_t (Field[float]): snow m.r. at t
         ci_t (Field[float]): _description_
         dv (Field[float]): diffusivity of water vapor
         ka (Field[float]): thermal conductivity of the air
-        cj (Field[float]): function to compute the ventilation coefficient 
+        cj (Field[float]): function to compute the ventilation coefficient
         lbdar (Field[float]): slope parameter for rain
         lbdas (Field[float]): slope parameter for snow
         lbdag (Field[float]): slope parameter for graupel
@@ -106,14 +108,22 @@ def ice4_fast_rg(
         levlimit,
         alpi,
         betai,
-        gami
+        gami,
+        lwetgpost,
+        lnullwetg,
+        epsilo,
+        frdryg,
+        cxg,
+        lbdryg1,
+        lbdryg2,
+        lbsdryg3,
     )
 
     # 6.1 rain contact freezing
     with computation(PARALLEL), interval(...):
 
         if ri_t > i_rtmin and rr_t > r_rtmin and ldcompute == 1:
-            
+
             # not LDSOFT : compute the tendencies
             if ldsoft == 0:
 
@@ -146,7 +156,7 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
 
         if rg_t > g_rtmin and rc_t > r_rtmin and ldcompute == 1:
-            
+
             if ldsoft == 0:
                 rg_rcdry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
                 rg_rcdry_tnd = rg_rcdry_tnd * fcdryg * rc_t
@@ -155,7 +165,7 @@ def ice4_fast_rg(
             rg_rcdry_tnd = 0
 
         if rg_t > g_rtmin and ri_t > i_rtmin and ldcompute == 1:
-            
+
             if ldsoft == 0:
                 rg_ridry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
                 rg_ridry_tnd = fidryg * exp(colexig * (t - tt)) * ri_t * rg_ridry_tnd
@@ -176,92 +186,170 @@ def ice4_fast_rg(
             gdry = 0
             rg_rsdry_tnd = 0
             rg_rswet_tnd = 0
-       
-    # TODO: l181 to 243     
+
+    # TODO: l181 to 243
+    # TODO: translate CALL INTERP MICRO
+
+    # + WHERE GDRY
+    with computation(PARALLEL), interval(...):
+
+        # Translation note : #ifdef REPRO48 l192 to l198 kept
+        #                                   l200 to l206 removed
+        if gdry == 1:
+            rg_rswet_tnd = (
+                fsdryg
+                * zw_tmp
+                / colsg
+                * (lbdas * (cxs - bs))
+                * (lbdag**cxg)
+                * (rhodref ** (-cexvt))
+                * (
+                    lbsdryg1 / (lbdag**2)
+                    + lbsdryg2 / (lbdag * lbdas)
+                    + lbsdryg3 / (lbdas**2)
+                )
+            )
+
+            rg_rsdry_tnd = rg_rswet_tnd * colsg * exp(t - tt)
+
+    # 6.2.6 accreation of raindrops on the graupeln
+    with computation(PARALLEL), interval(...):
+
+        if rr_t < r_rtmin and rg_t < g_rtmin and ldcompute == 1:
+            gdry = 1
+        else:
+            gdry = 0
+            rg_rrdry_tnd = 0
+
+    # TODO : l224 to l230 interp_micro_2d
+
+    # l233
+    with computation(PARALLEL), interval(...):
+        rg_rrdry_tnd = (
+            frdyrg
+            * zw_tmp
+            * (lbdar ** (-4))
+            * (lbdag**cxg)
+            * (rhodref ** (-cexvt - 1))
+            * (
+                lbdryg1 / (lbdag**2)
+                + lbdryg2 / (lbdag * lbdar)
+                + lbdryg3 / (lbdar**2)
+            )
+        )
+
+    # l245
+    with computation(PARALLEL), interval(...):
+        rdryg_init_tmp = rg_rcdry_tnd + rg_ridry_tnd + rg_rsdry_tnd + rg_rrdry_tnd
 
     # Translation note l300 to l316 removed (no hail)
-    
+
     # Freezing rate and growth mode
-    # l251
+    # Translation note : l251 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
-        
+
         if rg_t > g_rtmin and ldcompute == 1:
-            
+
             # Duplicated code with ice4_fast_rs
             if ldsoft == 0:
                 rg_freez1_tnd = rv_t * pres / (epsilo + rv_t)
                 if levlimit:
-                    rg_freez1_tnd = min(rg_freez1_tnd, exp(alpi - betai / t - gami * log(t)) )
+                    rg_freez1_tnd = min(
+                        rg_freez1_tnd, exp(alpi - betai / t - gami * log(t))
+                    )
 
-                rg_freez1_tnd = ka * (tt - t) + dv * (lvtt + (cpv - Cl ) * (t - tt)) * (estt - rg_freez1_tnd) / (Rv * t)
-                rg_freez1_tnd *= (o0depg * lbdag ** ex0depg + o1depg * cj * lbdag ** ex1depg) / (rhodref * (lmtt - Cl * (tt - t)))
-                rg_freez2_tnd = (rhodref * (lmtt + (Ci - Cl) * (tt - t))) / (rhodref * (lmtt - Cl * (tt - t)))
-         
-            rwetg_init_tmp = max(rg_riwet_tnd + rg_rswet_tnd, max(0, rg_freez1_tnd + rg_freez2_tnd * (rg_riwet_tnd + rg_rswet_tnd)))
-            
+                rg_freez1_tnd = ka * (tt - t) + dv * (lvtt + (cpv - Cl) * (t - tt)) * (
+                    estt - rg_freez1_tnd
+                ) / (Rv * t)
+                rg_freez1_tnd *= (
+                    o0depg * lbdag**ex0depg + o1depg * cj * lbdag**ex1depg
+                ) / (rhodref * (lmtt - Cl * (tt - t)))
+                rg_freez2_tnd = (rhodref * (lmtt + (Ci - Cl) * (tt - t))) / (
+                    rhodref * (lmtt - Cl * (tt - t))
+                )
+
+            rwetg_init_tmp = max(
+                rg_riwet_tnd + rg_rswet_tnd,
+                max(0, rg_freez1_tnd + rg_freez2_tnd * (rg_riwet_tnd + rg_rswet_tnd)),
+            )
+
             # Growth mode
             # TODO : convert logical to int operations
-            ldwetg = max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd) <= max(rdryg_init_tmp - rg_ridry_tnd - rg_rsdry_tnd)
-                 
+            ldwetg = max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd) <= max(
+                rdryg_init_tmp - rg_ridry_tnd - rg_rsdry_tnd
+            )
+
             if lnullwetg == 1:
                 ldwetg = ldwetg and rdryg_init_tmp > 0
             else:
-                ldwetg = ldwetg and rwetg_init_tmp >0
-                
+                ldwetg = ldwetg and rwetg_init_tmp > 0
+
             if lwetgpost == 0:
                 ldwetg = ldwetg and t < tt
-            
-            lldryg = t < tt and rdryg_init_tmp and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd) > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
-            
+
+            lldryg = (
+                t < tt
+                and rdryg_init_tmp
+                and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
+                > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
+            )
+
         else:
             rg_freez1_tnd = 0
             rg_freez2_tnd = 0
             rwetg_init_tmp = 0
             ldwetg == 0
             lldryg == 0
-        
-    # l317 
+
+    # l317
     with computation(PARALLEL), interval(...):
-        
+
         if ldwetg == 1:
             # TODO : rwetg_init_tmp to instanciate
             rr_wetg = -(rg_riwet_tnd + rg_rswet_tnd + rg_rcdry_tnd - rwetg_init_tmp)
             rc_wetg = rg_rcdry_tnd
             ri_wetg = rg_riwet_tnd
             rs_wetg = rg_rswet_tnd
-            
+
         else:
             rr_wetg = 0
             rc_wetg = 0
             ri_wetg = 0
             rs_wetg = 0
-            
+
         if lldryg == 1:
             rc_dry = rg_rcdry_tnd
             rr_dry = rg_rrdry_tnd
             ri_dry = rg_ridry_tnd
             rs_dry = rg_rsdry_tnd
-            
+
         else:
             rc_dry = 0
             rr_dry = 0
             ri_dry = 0
             rs_dry = 0
-            
-            
-    
+
     # 6.5 Melting of the graupel
     with computation(PARALLEL), interval(...):
-        
+
         if rg_t > g_rtmin and t > tt and ldcompute == 1:
             if ldsoft == 0:
                 rg_mltr = rv_t * pres / (epsilo + rv_t)
                 if levlimit == 1:
                     rg_mltr = min(rg_mltr, exp(alpw - betaw / t - gamw * log(t)))
-                    
-                rg_mltr = ka * (tt - t) + dv * (lvtt + (cpv - Cl ) * (t - tt)) * (estt - rg_mltr) / (Rv * t) 
-                rg_mltr = max(0, (-rg_mltr * (o0depg * lbdag ** ex0depg + o1depg * cj * lbdag ** ex1depg) - (rg_rcdry_tnd + rg_rrdry_tnd) * (rhodref * Cl * (tt - t))) / (rhodref * lmtt))
+
+                rg_mltr = ka * (tt - t) + dv * (lvtt + (cpv - Cl) * (t - tt)) * (
+                    estt - rg_mltr
+                ) / (Rv * t)
+                rg_mltr = max(
+                    0,
+                    (
+                        -rg_mltr
+                        * (o0depg * lbdag**ex0depg + o1depg * cj * lbdag**ex1depg)
+                        - (rg_rcdry_tnd + rg_rrdry_tnd) * (rhodref * Cl * (tt - t))
+                    )
+                    / (rhodref * lmtt),
+                )
 
         else:
             rg_mltr = 0
-            
