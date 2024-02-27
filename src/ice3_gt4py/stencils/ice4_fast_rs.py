@@ -48,6 +48,7 @@ def ice4_fast_rs(
     zw1_tmp: Field["float"],  # used by interp_micro
     zw2_tmp: Field["float"],  # used by interp_micro
     zw3_tmp: Field["float"],
+    ldsoft: bool,
 ):
 
     from __externals__ import (
@@ -282,3 +283,43 @@ def ice4_fast_rs(
             rs_accrg_out = 0
 
     # 5.3 Conversion-Melting of the aggregates
+    with computation(PARALLEL), interval(...):
+        if rs_t < s_rtmin and t > tt and ldcompute:
+            if not ldsoft:
+                rs_mltg_tnd = rv_t * pres / (epsilo + rv_t)
+                if levlimit:
+                    rs_mltg_tnd = min(
+                        rs_mltg_tnd, exp(alpw - betaw / t - gamw * log(t))
+                    )
+                rs_mltg_tnd = ka * (tt - t) + (
+                    dv
+                    * (lvtt + (cpv - Cl) * (t - tt))
+                    * (estt - rs_mltg_tnd)
+                    / (Rv * t)
+                )
+
+                # Tranlsation note : #ifdef REPRO48 l360 to l365 kept
+                #                                   l367 to l374 removed
+                rs_mltg_tnd = fscvmg * max(
+                    0,
+                    (
+                        -rs_mltg_tnd
+                        * (o0deps * lbda_s**ex0deps + o1deps * cj * lbda_s * ex1deps)
+                        - (rs_rcrims_tnd + rs_rraccs_tnd) * (rhodref * Cl * (tt - t))
+                    )
+                    / (rhodref * lmtt),
+                )
+
+                # note that RSCVMG = RSMLT*XFSCVMG but no heat is exchanged (at the rate RSMLT)
+                # because the graupeln produced by this process are still icy###
+                #
+                # When T < XTT, rc is collected by snow (riming) to produce snow and graupel
+                # When T > XTT, if riming was still enabled, rc would produce snow and graupel with snow becomming graupel (conversion/melting) and graupel becomming rain (melting)
+                # To insure consistency when crossing T=XTT, rc collected with T>XTT must be transformed in rain.
+                # rc cannot produce iced species with a positive temperature but is still collected with a good efficiency by snow
+
+                rc_mltsr_tnd = rs_rcrims_tnd
+
+        else:
+            rs_mltg_tnd = 0
+            rc_mltsr_tnd = 0
