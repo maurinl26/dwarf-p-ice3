@@ -63,20 +63,22 @@ class ParamIce:
     split_maxcfl: float     # Maximum CFL number allowed for SPLIT scheme
     lsnow_t: bool           # Snow parameterization from Wurtz (2021)
 
-    lpack_interp: bool
-    lpack_micro: bool
-    lcriauti: bool
+    # Translation note : lpack_interp and lpack_micro are for Fortran code GPU optimization (no use in GT4Py)
+    lpack_interp: bool      # switch to pack arrays before interpolation functions
+    lpack_micro: bool       # switch to pack arrays beafore computing the process tendencies
 
-    npromicro: int
+    npromicro: int          # Fortran - Size of cache-blocking bloc
 
-    criauti_nam: float = field(default=0.2e-4)
-    acriauti_nam: float = field(default=0.06)
-    brcriauti_nam: float = field(default=-3.5)
-    t0criauti_nam: float = field(init=False)
-    criautc_nam: float = field(default=0.5e-3)
-    rdepsred_nam: float = field(default=1)
-    rdepgred_nam: float = field(default=1)
-    lcond2: bool = field(default=False)
+    lcriauti: bool          # switch to compute acriauti and bcriauti
+
+    criauti_nam: float      # minimum value for ice to snow autoconversion
+    acriauti_nam:           # A parameter for ice to snow autoconversion power law
+    brcriauti_nam: float    # B parameter for ice to snow autoconvserion power law
+    t0criauti_nam: float    # threshold temperature for ice to snow autoconversion
+    criautc_nam: float      # threshold for liquid cloud to rain autoconversion 10**(at+b)
+    rdepsred_nam: float     # tuning factor of sublimation on ice
+    rdepgred_nam: float     # tuning factor of sublimation on graupel
+    lcond2: bool            # logical switch to separate liquid and ice
     frmin_nam: np.ndarray = field(init=False)
     """
 
@@ -136,6 +138,8 @@ class ParamIce:
     rdepsred_nam: float = field(default=1)
     rdepgred_nam: float = field(default=1)
     lcond2: bool = field(default=False)
+
+    # TODO : replace frmin_nam by a global table
     frmin_nam: np.ndarray = field(init=False)
 
     def __post_init__(self):
