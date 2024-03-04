@@ -10,7 +10,7 @@ from ifs_physics_common.utils.f2py import ported_method
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rg.F90")
 @stencil_collection("ice4_fast_rg")
 def ice4_fast_rg(
-    ldcompute: Field["int"],
+    ldcompute: Field["bool"],
     t: Field["float"],
     rhodref: Field["float"],
     pres: Field["float"],
@@ -113,7 +113,6 @@ def ice4_fast_rg(
         lnullwetg,
         epsilo,
         frdryg,
-        cxg,
         lbdryg1,
         lbdryg2,
         lbsdryg3,
@@ -122,7 +121,7 @@ def ice4_fast_rg(
     # 6.1 rain contact freezing
     with computation(PARALLEL), interval(...):
 
-        if ri_t > i_rtmin and rr_t > r_rtmin and ldcompute == 1:
+        if ri_t > i_rtmin and rr_t > r_rtmin and ldcompute:
 
             # not LDSOFT : compute the tendencies
             if ldsoft == 0:
@@ -155,7 +154,7 @@ def ice4_fast_rg(
     # 6.3 compute graupel growth
     with computation(PARALLEL), interval(...):
 
-        if rg_t > g_rtmin and rc_t > r_rtmin and ldcompute == 1:
+        if rg_t > g_rtmin and rc_t > r_rtmin and ldcompute:
 
             if ldsoft == 0:
                 rg_rcdry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
@@ -164,7 +163,7 @@ def ice4_fast_rg(
         else:
             rg_rcdry_tnd = 0
 
-        if rg_t > g_rtmin and ri_t > i_rtmin and ldcompute == 1:
+        if rg_t > g_rtmin and ri_t > i_rtmin and ldcompute:
 
             if ldsoft == 0:
                 rg_ridry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
@@ -179,7 +178,7 @@ def ice4_fast_rg(
     # Translation note : l171 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
 
-        if rs_t > s_rtmin and rg_t > g_rtmin and ldcompute == 1:
+        if rs_t > s_rtmin and rg_t > g_rtmin and ldcompute:
             gdry = 1  # GDRY is a boolean field in f90
 
         else:
@@ -215,7 +214,7 @@ def ice4_fast_rg(
     # 6.2.6 accreation of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
 
-        if rr_t < r_rtmin and rg_t < g_rtmin and ldcompute == 1:
+        if rr_t < r_rtmin and rg_t < g_rtmin and ldcompute:
             gdry = 1
         else:
             gdry = 0
@@ -248,7 +247,7 @@ def ice4_fast_rg(
     # Translation note : l251 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
 
-        if rg_t > g_rtmin and ldcompute == 1:
+        if rg_t > g_rtmin and ldcompute:
 
             # Duplicated code with ice4_fast_rs
             if ldsoft == 0:
@@ -332,7 +331,7 @@ def ice4_fast_rg(
     # 6.5 Melting of the graupel
     with computation(PARALLEL), interval(...):
 
-        if rg_t > g_rtmin and t > tt and ldcompute == 1:
+        if rg_t > g_rtmin and t > tt and ldcompute:
             if ldsoft == 0:
                 rg_mltr = rv_t * pres / (epsilo + rv_t)
                 if levlimit == 1:

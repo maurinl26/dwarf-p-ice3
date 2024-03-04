@@ -8,7 +8,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 @stencil_collection("ice4_rimltc")
 def ice4_rimltc(
-    ldcompute: Field["float"],
+    ldcompute: Field["bool"],
     t: Field["float"],
     exn: Field["float"],
     lv_fact: Field["float"],
@@ -20,7 +20,7 @@ def ice4_rimltc(
     """Compute cloud ice melting process RIMLTC
 
     Args:
-        ldcompute (Field[float]): switch to activate microphysical sources computation on column
+        ldcompute (Field[bool]): switch to activate microphysical sources computation on column
         t (Field[float]): temperature
         exn (Field[float]): exner pressure
         lv_fact (Field[float]): vaporisation latent heat
@@ -36,7 +36,7 @@ def ice4_rimltc(
     )
 
     # 7.1 cloud ice melting
-    if ri_t > 0 and t > tt and ldcompute == 1:
+    if ri_t > 0 and t > tt and ldcompute:
         rimltc_mr = ri_t
 
         # limitation due to zero crossing of temperature

@@ -89,7 +89,7 @@ def ice4_slow(
     # 3.2 compute the homogeneous nucleation source : RCHONI
     with computation(PARALLEL), interval(...):
 
-        if t < tt - 35.0 and rc_t > c_rtmin and ldcompute == 1:
+        if t < tt - 35.0 and rc_t > c_rtmin and ldcompute:
             rc_honi_tnd = min(
                 1000, hon * rhodref * rc_t * exp(alpha3 * (t - tt) - beta3)
             )
@@ -101,7 +101,7 @@ def ice4_slow(
     # 3.4.3 compute the deposition on r_s : RVDEPS
     with computation(PARALLEL), interval(...):
 
-        if rv_t < v_rtmin and rs_t < s_rtmin and ldcompute == 1:
+        if rv_t < v_rtmin and rs_t < s_rtmin and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
             rv_deps_tnd = rv_deps_tnd = (ssi / (rhodref * ai)) * (
@@ -114,7 +114,7 @@ def ice4_slow(
     # 3.4.4 compute the aggregation on r_s: RIAGGS
     with computation(PARALLEL), interval(...):
 
-        if ri_t > i_rtmin and rs_t > s_rtmin and ldcompute == 1:
+        if ri_t > i_rtmin and rs_t > s_rtmin and ldcompute:
             # Translation note : #ifdef REPRO48 l138 to 142 kept
             # Translation note : #else REPRO48 l143 to 150 omitted
             ri_aggs_tnd = (
@@ -132,7 +132,7 @@ def ice4_slow(
     # 3.4.5 compute the autoconversion of r_i for r_s production: RIAUTS
     with computation(PARALLEL), interval(...):
 
-        if hli_hri > i_rtmin and ldcompute == 1:
+        if hli_hri > i_rtmin and ldcompute:
             criauti = min(xcriauti, 10 ** (acriauti * (t - tt) + bcriauti))
             ri_auts_tnd = (
                 timauti * exp(texauti * (t - tt)) * max(hli_hri - criauti * hli_hcf)
@@ -143,7 +143,7 @@ def ice4_slow(
 
     # 3.4.6 compute the depsoition on r_g: RVDEPG
     with computation(PARALLEL), interval(...):
-        if rv_t > v_rtmin and rg_t > g_rtmin and ldcompute == 1:
+        if rv_t > v_rtmin and rg_t > g_rtmin and ldcompute:
             rv_depg_tnd = (ssi / (rhodref * ai)) * (
                 o0depg * lbdag**ex0depg + o1depg * cj * lbdag**ex1depg
             )

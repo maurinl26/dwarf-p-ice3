@@ -8,7 +8,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 @stencil_collection("ice4_rrhong")
 def ice4_rrhong(
-    ldcompute: Field["float"],
+    ldcompute: Field["bool"],
     t: Field["float"],
     exn: Field["float"],
     lv_fact: Field["float"],
@@ -20,7 +20,7 @@ def ice4_rrhong(
     """Compute the spontaneous frezzing source RRHONG
 
     Args:
-        ldcompute (Field[float]): switch to activate microphysical processes on column
+        ldcompute (Field[bool]): switch to activate microphysical processes on column
         t (Field[float]): temperature at t
         exn (Field[float]): exner pressure
         lv_fact (Field[float]): vaporisation latent heat
@@ -35,7 +35,7 @@ def ice4_rrhong(
     # 3.3 compute the spontaneous frezzing source: RRHONG
     with computation(PARALLEL), interval(...):
 
-        if t < tt - 35 and rr_t > r_rtmin and ldcompute == 1:
+        if t < tt - 35 and rr_t > r_rtmin and ldcompute:
             rrhong_mr = rr_t
 
             # limitation for -35 degrees crossing

@@ -99,7 +99,7 @@ def ice4_fast_rs(
     with computation(PARALLEL), interval(...):
 
         # Translation note l106 removed not LDSOFT
-        if rs_t < s_rtmin and ldcompute == 1:
+        if rs_t < s_rtmin and ldcompute:
 
             rs_freez1_tnd = rv_t * pres / (epsilo + rv_t)
             if levlimit == 1:
@@ -132,7 +132,7 @@ def ice4_fast_rs(
     # 5.1 cloud droplet riming of the aggregates
     with computation(PARALLEL), interval(...):
 
-        if rc_t > c_rtmin and rs_t > s_rtmin and ldcompute == 1:
+        if rc_t > c_rtmin and rs_t > s_rtmin and ldcompute:
             zw_tmp = lbda_s
 
             # Translation note : l144 kept
@@ -225,6 +225,15 @@ def ice4_fast_rs(
             rs_rsaccrg_tnd = 0
 
     # TODO: l264 to l272 interp_micro_2d
+    with computation(PARALLEL), interval(...):
+
+        # TODO: switch ldsoft statement evaluation with stencil declaration
+        if ldsoft:
+            rs_rraccs_tnd = 0
+            rs_rraccss_tnd = 0
+            rs_rsaccrg_tnd = 0
+
+            # CALL INTERP_MICRO_2D
 
     # 5.2.4. raindrop accreation on the small sized aggregates
     with computation(PARALLEL), interval(...):

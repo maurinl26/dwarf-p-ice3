@@ -8,7 +8,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 @stencil_collection("ice4_warm")
 def ice4_slow(
-    ldcompute: Field["int"],  # boolean field for microphysics computation
+    ldcompute: Field["bool"],  # boolean field for microphysics computation
     rhodref: Field["float"],
     lv_fact: Field["float"],
     t: Field["float"],  # temperature
@@ -65,7 +65,7 @@ def ice4_slow(
 
         # Translation note : ldsoft omitted
         # TODO: see if ldsoft is used
-        if hlc_hrc > c_rtmin and hlc_hcf > 0 and ldcompute == 1:
+        if hlc_hrc > c_rtmin and hlc_hcf > 0 and ldcompute:
             rc_autr = timautc * max(hlc_hrc - hlc_hcf * criautc / rhodref, 0)
         else:
             rc_autr = 0
@@ -76,7 +76,7 @@ def ice4_slow(
 
         # Translation note : HSUBG_RC_RR_ACCR=='NONE'
         if subg_rc_rr_accr == 0:
-            if rc_t > c_rtmin and rr_t > r_rtmin and ldcompute == 1:
+            if rc_t > c_rtmin and rr_t > r_rtmin and ldcompute:
 
                 # Translation note :
                 rc_accr = fcaccr * rc_t * lbda_r * excaccr * rhodref ** (-cexvt)
@@ -91,7 +91,7 @@ def ice4_slow(
 
         # NONE in Fortran code
         if subg_rr_evap == 0:
-            if rr_t > r_rtmin and rc_t <= c_rtmin and ldcompute == 1:
+            if rr_t > r_rtmin and rc_t <= c_rtmin and ldcompute:
 
                 rr_evav = exp(alpw - betaw / t - gamw * log(t))
                 usw = 1 - rv_t * (pres - rr_evav)
@@ -116,7 +116,7 @@ def ice4_slow(
             zw4 = rf  # precipitation fraction
             zw3 = lbda_r_rf
 
-        if rr_t > r_rtmin and zw4 > cf and ldcompute == 1:
+        if rr_t > r_rtmin and zw4 > cf and ldcompute:
             if ldsoft == 0:
 
                 # outside the cloud (environment) the use of T^u (unsaturated) instead of T

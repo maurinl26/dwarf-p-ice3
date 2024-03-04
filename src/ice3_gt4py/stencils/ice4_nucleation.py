@@ -10,7 +10,7 @@ from ifs_physics_common.utils.f2py import ported_method
 @ported_method(from_file="PHYEX/src/common/micro/ice4_nucleation.func.h")
 @stencil_collection("ice4_nucleation")
 def ice4_fast_rg(
-    ldcompute: Field["int"],
+    ldcompute: Field["bool"],
     tht: Field["float"],
     pabs_t: Field["float"],
     rhodref: Field["float"],
@@ -28,16 +28,16 @@ def ice4_fast_rg(
     """Compute nucleation
 
     Args:
-        ldcompute (Field[int]): _description_
-        tht (Field[float]): _description_
-        pabs_t (Field[float]): _description_
-        rhodref (Field[float]): _description_
-        exn (Field[float]): _description_
-        ls_fact (Field[float]): _description_
-        t (Field[float]): _description_
-        rv_t (Field[float]): _description_
-        ci_t (Field[float]): _description_
-        rv_heni_mr (Field[float]): _description_
+        ldcompute (Field[bool]): _description_
+        tht (Field[float]): potential temperature at t
+        pabs_t (Field[float]): absolute pressure at t
+        rhodref (Field[float]): reference density
+        exn (Field[float]): exner pressure at t
+        ls_fact (Field[float]): latent heat of sublimation
+        t (Field[float]): temperature
+        rv_t (Field[float]): vapour mixing ratio at t
+        ci_t (Field[float]): ice content at t
+        rv_heni_mr (Field[float]): mixing ratio change of vapour
     """
 
     from __externals__ import (
@@ -63,7 +63,7 @@ def ice4_fast_rg(
     # l72
     with computation(PARALLEL), interval(...):
 
-        if t < tt and rv_t > v_rtmin and ldcompute == 1:
+        if t < tt and rv_t > v_rtmin and ldcompute:
             usw = 0
             w2 = 0
 
@@ -74,7 +74,7 @@ def ice4_fast_rg(
     # l83
     with computation(PARALLEL), interval(...):
 
-        if t < tt and rv_t > v_rtmin and ldcompute == 1:
+        if t < tt and rv_t > v_rtmin and ldcompute:
 
             ssi = 0
             w2 = min(pabs_t / 2, w2)
@@ -91,7 +91,7 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
 
         w2 = 0
-        if t < tt and rv_t > v_rtmin and ldcompute == 1:
+        if t < tt and rv_t > v_rtmin and ldcompute:
             if t < tt - 5 and ssi > 0:
                 w2 = nu20 * exp(alpha2 * ssi - beta2)
             elif t < tt - 2 and t > tt - 5 and ssi > 0:
@@ -108,7 +108,7 @@ def ice4_fast_rg(
     # l114
     with computation(PARALLEL), interval(...):
         rv_heni_mr = 0
-        if t < tt and rv_t > v_rtmin and ldcompute == 1:
+        if t < tt and rv_t > v_rtmin and ldcompute:
             rv_heni_mr = max(w2, 0) * mnu0 / rhodref
             rv_heni_mr = min(rv_t, rv_heni_mr)
 
@@ -116,7 +116,7 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
         if lfeedbackt:
             w1 = 0
-            if t < tt and rv_t > v_rtmin and ldcompute == 1:
+            if t < tt and rv_t > v_rtmin and ldcompute:
                 w1 = min(rv_heni_mr, max(0, (tt / exn - tht)) / ls_fact) / max(
                     rv_heni_mr, 1e-20
                 )
@@ -126,5 +126,5 @@ def ice4_fast_rg(
 
     # l134
     with computation(PARALLEL), interval(...):
-        if t < tt and rv_t > v_rtmin and ldcompute == 1:
+        if t < tt and rv_t > v_rtmin and ldcompute:
             ci_t = max(w2 + ci_t, ci_t)

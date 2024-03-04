@@ -10,7 +10,7 @@ from ifs_physics_common.utils.f2py import ported_method
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_ri.F90")
 @stencil_collection("ice4_fast_ri")
 def ice4_fast_ri(
-    ldcompute: Field["bool"],  # if bool is possible
+    ldcompute: Field["bool"],
     rhodref: Field["float"],
     lv_fact: Field["float"],
     ls_fact: Field["float"],
@@ -49,7 +49,7 @@ def ice4_fast_ri(
             and rc_in > c_rtmin
             and ri_in > i_rtmin
             and ci_in > 1e-20
-            and ldcompute == 1
+            and ldcompute
         ):
 
             rc_beri_tnd = min(
