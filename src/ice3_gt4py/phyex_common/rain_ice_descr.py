@@ -12,13 +12,13 @@ from ifs_physics_common.utils.f2py import ported_class
 @ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90")
 @dataclass
 class RainIceDescr:
-    """Stores and compute distributions parameters for sedimentation
+    """Declaration of the microphysical descriptove constants for use in the warm and cold schemes.
 
-    m(D)    = XAx * D**XBx      : Mass-MaxDim relationship
-    v(D)    = XCx * D**XDx      : Fallspeed-MaxDim relationship
-    N(Lbda) = XCCx * Lbda**XCXx : NumberConc-Slopeparam relationship
-    f0x, f1x, f2x               : Ventilation factors
-    c1x                         : Shape parameter for deposition
+    m(D)    = XAx * D ** Bx         : Mass-MaxDim relationship
+    v(D)    = XCx * D ** Dx         : Fallspeed-MaxDim relationship
+    N(Lbda) = XCCx * Lbda ** CXx    : NumberConc-Slopeparam relationship
+    f0x, f1x, f2x                   : Ventilation factors
+    c1x                             : Shape parameter for deposition
 
     and
 
@@ -90,17 +90,6 @@ class RainIceDescr:
     f1g: float = field(default=0.28)
     c1g: float = field(default=1 / 2)
 
-    # Hail charact.
-    ah: float = field(default=470)
-    bh: float = field(default=3.0)
-    ch: float = field(default=207)
-    dh: float = field(default=0.64)
-    cch: float = field(default=4e4)
-    cxh: float = field(default=-1.0)
-    f0h: float = field(default=0.86)
-    f1h: float = field(default=0.28)
-    c1h: float = field(default=1 / 2)
-
     # Cloud droplet distribution parameters
 
     # Over land
@@ -143,22 +132,23 @@ class RainIceDescr:
     lbexg: float = field(init=False)
     lbg: float = field(init=False)
 
-    # Hail distribution parameters
-    alphah: float = 1.0
-    nuh: float = 8.0
-    lbexh: float = field(init=False)
-    lbh: float = field(init=False)
-
     fvelos: float = field(default=0.097)  # factor for snow fall speed after Thompson
-    # trans_mp_gammas: float = field(
-    #     init=False
-    # )  # coefficient to convert lambda for gamma functions
-    lbdar_max: float = (
-        1e5  # Max values allowed for the shape parameters (rain,snow,graupeln)
-    )
-    lbdas_max: float = 1e5
-    lbdag_max: float = 1e5
-    # lbdas_min: float = field(init=False)
+    trans_mp_gammas: float = field(
+        default=1
+    )  # coefficient to convert lambda for gamma functions
+    lbdar_max: float = field(
+        default=1e5
+    )  # Max values allowed for the shape parameters (rain,snow,graupeln)
+    lbdas_max: float = field(default=1e5)
+    lbdag_max: float = field(default=1e5)
+    lbdas_min: float = field(default=1e-10)
+
+    v_rtmin: float = field(default=1e-20)
+    c_rtmin: float = field(default=1e-20)
+    r_rtmin: float = field(default=1e-20)
+    i_rtmin: float = field(default=1e-20)
+    s_rtmin: float = field(default=1e-15)
+    g_rtmin: float = field(default=1e-15)
 
     conc_sea: float = 1e8  # Diagnostic concentration of droplets over sea
     conc_land: float = 3e8  # Diagnostic concentration of droplets over land
@@ -194,6 +184,14 @@ class RainIceDescr:
 
             self.alphas = 0.214
             self.nus = 43.7
+            self.trans_mp_gammas = sqrt(
+                (gamma(self.nus + 2 / self.alphas) * gamma(self.nus + 4 / self.alphas))
+                / (
+                    8
+                    * gamma(self.nus + 1 / self.alphas)
+                    * gamma(self.nus + 3 / self.alphas)
+                )
+            )
 
         self.c1s = 1 / self.cst.pi
 
