@@ -211,14 +211,14 @@ class RainIceParam:
     # TODO : tabulations for incomplete gamma
 
     # Constants for the accretion
-    fraccss: float
-    lbraccs1: float
-    lbraccs2: float
-    lbraccs3: float
-    fsaccrg: float
-    lbsaccr1: float
-    lbsaccr2: float
-    lbsaccr3: float
+    fraccss: float = field(init=False)
+    lbraccs1: float = field(init=False)
+    lbraccs2: float = field(init=False)
+    lbraccs3: float = field(init=False)
+    fsaccrg: float = field(init=False)
+    lbsaccr1: float = field(init=False)
+    lbsaccr2: float = field(init=False)
+    lbsaccr3: float = field(init=False)
     acclbdas_min: float = field(default=5e1)
     acclbdas_max: float = field(default=5e5)
     acclbdar_min: float = field(default=1e3)
@@ -233,49 +233,49 @@ class RainIceParam:
     nacclbdar: int = field(default=40)
 
     # TODO : reference vers global tables
-
-    fscvmg: float  # melting conversion factor of the aggregates
+    # 7.3 Constant for the conversion-melting rate
+    fscvmg: float = field(default=2)
 
     # Constants for rain contact freezing
-    colir: float
-    exrcfri: float
-    rcfri: float
-    exicfrr: float
-    icfrr: float
+    colir: float = field(default=1.0)
+    exrcfri: float = field(init=False)
+    rcfri: float = field(init=False)
+    exicfrr: float = field(init=False)
+    icfrr: float = field(init=False)
 
     # Constants for the dry growth of the graupel : DRY
-    fcdryg: float
-    colig: float
-    colexig: float
-    fidryg: float
-    fidryg2: float
-    exfidryg: float
-    colsg: float
-    colexsg: float
-    fsdryg: float
-    lbsdryg1: float
-    lbsdryg2: float
-    lbsdryg3: float
-    frdryg: float
-    lbrdryg1: float
-    lbrdryg2: float
-    lbrdryg3: float
-    drylbdar_min: float
-    drylbdar_max: float
-    drylbdas_min: float
-    drylbdas_max: float
-    drylbdag_min: float
-    drylbdag_max: float
-    dryintp1r: float
-    dryintp2r: float
-    dryintp1s: float
-    dryintp2s: float
-    dryintp1g: float
-    dryintp2g: float
+    fcdryg: float = field(init=False)
+    colig: float = field(default=0.01)
+    colexig: float = field(default=0.1)
+    fidryg: float = field(init=False)
+    fidryg2: float = field(init=False)
+    exfidryg: float = field(init=False)
+    colsg: float = field(default=0.01)
+    colexsg: float = field(default=0.1)
+    fsdryg: float = field(init=False)
+    lbsdryg1: float = field(init=False)
+    lbsdryg2: float = field(init=False)
+    lbsdryg3: float = field(init=False)
+    frdryg: float = field(init=False)
+    lbrdryg1: float = field(init=False)
+    lbrdryg2: float = field(init=False)
+    lbrdryg3: float = field(init=False)
+    drylbdar_min: float = field(default=1e3)
+    drylbdar_max: float = field(default=1e7)
+    drylbdas_min: float = field(default=2.5e1)
+    drylbdas_max: float = field(default=2.5e9)
+    drylbdag_min: float = field(default=1e3)
+    drylbdag_max: float = field(default=1e7)
+    dryintp1r: float = field(init=False)
+    dryintp2r: float = field(init=False)
+    dryintp1s: float = field(init=False)
+    dryintp2s: float = field(init=False)
+    dryintp1g: float = field(init=False)
+    dryintp2g: float = field(init=False)
 
-    ndrylbdar: int
-    ndrylbdas: int
-    ndrylbdag: int
+    ndrylbdar: int = field(default=40)
+    ndrylbdas: int = field(default=80)
+    ndrylbdag: int = field(default=40)
 
     # growth kernel tabulations
     # TODO: xker_sdryg, xker_rdryg
@@ -624,10 +624,111 @@ class RainIceParam:
         # Translation note : l800 to 902 -> computation of the kernels
         # TODO : compute kernels in another method
 
-        # 7.3 Constant for the conversion-melting rate
-        self.fscvmg = 2.0
+        # 8 Constants for the fast cold processes for the graupel
 
-        # 8 Constants for the fast cold processes for the graupeln
+        # 8.1 Constants for the rain contact freezing
+        xr = -1
+        self.exrcfri = -self.rid.dr - 5 + xr
+        self.rcfri = (
+            ((self.cst.pi**2) / 24)
+            * self.rid.ccr
+            * self.cst.rholw
+            * self.colir
+            * self.rid.cr
+            * (self.rho00 * self.rid.cexvt)
+            * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 5)
+        )
+
+        self.exicfrr = -self.rid.dr - 2 + xr
+        self.icfrr = (
+            (self.cst.pi / 4)
+            * self.colir
+            * self.rid.cr
+            * (self.rho00**self.rid.cexvt)
+            * self.rid.ccr
+            * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 2)
+        )
+
+        # 8.2 Constants for the dry growth of the graupel
+
+        # 8.2.1 Constants for the cloud droplets collection by the graupel
+        self.fcdryg = self.cst.pi / 4
+
+        # 8.2.2 Constants for the cloud ice collection by the graupel
+        self.fidryg = (
+            (self.cst.pi / 4)
+            * self.colig
+            * self.rid.ccg
+            * (self.cst.rho00**self.rid.cexvt)
+            * momg(self.rid.alphag, self.rid.nug, self.rid.dg + 2)
+        )
+        self.exfidryg = (self.rid.cxg - self.rid.dg - 2) / (self.rid.cxg - self.rid.bg)
+        self.fidryg2 = (
+            self.fidryg
+            * self.colig
+            * (
+                self.rid.ag
+                * self.rid.ccg
+                * momg(self.rid.alphag, self.rid.nug, self.rid.bg)
+            )
+        )
+
+        # 8.2.3 Constants for the aggregate collection by the graupel
+        # Translation note : #ifdef REPRO48 l973 kept
+        #                                   l975 removed
+        self.fsdryg = (
+            (self.cst.pi**2 / 24)
+            * self.rid.ccg
+            * self.rid.ccr
+            * self.cst.rholw
+            * (self.cst.rho00**self.rid.cexvt)
+        )
+        self.lbsdryg1 = momg(self.rid.alphag, self.rid.nug, 2) * momg(
+            self.rid.alphas, self.rid.nus, self.rid.bs
+        )
+        self.lbsdryg2 = (
+            2
+            * momg(self.rid.alphag, self.rid.nug, 1)
+            * momg(self.rid.alphas, self.rid.nus, self.rid.bs + 1)
+        )
+        self.lbsdryg3 = momg(self.rid.alphas, self.rid.nus, self.rid.bs + 2)
+
+        # 8.2.4 Constants for the raindrop collection by the graupel
+        self.frdryg(
+            self.cst.pi**2 / 24
+        ) * self.rid.ccg * self.rid.ccg * self.cst.rholw * (
+            self.cst.rho00**self.rid.cexvt
+        )
+        self.lbrdryg1 = momg(self.rid.alphag, self.rid.nug, 3) * momg(
+            self.rid.alphar, self.rid.nur, 3
+        )
+        self.lbrdryg2 = (
+            2
+            * momg(self.rid.alphag, self.rid.nug, 1)
+            * momg(self.rid.alphar, self.rid.nur, 4)
+        )
+        self.lbrdryg3 = momg(self.rid.alphar, self.rid.nur, 5)
+
+        # Notice: one magnitude of lambda discretized over 10 points
+        zrate = log(self.drylbdar_max / self.drylbdar_min) / (self.ndrylbdar - 1)
+        self.dryintp1r = 1 / zrate
+        self.dryintp2r = 1 - log(self.drylbdar_min) / zrate
+
+        zrate = log(self.drylbdas_max / self.drylbdas_min) / (self.ndrylbdas - 1)
+        self.dryintp1s = 1 / zrate
+        self.dryintp2s = 1 - log(self.drylbdas_min) / zrate
+
+        zrate = log(self.drylbdag_max / self.drylbdag_min) / (self.ndrylbdag - 1)
+        self.dryintp1g = 1 / zrate
+        self.dryintp2g = 1 - log(self.drylbdag_min) / zrate
+
+        # Translation note : l1018 to l1152 -> computation of the kernels
+        # TODO : compute kernels in another method
+
+        # Tranlsation note : l1154 to l1160 skipped
+
+        # Tranlsation note : 9. Constants for hailstones not implemented
+        #                    l1162 to l1481 removed
 
 
 @dataclass
