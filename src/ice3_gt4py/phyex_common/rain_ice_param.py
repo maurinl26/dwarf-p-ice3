@@ -208,6 +208,78 @@ class RainIceParam:
 
     ngaminc: int = field(init=False)  # Number of tab. Lbda_s
 
+    # TODO : tabulations for incomplete gamma
+
+    # Constants for the accretion
+    fraccss: float
+    lbraccs1: float
+    lbraccs2: float
+    lbraccs3: float
+    fsaccrg: float
+    lbsaccr1: float
+    lbsaccr2: float
+    lbsaccr3: float
+    acclbdas_min: float = field(default=5e1)
+    acclbdas_max: float = field(default=5e5)
+    acclbdar_min: float = field(default=1e3)
+    acclbdar_max: float = field(default=1e7)
+    accintp1s: float = field(init=False)
+    accintp2s: float = field(init=False)
+    accintp1r: float = field(init=False)
+    accintp2r: float = field(init=False)
+
+    # number of values in global tables (per axis)
+    nacclbdas: int = field(default=40)
+    nacclbdar: int = field(default=40)
+
+    # TODO : reference vers global tables
+
+    fscvmg: float  # melting conversion factor of the aggregates
+
+    # Constants for rain contact freezing
+    colir: float
+    exrcfri: float
+    rcfri: float
+    exicfrr: float
+    icfrr: float
+
+    # Constants for the dry growth of the graupel : DRY
+    fcdryg: float
+    colig: float
+    colexig: float
+    fidryg: float
+    fidryg2: float
+    exfidryg: float
+    colsg: float
+    colexsg: float
+    fsdryg: float
+    lbsdryg1: float
+    lbsdryg2: float
+    lbsdryg3: float
+    frdryg: float
+    lbrdryg1: float
+    lbrdryg2: float
+    lbrdryg3: float
+    drylbdar_min: float
+    drylbdar_max: float
+    drylbdas_min: float
+    drylbdas_max: float
+    drylbdag_min: float
+    drylbdag_max: float
+    dryintp1r: float
+    dryintp2r: float
+    dryintp1s: float
+    dryintp2s: float
+    dryintp1g: float
+    dryintp2g: float
+
+    ndrylbdar: int
+    ndrylbdas: int
+    ndrylbdag: int
+
+    # growth kernel tabulations
+    # TODO: xker_sdryg, xker_rdryg
+
     def __post_init__(self):
         # 4. CONSTANTS FOR THE SEDIMENTATION
         # 4.1 Exponent of the fall-speed air density correction
@@ -353,7 +425,8 @@ class RainIceParam:
             * momg(self.rid.alpjai, self.rid.nui, self.rid.di + 2.0)
         )
 
-        # TODO : add ifdef case
+        # Translation note: #ifdef REPRO48 l588 to l591 kept in mode_ini_rain_ice.F90
+        #                                  l593 to l596 removed
         self.o0deps = (
             self.rid.ns
             * (4 * self.cst.pi)
@@ -431,6 +504,8 @@ class RainIceParam:
             self.t0criauti = (np.log10(self.criauti) - self.bcriauti) / 0.06
 
         # 5.4 Constants for snow aggregation
+        # Translation note: #ifdef REPRO48 l655 to l656 kept in mode_ini_rain_ice.F90
+        #                                  l658 to l659 removed
         self.fiaggs = (
             (self.cst.pi / 4)
             * self.colis
@@ -440,8 +515,6 @@ class RainIceParam:
             * momg(self.rid.alphas, self.rid.nus, self.rid.ds + 2.0)
         )
         self.exiaggs = self.rid.cxs - self.rid.ds - 2.0
-
-        # TODO: ifdef case
 
         # 6. Constants for the slow warm processes
         # 6.1 Constants for the accretion of cloud droplets autoconversion
@@ -478,7 +551,12 @@ class RainIceParam:
         # 7. Constants for the fast cold processes for the aggregateds
         # 7.1 Constants for the riming of the aggregates
 
-        # TODO :  2 ifdef
+        # Translation note: #ifdef REPRO48 l712 and l713 kept in mode_ini_rain_ice.F90
+        #                                  l715 and l716 removed
+
+        # Translation note: #ifdef REPRO48 l721 to l725 kept in mode_ini_rain_ice.F90
+        #                                  l727 to l731 removed
+
         self.excrimss = -self.rid.ds - 2.0
         self.crimss = (
             self.rid.ns
@@ -491,6 +569,65 @@ class RainIceParam:
 
         self.excrimsg = self.excrimss
         self.crimsg = self.crimsg
+
+        # TODO: translate modd_ini_rain_ice.F90 from l734
+        # 7.2 Constants for the accretion of raindrops
+
+        # Translation note: #ifdef REPRO48 l763 kept
+        #                                  l765 removed
+
+        self.fraccss = (
+            ((self.cst.pi**2) / 24)
+            * self.rid.ccs
+            * self.rid.ccr
+            * self.cst.rholw
+            * (self.cst.rho00**self.rid.cexvt)
+        )
+
+        self.lbraccs1 = momg(self.rid.alphas, self.rid.nus, 2) * momg(
+            self.rid.alphar, self.rid.nur, 3
+        )
+        self.lbraccs2 = (
+            2
+            * momg(self.rid.alphas, self.rid.nus, 1)
+            * momg(self.rid.alphar, self.rid.nur, 4)
+        )
+        self.lbraccs3 = momg(self.rid.alphar, self.rid.nur)
+
+        # Translation note : #ifdef REPRO48 l773 kept
+        #                                   l775 removed
+        self.fsaccrg = (
+            (self.cst.pi / 4)
+            * self.rid.a_s
+            * self.rid.ccs
+            * self.rid.ccr
+            * (self.cst.rho00**self.rid.cexvt)
+        )
+
+        self.lbsaccr1 = momg(self.rid.alphar, self.rid.nur, 2) * momg(
+            self.rid.alphas, self.rid.nus, self.rid.bs
+        )
+        self.lbsaccr2 = momg(self.rid.alphar, self.rid.nur, 1) * momg(
+            self.rid.alphas, self.rid.nus, self.rid.bs + 1
+        )
+        self.lbsaccr3 = momg(self.rid.alphas, self.rid.nus, self.bs + 2)
+
+        # Defining the ranges for the computation of kernels
+        zrate = log(self.acclbdas_max / self.acclbdas_min) / (self.nacclbdas - 1)
+        self.accintp1s = 1 / zrate
+        self.accintp2s = 1 - log(self.acclbdas_min) / zrate
+
+        zrate = log(self.acclbdar_max / self.acclbdar_min) / (self.nacclbdar - 1)
+        self.accintp1r = 1 / zrate
+        self.accintp2r = 1 - log(self.acclbdar_min) / zrate
+
+        # Translation note : l800 to 902 -> computation of the kernels
+        # TODO : compute kernels in another method
+
+        # 7.3 Constant for the conversion-melting rate
+        self.fscvmg = 2.0
+
+        # 8 Constants for the fast cold processes for the graupeln
 
 
 @dataclass
