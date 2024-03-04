@@ -82,6 +82,21 @@ class ParamIce:
     sedim: str              # Sedimentation calculation mode
 
     lred: bool              # To use modified ice3/ice4 - to reduce time step dependency
+    lfeedbackt: bool        # Feedback on temperature taken into account when True
+    levlimit: bool          # Water vapour limited by saturation when True
+    lnullwetg: bool         # Graupel wet growth activated with null rate when True to allow water shedding
+    lwetgpost: bool         # Graupel wet growth activated with positive telmperature when True (to allow water shedding)
+
+    snow_riming: Literal["OLD", "M90"]      # OLD or M90 for Murakami 1990 formulation
+    frac_m90: float                         # Fraction used in M90 formulation
+
+    nmaxiter_micro: int     # max number of iteration for time or mixing ratio splitting
+    mrstep: float           # max mixing ratio step for mixing ratio splitting
+
+    lconvhg: bool           # True to allow conversion from hail to graupel
+    lcrflimit: bool         # True to limit rain contact freezing
+
+    tstep_ts: float         # approximative time step when for use of time splitting version
 
     subg_rc_rr_accr: str    # subgrid rc-rr accretion
     subg_rr_evap: str       # subgrid rr evaporation
@@ -133,6 +148,19 @@ class ParamIce:
 
     # To use modified ice3/ice4 - to reduce time step dependency
     lred: bool = field(default=True)
+    lfeedbackt: bool = field(default=True)
+    levlimit: bool = field(default=True)
+    lnullwetg: bool = field(default=True)
+    lwetgpost: bool = field(default=True)
+
+    snow_riming: Literal["OLD", "M90"] = field(default="M90")
+
+    frac_m90: float = field(default=0.1)
+    nmaxiter_micro: int = field(default=5)
+    mrstep: float = field(default=5e-5)
+
+    lconvhg: bool = field(default=False)
+    lcrflimit: bool = field(default=True)
 
     subg_rc_rr_accr: int = field(
         default=SubgRRRCAccr.NONE.value
