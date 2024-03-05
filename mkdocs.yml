@@ -3,6 +3,7 @@ site_name: dwarf-ice3-gt4py
 nav:
   - Home: index.md
   - Translation Notes: translation_options.md
+  - Scientific Notes: microphysique.md
   - ice3_gt4py:
     - stencils:
       - aro_filter: ice3_gt4py/stencils/aro_filter.md
