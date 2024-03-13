@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from typing import Literal, Tuple
 from ice3_gt4py.drivers.namel2config import Namparar
 
@@ -21,7 +21,6 @@ class Phyex:
         cst (Constants): Physical constants description
         param_icen (ParamIce): Control parameters for microphysics
         rain_ice_descrn (RainIceDescr): Microphysical descriptive constants
-        rain_ice_paramn (RainIceParam): Microphysical factors
 
         tstep (float): time step employed for physics
         itermax (int): number of iterations for ice adjust
@@ -79,3 +78,15 @@ class Phyex:
         self.param_icen = ParamIce(hprogram=self.program)
         self.nebn = Neb(hprogram=self.program)
         self.rain_ice_descrn = RainIceDescr(self.cst, self.param_icen)
+        
+    def to_externals(self):
+        externals = {}
+        externals.update(asdict(self.cst))
+        externals.update(asdict(self.param_icen))
+        externals.update(asdict(self.rain_ice_descrn))
+        externals.update(asdict(self.nebn))
+        
+        return externals
+        
+        
+    
