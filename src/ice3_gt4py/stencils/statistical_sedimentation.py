@@ -41,23 +41,21 @@ def sedimentation_stat(
     g_sed_tmp: Field["float"],  # sedimentation source for graupel
     i_sed_tmp: Field["float"],  # sedimentation source for ice
     s_sed_tmp: Field["float"],  # sedimentation source for snow
-    # cloud subroutine
-    qp_tmp: Field["float"],
-    wlbda_tmp: Field["float"],  #
-    wlbdc_tmp: Field["float"],  #
-    cc_tmp: Field["float"],  # sedimentation fall speed
-    wsedw1: Field["float"],  #
-    wsedw2: Field["float"],  #
-    lbc_tmp: Field["float"],  #
-    ray_tmp: Field["float"],  # Cloud mean radius ZRAY
-    conc3d_tmp: Field["float"],  # sea and urban modifications
-    # diagnostics
-    fpr_out: Field["float"],  # precipitation flux through upper face of the cell
-    inst_rr_out: Field["float"],  # instant rain precipitation PINPRR
-    inst_rc_out: Field["float"],  # instant droplet precipitation PINPRC
-    inst_ri_out: Field["float"],  # instant ice precipitation PINPRI
-    inst_rs_out: Field["float"],  # instant snow precipitation PINPRS
-    inst_rg_out: Field["float"],  # instant graupel precipitation PINPRG
+    qp_tmp: Field["float"],         ## cloud subroutine
+    wlbda_tmp: Field["float"],      #
+    wlbdc_tmp: Field["float"],      #
+    cc_tmp: Field["float"],         # sedimentation fall speed
+    wsedw1: Field["float"],         #
+    wsedw2: Field["float"],         #
+    lbc_tmp: Field["float"],        #
+    ray_tmp: Field["float"],        # Cloud mean radius ZRAY
+    conc3d_tmp: Field["float"],     # sea and urban modifications
+    fpr_out: Field["float"],        ## diagnostics # precipitation flux through upper face of the cell
+    inst_rr_out: Field["float"],    # instant rain precipitation PINPRR
+    inst_rc_out: Field["float"],    # instant droplet precipitation PINPRC
+    inst_ri_out: Field["float"],    # instant ice precipitation PINPRI
+    inst_rs_out: Field["float"],    # instant snow precipitation PINPRS
+    inst_rg_out: Field["float"],    # instant graupel precipitation PINPRG
 ):
 
     from __externals__ import (
@@ -247,37 +245,3 @@ def terminal_velocity(
     return wsedw1
 
 
-# FWSED1
-# P1 in Bouteloup paper
-@function
-def weighted_sedimentation_flux_1(
-    wsedw: Field["float"],
-    dz: Field["float"],
-    rhodref: Field["float"],
-    content_in: Field["float"],
-    dt: "float",
-):
-
-    return min(rhodref * dz * content_in / dt, wsedw * rhodref, content_in)
-
-
-# FWSED2
-# P2 in Bouteloup paper
-@function
-def weighted_sedimentation_flux_2(
-    wsedw: Field["float"], wsedsup: Field["float"], dz: Field["float"], dt: "float"
-):
-
-    return max(0, 1 - dz / (dt * wsedw)) * wsedsup[0, 0, 1]
-
-
-@function
-def other_species(
-    fsed: "float", exsed: "float", content_in: Field["float"], rhodref: Field["float"]
-):
-
-    from __externals__ import cexvt
-
-    wsedw = fsed * content_in * (exsed - 1) * rhodref ** (exsed - cexvt - 1)
-
-    return wsedw
