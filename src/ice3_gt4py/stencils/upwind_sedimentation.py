@@ -57,9 +57,11 @@ def upstream_sedimentation(
         cpd,
         xcc,  # from iced
         cexvt,
-        split_maxcfl,  # from parami - param_ice
-        rholw,  # density of liquid water
         c_rtmin,  # min content for cloud droplets
+        i_rtmin,
+        r_rtmin,
+        g_rtmin,
+        s_rtmin
     )
 
     # TODO
@@ -74,9 +76,12 @@ def upstream_sedimentation(
     rgs_tnd -= rg_in / dt
 
     # in internal_sedim_split
-    # For cloud droplets
+    
+    
+    ## 2.1 For cloud droplets
     # TODO : encapsulation in do while
     # TODO: extend by functions to other species
+    #TODO add #else l590 to l629 for  #ifdef REPRO48
     with computation(PARALLEL), interval(...):
 
         wlbdc = (lbc_in * conc3d_in / (rhodref * rc_in)) ** lbexc
@@ -88,23 +93,83 @@ def upstream_sedimentation(
         cc_tmp = xcc * (1 + 1.26 * wlbda / ray_tmp)
         wsed_tmp = rhodref ** (-cexvt + 1) * wlbdc * cc_tmp * fsedc_in
 
-    # l723 : main part
-    with computation(PARALLEL), interval(...):
-
+    # Translation note : l723 in mode_ice4_sedimentation_split.F90
+    with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
             c_rtmin, rhodref, max_tstep, rc_in, dz, wsed_tmp, remaining_time
         )
-
-    # l733
-    # Ground level
-    with computation(PARALLEL), interval(0, 1):
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rc_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
 
-    # l738
+    # Translation note : l738 in mode_ice4_sedimentation_split.F90
     with computation(PARALLEL), interval(...):
         rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rcs_tnd, rc_in, dt)
         fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
+        
+    
+    ## 2.2 for ice    
+    with computation(PARALLEL), interval(...):
+       wsed_tmp = 0
+
+    with computation(PARALLEL), interval(0, 1):
+        max_tstep = maximum_time_step(
+            i_rtmin, rhodref, max_tstep, ri_in, dz, wsed_tmp, remaining_time
+        )
+        remaining_time[0, 0] -= max_tstep[0, 0]
+        inst_rc_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
+
+    with computation(PARALLEL), interval(...):
+        rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, ris_tnd, ri_in, dt)
+        fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
+
+
+    ## 2.3 for rain    
+    with computation(PARALLEL), interval(...):
+        wsed_tmp = 0
+        
+    with computation(PARALLEL), interval(0, 1):
+        max_tstep = maximum_time_step(
+            r_rtmin, rhodref, max_tstep, rr_in, dz, wsed_tmp, remaining_time
+        )
+        remaining_time[0, 0] -= max_tstep[0, 0]
+        inst_rr_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
+
+    with computation(PARALLEL), interval(...):
+        rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, ris_tnd, ri_in, dt)
+        fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
+
+     
+    ## 2.4. for snow   
+    with computation(PARALLEL), interval(...):
+        wsed_tmp = 0
+
+    with computation(PARALLEL), interval(0, 1):
+        max_tstep = maximum_time_step(
+            s_rtmin, rhodref, max_tstep, rs_in, dz, wsed_tmp, remaining_time
+        )
+        remaining_time[0, 0] -= max_tstep[0, 0]
+        inst_rs_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
+
+    with computation(PARALLEL), interval(...):
+        rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rss_tnd, rs_in, dt)
+        fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
+        
+    # 2.5. for graupel   
+    with computation(PARALLEL), interval(...):
+        wsed_tmp = 0
+
+    with computation(PARALLEL), interval(0, 1):
+        max_tstep = maximum_time_step(
+            g_rtmin, rhodref, max_tstep, rg_in, dz, wsed_tmp, remaining_time
+        )
+        remaining_time[0, 0] -= max_tstep[0, 0]
+        inst_rg_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
+
+    with computation(PARALLEL), interval(...):
+        rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rgs_tnd, rg_in, dt)
+        fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
+
+
 
 
 @function
