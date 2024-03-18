@@ -2,12 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, IJ, function
-from gt4py.cartesian.gtscript import exp, log, sqrt, floor, atan
-from ice3_gt4py.functions.compute_ice_frac import compute_frac_ice
-from ice3_gt4py.functions.src_1d import src_1d
-from ice3_gt4py.functions.temperature import update_temperature
-
-
 from ifs_physics_common.framework.stencil import stencil_collection
 
 #
@@ -61,7 +55,7 @@ def upstream_sedimentation(
         i_rtmin,
         r_rtmin,
         g_rtmin,
-        s_rtmin
+        s_rtmin,
     )
 
     # TODO
@@ -76,12 +70,11 @@ def upstream_sedimentation(
     rgs_tnd -= rg_in / dt
 
     # in internal_sedim_split
-    
-    
+
     ## 2.1 For cloud droplets
     # TODO : encapsulation in do while
     # TODO: extend by functions to other species
-    #TODO add #else l590 to l629 for  #ifdef REPRO48
+    # TODO add #else l590 to l629 for  #ifdef REPRO48
     with computation(PARALLEL), interval(...):
 
         wlbdc = (lbc_in * conc3d_in / (rhodref * rc_in)) ** lbexc
@@ -105,11 +98,10 @@ def upstream_sedimentation(
     with computation(PARALLEL), interval(...):
         rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rcs_tnd, rc_in, dt)
         fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
-        
-    
-    ## 2.2 for ice    
+
+    ## 2.2 for ice
     with computation(PARALLEL), interval(...):
-       wsed_tmp = 0
+        wsed_tmp = 0
 
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
@@ -122,11 +114,10 @@ def upstream_sedimentation(
         rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, ris_tnd, ri_in, dt)
         fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
 
-
-    ## 2.3 for rain    
+    ## 2.3 for rain
     with computation(PARALLEL), interval(...):
         wsed_tmp = 0
-        
+
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
             r_rtmin, rhodref, max_tstep, rr_in, dz, wsed_tmp, remaining_time
@@ -138,8 +129,7 @@ def upstream_sedimentation(
         rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, ris_tnd, ri_in, dt)
         fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
 
-     
-    ## 2.4. for snow   
+    ## 2.4. for snow
     with computation(PARALLEL), interval(...):
         wsed_tmp = 0
 
@@ -153,8 +143,8 @@ def upstream_sedimentation(
     with computation(PARALLEL), interval(...):
         rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rss_tnd, rs_in, dt)
         fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
-        
-    # 2.5. for graupel   
+
+    # 2.5. for graupel
     with computation(PARALLEL), interval(...):
         wsed_tmp = 0
 
@@ -168,8 +158,6 @@ def upstream_sedimentation(
     with computation(PARALLEL), interval(...):
         rcs_tnd = mixing_ratio_update(max_tstep, oorhodz, wsed_tmp, rgs_tnd, rg_in, dt)
         fpr_c_out += upper_air_flux(wsed_tmp, max_tstep, dt)
-
-
 
 
 @function
@@ -246,4 +234,3 @@ def instant_precipitation(
     from __externals__ import rholw
 
     return wsed_tmp[0, 0, 0] / rholw * (max_tstep / dt)
-
