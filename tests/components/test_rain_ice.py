@@ -1,26 +1,132 @@
 # -*- coding: utf-8 -*-
-from ifs_physics_common.framework.stencil import compile_stencil
-from ice3_gt4py.drivers.config import default_python_config
-from ifs_physics_common.framework.config import GT4PyConfig
-import sys
+from __future__ import annotations
+from dataclasses import asdict
 import logging
-import itertools
+from typing import TYPE_CHECKING, Dict, Literal
+import sys
+from datetime import timedelta
 
+from gt4py.storage import ones
+from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
+from ifs_physics_common.framework.stencil import compile_stencil
+
+from ice3_gt4py.initialisation.state import allocate_state
 from ice3_gt4py.phyex_common.phyex import Phyex
 
-logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+if TYPE_CHECKING:
+    from ifs_physics_common.framework.config import GT4PyConfig
+    from ifs_physics_common.framework.grid import ComputationalGrid
+    from ifs_physics_common.utils.typingx import DataArrayDict
 
 
-if __name__ == "__main__":
-    backends = ["numpy", "gt:cpu_ifirst", "gt:gpu", "cuda", "dace:cpu", "dace:gpu"]
-    stencil_collections = [
-        "aro_filter",
-        "ice_adjust",
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
+
+
+def initialize_state_with_constant(
+    state: DataArrayDict, C: float, gt4py_config: GT4PyConfig
+) -> None:
+
+    keys = [
+        "f_sigqsat",
+        "f_exnref",  # ref exner pression
+        "f_exn",
+        "f_tht",
+        "f_rhodref",
+        "f_pabs",  # absolute pressure at t
+        "f_sigs",  # Sigma_s at time t
+        "f_cf_mf",  # convective mass flux fraction
+        "f_rc_mf",  # convective mass flux liquid mixing ratio
+        "f_ri_mf",
+        "f_th",
+        "f_rv",
+        "f_rc",
+        "f_rr",
+        "f_ri",
+        "f_rs",
+        "f_rg",
+    ]
+
+    for name in keys:
+        logging.debug(f"{name}, {state[name].shape}")
+        state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
+
+
+def get_state_with_constant(
+    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig, c: float
+) -> DataArrayDict:
+    """All arrays are filled with a constant between 0 and 1.
+
+    Args:
+        computational_grid (ComputationalGrid): _description_
+        gt4py_config (GT4PyConfig): _description_
+
+    Returns:
+        DataArrayDict: _description_
+    """
+    state = allocate_state(computational_grid, gt4py_config=gt4py_config)
+    initialize_state_with_constant(state, c, gt4py_config)
+    return state
+
+
+def externals_to_stencil(
+    stencil_collection_name: str,
+    config_externals: Dict,
+    stencil_collection_keys: Dict,
+):
+    tmp_externals = {}
+
+    externals_list = stencil_collection_keys[stencil_collection_name]
+    print(config_externals)
+    for key in externals_list:
+
+        try:
+            tmp_externals.update(config_externals[key])
+        except:
+            logging.error(f"No key found for {key} in configuration externals")
+
+    return tmp_externals
+
+
+def main(
+    backend: Literal[
+        "numpy",
+        "cuda",
+        "gt:gpu",
+        "gt:cpu_ifirst",
+        "gt:cpu_kfirst",
+        "dace:cpu",
+        "dace:gpu",
+    ]
+):
+    """Run rain_ice processes in order
+
+    nucleation >> rrhong >> rimltc >> riming conversion >> pdf computation >> slow cold >> warm >> fast rs >> fast rg >> fast ri
+
+    Args:
+        backend (Literal): targeted backend for code generation
+    """
+
+    nx = 100
+    ny = 1
+    nz = 90
+
+    cprogram = "AROME"
+    phyex_config = Phyex(cprogram)
+    logging.info(f"backend {backend}")
+    gt4py_config = GT4PyConfig(
+        backend=backend, rebuild=False, validate_args=False, verbose=True
+    )
+
+    grid = ComputationalGrid(nx, ny, nz)
+    dt = timedelta(seconds=1)
+
+    processes = [
         "ice4_nucleation",
         "ice4_fast_rg",
         "ice4_fast_rs",
         "ice4_fast_ri",
-        "ice4_nucleation",
         "ice4_rimltc",
         "ice4_rrhong",
         "ice4_slow",
@@ -197,47 +303,34 @@ if __name__ == "__main__":
         ],
     }
 
-    for backend, stencil_collection in itertools.product(backends, stencil_collections):
-        gt4py_config = GT4PyConfig(
-            backend=backend, rebuild=True, validate_args=True, verbose=True
+    config_externals = phyex_config.to_externals()
+
+    for process in processes:
+
+        externals = externals_to_stencil(
+            f"{process}", config_externals, stencil_collections_with_externals
         )
-
-        logging.info(f"Compile {stencil_collection} stencil_collection on {backend}")
-
-        externals = {
-            "lvtt": 0,
-            "lstt": 0,
-            "tt": 0,
-            "subg_mf_pdf": 0,
-            "subg_cond": 0,
-            "cpd": 0,
-            "cpv": 0,
-            "Cl": 0,
-            "Ci": 0,
-            "tt": 0,
-            "alpw": 0,
-            "betaw": 0,
-            "gamw": 0,
-            "alpi": 0,
-            "betai": 0,
-            "gami": 0,
-            "Rd": 0,
-            "Rv": 0,
-            "frac_ice_adjust": 0,
-            "tmaxmix": 0,
-            "tminmix": 0,
-            "criautc": 0,
-            "tstep": 0,
-            "criauti": 0,
-            "acriauti": 0,
-            "bcriauti": 0,
-            "nrr": 6,
-        }
+        print(externals)
 
         try:
-            stencil = compile_stencil(stencil_collection, gt4py_config, externals)
-
-            logging.info(f"Compilation succeeded for {stencil_collection} on {backend}")
+            stencil_collection = compile_stencil(f"{process}", gt4py_config, externals)
 
         except:
-            logging.error(f"Compilation failed for {stencil_collection} on {backend}")
+            logging.error(
+                f"Compilation failed for process {process} and backend {backend}"
+            )
+
+
+if __name__ == "__main__":
+
+    BACKEND_LIST = [
+        "numpy",
+        "gt:cpu_ifirst",
+        "gt:cpu_kfirst",
+        "dace:cpu",
+        "dace:gpu",
+        "cuda",
+        "gt:gpu",
+    ]
+    for backend in BACKEND_LIST:
+        main(backend)
