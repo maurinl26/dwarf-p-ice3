@@ -99,9 +99,7 @@ class RainIceParam:
     excrimsg: float
     crimsg: float
     exsrimcg: float
-    crimcg: float
     exsrimcg2: float
-    rimcg2: float
     srimcg3: float
 
     gaminc_bound_min: float
@@ -125,7 +123,7 @@ class RainIceParam:
     fsedi: float = field(init=False)
     excsedi: float = field(init=False)
     exrsedi: float = field(init=False)
-    fseds: float = field(init=False)
+    # fseds: float = field(init=False)
     exseds: float = field(init=False)
     fsedg: float = field(init=False)
     exsedg: float = field(init=False)
@@ -196,15 +194,14 @@ class RainIceParam:
     excrimsg: float = field(init=False)
     crimsg: float = field(init=False)
     exsrimcg: float = field(init=False)
-    crimcg: float = field(init=False)
     exsrimcg2: float = field(init=False)
-    rimcg2: float = field(init=False)
     srimcg3: float = field(init=False)
 
     gaminc_bound_min: float = field(init=False)
     gaminc_bound_max: float = field(init=False)
-    rimintp1: float = field(init=False)
-    rimintp2: float = field(init=False)
+    # TODO : look at kernel computations
+    # rimintp1: float = field(init=False)
+    # rimintp2: float = field(init=False)
 
     ngaminc: int = field(init=False)  # Number of tab. Lbda_s
 
@@ -291,20 +288,22 @@ class RainIceParam:
         rho00 = 101325 * (1 + rv) / (self.cst.Rd + rv * self.cst.Rv) / 293.15
 
         # 4.2    Constants for sedimentation
-        self.fsedc[0] = (
-            gamma(self.rid.nuc + (self.rid.dc + 3) / self.rid.alphac)
-            / gamma(self.rid.nuc + 3 / self.rid.alphac)
-            * rho00**self.rid.cexvt
-        )
-        self.fsedc[1] = (
-            gamma(self.rid.nuc2 + (self.rid.dc + 3) / self.rid.alphac2)
-            / gamma(self.rid.nuc2 + 3 / self.rid.alphac2)
-            * rho00**self.rid.cexvt
+        self.fsedc = (
+            (
+                gamma(self.rid.nuc + (self.rid.dc + 3) / self.rid.alphac)
+                / gamma(self.rid.nuc + 3 / self.rid.alphac)
+                * rho00**self.rid.cexvt
+            ),
+            (
+                gamma(self.rid.nuc2 + (self.rid.dc + 3) / self.rid.alphac2)
+                / gamma(self.rid.nuc2 + 3 / self.rid.alphac2)
+                * rho00**self.rid.cexvt
+            ),
         )
 
         momg = lambda alpha, nu, p: gamma(nu + p / alpha) / gamma(nu)
 
-        self.exrsedr = (self.rid.br + self.rid.rd + 1.0) / (self.rid.br + 1.0)
+        self.exsedr = (self.rid.br + self.rid.dr + 1.0) / (self.rid.br + 1.0)
         self.fsedr = (
             self.rid.cr
             + self.rid.ar
@@ -324,7 +323,6 @@ class RainIceParam:
             (4 * 900 * self.cst.pi) ** (-self.excsedi)
             * self.rid.c_i
             * self.rid.ai
-            * self.rid.cci
             * momg(self.rid.alphai, self.rid.nui, self.rid.bi + self.rid.di)
             * (
                 (self.rid.ai * momg(self.rid.alphai, self.rid.nui, self.rid.bi))
@@ -377,24 +375,6 @@ class RainIceParam:
             * self.rid.cexvt
         )
 
-        self.exsedh = (self.rid.bh + self.rid.dh - self.rid.cxh) / (
-            self.rid.bh - self.rid.cxh
-        )
-        self.fsedh = (
-            self.rid.ch
-            * self.rid.ah
-            * self.rid.cch
-            * momg(self.rid.alphah, self.rid.nuh, self.rid.bh + self.rid.dh)
-            * (
-                self.rid.ah
-                * self.rid.cch
-                * momg(self.rid.alphah, self.rid.nuh, self.rid.bh)
-            )
-            ** (-self.exsedh)
-            * rho00
-            * self.rid.cexvt
-        )
-
         # 5. Constants for the skow cold processes
         fact_nucl = 0
         if self.parami.pristine_ice == "PLAT":
@@ -422,7 +402,7 @@ class RainIceParam:
             * self.rid.c1i
             * self.rid.f2i
             * self.rid.c_i
-            * momg(self.rid.alpjai, self.rid.nui, self.rid.di + 2.0)
+            * momg(self.rid.alphai, self.rid.nui, self.rid.di + 2.0)
         )
 
         # Translation note: #ifdef REPRO48 l588 to l591 kept in mode_ini_rain_ice.F90
@@ -466,24 +446,6 @@ class RainIceParam:
         self.ex0depg = self.rid.cxg - 1.0
         self.ex1depg = self.rid.cxg - 0.5 * (self.rid.dg + 3.0)
         self.rdepgred = self.parami.rdepgred_nam
-
-        self.o0deph = (
-            (4 * self.cst.pi)
-            * self.rid.cch
-            * self.rid.c1h
-            * self.rid.f0h
-            * momg(self.rid.alphah, self.rid.nuh, 1)
-        )
-        self.o1deph = (
-            (4 * self.cst.pi)
-            * self.rid.cch
-            * self.rid.c1h
-            * self.rid.f1h
-            * np.sqrt(self.rid.ch)
-            * momg(self.rid.alphah, self.rid.nuh, 0.5 * self.rid.dh + 1.5)
-        )
-        self.ex0deph = self.rid.cxh - 1.0
-        self.ex1deph = self.rid.cxh - 0.5 * (self.rid.dh + 3.0)
 
         # 5.3 Constants for pristine ice autoconversion
         self.criauti = self.parami.criauti_nam
@@ -568,9 +530,27 @@ class RainIceParam:
         )
 
         self.excrimsg = self.excrimss
-        self.crimsg = self.crimsg
+        self.crimsg = self.crimss
+
+        self.srimcg = (
+            self.rid.ccs
+            * self.rid.a_s
+            * momg(self.rid.alphas, self.rid.nus, self.rid.bs)
+        )
+        self.exsrimcg = self.rid.cxs - self.rid.bs
+        self.srimcg2 = (
+            self.rid.ccs
+            * self.rid.ag
+            * momg(self.rid.alphas, self.rid.nus, self.rid.bs)
+        )
+        self.srimcg3 = self.parami.frac_m90
+        self.exsrimcg2 = self.rid.cxs - self.rid.bg
 
         # TODO: translate modd_ini_rain_ice.F90 from l734
+        self.ngaminc = 80
+        self.gaminc_bound_min = 1e-1
+        self.gaminc_bound_max = 1e7
+
         # 7.2 Constants for the accretion of raindrops
 
         # Translation note: #ifdef REPRO48 l763 kept
@@ -581,7 +561,7 @@ class RainIceParam:
             * self.rid.ccs
             * self.rid.ccr
             * self.cst.rholw
-            * (self.cst.rho00**self.rid.cexvt)
+            * (rho00**self.rid.cexvt)
         )
 
         self.lbraccs1 = momg(self.rid.alphas, self.rid.nus, 2) * momg(
@@ -592,7 +572,7 @@ class RainIceParam:
             * momg(self.rid.alphas, self.rid.nus, 1)
             * momg(self.rid.alphar, self.rid.nur, 4)
         )
-        self.lbraccs3 = momg(self.rid.alphar, self.rid.nur)
+        self.lbraccs3 = momg(self.rid.alphar, self.rid.nur, 5)
 
         # Translation note : #ifdef REPRO48 l773 kept
         #                                   l775 removed
@@ -601,7 +581,7 @@ class RainIceParam:
             * self.rid.a_s
             * self.rid.ccs
             * self.rid.ccr
-            * (self.cst.rho00**self.rid.cexvt)
+            * (rho00**self.rid.cexvt)
         )
 
         self.lbsaccr1 = momg(self.rid.alphar, self.rid.nur, 2) * momg(
@@ -610,7 +590,7 @@ class RainIceParam:
         self.lbsaccr2 = momg(self.rid.alphar, self.rid.nur, 1) * momg(
             self.rid.alphas, self.rid.nus, self.rid.bs + 1
         )
-        self.lbsaccr3 = momg(self.rid.alphas, self.rid.nus, self.bs + 2)
+        self.lbsaccr3 = momg(self.rid.alphas, self.rid.nus, self.rid.bs + 2)
 
         # Defining the ranges for the computation of kernels
         zrate = log(self.acclbdas_max / self.acclbdas_min) / (self.nacclbdas - 1)
@@ -635,7 +615,7 @@ class RainIceParam:
             * self.cst.rholw
             * self.colir
             * self.rid.cr
-            * (self.rho00 * self.rid.cexvt)
+            * (rho00 * self.rid.cexvt)
             * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 5)
         )
 
@@ -644,7 +624,7 @@ class RainIceParam:
             (self.cst.pi / 4)
             * self.colir
             * self.rid.cr
-            * (self.rho00**self.rid.cexvt)
+            * (rho00**self.rid.cexvt)
             * self.rid.ccr
             * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 2)
         )
@@ -659,7 +639,7 @@ class RainIceParam:
             (self.cst.pi / 4)
             * self.colig
             * self.rid.ccg
-            * (self.cst.rho00**self.rid.cexvt)
+            * (rho00**self.rid.cexvt)
             * momg(self.rid.alphag, self.rid.nug, self.rid.dg + 2)
         )
         self.exfidryg = (self.rid.cxg - self.rid.dg - 2) / (self.rid.cxg - self.rid.bg)
@@ -681,7 +661,7 @@ class RainIceParam:
             * self.rid.ccg
             * self.rid.ccr
             * self.cst.rholw
-            * (self.cst.rho00**self.rid.cexvt)
+            * (rho00**self.rid.cexvt)
         )
         self.lbsdryg1 = momg(self.rid.alphag, self.rid.nug, 2) * momg(
             self.rid.alphas, self.rid.nus, self.rid.bs
@@ -694,10 +674,12 @@ class RainIceParam:
         self.lbsdryg3 = momg(self.rid.alphas, self.rid.nus, self.rid.bs + 2)
 
         # 8.2.4 Constants for the raindrop collection by the graupel
-        self.frdryg(
-            self.cst.pi**2 / 24
-        ) * self.rid.ccg * self.rid.ccg * self.cst.rholw * (
-            self.cst.rho00**self.rid.cexvt
+        self.frdryg = (
+            (self.cst.pi**2 / 24)
+            * self.rid.ccg
+            * self.rid.ccg
+            * self.cst.rholw
+            * (rho00**self.rid.cexvt)
         )
         self.lbrdryg1 = momg(self.rid.alphag, self.rid.nug, 3) * momg(
             self.rid.alphar, self.rid.nur, 3
