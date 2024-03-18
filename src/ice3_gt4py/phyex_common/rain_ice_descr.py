@@ -59,7 +59,7 @@ class RainIceDescr:
     # f0, f1, f2 -> ventilation coefficients
     # C1 ?
 
-    # Cloud ice charact.
+    # Cloud ice charact
     ai: float = field(init=False)
     bi: float = field(init=False)
     c_i: float = field(init=False)
@@ -200,7 +200,6 @@ class RainIceDescr:
         self.lbexi = 1 / -self.bi
         self.lbexs = 1 / (self.cxs - self.bs)
         self.lbexg = 1 / (self.cxg - self.bg)
-        self.lbexh = 1 / (self.cxh - self.bh)
 
         # 3.4 Constant for shape parameter
         momg = lambda alpha, nu, p: gamma(nu + p / alpha) / gamma(nu)
@@ -220,9 +219,6 @@ class RainIceDescr:
         )
         self.lbg = (self.ag * self.ccg * momg(self.alphag, self.nug, self.bg)) ** (
             -self.lbexg
-        )
-        self.lbh = (self.ah * self.cch * momg(self.alphah, self.nuh, self.bh)) ** (
-            -self.lbexh
         )
 
         self.ns = 1.0 / (self.a_s * momg(self.alphas, self.nus, self.bs))
