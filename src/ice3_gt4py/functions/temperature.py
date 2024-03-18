@@ -5,6 +5,25 @@ from gt4py.cartesian.gtscript import Field, function
 
 
 @function
+def theta2temperature(
+    t: Field["float"], theta: Field["float"], exn: Field["float"]
+) -> Field["float"]:
+    """Convert potential temperature (theta) to temperature
+
+    Args:
+        t (Field[float]): temperature
+        theta (Field[float]): potential temperature
+        exner pressure (Field[float]): temperature
+
+    Returns:
+        Field[float]: temperature
+    """
+
+    t = theta * exn
+    return t
+
+
+@function
 def update_temperature(
     t: Field["float"],
     rc_in: Field["float"],
