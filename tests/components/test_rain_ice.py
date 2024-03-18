@@ -13,6 +13,7 @@ from ifs_physics_common.framework.stencil import compile_stencil
 
 from ice3_gt4py.initialisation.state import allocate_state
 from ice3_gt4py.phyex_common.phyex import Phyex
+from tests.utils.config import BACKEND_LIST
 
 if TYPE_CHECKING:
     from ifs_physics_common.framework.config import GT4PyConfig
@@ -323,14 +324,5 @@ def main(
 
 if __name__ == "__main__":
 
-    BACKEND_LIST = [
-        "numpy",
-        "gt:cpu_ifirst",
-        "gt:cpu_kfirst",
-        "dace:cpu",
-        "dace:gpu",
-        "cuda",
-        "gt:gpu",
-    ]
     for backend in BACKEND_LIST:
         main(backend)
