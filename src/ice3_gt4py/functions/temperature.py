@@ -5,6 +5,30 @@ from gt4py.cartesian.gtscript import Field, function
 
 
 @function
+def update_potential_temperature(
+    theta: Field["float"],
+    transfo_mixing_ratio: Field["float"],
+    ls_fact: Field["float"],
+    lv_fact: Field["float"],
+):
+    """Update theta along a phase transformation given a mixing ratio
+    of transformation.
+
+    The transformation is defined from liquid to ice
+
+    Args:
+        theta (Field[float]): potential temperature to update
+        transfo_mixing_ration (Field[float]): mixing ratio in transformation
+        ls_fact (Field[float]): latent heat of sublimation over heat capacity
+        lv_fact (Field[float]): latent heat of vaporisation over heat capacity
+
+    Returns:
+        Field[float]: updated theta
+    """
+    return theta + transfo_mixing_ratio * (ls_fact - lv_fact)
+
+
+@function
 def theta2temperature(
     t: Field["float"], theta: Field["float"], exn: Field["float"]
 ) -> Field["float"]:
