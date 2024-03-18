@@ -29,9 +29,7 @@ def update_potential_temperature(
 
 
 @function
-def theta2temperature(
-    t: Field["float"], theta: Field["float"], exn: Field["float"]
-) -> Field["float"]:
+def theta2temperature(theta: Field["float"], exn: Field["float"]) -> Field["float"]:
     """Convert potential temperature (theta) to temperature
 
     Args:
@@ -43,8 +41,7 @@ def theta2temperature(
         Field[float]: temperature
     """
 
-    t = theta * exn
-    return t
+    return theta * exn
 
 
 @function
