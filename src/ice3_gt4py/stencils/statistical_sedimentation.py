@@ -4,6 +4,11 @@ from __future__ import annotations
 from gt4py.cartesian.gtscript import Field, function
 from gt4py.cartesian.gtscript import exp, log, sqrt, floor, atan
 from ice3_gt4py.functions.compute_ice_frac import compute_frac_ice
+from ice3_gt4py.functions.sedimentation_flux import (
+    other_species,
+    weighted_sedimentation_flux_1,
+    weighted_sedimentation_flux_2,
+)
 from ice3_gt4py.functions.src_1d import src_1d
 from ice3_gt4py.functions.temperature import update_temperature
 
@@ -41,21 +46,23 @@ def sedimentation_stat(
     g_sed_tmp: Field["float"],  # sedimentation source for graupel
     i_sed_tmp: Field["float"],  # sedimentation source for ice
     s_sed_tmp: Field["float"],  # sedimentation source for snow
-    qp_tmp: Field["float"],         ## cloud subroutine
-    wlbda_tmp: Field["float"],      #
-    wlbdc_tmp: Field["float"],      #
-    cc_tmp: Field["float"],         # sedimentation fall speed
-    wsedw1: Field["float"],         #
-    wsedw2: Field["float"],         #
-    lbc_tmp: Field["float"],        #
-    ray_tmp: Field["float"],        # Cloud mean radius ZRAY
-    conc3d_tmp: Field["float"],     # sea and urban modifications
-    fpr_out: Field["float"],        ## diagnostics # precipitation flux through upper face of the cell
-    inst_rr_out: Field["float"],    # instant rain precipitation PINPRR
-    inst_rc_out: Field["float"],    # instant droplet precipitation PINPRC
-    inst_ri_out: Field["float"],    # instant ice precipitation PINPRI
-    inst_rs_out: Field["float"],    # instant snow precipitation PINPRS
-    inst_rg_out: Field["float"],    # instant graupel precipitation PINPRG
+    qp_tmp: Field["float"],  ## cloud subroutine
+    wlbda_tmp: Field["float"],  #
+    wlbdc_tmp: Field["float"],  #
+    cc_tmp: Field["float"],  # sedimentation fall speed
+    wsedw1: Field["float"],  #
+    wsedw2: Field["float"],  #
+    lbc_tmp: Field["float"],  #
+    ray_tmp: Field["float"],  # Cloud mean radius ZRAY
+    conc3d_tmp: Field["float"],  # sea and urban modifications
+    fpr_out: Field[
+        "float"
+    ],  ## diagnostics # precipitation flux through upper face of the cell
+    inst_rr_out: Field["float"],  # instant rain precipitation PINPRR
+    inst_rc_out: Field["float"],  # instant droplet precipitation PINPRC
+    inst_ri_out: Field["float"],  # instant ice precipitation PINPRI
+    inst_rs_out: Field["float"],  # instant snow precipitation PINPRS
+    inst_rg_out: Field["float"],  # instant graupel precipitation PINPRG
 ):
 
     from __externals__ import (
@@ -243,5 +250,3 @@ def terminal_velocity(
     wsedw1 = rhodref ** (-cexvt) * wlbdc_tmp * (-dc) * cc_tmp * fsedc
 
     return wsedw1
-
-
