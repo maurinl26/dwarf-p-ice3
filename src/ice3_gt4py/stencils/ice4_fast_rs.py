@@ -61,7 +61,6 @@ def ice4_fast_rs(
         gami,
         tt,
         cpv,
-        Cl,
         lvtt,
         estt,
         Rv,
