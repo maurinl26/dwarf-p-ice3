@@ -105,7 +105,6 @@ STENCIL_COLLECTIONS_WITH_EXTERNALS = {
         "fidryg": 0,
         "colexig": 0,
         "colig": 0,
-        "ldsoft": 0,
         "estt": 0,
         "Rv": 0,
         "cpv": 0,
