@@ -48,7 +48,7 @@ def ice4_fast_rs(
     zw1_tmp: Field["float"],  # used by interp_micro
     zw2_tmp: Field["float"],  # used by interp_micro
     zw3_tmp: Field["float"],
-    ldsoft: bool,
+    ldsoft: "bool",
 ):
 
     from __externals__ import (
