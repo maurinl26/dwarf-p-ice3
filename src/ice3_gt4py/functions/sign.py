@@ -3,26 +3,16 @@ from gt4py.cartesian.gtscript import function
 
 
 @function
-def sign(
-    x: float,
-) -> float:
-    """Compute sign function
+def sign(a: float, b: float) -> float:
+    """Returns the value of a with the sign of b
 
-    sign = 1 if x > 0
-    sign = 0 if x = 0
-    sign = -1 if x < 0
+    sign(a,b) = abs(a) if b >= 0 else -abs(a)
 
     Args:
-        x (float): value
+        a (float): value to take the sign from
+        b (float): value to change with the sign of a
 
     Returns:
-        float: value of sign function at x
+        float: _description_
     """
-    if x > 0:
-        sign = 1
-    elif x == 0:
-        sign = 0
-    elif x < 0:
-        sign = -1
-
-    return sign
+    return abs(a) if b >= 0 else -abs(a)
