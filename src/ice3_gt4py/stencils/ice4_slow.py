@@ -8,7 +8,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 @stencil_collection("ice4_slow")
 def ice4_slow(
-    ldcompute: Field["float"],
+    ldcompute: Field["bool"],
     rhodref: Field["float"],
     t: Field["float"],
     ssi: Field["float"],
@@ -38,8 +38,8 @@ def ice4_slow(
         rhodref (Field[float]): reference density
         t (Field[float]): temperature
         ssi (Field[float]): supersaturation over ice
-        lv_fact (Field[float]): vaporisation latent heat
-        ls_fact (Field[float]): sublimation latent heat
+        lv_fact (Field[float]): vaporisation latent heat over heat capacity
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
         rv_t (Field[float]): vapour mixing ratio at t
         ri_t (Field[float]): ice m.r. at t
         rs_t (Field[float]): snow m.r. at t
@@ -104,7 +104,7 @@ def ice4_slow(
         if rv_t < v_rtmin and rs_t < s_rtmin and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
-            rv_deps_tnd = rv_deps_tnd = (ssi / (rhodref * ai)) * (
+            rv_deps_tnd = (ssi / (rhodref * ai)) * (
                 o0deps * lbdas**ex0deps + o1deps * cj * lbdas**ex1deps
             )
 
@@ -135,7 +135,9 @@ def ice4_slow(
         if hli_hri > i_rtmin and ldcompute:
             criauti_tmp = min(criauti, 10 ** (acriauti * (t - tt) + bcriauti))
             ri_auts_tnd = (
-                timauti * exp(texauti * (t - tt)) * max(hli_hri - criauti_tmp * hli_hcf)
+                timauti
+                * exp(texauti * (t - tt))
+                * max(0, hli_hri - criauti_tmp * hli_hcf)
             )
 
         else:
