@@ -5,7 +5,7 @@ from gt4py.cartesian.gtscript import Field, exp, log
 
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
-from ice3_gt4py.functions import sign
+from ice3_gt4py.functions.sign import sign
 
 
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rs.F90")
@@ -43,15 +43,16 @@ def ice4_fast_rs(
     rs_rsaccrg_tnd: Field["float"],
     rs_freez1_tnd: Field["float"],
     rs_freez2_tnd: Field["float"],
-    grim_tmp: Field["int"],  # change to field bool
-    gacc_tmp: Field["int"],
-    zw1_tmp: Field["float"],  # used by interp_micro
-    zw2_tmp: Field["float"],  # used by interp_micro
+    grim_tmp: Field["bool"],
+    gacc_tmp: Field["bool"],
+    zw1_tmp: Field["float"],
+    zw2_tmp: Field["float"],
     zw3_tmp: Field["float"],
     ldsoft: "bool",
 ):
 
     from __externals__ import (
+        r_rtmin,
         s_rtmin,
         c_rtmin,
         epsilo,
@@ -92,6 +93,11 @@ def ice4_fast_rs(
         lbsaccr3,
         bs,
         fsaccrg,
+        snow_riming,
+        alpw,
+        betaw,
+        gamw,
+        fscvmg,
     )
 
     # 5.0 maximum freezing rate
@@ -101,7 +107,7 @@ def ice4_fast_rs(
         if rs_t < s_rtmin and ldcompute:
 
             rs_freez1_tnd = rv_t * pres / (epsilo + rv_t)
-            if levlimit == 1:
+            if levlimit:
                 rs_freez1_tnd = min(
                     rs_freez1_tnd, exp(alpi - betai / t - gami * log(t))
                 )
@@ -121,6 +127,7 @@ def ice4_fast_rs(
             )
 
             # Translation note l129 removed
+            freez_rate_tmp = 0
 
         else:
 
@@ -137,10 +144,10 @@ def ice4_fast_rs(
             # Translation note : l144 kept
             #                    l146 removed
 
-            grim_tmp = 1
+            grim_tmp = True
 
         else:
-            grim_tmp = 0
+            grim_tmp = False
             rs_rcrims_tnd = 0
             rs_rcrimss_tnd = 0
             rs_rsrimcg_tnd = 0
@@ -170,7 +177,7 @@ def ice4_fast_rs(
 
         # PARAMI%CSNOWRIMING == M90
         # TODO : refactor if statement out of stencil for performance
-        if csnowriming == 0:
+        if snow_riming == 0:
 
             if grim_tmp:
                 zw_tmp = rs_rsrimcg_tnd - rs_rcrimss_tnd
@@ -203,7 +210,7 @@ def ice4_fast_rs(
             zw0_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rcrims_tnd - rc_rimss_out))
             rc_rimsg_out = zw0_tmp * max(0, rs_rcrims_tnd - rc_rimss_out)  # rc_rimsg
             freez_rate_tmp = max(0, freez_rate_tmp - rc_rimsg_out)
-            rs_rimcg_out = zw0d * rs_rsrimcg_tnd
+            rs_rimcg_out = zw0_tmp * rs_rsrimcg_tnd
 
             rs_rimcg_out *= max(0, -sign(1, -rc_rimsg_out))
             rc_rimsg_out = max(0, rc_rimsg_out)
@@ -216,9 +223,9 @@ def ice4_fast_rs(
     # 5.2. rain accretion onto the aggregates
     with computation(PARALLEL), interval(...):
         if rr_t > r_rtmin and rs_t > s_rtmin and ldcompute:
-            gacc = True
+            gacc_tmp = True
         else:
-            gacc = False
+            gacc_tmp = False
             rs_rraccs_tnd = 0
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
