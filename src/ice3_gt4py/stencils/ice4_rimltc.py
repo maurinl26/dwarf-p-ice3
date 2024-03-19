@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, function
+from gt4py.cartesian.gtscript import Field
 
 from ifs_physics_common.framework.stencil import stencil_collection
 
@@ -35,13 +35,17 @@ def ice4_rimltc(
         lfeedbackt,
     )
 
-    # 7.1 cloud ice melting
-    if ri_t > 0 and t > tt and ldcompute:
-        rimltc_mr = ri_t
+    with computation(PARALLEL), interval(...):
 
-        # limitation due to zero crossing of temperature
-        if lfeedbackt:
-            rimltc_mr = min(rimltc_mr, max(0, (tht - tt / exn) / (ls_fact - lv_fact)))
+        # 7.1 cloud ice melting
+        if ri_t > 0 and t > tt and ldcompute:
+            rimltc_mr = ri_t
 
-    else:
-        rimltc_mr = 0
+            # limitation due to zero crossing of temperature
+            if lfeedbackt:
+                rimltc_mr = min(
+                    rimltc_mr, max(0, (tht - tt / exn) / (ls_fact - lv_fact))
+                )
+
+        else:
+            rimltc_mr = 0
