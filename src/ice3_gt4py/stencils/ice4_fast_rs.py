@@ -82,7 +82,7 @@ def ice4_fast_rs(
         srimcg3,
         srimcg2,
         exsrimcg2,
-        fracss,
+        fraccss,
         cxs,
         lbraccs1,
         lbraccs2,
@@ -242,7 +242,7 @@ def ice4_fast_rs(
             #                            l285 to l289 removed
 
             zw_tmp = (
-                fracss
+                fraccss
                 * (lbda_s**cxs)
                 * (rhodref ** (-cexvt))
                 * (

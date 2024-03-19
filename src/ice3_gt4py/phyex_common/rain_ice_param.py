@@ -195,6 +195,8 @@ class RainIceParam:
     crimsg: float = field(init=False)
     exsrimcg: float = field(init=False)
     exsrimcg2: float = field(init=False)
+    srimcg: float = field(init=False)
+    srimcg2: float = field(init=False)
     srimcg3: float = field(init=False)
 
     gaminc_bound_min: float = field(init=False)
