@@ -75,7 +75,7 @@ def ice4_slow(
         colexis,
         exiaggs,
         cexvt,
-        xcriauti,
+        criauti,
         acriauti,
         bcriauti,
         timauti,
@@ -133,9 +133,9 @@ def ice4_slow(
     with computation(PARALLEL), interval(...):
 
         if hli_hri > i_rtmin and ldcompute:
-            criauti = min(xcriauti, 10 ** (acriauti * (t - tt) + bcriauti))
+            criauti_tmp = min(criauti, 10 ** (acriauti * (t - tt) + bcriauti))
             ri_auts_tnd = (
-                timauti * exp(texauti * (t - tt)) * max(hli_hri - criauti * hli_hcf)
+                timauti * exp(texauti * (t - tt)) * max(hli_hri - criauti_tmp * hli_hcf)
             )
 
         else:
