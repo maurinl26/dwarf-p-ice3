@@ -40,7 +40,7 @@ def ice4_rimltc(
         rimltc_mr = ri_t
 
         # limitation due to zero crossing of temperature
-        if lfeedbackt == 1:
+        if lfeedbackt:
             rimltc_mr = min(rimltc_mr, max(0, (tht - tt / exn) / (ls_fact - lv_fact)))
 
     else:
