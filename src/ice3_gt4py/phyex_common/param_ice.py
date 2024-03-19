@@ -63,6 +63,12 @@ class SubgAucvRi(Enum):
     ADJU = 2
 
 
+class SnowRiming(Enum):
+
+    M90 = 0
+    OLD = 1
+
+
 @ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
 @dataclass
 class ParamIce:
@@ -153,7 +159,7 @@ class ParamIce:
     lnullwetg: bool = field(default=True)
     lwetgpost: bool = field(default=True)
 
-    snow_riming: Literal["OLD", "M90"] = field(default="M90")
+    snow_riming: int = field(default=SnowRiming.M90.value)
 
     frac_m90: float = field(default=0.1)
     nmaxiter_micro: int = field(default=5)
