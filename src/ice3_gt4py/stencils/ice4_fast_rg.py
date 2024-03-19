@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp
+from gt4py.cartesian.gtscript import Field, exp, log
 
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
@@ -116,6 +116,13 @@ def ice4_fast_rg(
         lbsdryg1,
         lbsdryg2,
         lbsdryg3,
+        fsdryg,
+        colsg,
+        cxs,
+        bs,
+        alpw,
+        betaw,
+        gamw,
     )
 
     # 6.1 rain contact freezing
@@ -124,7 +131,7 @@ def ice4_fast_rg(
         if ri_t > i_rtmin and rr_t > r_rtmin and ldcompute:
 
             # not LDSOFT : compute the tendencies
-            if ldsoft == 0:
+            if not ldsoft:
 
                 ricfrrg = icfrr * ri_t * lbdar**exicfrr * rhodref ** (-cexvt)
                 rrcfrig = rcfri * ci_t * lbdar**exrcfri * rhodref ** (-cexvt)
@@ -156,7 +163,7 @@ def ice4_fast_rg(
 
         if rg_t > g_rtmin and rc_t > r_rtmin and ldcompute:
 
-            if ldsoft == 0:
+            if not ldsoft:
                 rg_rcdry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
                 rg_rcdry_tnd = rg_rcdry_tnd * fcdryg * rc_t
 
@@ -165,7 +172,7 @@ def ice4_fast_rg(
 
         if rg_t > g_rtmin and ri_t > i_rtmin and ldcompute:
 
-            if ldsoft == 0:
+            if not ldsoft:
                 rg_ridry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
                 rg_ridry_tnd = fidryg * exp(colexig * (t - tt)) * ri_t * rg_ridry_tnd
                 rg_riwet_tnd = rg_ridry_tnd / (colig * exp(colexig * (t - tt)))
@@ -225,7 +232,7 @@ def ice4_fast_rg(
     # l233
     with computation(PARALLEL), interval(...):
         rg_rrdry_tnd = (
-            frdyrg
+            frdryg
             * zw_tmp
             * (lbdar ** (-4))
             * (lbdag**cxg)
@@ -250,7 +257,7 @@ def ice4_fast_rg(
         if rg_t > g_rtmin and ldcompute:
 
             # Duplicated code with ice4_fast_rs
-            if ldsoft == 0:
+            if not ldsoft:
                 rg_freez1_tnd = rv_t * pres / (epsilo + rv_t)
                 if levlimit:
                     rg_freez1_tnd = min(
@@ -274,31 +281,31 @@ def ice4_fast_rg(
 
             # Growth mode
             # TODO : convert logical to int operations
-            ldwetg = max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd) <= max(
-                rdryg_init_tmp - rg_ridry_tnd - rg_rsdry_tnd
-            )
+            # ldwetg = (max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd) <= max(0,
+            #     rdryg_init_tmp - rg_ridry_tnd - rg_rsdry_tnd
+            # ))
 
-            if lnullwetg == 1:
-                ldwetg = ldwetg and rdryg_init_tmp > 0
-            else:
-                ldwetg = ldwetg and rwetg_init_tmp > 0
+            # if not lnullwetg:
+            #     ldwetg = (ldwetg and rdryg_init_tmp > 0)
+            # else:
+            #     ldwetg = (ldwetg and rwetg_init_tmp > 0)
 
-            if lwetgpost == 0:
-                ldwetg = ldwetg and t < tt
+            # if not lwetgpost:
+            #     ldwetg = (ldwetg and t < tt)
 
-            lldryg = (
-                t < tt
-                and rdryg_init_tmp
-                and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
-                > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
-            )
+            # lldryg = (
+            #     t < tt
+            #     and rdryg_init_tmp
+            #     and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
+            #     > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
+            # )
 
         else:
             rg_freez1_tnd = 0
             rg_freez2_tnd = 0
             rwetg_init_tmp = 0
-            ldwetg == 0
-            lldryg == 0
+            ldwetg = False
+            lldryg = False
 
     # l317
     with computation(PARALLEL), interval(...):
@@ -332,9 +339,9 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
 
         if rg_t > g_rtmin and t > tt and ldcompute:
-            if ldsoft == 0:
+            if not ldsoft:
                 rg_mltr = rv_t * pres / (epsilo + rv_t)
-                if levlimit == 1:
+                if levlimit:
                     rg_mltr = min(rg_mltr, exp(alpw - betaw / t - gamw * log(t)))
 
                 rg_mltr = ka * (tt - t) + dv * (lvtt + (cpv - Cl) * (t - tt)) * (
