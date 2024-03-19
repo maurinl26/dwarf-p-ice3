@@ -377,7 +377,7 @@ class RainIceParam:
             * self.rid.cexvt
         )
 
-        # 5. Constants for the skow cold processes
+        # 5. Constants for the slow cold processes
         fact_nucl = 0
         if self.parami.pristine_ice == "PLAT":
             fact_nucl = 1.0  # Plates

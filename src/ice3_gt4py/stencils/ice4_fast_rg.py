@@ -45,6 +45,7 @@ def ice4_fast_rg(
     rdryg_init_tmp: Field["float"],
     rwetg_init_tmp: Field["float"],
     zw_tmp: Field["float"],  # ZZW in Fortran
+    ldsoft: "bool",  # bool to update tendencies
 ):
     """Compute fast graupel sources
 
@@ -89,14 +90,13 @@ def ice4_fast_rg(
         exicfrr,
         exrcfri,
         cexvt,
-        crflimit,  # True to limit rain contact freezing to possible heat exchange
+        lcrflimit,  # True to limit rain contact freezing to possible heat exchange
         cxg,
         dg,
         fcdryg,
         fidryg,
         colexig,
         colig,
-        ldsoft,
         estt,
         Rv,
         cpv,
@@ -113,8 +113,8 @@ def ice4_fast_rg(
         lnullwetg,
         epsilo,
         frdryg,
-        lbdryg1,
-        lbdryg2,
+        lbsdryg1,
+        lbsdryg2,
         lbsdryg3,
     )
 
@@ -129,7 +129,7 @@ def ice4_fast_rg(
                 ricfrrg = icfrr * ri_t * lbdar**exicfrr * rhodref ** (-cexvt)
                 rrcfrig = rcfri * ci_t * lbdar**exrcfri * rhodref ** (-cexvt)
 
-                if crflimit:
+                if lcrflimit:
                     zw0d = max(
                         0,
                         min(
@@ -231,9 +231,9 @@ def ice4_fast_rg(
             * (lbdag**cxg)
             * (rhodref ** (-cexvt - 1))
             * (
-                lbdryg1 / (lbdag**2)
-                + lbdryg2 / (lbdag * lbdar)
-                + lbdryg3 / (lbdar**2)
+                lbsdryg1 / (lbdag**2)
+                + lbsdryg2 / (lbdag * lbdar)
+                + lbsdryg3 / (lbdar**2)
             )
         )
 
