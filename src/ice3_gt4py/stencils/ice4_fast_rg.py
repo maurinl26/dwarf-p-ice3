@@ -280,38 +280,48 @@ def ice4_fast_rg(
             )
 
             # Growth mode
-            # TODO : convert logical to int operations
-            # ldwetg = (max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd) <= max(0,
-            #     rdryg_init_tmp - rg_ridry_tnd - rg_rsdry_tnd
-            # ))
+            # bool calculation :
 
-            # if not lnullwetg:
-            #     ldwetg = (ldwetg and rdryg_init_tmp > 0)
-            # else:
-            #     ldwetg = (ldwetg and rwetg_init_tmp > 0)
+            ldwetg = (
+                1
+                if (
+                    max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
+                    <= max(0, rdryg_init_tmp - rg_ridry_tnd - rg_rsdry_tnd)
+                )
+                else 0
+            )
 
-            # if not lwetgpost:
-            #     ldwetg = (ldwetg and t < tt)
+            if not lnullwetg:
+                ldwetg = 1 if (ldwetg == 1 and rdryg_init_tmp > 0) else 0
 
-            # lldryg = (
-            #     t < tt
-            #     and rdryg_init_tmp
-            #     and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
-            #     > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
-            # )
+            else:
+                ldwetg = 1 if (ldwetg == 1 and rwetg_init_tmp > 0) else 0
+
+            if not lwetgpost:
+                ldwetg = 1 if (ldwetg == 1 and t < tt) else 0
+
+            lldryg = (
+                1
+                if (
+                    t < tt
+                    and rdryg_init_tmp > 1e-20
+                    and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
+                    > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
+                )
+                else 0
+            )
 
         else:
             rg_freez1_tnd = 0
             rg_freez2_tnd = 0
             rwetg_init_tmp = 0
-            ldwetg = False
-            lldryg = False
+            ldwetg = 0
+            lldryg = 0
 
     # l317
     with computation(PARALLEL), interval(...):
 
         if ldwetg == 1:
-            # TODO : rwetg_init_tmp to instanciate
             rr_wetg = -(rg_riwet_tnd + rg_rswet_tnd + rg_rcdry_tnd - rwetg_init_tmp)
             rc_wetg = rg_rcdry_tnd
             ri_wetg = rg_riwet_tnd

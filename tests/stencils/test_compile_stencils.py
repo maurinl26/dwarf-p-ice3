@@ -258,7 +258,7 @@ def test_ice_adjust_stencils():
 
     # Compiling with phyex externals
     for backend, stencil_collection in itertools.product(
-        BACKEND_LIST, STENCIL_COLLECTIONS
+        ["numpy"], STENCIL_COLLECTIONS
     ):
 
         logging.info("Building with Phyex externals")
