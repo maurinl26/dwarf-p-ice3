@@ -7,10 +7,9 @@ from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 from ice3_gt4py.functions.interp_micro import (
     index_interp_micro_1d,
-    index_interp_micro_2d,
+    index_interp_micro_2d_rs,
     interp_micro_1d,
     interp_micro_2d,
-    search_interp_micro_1d,
 )
 from ice3_gt4py.functions.sign import sign
 
@@ -263,11 +262,11 @@ def ice4_fast_rs(
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
 
-            index_r, index_s = index_interp_micro_2d(lbda_r, lbda_s)
+            index_r, index_s = index_interp_micro_2d_rs(lbda_r, lbda_s)
 
-            zw1_tmp = index_interp_micro_2d(index_r, index_s, ker_raccss)
-            zw2_tmp = index_interp_micro_2d(index_r, index_s, ker_raccs)
-            zw3_tmp = index_interp_micro_2d(index_r, index_s, ker_saccrg)
+            zw1_tmp = interp_micro_2d(index_r, index_s, ker_raccss)
+            zw2_tmp = interp_micro_2d(index_r, index_s, ker_raccs)
+            zw3_tmp = interp_micro_2d(index_r, index_s, ker_saccrg)
 
             # CALL INTERP_MICRO_2D
 
