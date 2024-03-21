@@ -106,9 +106,9 @@ def interp_micro_2d(
 
     floating_index_r, floating_index_s = index_r - lut_index_r, index_s - lut_index_s
     return floating_index_s * (
-        floating_index_r * lookup_table.at[lut_index_r + 1, lut_index_s + 1]
-        + (1 - floating_index_r) * lookup_table.at[lut_index_r, lut_index_s + 1]
+        floating_index_r * lookup_table.at[lut_index_s + 1, lut_index_r + 1]
+        + (1 - floating_index_r) * lookup_table.at[lut_index_s + 1, lut_index_r]
     ) + (1 - floating_index_s) * (
-        floating_index_r * lookup_table.at[lut_index_r + 1, lut_index_s]
-        + (1 - floating_index_r) * lookup_table.at[lut_index_r, lut_index_s]
+        floating_index_r * lookup_table.at[lut_index_s, lut_index_r + 1]
+        + (1 - floating_index_r) * lookup_table.at[lut_index_s, lut_index_r]
     )
