@@ -169,9 +169,9 @@ def ice4_fast_rs(
             # Translation note : LDPACK is False l46 to l88 removed
             #                                    l90 to l123 kept
             index = index_interp_micro_1d(zw_tmp)
-            zw1_tmp = search_interp_micro_1d(index, gaminc_rim1)
-            zw2_tmp = search_interp_micro_1d(index, gaminc_rim2)
-            zw3_tmp = search_interp_micro_1d(index, gaminc_rim4)
+            zw1_tmp = interp_micro_1d(index, gaminc_rim1)
+            zw2_tmp = interp_micro_1d(index, gaminc_rim2)
+            zw3_tmp = interp_micro_1d(index, gaminc_rim4)
 
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
