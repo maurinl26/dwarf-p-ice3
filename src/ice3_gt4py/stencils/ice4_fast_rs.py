@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log
+from gt4py.cartesian.gtscript import Field, GlobalTable, exp, log
 
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
+from ice3_gt4py.functions.interp_micro import (
+    index_interp_micro_1d,
+    interp_micro_1d,
+    interp_micro_2d,
+    search_interp_micro_1d,
+)
 from ice3_gt4py.functions.sign import sign
 
 
@@ -49,6 +55,9 @@ def ice4_fast_rs(
     zw2_tmp: Field["float"],
     zw3_tmp: Field["float"],
     ldsoft: "bool",
+    gaminc_rim1: GlobalTable[float, (80)],
+    gaminc_rim2: GlobalTable[float, (80)],
+    gaminc_rim4: GlobalTable[float, (80)],
 ):
 
     from __externals__ import (
@@ -152,7 +161,18 @@ def ice4_fast_rs(
             rs_rcrimss_tnd = 0
             rs_rsrimcg_tnd = 0
 
-    # TODO : interp_micro_1d l157 to l162
+    # Interpolation + Lookup Table
+    with computation(PARALLEL), interval(...):
+
+        if (not ldsoft) and grim_tmp:
+
+            # Translation note : LDPACK is False l46 to l88 removed
+            #                                    l90 to l123 kept
+            index = index_interp_micro_1d(zw_tmp)
+            zw1_tmp = search_interp_micro_1d(index, gaminc_rim1)
+            zw2_tmp = search_interp_micro_1d(index, gaminc_rim2)
+            zw3_tmp = search_interp_micro_1d(index, gaminc_rim4)
+
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
 
