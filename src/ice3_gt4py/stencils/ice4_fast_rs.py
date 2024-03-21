@@ -7,6 +7,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 from ice3_gt4py.functions.interp_micro import (
     index_interp_micro_1d,
+    index_interp_micro_2d,
     interp_micro_1d,
     interp_micro_2d,
     search_interp_micro_1d,
@@ -58,6 +59,9 @@ def ice4_fast_rs(
     gaminc_rim1: GlobalTable[float, (80)],
     gaminc_rim2: GlobalTable[float, (80)],
     gaminc_rim4: GlobalTable[float, (80)],
+    ker_raccs: GlobalTable[float, (40, 40)],
+    ker_raccss: GlobalTable[float, (40, 40)],
+    ker_saccrg: GlobalTable[float, (40, 40)],
 ):
 
     from __externals__ import (
@@ -166,7 +170,7 @@ def ice4_fast_rs(
 
         if (not ldsoft) and grim_tmp:
 
-            # Translation note : LDPACK is False l46 to l88 removed
+            # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
             #                                    l90 to l123 kept
             index = index_interp_micro_1d(zw_tmp)
             zw1_tmp = interp_micro_1d(index, gaminc_rim1)
@@ -250,14 +254,20 @@ def ice4_fast_rs(
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
 
-    # TODO: l264 to l272 interp_micro_2d
     with computation(PARALLEL), interval(...):
+        # Translation note : LDPACK is False l159 to l223 removed in interp_micro.func.h
+        #                                    l226 to l266 kept
 
-        # TODO: switch ldsoft statement evaluation with stencil declaration
-        if ldsoft:
+        if (not ldsoft) and gacc_tmp:
             rs_rraccs_tnd = 0
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
+
+            index_r, index_s = index_interp_micro_2d(lbda_r, lbda_s)
+
+            zw1_tmp = index_interp_micro_2d(index_r, index_s, ker_raccss)
+            zw2_tmp = index_interp_micro_2d(index_r, index_s, ker_raccs)
+            zw3_tmp = index_interp_micro_2d(index_r, index_s, ker_saccrg)
 
             # CALL INTERP_MICRO_2D
 
