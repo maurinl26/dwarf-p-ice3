@@ -77,73 +77,73 @@ def ice4_fast_rg(
     """
 
     from __externals__ import (
-        Ci,
-        Cl,
-        tt,
-        lvtt,
-        i_rtmin,
-        r_rtmin,
-        g_rtmin,
-        s_rtmin,
-        icfrr,
-        rcfri,
-        exicfrr,
-        exrcfri,
-        cexvt,
-        lcrflimit,  # True to limit rain contact freezing to possible heat exchange
-        cxg,
-        dg,
-        fcdryg,
-        fidryg,
-        colexig,
-        colig,
-        estt,
-        Rv,
-        cpv,
-        lmtt,
-        o0depg,
-        o1depg,
-        ex0depg,
-        ex1depg,
-        levlimit,
-        alpi,
-        betai,
-        gami,
-        lwetgpost,
-        lnullwetg,
-        epsilo,
-        frdryg,
-        lbsdryg1,
-        lbsdryg2,
-        lbsdryg3,
-        fsdryg,
-        colsg,
-        cxs,
-        bs,
-        alpw,
-        betaw,
-        gamw,
+        CI,
+        CL,
+        TT,
+        LVTT,
+        I_RTMIN,
+        R_RTMIN,
+        G_RTMIN,
+        S_RTMIN,
+        ICFRR,
+        RCFRI,
+        EXICFRR,
+        EXRCFRI,
+        CEXVT,
+        LCRFLIMIT,  # TRUE TO LIMIT RAIN CONTACT FREEZING TO POSSIBLE HEAT EXCHANGE
+        CXG,
+        DG,
+        FCDRYG,
+        FIDRYG,
+        COLEXIG,
+        COLIG,
+        ESTT,
+        RV,
+        CPV,
+        LMTT,
+        O0DEPG,
+        O1DEPG,
+        EX0DEPG,
+        EX1DEPG,
+        LEVLIMIT,
+        ALPI,
+        BETAI,
+        GAMI,
+        LWETGPOST,
+        LNULLWETG,
+        EPSILO,
+        FRDRYG,
+        LBSDRYG1,
+        LBSDRYG2,
+        LBSDRYG3,
+        FSDRYG,
+        COLSG,
+        CXS,
+        BS,
+        ALPW,
+        BETAW,
+        GAMW,
     )
 
     # 6.1 rain contact freezing
     with computation(PARALLEL), interval(...):
 
-        if ri_t > i_rtmin and rr_t > r_rtmin and ldcompute:
+        if ri_t > I_RTMIN and rr_t > R_RTMIN and ldcompute:
 
             # not LDSOFT : compute the tendencies
             if not ldsoft:
 
-                ricfrrg = icfrr * ri_t * lbdar**exicfrr * rhodref ** (-cexvt)
-                rrcfrig = rcfri * ci_t * lbdar**exrcfri * rhodref ** (-cexvt)
+                ricfrrg = ICFRR * ri_t * lbdar**EXICFRR * rhodref ** (-CEXVT)
+                rrcfrig = RCFRI * ci_t * lbdar**EXRCFRI * rhodref ** (-CEXVT)
 
-                if lcrflimit:
+                if LCRFLIMIT:
                     zw0d = max(
                         0,
                         min(
                             1,
-                            (ricfrrg * Ci + rrcfrig * Cl)
-                            * (tt - t)
-                            / max(1e-20, lvtt * rrcfrig),
+                            (ricfrrg * CI + rrcfrig * CL)
+                            * (TT - t)
+                            / max(1e-20, LVTT * rrcfrig),
                         ),
                     )
                     rrcfrig = zw0d * rrcfrig
@@ -161,21 +161,21 @@ def ice4_fast_rg(
     # 6.3 compute graupel growth
     with computation(PARALLEL), interval(...):
 
-        if rg_t > g_rtmin and rc_t > r_rtmin and ldcompute:
+        if rg_t > G_RTMIN and rc_t > R_RTMIN and ldcompute:
 
             if not ldsoft:
-                rg_rcdry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
-                rg_rcdry_tnd = rg_rcdry_tnd * fcdryg * rc_t
+                rg_rcdry_tnd = lbdag ** (CXG - DG - 2.0) * rhodref ** (-CEXVT)
+                rg_rcdry_tnd = rg_rcdry_tnd * FCDRYG * rc_t
 
         else:
             rg_rcdry_tnd = 0
 
-        if rg_t > g_rtmin and ri_t > i_rtmin and ldcompute:
+        if rg_t > G_RTMIN and ri_t > I_RTMIN and ldcompute:
 
             if not ldsoft:
-                rg_ridry_tnd = lbdag ** (cxg - dg - 2.0) * rhodref ** (-cexvt)
-                rg_ridry_tnd = fidryg * exp(colexig * (t - tt)) * ri_t * rg_ridry_tnd
-                rg_riwet_tnd = rg_ridry_tnd / (colig * exp(colexig * (t - tt)))
+                rg_ridry_tnd = lbdag ** (CXG - DG - 2.0) * rhodref ** (-CEXVT)
+                rg_ridry_tnd = FIDRYG * exp(COLEXIG * (t - TT)) * ri_t * rg_ridry_tnd
+                rg_riwet_tnd = rg_ridry_tnd / (COLIG * exp(COLEXIG * (t - TT)))
 
         else:
             rg_ridry_tnd = 0
@@ -185,7 +185,7 @@ def ice4_fast_rg(
     # Translation note : l171 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
 
-        if rs_t > s_rtmin and rg_t > g_rtmin and ldcompute:
+        if rs_t > S_RTMIN and rg_t > G_RTMIN and ldcompute:
             gdry = 1  # GDRY is a boolean field in f90
 
         else:
@@ -203,25 +203,25 @@ def ice4_fast_rg(
         #                                   l200 to l206 removed
         if gdry == 1:
             rg_rswet_tnd = (
-                fsdryg
+                FSDRYG
                 * zw_tmp
-                / colsg
-                * (lbdas * (cxs - bs))
-                * (lbdag**cxg)
-                * (rhodref ** (-cexvt))
+                / COLSG
+                * (lbdas * (CXS - BS))
+                * (lbdag**CXG)
+                * (rhodref ** (-CEXVT))
                 * (
-                    lbsdryg1 / (lbdag**2)
-                    + lbsdryg2 / (lbdag * lbdas)
-                    + lbsdryg3 / (lbdas**2)
+                    LBSDRYG1 / (lbdag**2)
+                    + LBSDRYG2 / (lbdag * lbdas)
+                    + LBSDRYG3 / (lbdas**2)
                 )
             )
 
-            rg_rsdry_tnd = rg_rswet_tnd * colsg * exp(t - tt)
+            rg_rsdry_tnd = rg_rswet_tnd * COLSG * exp(t - TT)
 
     # 6.2.6 accreation of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
 
-        if rr_t < r_rtmin and rg_t < g_rtmin and ldcompute:
+        if rr_t < R_RTMIN and rg_t < G_RTMIN and ldcompute:
             gdry = 1
         else:
             gdry = 0
@@ -232,15 +232,15 @@ def ice4_fast_rg(
     # l233
     with computation(PARALLEL), interval(...):
         rg_rrdry_tnd = (
-            frdryg
+            FRDRYG
             * zw_tmp
             * (lbdar ** (-4))
-            * (lbdag**cxg)
-            * (rhodref ** (-cexvt - 1))
+            * (lbdag**CXG)
+            * (rhodref ** (-CEXVT - 1))
             * (
-                lbsdryg1 / (lbdag**2)
-                + lbsdryg2 / (lbdag * lbdar)
-                + lbsdryg3 / (lbdar**2)
+                LBSDRYG1 / (lbdag**2)
+                + LBSDRYG2 / (lbdag * lbdar)
+                + LBSDRYG3 / (lbdar**2)
             )
         )
 
@@ -254,24 +254,24 @@ def ice4_fast_rg(
     # Translation note : l251 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
 
-        if rg_t > g_rtmin and ldcompute:
+        if rg_t > G_RTMIN and ldcompute:
 
             # Duplicated code with ice4_fast_rs
             if not ldsoft:
-                rg_freez1_tnd = rv_t * pres / (epsilo + rv_t)
-                if levlimit:
+                rg_freez1_tnd = rv_t * pres / (EPSILO + rv_t)
+                if LEVLIMIT:
                     rg_freez1_tnd = min(
-                        rg_freez1_tnd, exp(alpi - betai / t - gami * log(t))
+                        rg_freez1_tnd, exp(ALPI - BETAI / t - GAMI * log(t))
                     )
 
-                rg_freez1_tnd = ka * (tt - t) + dv * (lvtt + (cpv - Cl) * (t - tt)) * (
-                    estt - rg_freez1_tnd
-                ) / (Rv * t)
+                rg_freez1_tnd = ka * (TT - t) + dv * (LVTT + (CPV - CL) * (t - TT)) * (
+                    ESTT - rg_freez1_tnd
+                ) / (RV * t)
                 rg_freez1_tnd *= (
-                    o0depg * lbdag**ex0depg + o1depg * cj * lbdag**ex1depg
-                ) / (rhodref * (lmtt - Cl * (tt - t)))
-                rg_freez2_tnd = (rhodref * (lmtt + (Ci - Cl) * (tt - t))) / (
-                    rhodref * (lmtt - Cl * (tt - t))
+                    O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG
+                ) / (rhodref * (LMTT - CL * (TT - t)))
+                rg_freez2_tnd = (rhodref * (LMTT + (CI - CL) * (TT - t))) / (
+                    rhodref * (LMTT - CL * (TT - t))
                 )
 
             rwetg_init_tmp = max(
@@ -291,19 +291,19 @@ def ice4_fast_rg(
                 else 0
             )
 
-            if not lnullwetg:
+            if not LNULLWETG:
                 ldwetg = 1 if (ldwetg == 1 and rdryg_init_tmp > 0) else 0
 
             else:
                 ldwetg = 1 if (ldwetg == 1 and rwetg_init_tmp > 0) else 0
 
-            if not lwetgpost:
-                ldwetg = 1 if (ldwetg == 1 and t < tt) else 0
+            if not LWETGPOST:
+                ldwetg = 1 if (ldwetg == 1 and t < TT) else 0
 
             lldryg = (
                 1
                 if (
-                    t < tt
+                    t < TT
                     and rdryg_init_tmp > 1e-20
                     and max(0, rwetg_init_tmp - rg_riwet_tnd - rg_rswet_tnd)
                     > max(0, rg_rsdry_tnd - rg_ridry_tnd - rg_rsdry_tnd)
@@ -348,23 +348,23 @@ def ice4_fast_rg(
     # 6.5 Melting of the graupel
     with computation(PARALLEL), interval(...):
 
-        if rg_t > g_rtmin and t > tt and ldcompute:
+        if rg_t > G_RTMIN and t > TT and ldcompute:
             if not ldsoft:
-                rg_mltr = rv_t * pres / (epsilo + rv_t)
-                if levlimit:
-                    rg_mltr = min(rg_mltr, exp(alpw - betaw / t - gamw * log(t)))
+                rg_mltr = rv_t * pres / (EPSILO + rv_t)
+                if LEVLIMIT:
+                    rg_mltr = min(rg_mltr, exp(ALPW - BETAW / t - GAMW * log(t)))
 
-                rg_mltr = ka * (tt - t) + dv * (lvtt + (cpv - Cl) * (t - tt)) * (
-                    estt - rg_mltr
-                ) / (Rv * t)
+                rg_mltr = ka * (TT - t) + dv * (LVTT + (CPV - CL) * (t - TT)) * (
+                    ESTT - rg_mltr
+                ) / (RV * t)
                 rg_mltr = max(
                     0,
                     (
                         -rg_mltr
-                        * (o0depg * lbdag**ex0depg + o1depg * cj * lbdag**ex1depg)
-                        - (rg_rcdry_tnd + rg_rrdry_tnd) * (rhodref * Cl * (tt - t))
+                        * (O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG)
+                        - (rg_rcdry_tnd + rg_rrdry_tnd) * (rhodref * CL * (TT - t))
                     )
-                    / (rhodref * lmtt),
+                    / (rhodref * LMTT),
                 )
 
         else:
