@@ -31,20 +31,20 @@ def ice4_rimltc(
     """
 
     from __externals__ import (
-        tt,
-        lfeedbackt,
+        TT,
+        LFEEDBACKT,
     )
 
     with computation(PARALLEL), interval(...):
 
         # 7.1 cloud ice melting
-        if ri_t > 0 and t > tt and ldcompute:
+        if ri_t > 0 and t > TT and ldcompute:
             rimltc_mr = ri_t
 
             # limitation due to zero crossing of temperature
-            if lfeedbackt:
+            if LFEEDBACKT:
                 rimltc_mr = min(
-                    rimltc_mr, max(0, (tht - tt / exn) / (ls_fact - lv_fact))
+                    rimltc_mr, max(0, (tht - TT / exn) / (ls_fact - lv_fact))
                 )
 
         else:
