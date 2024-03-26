@@ -41,44 +41,44 @@ def ice4_fast_rg(
     """
 
     from __externals__ import (
-        tt,
-        v_rtmin,
-        alpi,
-        betai,
-        gami,
-        alpw,
-        betaw,
-        gamw,
-        epsilo,
-        nu20,
-        alpha2,
-        beta2,
-        nu10,
-        beta1,
-        alpha1,
-        mnu0,
-        lfeedbackt,
+        TT,
+        V_RTMIN,
+        ALPI,
+        BETAI,
+        GAMI,
+        ALPW,
+        BETAW,
+        GAMW,
+        EPSILO,
+        NU20,
+        ALPHA2,
+        BETA2,
+        NU10,
+        BETA1,
+        ALPHA1,
+        MNU0,
+        LFEEDBACKT,
     )
 
     # l72
     with computation(PARALLEL), interval(...):
 
-        if t < tt and rv_t > v_rtmin and ldcompute:
+        if t < TT and rv_t > V_RTMIN and ldcompute:
             usw = 0
             w2 = 0
 
             w2 = log(t)
-            usw = exp(alpw - betaw / t - gamw * w2)
-            w2 = exp(alpi - betai / t - gami * w2)
+            usw = exp(ALPW - BETAW / t - GAMW * w2)
+            w2 = exp(ALPI - BETAI / t - GAMI * w2)
 
     # l83
     with computation(PARALLEL), interval(...):
 
-        if t < tt and rv_t > v_rtmin and ldcompute:
+        if t < TT and rv_t > V_RTMIN and ldcompute:
 
             ssi = 0
             w2 = min(pabs_t / 2, w2)
-            ssi = rv_t * (pabs_t - w2) / (epsilo * w2) - 1
+            ssi = rv_t * (pabs_t - w2) / (EPSILO * w2) - 1
             # supersaturation over ice
 
             usw = min(pabs_t / 2, usw)
@@ -91,13 +91,13 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
 
         w2 = 0
-        if t < tt and rv_t > v_rtmin and ldcompute:
-            if t < tt - 5 and ssi > 0:
-                w2 = nu20 * exp(alpha2 * ssi - beta2)
-            elif t < tt - 2 and t > tt - 5 and ssi > 0:
+        if t < TT and rv_t > V_RTMIN and ldcompute:
+            if t < TT - 5 and ssi > 0:
+                w2 = NU20 * exp(ALPHA2 * ssi - BETA2)
+            elif t < TT - 2 and t > TT - 5 and ssi > 0:
                 w2 = max(
-                    nu20 * exp(-beta2),
-                    nu10 * exp(-beta1 * (t - tt)) * (ssi / usw) ** alpha1,
+                    NU20 * exp(-BETA2),
+                    NU10 * exp(-BETA1 * (t - TT)) * (ssi / usw) ** ALPHA1,
                 )
 
     # l107
@@ -108,16 +108,16 @@ def ice4_fast_rg(
     # l114
     with computation(PARALLEL), interval(...):
         rv_heni_mr = 0
-        if t < tt and rv_t > v_rtmin and ldcompute:
-            rv_heni_mr = max(w2, 0) * mnu0 / rhodref
+        if t < TT and rv_t > V_RTMIN and ldcompute:
+            rv_heni_mr = max(w2, 0) * MNU0 / rhodref
             rv_heni_mr = min(rv_t, rv_heni_mr)
 
     # l122
     with computation(PARALLEL), interval(...):
-        if lfeedbackt:
+        if LFEEDBACKT:
             w1 = 0
-            if t < tt and rv_t > v_rtmin and ldcompute:
-                w1 = min(rv_heni_mr, max(0, (tt / exn - tht)) / ls_fact) / max(
+            if t < TT and rv_t > V_RTMIN and ldcompute:
+                w1 = min(rv_heni_mr, max(0, (TT / exn - tht)) / ls_fact) / max(
                     rv_heni_mr, 1e-20
                 )
 
@@ -126,5 +126,5 @@ def ice4_fast_rg(
 
     # l134
     with computation(PARALLEL), interval(...):
-        if t < tt and rv_t > v_rtmin and ldcompute:
+        if t < TT and rv_t > V_RTMIN and ldcompute:
             ci_t = max(w2 + ci_t, ci_t)
