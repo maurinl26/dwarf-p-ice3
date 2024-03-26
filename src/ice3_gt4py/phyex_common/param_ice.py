@@ -137,113 +137,113 @@ class ParamIce:
     frmin_nam: np.ndarray = field(init=False)
     """
 
-    hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
+    HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    lwarm: bool = field(default=True)  # Formation of rain by warm processes
-    lsedic: bool = field(default=True)  # Enable the droplets sedimentation
-    ldeposc: bool = field(default=False)  # Enable cloud droplets deposition
+    LWARM: bool = field(default=True)  # Formation of rain by warm processes
+    LSEDIC: bool = field(default=True)  # Enable the droplets sedimentation
+    LDEPOSC: bool = field(default=False)  # Enable cloud droplets deposition
 
-    vdeposc: float = field(default=0.02)  # Droplet deposition velocity
+    VDEPOSC: float = field(default=0.02)  # Droplet deposition velocity
 
-    pristine_ice: Literal["PLAT", "COLU", "BURO"] = field(
+    PRISTINE_ICE: Literal["PLAT", "COLU", "BURO"] = field(
         default="PLAT"
     )  # Pristine ice type PLAT, COLU, or BURO
-    sedim: Literal["SPLI", "STAT", "NONE"] = field(
+    SEDIM: Literal["SPLI", "STAT", "NONE"] = field(
         default="SPLI"
     )  # Sedimentation calculation mode
 
     # To use modified ice3/ice4 - to reduce time step dependency
-    lred: bool = field(default=True)
-    lfeedbackt: bool = field(default=True)
-    levlimit: bool = field(default=True)
-    lnullwetg: bool = field(default=True)
-    lwetgpost: bool = field(default=True)
+    LRED: bool = field(default=True)
+    LFEEDBACKT: bool = field(default=True)
+    LEVLIMIT: bool = field(default=True)
+    LNULLWETG: bool = field(default=True)
+    LWETGPOST: bool = field(default=True)
 
-    snow_riming: int = field(default=SnowRiming.M90.value)
+    SNOW_RIMING: int = field(default=SnowRiming.M90.value)
 
-    frac_m90: float = field(default=0.1)
-    nmaxiter_micro: int = field(default=5)
-    mrstep: float = field(default=5e-5)
+    FRAC_M90: float = field(default=0.1)
+    NMAXITER_MICRO: int = field(default=5)
+    MRSTEP: float = field(default=5e-5)
 
-    lconvhg: bool = field(default=False)
-    lcrflimit: bool = field(default=True)
+    LCONVHG: bool = field(default=False)
+    LCRFLIMIT: bool = field(default=True)
 
-    subg_rc_rr_accr: int = field(
+    SUBG_RC_RR_ACCR: int = field(
         default=SubgRRRCAccr.NONE.value
     )  # subgrid rc-rr accretion
-    subg_rr_evap: int = field(default=SubgRREvap.NONE.value)  # subgrid rr evaporation
-    subg_pr_pdf: int = field(
+    SUBG_RR_EVAP: int = field(default=SubgRREvap.NONE.value)  # subgrid rr evaporation
+    SUBG_PR_PDF: int = field(
         default=SubgPRPDF.SIGM.value
     )  # pdf for subgrid precipitation
-    subg_aucv_rc: int = field(
+    SUBG_AUCV_RC: int = field(
         default=SubgAucvRc.NONE.value
     )  # type of subgrid rc->rr autoconv. method
-    subg_aucv_ri: int = field(
+    SUBG_AUCV_RI: int = field(
         default=SubgAucvRi.NONE.value
     )  # type of subgrid ri->rs autoconv. method
 
     # PDF to use for MF cloud autoconversions
-    subg_mf_pdf: int = field(default=SubGridMassFluxPDF.TRIANGLE.value)
+    SUBG_MF_PDF: int = field(default=SubGridMassFluxPDF.TRIANGLE.value)
 
     # key for adjustment before rain_ice call
-    ladj_before: bool = field(default=True)
+    LADJ_BEFORE: bool = field(default=True)
 
     # key for adjustment after rain_ice call
-    ladj_after: bool = field(default=True)
+    LADJ_AFTER: bool = field(default=True)
 
     # switch to perform sedimentation
     # before (.FALSE.)
     # or after (.TRUE.) microphysics
-    lsedim_after: bool = field(default=False)
+    LSEDIM_AFTER: bool = field(default=False)
 
     # Maximum CFL number allowed for SPLIT scheme
-    split_maxcfl: float = field(default=0.8)
+    SPLIT_MAXCFL: float = field(default=0.8)
 
     # Snow parameterization from Wurtz (2021)
-    lsnow_t: bool = field(default=False)
+    LSNOW_T: bool = field(default=False)
 
-    lpack_interp: bool = field(default=True)
-    lpack_micro: bool = field(default=True)
-    lcriauti: bool = field(default=True)
+    LPACK_INTERP: bool = field(default=True)
+    LPACK_MICRO: bool = field(default=True)
+    LCRIAUTI: bool = field(default=True)
 
-    npromicro: int = field(default=0)
+    NPROMICRO: int = field(default=0)
 
-    criauti_nam: float = field(default=0.2e-4)
-    acriauti_nam: float = field(default=0.06)
-    brcriauti_nam: float = field(default=-3.5)
-    t0criauti_nam: float = field(init=False)
-    criautc_nam: float = field(default=0.5e-3)
-    rdepsred_nam: float = field(default=1)
-    rdepgred_nam: float = field(default=1)
-    lcond2: bool = field(default=False)
+    CRIAUTI_NAM: float = field(default=0.2e-4)
+    ACRIAUTI_NAM: float = field(default=0.06)
+    BRCRIAUTI_NAM: float = field(default=-3.5)
+    T0CRIAUTI_NAM: float = field(init=False)
+    CRIAUTC_NAM: float = field(default=0.5e-3)
+    RDEPSRED_NAM: float = field(default=1)
+    RDEPGRED_NAM: float = field(default=1)
+    LCOND2: bool = field(default=False)
 
     # TODO : replace frmin_nam by a global table
-    frmin_nam: np.ndarray = field(init=False)
+    FRMIN_NAM: np.ndarray = field(init=False)
 
     def __post_init__(self):
-        self.t0criauti_nam = (np.log10(self.criauti_nam) - self.brcriauti_nam) / 0.06
+        self.T0CRIAUTI_NAM = (np.log10(self.CRIAUTI_NAM) - self.BRCRIAUTI_NAM) / 0.06
         self.set_frmin_nam()
 
-        if self.hprogram == "AROME":
-            self.lconvhg = True
-            self.ladj_before = True
-            self.ladj_after = False
-            self.lred = False
-            self.sedim = "STAT"
-            self.mrstep = 0
-            self.subg_aucv_rc = "PDF"
+        if self.HPROGRAM == "AROME":
+            self.LCONVHG = True
+            self.LADJ_BEFORE = True
+            self.LADJ_AFTER = False
+            self.LRED = False
+            self.SEDIM = "STAT"
+            self.MRSTEP = 0
+            self.SUBG_AUCV_RC = "PDF"
 
-        elif self.hprogram == "LMDZ":
-            self.subg_aucv_rc = "PDF"
-            self.sedim = "STAT"
-            self.nmaxiter_micro = 1
-            self.criautc_nam = 0.001
-            self.criauti_nam = 0.0002
-            self.t0criauti_nam = -5
-            self.lred = True
-            self.lconvhg = True
-            self.ladj_before = True
-            self.ladj_after = True
+        elif self.HPROGRAM == "LMDZ":
+            self.SUBG_AUCV_RC = "PDF"
+            self.SEDIM = "STAT"
+            self.NMAXITER_MICRO = 1
+            self.CRIAUTC_NAM = 0.001
+            self.CRIAUTI_NAM = 0.0002
+            self.T0CRIAUTI_NAM = -5
+            self.LRED = True
+            self.LCONVHG = True
+            self.LADJ_BEFORE = True
+            self.LADJ_AFTER = True
 
     def set_frmin_nam(self):
 
