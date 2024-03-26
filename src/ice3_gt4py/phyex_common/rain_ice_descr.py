@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
-from math import gamma
+from math import gamma, sqrt
 from typing import List, Tuple
 
 import numpy as np
@@ -32,27 +32,27 @@ class RainIceDescr:
     cst: Constants
     parami: ParamIce
 
-    cexvt: float = 0.4  # Air density fall speed correction
+    CEXVT: float = 0.4  # Air density fall speed correction
 
-    rtmin: np.ndarray = field(
+    RTMIN: np.ndarray = field(
         default=np.zeros(41)
     )  # Min values allowed for mixing ratios
 
     # Cloud droplet charact.
-    ac: float = field(default=524)
-    bc: float = field(default=3.0)
-    cc: float = field(default=842)
-    dc: float = field(default=2)
+    AC: float = field(default=524)
+    BC: float = field(default=3.0)
+    CC: float = field(default=842)
+    DC: float = field(default=2)
 
     # Rain drop charact
-    ar: float = field(default=524)
-    br: float = field(default=3.0)
-    cr: float = field(default=842)
-    dr: float = field(default=0.8)
-    ccr: float = field(default=8e-6)
-    f0r: float = field(default=1.0)
-    f1r: float = field(default=0.26)
-    c1r: float = field(default=0.5)
+    AR: float = field(default=524)
+    BR: float = field(default=3.0)
+    CR: float = field(default=842)
+    DR: float = field(default=0.8)
+    CCR: float = field(default=8e-6)
+    F0R: float = field(default=1.0)
+    F1R: float = field(default=0.26)
+    C1R: float = field(default=0.5)
 
     # ar, br -> mass - diameter power law
     # cr, dr -> terminal speed velocity - diameter powerlaw
@@ -60,168 +60,168 @@ class RainIceDescr:
     # C1 ?
 
     # Cloud ice charact
-    ai: float = field(init=False)
-    bi: float = field(init=False)
-    c_i: float = field(init=False)
-    di: float = field(init=False)
-    f0i: float = field(default=1.00)
-    f2i: float = field(default=0.14)
-    c1i: float = field(init=False)
+    AI: float = field(init=False)
+    BI: float = field(init=False)
+    C_I: float = field(init=False)
+    DI: float = field(init=False)
+    F0I: float = field(default=1.00)
+    F2I: float = field(default=0.14)
+    C1I: float = field(init=False)
 
     # Snow/agg charact.
-    a_s: float = field(default=0.02)
-    bs: float = field(default=1.9)
-    cs: float = field(default=5.1)
-    ds: float = field(default=0.27)
-    ccs: float = field(default=5.0)  # not lsnow
-    cxs: float = field(default=1.0)
-    f0s: float = field(default=0.86)
-    f1s: float = field(default=0.28)
-    c1s: float = field(init=False)
+    A_S: float = field(default=0.02)
+    BS: float = field(default=1.9)
+    CS: float = field(default=5.1)
+    DS: float = field(default=0.27)
+    CCS: float = field(default=5.0)  # not lsnow
+    CXS: float = field(default=1.0)
+    F0S: float = field(default=0.86)
+    F1S: float = field(default=0.28)
+    C1S: float = field(init=False)
 
     # Graupel charact.
-    ag: float = field(default=19.6)
-    bg: float = field(default=2.8)
-    cg: float = field(default=124)
-    dg: float = field(default=0.66)
-    ccg: float = field(default=5e5)
-    cxg: float = field(default=-0.5)
-    f0g: float = field(default=0.86)
-    f1g: float = field(default=0.28)
-    c1g: float = field(default=1 / 2)
+    AG: float = field(default=19.6)
+    BG: float = field(default=2.8)
+    CG: float = field(default=124)
+    DG: float = field(default=0.66)
+    CCG: float = field(default=5e5)
+    CXG: float = field(default=-0.5)
+    F0G: float = field(default=0.86)
+    F1G: float = field(default=0.28)
+    C1G: float = field(default=1 / 2)
 
     # Cloud droplet distribution parameters
 
     # Over land
-    alphac: float = (
+    ALPHAC: float = (
         1.0  # Gamma law of the Cloud droplet (here volume-like distribution)
     )
-    nuc: float = 3.0  # Gamma law with little dispersion
+    NUC: float = 3.0  # Gamma law with little dispersion
 
     # Over sea
-    alphac2: float = 1.0
-    nuc2: float = 1.0
+    ALPHAC2: float = 1.0
+    NUC2: float = 1.0
 
-    lbexc: float = field(init=False)
-    lbc: Tuple[float] = field(init=False)
+    LBEXC: float = field(init=False)
+    LBC: Tuple[float] = field(init=False)
 
     # Rain drop distribution parameters
-    alphar: float = (
+    ALPHAR: float = (
         3.0  # Gamma law of the Cloud droplet (here volume-like distribution)
     )
-    nur: float = 1.0  # Gamma law with little dispersion
-    lbexr: float = field(init=False)
-    lbr: float = field(init=False)
+    NUR: float = 1.0  # Gamma law with little dispersion
+    LBEXR: float = field(init=False)
+    LBR: float = field(init=False)
 
     # Cloud ice distribution parameters
-    alphai: float = 1.0  # Exponential law
-    nui: float = 1.0  # Exponential law
-    lbexi: float = field(init=False)
-    lbi: float = field(init=False)
+    ALPHAI: float = 1.0  # Exponential law
+    NUI: float = 1.0  # Exponential law
+    LBEXI: float = field(init=False)
+    LBI: float = field(init=False)
 
     # Snow/agg. distribution parameters
-    alphas: float = field(default=1.0)
-    nus: float = field(default=1.0)
-    lbexs: float = field(init=False)
-    lbs: float = field(init=False)
-    ns: float = field(init=False)
+    ALPHAS: float = field(default=1.0)
+    NUS: float = field(default=1.0)
+    LBEXS: float = field(init=False)
+    LBS: float = field(init=False)
+    NS: float = field(init=False)
 
     # Graupel distribution parameters
-    alphag: float = 1.0
-    nug: float = 1.0
-    lbexg: float = field(init=False)
-    lbg: float = field(init=False)
+    ALPHAG: float = 1.0
+    NUG: float = 1.0
+    LBEXG: float = field(init=False)
+    LBG: float = field(init=False)
 
-    fvelos: float = field(default=0.097)  # factor for snow fall speed after Thompson
-    trans_mp_gammas: float = field(
+    FVELOS: float = field(default=0.097)  # factor for snow fall speed after Thompson
+    TRANS_MP_GAMMAS: float = field(
         default=1
     )  # coefficient to convert lambda for gamma functions
-    lbdar_max: float = field(
+    LBDAR_MAX: float = field(
         default=1e5
     )  # Max values allowed for the shape parameters (rain,snow,graupeln)
-    lbdas_max: float = field(default=1e5)
-    lbdag_max: float = field(default=1e5)
-    lbdas_min: float = field(default=1e-10)
+    LBDAS_MAX: float = field(default=1e5)
+    LBDAG_MAX: float = field(default=1e5)
+    LBDAS_MIN: float = field(default=1e-10)
 
-    v_rtmin: float = field(default=1e-20)
-    c_rtmin: float = field(default=1e-20)
-    r_rtmin: float = field(default=1e-20)
-    i_rtmin: float = field(default=1e-20)
-    s_rtmin: float = field(default=1e-15)
-    g_rtmin: float = field(default=1e-15)
+    V_RTMIN: float = field(default=1e-20)
+    C_RTMIN: float = field(default=1e-20)
+    R_RTMIN: float = field(default=1e-20)
+    I_RTMIN: float = field(default=1e-20)
+    S_RTMIN: float = field(default=1e-15)
+    G_RTMIN: float = field(default=1e-15)
 
-    conc_sea: float = 1e8  # Diagnostic concentration of droplets over sea
-    conc_land: float = 3e8  # Diagnostic concentration of droplets over land
-    conc_urban: float = 5e8  # Diagnostic concentration of droplets over urban area
+    CONC_SEA: float = 1e8  # Diagnostic concentration of droplets over sea
+    CONC_LAND: float = 3e8  # Diagnostic concentration of droplets over land
+    CONC_URBAN: float = 5e8  # Diagnostic concentration of droplets over urban area
 
     def __post_init__(self):
         # 2.2    Ice crystal characteristics
-        if self.parami.pristine_ice == "PLAT":
-            self.ai = 0.82
-            self.bi = 2.5
-            self.c_i = 800
-            self.di = 1.0
-            self.c1i = 1 / self.cst.pi
+        if self.parami.PRISTINE_ICE == "PLAT":
+            self.AI = 0.82
+            self.BI = 2.5
+            self.C_I = 800
+            self.DI = 1.0
+            self.C1I = 1 / self.cst.pi
 
-        elif self.parami.pristine_ice == "COLU":
-            self.ai = 2.14e-3
-            self.bi = 1.7
-            self.c_i = 2.1e5
-            self.di = 1.585
-            self.c1i = 0.8
+        elif self.parami.PRISTINE_ICE == "COLU":
+            self.AI = 2.14e-3
+            self.BI = 1.7
+            self.C_I = 2.1e5
+            self.DI = 1.585
+            self.C1I = 0.8
 
-        elif self.parami.pristine_ice == "BURO":
-            self.ai = 44.0
-            self.bi = 3.0
-            self.c_i = 4.3e5
-            self.di = 1.663
-            self.c1i = 0.5
+        elif self.parami.PRISTINE_ICE == "BURO":
+            self.AI = 44.0
+            self.BI = 3.0
+            self.C_I = 4.3e5
+            self.DI = 1.663
+            self.C1I = 0.5
 
-        if self.parami.lsnow_t:
-            self.cs = 5.1
-            self.ds = 0.27
-            self.fvelos = 25.14
+        if self.parami.LSNOW_T:
+            self.CS = 5.1
+            self.DS = 0.27
+            self.FVELOS = 25.14
 
-            self.alphas = 0.214
-            self.nus = 43.7
-            self.trans_mp_gammas = sqrt(
-                (gamma(self.nus + 2 / self.alphas) * gamma(self.nus + 4 / self.alphas))
+            self.ALPHAS = 0.214
+            self.NUS = 43.7
+            self.TRANS_MP_GAMMAS = sqrt(
+                (gamma(self.NUS + 2 / self.ALPHAS) * gamma(self.NUS + 4 / self.ALPHAS))
                 / (
                     8
-                    * gamma(self.nus + 1 / self.alphas)
-                    * gamma(self.nus + 3 / self.alphas)
+                    * gamma(self.NUS + 1 / self.ALPHAS)
+                    * gamma(self.NUS + 3 / self.ALPHAS)
                 )
             )
 
-        self.c1s = 1 / self.cst.pi
+        self.C1S = 1 / self.cst.PI
 
-        self.lbexc = 1 / self.bc
-        self.lbexr = 1 / (-1 - self.br)
-        self.lbexi = 1 / -self.bi
-        self.lbexs = 1 / (self.cxs - self.bs)
-        self.lbexg = 1 / (self.cxg - self.bg)
+        self.LBEXC = 1 / self.BC
+        self.LBEXR = 1 / (-1 - self.BR)
+        self.LBEXI = 1 / -self.BI
+        self.LBEXS = 1 / (self.CXS - self.BS)
+        self.LBEXG = 1 / (self.CXG - self.BG)
 
         # 3.4 Constant for shape parameter
         momg = lambda alpha, nu, p: gamma(nu + p / alpha) / gamma(nu)
 
-        gamc = momg(self.alphac, self.nuc, 3)
-        gamc2 = momg(self.alphac2, self.nuc2, 3)
-        self.lbc = (self.ar * gamc, self.ar * gamc2)
+        gamc = momg(self.ALPHAC, self.NUC, 3)
+        gamc2 = momg(self.ALPHAC2, self.NUC2, 3)
+        self.LBC = (self.AR * gamc, self.AR * gamc2)
 
-        self.lbr = (self.ar * self.ccr * momg(self.alphar, self.nur, self.br)) ** (
-            -self.lbexr
+        self.lbr = (self.AR * self.CCR * momg(self.ALPHAR, self.NUR, self.BR)) ** (
+            -self.LBEXR
         )
-        self.lbi = (self.ai * self.c_i * momg(self.alphai, self.nui, self.bi)) ** (
-            -self.lbexi
+        self.LBI = (self.AI * self.C_I * momg(self.ALPHAI, self.NUI, self.BI)) ** (
+            -self.LBEXI
         )
-        self.lbs = (self.a_s * self.ccs * momg(self.alphas, self.nus, self.bs)) ** (
-            -self.lbexs
+        self.LBS = (self.A_S * self.CCS * momg(self.ALPHAS, self.NUS, self.BS)) ** (
+            -self.LBEXS
         )
-        self.lbg = (self.ag * self.ccg * momg(self.alphag, self.nug, self.bg)) ** (
-            -self.lbexg
+        self.LBG = (self.AG * self.CCG * momg(self.ALPHAG, self.NUG, self.BG)) ** (
+            -self.LBEXG
         )
 
-        self.ns = 1.0 / (self.a_s * momg(self.alphas, self.nus, self.bs))
+        self.NS = 1.0 / (self.A_S * momg(self.ALPHAS, self.NUS, self.BS))
 
 
 @dataclass
@@ -236,5 +236,5 @@ class CloudPar:
 
     """
 
-    nsplitr: int
-    nsplitg: int
+    NSPLITR: int
+    NSPLITG: int
