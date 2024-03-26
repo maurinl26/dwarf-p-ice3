@@ -96,80 +96,80 @@ class Constants:
     """
 
     # 1. Fondamental constants
-    pi: float = field(default=2 * np.arcsin(1.0))
-    karman: float = field(default=0.4)
-    lightspeed: float = field(default=299792458.0)
-    planck: float = field(default=6.6260775e-34)
-    boltz: float = field(default=1.380658e-23)
-    avogadro: float = field(default=6.0221367e23)
+    PI: float = field(default=2 * np.arcsin(1.0))
+    KARMAN: float = field(default=0.4)
+    LIGHTSPEED: float = field(default=299792458.0)
+    PLANCK: float = field(default=6.6260775e-34)
+    BOLTZ: float = field(default=1.380658e-23)
+    AVOGADRO: float = field(default=6.0221367e23)
 
     # 2. Astronomical constants
-    day: float = field(default=86400)  # day duration
-    siyea: float = field(init=False)  # sideral year duration
-    siday: float = field(init=False)  # sideral day duration
-    nsday: int = field(default=24 * 3600)  # number of seconds in a day
-    omega: float = field(init=False)  # earth rotation
+    DAY: float = field(default=86400)  # day duration
+    SIYEA: float = field(init=False)  # sideral year duration
+    SIDAY: float = field(init=False)  # sideral day duration
+    NSDAY: int = field(default=24 * 3600)  # number of seconds in a day
+    OMEGA: float = field(init=False)  # earth rotation
 
     # 3. Terrestrial geoide constants
-    radius: float = field(default=6371229)  # earth radius
-    gravity0: float = field(default=9.80665)  # gravity constant
+    RADIUS: float = field(default=6371229)  # earth radius
+    GRAVITY0: float = field(default=9.80665)  # gravity constant
 
     # 4. Reference pressure
-    p00ocean: float = field(default=201e5)  # Ref pressure for ocean model
-    rho0ocean: float = field(default=1024)  # Ref density for ocean model
-    th00ocean: float = field(default=286.65)  # Ref value for pot temp in ocean model
-    sa00ocean: float = field(default=32.6)  # Ref value for salinity in ocean model
+    P00OCEAN: float = field(default=201e5)  # Ref pressure for ocean model
+    RHO0OCEAN: float = field(default=1024)  # Ref density for ocean model
+    TH00OCEAN: float = field(default=286.65)  # Ref value for pot temp in ocean model
+    SA00OCEAN: float = field(default=32.6)  # Ref value for salinity in ocean model
 
-    p00: float = field(default=1e5)  # Reference pressure
-    th00: float = field(default=300)  # Ref value for potential temperature
+    P00: float = field(default=1e5)  # Reference pressure
+    TH00: float = field(default=300)  # Ref value for potential temperature
 
     # 5. Radiation constants
-    stefan: float = field(init=False)  # Stefan-Boltzman constant
-    io: float = field(default=1370)  # Solar constant
+    STEFAN: float = field(init=False)  # Stefan-Boltzman constant
+    IO: float = field(default=1370)  # Solar constant
 
     # 6. Thermodynamic constants
-    Md: float = field(default=28.9644e-3)  # Molar mass of dry air
-    Mv: float = field(default=18.0153e-3)  # Molar mass of water vapour
-    Rd: float = field(init=False)  # Gas constant for dry air
-    Rv: float = field(init=False)  # Gas constant for vapour
-    epsilo: float = field(init=False)  # Mv / Md
-    cpd: float = field(init=False)  # Cpd (dry air)
-    cpv: float = field(init=False)  # Cpv (vapour)
-    rholw: float = field(default=1000)  # Volumic mass of liquid water
-    rholi: float = field(default=900)  # Volumic mass of ice
-    Cl: float = field(default=4.218e3)  # Cl (liquid)
-    Ci: float = field(default=2.106e3)  # Ci (ice)
-    tt: float = field(default=273.16)  # triple point temperature
-    lvtt: float = field(default=2.5008e6)  # vaporisation heat constant
-    lstt: float = field(default=2.8345e6)  # sublimation heat constant
-    lmtt: float = field(init=False)  # melting heat constant
-    estt: float = field(
+    MD: float = field(default=28.9644e-3)  # Molar mass of dry air
+    MV: float = field(default=18.0153e-3)  # Molar mass of water vapour
+    RD: float = field(init=False)  # Gas constant for dry air
+    RV: float = field(init=False)  # Gas constant for vapour
+    EPSILO: float = field(init=False)  # Mv / Md
+    CPD: float = field(init=False)  # Cpd (dry air)
+    CPV: float = field(init=False)  # Cpv (vapour)
+    RHOLW: float = field(default=1000)  # Volumic mass of liquid water
+    RHOLI: float = field(default=900)  # Volumic mass of ice
+    CL: float = field(default=4.218e3)  # Cl (liquid)
+    CI: float = field(default=2.106e3)  # Ci (ice)
+    TT: float = field(default=273.16)  # triple point temperature
+    LVTT: float = field(default=2.5008e6)  # vaporisation heat constant
+    LSTT: float = field(default=2.8345e6)  # sublimation heat constant
+    LMTT: float = field(init=False)  # melting heat constant
+    ESTT: float = field(
         default=611.24
     )  # Saturation vapor pressure at triple point temperature
 
-    alpw: float = field(init=False)  # Constants for saturation vapor pressure function
-    betaw: float = field(init=False)
-    gamw: float = field(init=False)
+    ALPW: float = field(init=False)  # Constants for saturation vapor pressure function
+    BETAW: float = field(init=False)
+    GAMW: float = field(init=False)
 
-    alpi: float = field(
+    ALPI: float = field(
         init=False
     )  # Constants for saturation vapor pressure function over solid ice
-    betai: float = field(init=False)
-    gami: float = field(init=False)
+    BETAI: float = field(init=False)
+    GAMI: float = field(init=False)
 
-    condi: float = field(default=2.2)  # Thermal conductivity of ice (W m-1 K-1)
-    alphaoc: float = field(
+    CONDI: float = field(default=2.2)  # Thermal conductivity of ice (W m-1 K-1)
+    ALPHAOC: float = field(
         default=1.9e-4
     )  # Thermal expansion coefficient for ocean (K-1)
-    betaoc: float = field(default=7.7475)  # Haline contraction coeff for ocean (S-1)
-    roc: float = 0.69  # coeff for SW penetration in ocean (Hoecker et al)
-    d1: float = 1.1  # coeff for SW penetration in ocean (Hoecker et al)
-    d2: float = 23.0  # coeff for SW penetration in ocean (Hoecker et al)
+    BETAOC: float = field(default=7.7475)  # Haline contraction coeff for ocean (S-1)
+    ROC: float = 0.69  # coeff for SW penetration in ocean (Hoecker et al)
+    D1: float = 1.1  # coeff for SW penetration in ocean (Hoecker et al)
+    D2: float = 23.0  # coeff for SW penetration in ocean (Hoecker et al)
 
     # 7. Precomputed constants
-    Rd_Rv: float = field(init=False)  # Rd / Rv
-    Rd_cpd: float = field(init=False)  # Rd / cpd
-    invxp00: float = field(init=False)  # 1 / p00
+    RD_RV: float = field(init=False)  # Rd / Rv
+    RD_CPD: float = field(init=False)  # Rd / cpd
+    INVXP00: float = field(init=False)  # 1 / p00
 
     # 8. Machine precision
     # mnh_tiny: float    # minimum real on this machine
@@ -185,37 +185,37 @@ class Constants:
     def __post_init__(self):
 
         # 2. Astronomical constants
-        self.siyea = 365.25 * self.day / 6.283076
-        self.siday = self.day / (1 + self.day / self.siyea)
-        self.omega = 2 * self.pi / self.siday
+        self.SIYEA = 365.25 * self.DAY / 6.283076
+        self.SIDAY = self.DAY / (1 + self.DAY / self.SIYEA)
+        self.OMEGA = 2 * self.PI / self.SIDAY
 
         # 5. Radiation constants
-        self.stefan = (
+        self.STEFAN = (
             2
-            * self.pi**5
-            * self.boltz**4
-            / (15 * self.lightspeed**2 * self.planck**3)
+            * self.PI**5
+            * self.BOLTZ**4
+            / (15 * self.LIGHTSPEED**2 * self.PLANCK**3)
         )
 
         # 6. Thermodynamic constants
-        self.Rd = self.avogadro * self.boltz / self.Md
-        self.Rv = self.avogadro * self.boltz / self.Mv
-        self.epsilo = self.Mv / self.Md
-        self.cpd = (7 / 2) * self.Rd
-        self.cpv = 4 * self.Rv
+        self.RD = self.AVOGADRO * self.BOLTZ / self.MD
+        self.RV = self.AVOGADRO * self.BOLTZ / self.MV
+        self.EPSILO = self.MV / self.MD
+        self.CPD = (7 / 2) * self.RD
+        self.CPV = 4 * self.RV
 
-        self.lmtt = self.lstt - self.lvtt
-        self.gamw = (self.Cl - self.cpv) / self.Rv
-        self.betaw = (self.lvtt / self.Rv) + (self.gamw * self.tt)
-        self.alpw = (
-            np.log(self.estt) + (self.betaw / self.tt) + (self.gamw * np.log(self.tt))
+        self.LMTT = self.LSTT - self.LVTT
+        self.GAMW = (self.CL - self.CPV) / self.RV
+        self.BETAW = (self.LVTT / self.RV) + (self.GAMW * self.TT)
+        self.ALPW = (
+            np.log(self.ESTT) + (self.BETAW / self.TT) + (self.GAMW * np.log(self.tt))
         )
-        self.gami = (self.Ci - self.cpv) / self.Rv
-        self.betai = (self.lstt / self.Rv) + self.gami * self.tt
-        self.alpi = (
-            np.log(self.estt) + (self.betai / self.tt) + self.gami * np.log(self.tt)
+        self.GAMI = (self.CI - self.CPV) / self.RV
+        self.BETAI = (self.LSTT / self.RV) + self.GAMI * self.TT
+        self.ALPI = (
+            np.log(self.ESTT) + (self.BETAI / self.TT) + self.GAMI * np.log(self.TT)
         )
 
-        self.Rd_Rv = self.Rd / self.Rv
-        self.Rd_cpd = self.Rd / self.cpd
-        self.invxp00 = 1 / self.p00
+        self.RD_RV = self.RD / self.RV
+        self.RD_CPD = self.RD / self.CPD
+        self.INVXP00 = 1 / self.P00
