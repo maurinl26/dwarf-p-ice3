@@ -146,27 +146,27 @@ def ice_adjust(
     """
 
     from __externals__ import (
-        tt,
-        subg_mf_pdf,
-        subg_cond,
-        cpd,
-        cpv,
-        Cl,
-        Ci,
-        tt,
-        alpw,
-        betaw,
-        gamw,
-        alpi,
-        betai,
-        gami,
-        Rd,
-        Rv,
-        criautc,
-        criauti,
-        acriauti,
-        bcriauti,
-        nrr,  # number of moist variables
+        TT,
+        SUBG_MF_PDF,
+        SUBG_COND,
+        CPD,
+        CPV,
+        CL,
+        CI,
+        TT,
+        ALPW,
+        BETAW,
+        GAMW,
+        ALPI,
+        BETAI,
+        GAMI,
+        RD,
+        RV,
+        CRIAUTC,
+        CRIAUTI,
+        ACRIAUTI,
+        BCRIAUTI,
+        NRR,  # NUMBER OF MOIST VARIABLES
     )
 
     # 2.3 Compute the variation of mixing ratio
@@ -188,14 +188,14 @@ def ice_adjust(
     # numer of moist variables fixed to 6 (without hail)
     # 2.4 specific heat for moist air at t+1
     with computation(PARALLEL), interval(...):
-        if nrr == 6:
-            cph = cpd + cpv * rv_tmp + Cl * (rc_tmp + rr) + Ci * (ri_tmp + rs + rg)
-        if nrr == 5:
-            cph = cpd + cpv * rv_tmp + Cl * (rc_tmp + rr) + Ci * (ri_tmp + rs)
-        if nrr == 4:
-            cph = cpd + cpv * rv_tmp + Cl * (rc_tmp + rr)
-        if nrr == 2:
-            cph = cpd + cpv * rv_tmp + Cl * rc_tmp + Ci * ri_tmp
+        if NRR == 6:
+            cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs + rg)
+        if NRR == 5:
+            cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs)
+        if NRR == 4:
+            cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr)
+        if NRR == 2:
+            cph = CPD + CPV * rv_tmp + CL * rc_tmp + CI * ri_tmp
 
     # 3. subgrid condensation scheme
     # Translation : only the case with subg_cond = True retained
@@ -230,11 +230,11 @@ def ice_adjust(
 
         #
         pv[0, 0, 0] = min(
-            exp(alpw - betaw / t_tmp[0, 0, 0] - gamw * log(t_tmp[0, 0, 0])),
+            exp(ALPW - BETAW / t_tmp[0, 0, 0] - GAMW * log(t_tmp[0, 0, 0])),
             0.99 * pabs[0, 0, 0],
         )
         piv[0, 0, 0] = min(
-            exp(alpi - betai / t_tmp[0, 0, 0]) - gami * log(t_tmp[0, 0, 0]),
+            exp(ALPI - BETAI / t_tmp[0, 0, 0]) - GAMI * log(t_tmp[0, 0, 0]),
             0.99 * pabs[0, 0, 0],
         )
 
@@ -246,19 +246,19 @@ def ice_adjust(
 
         frac_tmp = compute_frac_ice(t_tmp)
 
-        qsl[0, 0, 0] = Rd / Rv * pv[0, 0, 0] / (pabs[0, 0, 0] - pv[0, 0, 0])
-        qsi[0, 0, 0] = Rd / Rv * piv[0, 0, 0] / (pabs[0, 0, 0] - piv[0, 0, 0])
+        qsl[0, 0, 0] = RD / RV * pv[0, 0, 0] / (pabs[0, 0, 0] - pv[0, 0, 0])
+        qsi[0, 0, 0] = RD / RV * piv[0, 0, 0] / (pabs[0, 0, 0] - piv[0, 0, 0])
 
         # # dtype_interpolate bewteen liquid and solid as a function of temperature
         qsl = (1 - frac_tmp) * qsl + frac_tmp * qsi
         lvs = (1 - frac_tmp) * lv + frac_tmp * ls
 
         # # coefficients a et b
-        ah = lvs * qsl / (Rv * t_tmp[0, 0, 0] ** 2) * (1 + Rv * qsl / Rd)
+        ah = lvs * qsl / (RV * t_tmp[0, 0, 0] ** 2) * (1 + RV * qsl / RD)
         a[0, 0, 0] = 1 / (1 + lvs / cph[0, 0, 0] * ah)
         # # b[0, 0, 0] = ah * a
         sbar = a * (
-            rt[0, 0, 0] - qsl[0, 0, 0] + ah * lvs * (rc_tmp + ri_tmp * prifact) / cpd
+            rt[0, 0, 0] - qsl[0, 0, 0] + ah * lvs * (rc_tmp + ri_tmp * prifact) / CPD
         )
 
         sigma[0, 0, 0] = sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2)
@@ -303,7 +303,7 @@ def ice_adjust(
         ]  # liquid condensate
         ri_tmp[0, 0, 0] = frac_tmp[0, 0, 0] * cond_tmp[0, 0, 0]  # solid condensate
         t_tmp[0, 0, 0] = update_temperature(
-            t_tmp, rc_tmp, rc_tmp, ri_tmp, ri_tmp, lv, ls, cpd
+            t_tmp, rc_tmp, rc_tmp, ri_tmp, ri_tmp, lv, ls, CPD
         )
         rv_tmp[0, 0, 0] = rt[0, 0, 0] - rc_tmp[0, 0, 0] - ri_tmp[0, 0, 0] * prifact
 
@@ -330,7 +330,7 @@ def ice_adjust(
         ths[0, 0, 0] += w2 * ls[0, 0, 0] / (cph[0, 0, 0] * exnref[0, 0, 0])
 
         # 5.2  compute the cloud fraction cldfr
-        if subg_cond == 0:
+        if SUBG_COND == 0:
             if rcs[0, 0, 0] + ris[0, 0, 0] > 1e-12 / dt:
                 cldfr[0, 0, 0] = 1
             else:
@@ -357,12 +357,12 @@ def ice_adjust(
     with computation(PARALLEL), interval(...):
         criaut = criautc / rhodref[0, 0, 0]
 
-        if subg_mf_pdf == 0:
+        if SUBG_MF_PDF == 0:
             if w1 * dt > cf_mf[0, 0, 0] * criaut:
                 hlc_hrc += w1 * dt
                 hlc_hcf = min(1, hlc_hcf[0, 0, 0] + cf_mf[0, 0, 0])
 
-        elif subg_mf_pdf == 1:
+        elif SUBG_MF_PDF == 1:
             if w1 * dt > cf_mf[0, 0, 0] * criaut:
                 hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w1 * dt)
                 hr = w1 * dt - (criaut * cf_mf[0, 0, 0]) ** 3 / (
@@ -390,16 +390,16 @@ def ice_adjust(
     # Ice subgrid autoconversion
     with computation(PARALLEL), interval(...):
         criaut = min(
-            criauti,
-            10 ** (acriauti * (t_tmp[0, 0, 0] - tt) + bcriauti),
+            CRIAUTI,
+            10 ** (ACRIAUTI * (t_tmp[0, 0, 0] - TT) + BCRIAUTI),
         )
 
-        if subg_mf_pdf == 0:
+        if SUBG_MF_PDF == 0:
             if w2 * dt > cf_mf[0, 0, 0] * criaut:
                 hli_hri += w2 * dt
                 hli_hcf = min(1, hli_hcf[0, 0, 0] + cf_mf[0, 0, 0])
 
-        elif subg_mf_pdf == 1:
+        elif SUBG_MF_PDF == 1:
             if w2 * dt > cf_mf[0, 0, 0] * criaut:
                 hli_hcf = 1 - 0.5 * ((criaut * cf_mf[0, 0, 0]) / (w2 * dt)) ** 2
                 hli_hri = w2 * dt - (criaut * cf_mf[0, 0, 0]) ** 3 / (
