@@ -30,18 +30,18 @@ def ice4_rrhong(
         rrhong_mr (Field[float]): mixing ratio for spontaneous freezing source
     """
 
-    from __externals__ import r_rtmin, tt, lfeedbackt
+    from __externals__ import R_RTMIN, TT, LFEEDBACKT
 
     # 3.3 compute the spontaneous frezzing source: RRHONG
     with computation(PARALLEL), interval(...):
 
-        if t < tt - 35 and rr_t > r_rtmin and ldcompute:
+        if t < TT - 35 and rr_t > R_RTMIN and ldcompute:
             rrhong_mr = rr_t
 
             # limitation for -35 degrees crossing
-            if lfeedbackt == 1:
+            if LFEEDBACKT == 1:
                 rrhong_mr = min(
-                    rrhong_mr, max(0, ((tt - 35) / exn - tht) / (ls_fact - lv_fact))
+                    rrhong_mr, max(0, ((TT - 35) / exn - tht) / (ls_fact - lv_fact))
                 )
 
         else:
