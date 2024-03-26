@@ -44,18 +44,18 @@ def upstream_sedimentation(
     fpr_g_out: Field["float"],
 ):
     from __externals__ import (
-        lbexc,
-        p00,
-        t00,  # 293.15
-        Rd,
-        cpd,
-        xcc,  # from iced
-        cexvt,
-        c_rtmin,  # min content for cloud droplets
-        i_rtmin,
-        r_rtmin,
-        g_rtmin,
-        s_rtmin,
+        LBEXC,
+        P00,
+        T00,  # 293.15
+        RD,
+        CPD,
+        XCC,  # FROM ICED
+        CEXVT,
+        C_RTMIN,  # MIN CONTENT FOR CLOUD DROPLETS
+        I_RTMIN,
+        R_RTMIN,
+        G_RTMIN,
+        S_RTMIN,
     )
 
     # TODO
@@ -81,15 +81,15 @@ def upstream_sedimentation(
         ray_tmp = ray_in / wlbdc
 
         # TODO : replace with exner
-        t_tmp = tht * (pabst / p00) ** (Rd / cpd)
-        wlbda = 6.6e-8 * (p00 / pabst) * (t_tmp / t00)
-        cc_tmp = xcc * (1 + 1.26 * wlbda / ray_tmp)
-        wsed_tmp = rhodref ** (-cexvt + 1) * wlbdc * cc_tmp * fsedc_in
+        t_tmp = tht * (pabst / P00) ** (RD / CPD)
+        wlbda = 6.6e-8 * (P00 / pabst) * (t_tmp / T00)
+        cc_tmp = XCC * (1 + 1.26 * wlbda / ray_tmp)
+        wsed_tmp = rhodref ** (-CEXVT + 1) * wlbdc * cc_tmp * fsedc_in
 
     # Translation note : l723 in mode_ice4_sedimentation_split.F90
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
-            c_rtmin, rhodref, max_tstep, rc_in, dz, wsed_tmp, remaining_time
+            C_RTMIN, rhodref, max_tstep, rc_in, dz, wsed_tmp, remaining_time
         )
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rc_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
@@ -105,7 +105,7 @@ def upstream_sedimentation(
 
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
-            i_rtmin, rhodref, max_tstep, ri_in, dz, wsed_tmp, remaining_time
+            I_RTMIN, rhodref, max_tstep, ri_in, dz, wsed_tmp, remaining_time
         )
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rc_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
@@ -120,7 +120,7 @@ def upstream_sedimentation(
 
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
-            r_rtmin, rhodref, max_tstep, rr_in, dz, wsed_tmp, remaining_time
+            R_RTMIN, rhodref, max_tstep, rr_in, dz, wsed_tmp, remaining_time
         )
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rr_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
@@ -135,7 +135,7 @@ def upstream_sedimentation(
 
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
-            s_rtmin, rhodref, max_tstep, rs_in, dz, wsed_tmp, remaining_time
+            S_RTMIN, rhodref, max_tstep, rs_in, dz, wsed_tmp, remaining_time
         )
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rs_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
@@ -150,7 +150,7 @@ def upstream_sedimentation(
 
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
-            g_rtmin, rhodref, max_tstep, rg_in, dz, wsed_tmp, remaining_time
+            G_RTMIN, rhodref, max_tstep, rg_in, dz, wsed_tmp, remaining_time
         )
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rg_out[0, 0] += instant_precipitation(wsed_tmp, max_tstep, dt)
@@ -231,6 +231,6 @@ def instant_precipitation(
     wsed_tmp: Field["float"], max_tstep: Field["float"], dt: "float"
 ) -> Field["float"]:
 
-    from __externals__ import rholw
+    from __externals__ import RHOLW
 
-    return wsed_tmp[0, 0, 0] / rholw * (max_tstep / dt)
+    return wsed_tmp[0, 0, 0] / RHOLW * (max_tstep / dt)

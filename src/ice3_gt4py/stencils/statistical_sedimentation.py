@@ -66,17 +66,17 @@ def sedimentation_stat(
 ):
 
     from __externals__ import (
-        lsedic,
-        rholw,  # volumic lass of liquid water
-        c_rtmin,  # cloud droplet rc min
-        r_rtmin,
-        lbexc,
-        cc,
-        dc,
-        cexvt,
-        fsedc,
-        fsedr,
-        exsedr,
+        LSEDIC,
+        RHOLW,  # VOLUMIC LASS OF LIQUID WATER
+        C_RTMIN,  # CLOUD DROPLET RC MIN
+        R_RTMIN,
+        LBEXC,
+        CC,
+        DC,
+        CEXVT,
+        FSEDC,
+        FSEDR,
+        EXSEDR,
     )
 
     # Note Hail is omitted
@@ -94,21 +94,21 @@ def sedimentation_stat(
         dt__rho_dz_tmp = dt / (rhodref * dz)
 
         # 2.1 cloud
-        if lsedic:
+        if LSEDIC:
             # subroutine cloud in fortran
             # 1. ray, lbc, fsedc, conc3d
 
             qp_tmp = c_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-            if rc_in > c_rtmin or qp_tmp > c_rtmin:
+            if rc_in > C_RTMIN or qp_tmp > C_RTMIN:
 
-                if rc_in > c_rtmin:
+                if rc_in > C_RTMIN:
                     wsedw1_tmp = terminal_velocity(
                         rc_in, tht, pabst, rhodref, lbc_tmp, ray_tmp, conc3d_tmp
                     )
                 else:
                     wsedw1_tmp = 0
 
-                if qp_tmp > c_rtmin:
+                if qp_tmp > C_RTMIN:
                     wsedw2_tmp = terminal_velocity(
                         qp_tmp, tht, pabst, rhodref, lbc_tmp, ray_tmp, conc3d_tmp
                     )
@@ -130,14 +130,14 @@ def sedimentation_stat(
         # 2.2 rain
         # Other species
         qp_tmp[0, 0, 0] = r_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-        if rr_in > r_rtmin or qp_tmp > r_rtmin:
-            if rr_in > r_rtmin:
-                wsedw1_tmp = other_species(fsedr, exsedr, rr_in, rhodref)
+        if rr_in > R_RTMIN or qp_tmp > R_RTMIN:
+            if rr_in > R_RTMIN:
+                wsedw1_tmp = other_species(FSEDR, EXSEDR, rr_in, rhodref)
             else:
                 wsedw1_tmp = 0
 
-            if qp_tmp > r_rtmin:
-                wsedw2_tmp = other_species(fsedr, exsedr, qp_tmp, rhodref)
+            if qp_tmp > R_RTMIN:
+                wsedw2_tmp = other_species(FSEDR, EXSEDR, qp_tmp, rhodref)
             else:
                 wsedw2_tmp = 0
 
@@ -156,14 +156,14 @@ def sedimentation_stat(
 
         # 2.4 snow
         qp_tmp[0, 0, 0] = r_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-        if rr_in > r_rtmin or qp_tmp > r_rtmin:
-            if rr_in > r_rtmin:
-                wsedw1_tmp = other_species(fsedr, exsedr, rr_in, rhodref)
+        if rr_in > R_RTMIN or qp_tmp > R_RTMIN:
+            if rr_in > R_RTMIN:
+                wsedw1_tmp = other_species(FSEDR, EXSEDR, rr_in, rhodref)
             else:
                 wsedw1_tmp = 0
 
-            if qp_tmp > r_rtmin:
-                wsedw2_tmp = other_species(fsedr, exsedr, qp_tmp, rhodref)
+            if qp_tmp > R_RTMIN:
+                wsedw2_tmp = other_species(FSEDR, EXSEDR, qp_tmp, rhodref)
             else:
                 wsedw2_tmp = 0
 
@@ -180,14 +180,14 @@ def sedimentation_stat(
 
         # 2.5 graupel
         qp_tmp[0, 0, 0] = r_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-        if rr_in > r_rtmin or qp_tmp > r_rtmin:
-            if rr_in > r_rtmin:
-                wsedw1_tmp = other_species(fsedr, exsedr, rr_in, rhodref)
+        if rr_in > R_RTMIN or qp_tmp > R_RTMIN:
+            if rr_in > R_RTMIN:
+                wsedw1_tmp = other_species(FSEDR, EXSEDR, rr_in, rhodref)
             else:
                 wsedw1_tmp = 0
 
-            if qp_tmp > r_rtmin:
-                wsedw2_tmp = other_species(fsedr, exsedr, qp_tmp, rhodref)
+            if qp_tmp > R_RTMIN:
+                wsedw2_tmp = other_species(FSEDR, EXSEDR, qp_tmp, rhodref)
             else:
                 wsedw2_tmp = 0
 
@@ -225,11 +225,11 @@ def sedimentation_stat(
     # Instantaneous fluxes
     with computation(PARALLEL), interval(0, 1):
 
-        inst_rc_out = c_sed_tmp / rholw
-        inst_rr_out = r_sed_tmp / rholw
-        inst_ri_out = i_sed_tmp / rholw
-        inst_rs_out = s_sed_tmp / rholw
-        inst_rg_out = g_sed_tmp / rholw
+        inst_rc_out = c_sed_tmp / RHOLW
+        inst_rr_out = r_sed_tmp / RHOLW
+        inst_ri_out = i_sed_tmp / RHOLW
+        inst_rs_out = s_sed_tmp / RHOLW
+        inst_rg_out = g_sed_tmp / RHOLW
 
 
 @function
@@ -242,11 +242,11 @@ def terminal_velocity(
     ray: Field["float"],
     conc3d: Field["float"],
 ):
-    from __externals__ import cc, lbexc, fsedc, cexvt, dc
+    from __externals__ import CC, LBEXC, FSEDC, CEXVT, DC
 
     wlbda_tmp = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
-    wlbdc_tmp = (lbc * conc3d / (rhodref * content)) ** lbexc
-    cc_tmp = cc * (1 + 1.26 * wlbda_tmp * wlbdc_tmp / ray)
-    wsedw1 = rhodref ** (-cexvt) * wlbdc_tmp * (-dc) * cc_tmp * fsedc
+    wlbdc_tmp = (lbc * conc3d / (rhodref * content)) ** LBEXC
+    cc_tmp = CC * (1 + 1.26 * wlbda_tmp * wlbdc_tmp / ray)
+    wsedw1 = rhodref ** (-CEXVT) * wlbdc_tmp * (-DC) * cc_tmp * FSEDC
 
     return wsedw1
