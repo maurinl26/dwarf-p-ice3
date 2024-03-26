@@ -58,40 +58,40 @@ def ice4_slow(
     """
 
     from __externals__ import (
-        tt,
-        c_rtmin,
-        v_rtmin,
-        s_rtmin,
-        i_rtmin,
-        g_rtmin,
-        hon,
-        alpha3,
-        beta3,
-        o0deps,
-        ex0deps,
-        ex1deps,
-        o1deps,
-        fiaggs,
-        colexis,
-        exiaggs,
-        cexvt,
-        criauti,
-        acriauti,
-        bcriauti,
-        timauti,
-        texauti,
-        o0depg,
-        ex0depg,
-        o1depg,
-        ex1depg,
+        TT,
+        C_RTMIN,
+        V_RTMIN,
+        S_RTMIN,
+        I_RTMIN,
+        G_RTMIN,
+        HON,
+        ALPHA3,
+        BETA3,
+        O0DEPS,
+        EX0DEPS,
+        EX1DEPS,
+        O1DEPS,
+        FIAGGS,
+        COLEXIS,
+        EXIAGGS,
+        CEXVT,
+        CRIAUTI,
+        ACRIAUTI,
+        BCRIAUTI,
+        TIMAUTI,
+        TEXAUTI,
+        O0DEPG,
+        EX0DEPG,
+        O1DEPG,
+        EX1DEPG,
     )
 
     # 3.2 compute the homogeneous nucleation source : RCHONI
     with computation(PARALLEL), interval(...):
 
-        if t < tt - 35.0 and rc_t > c_rtmin and ldcompute:
+        if t < TT - 35.0 and rc_t > C_RTMIN and ldcompute:
             rc_honi_tnd = min(
-                1000, hon * rhodref * rc_t * exp(alpha3 * (t - tt) - beta3)
+                1000, HON * rhodref * rc_t * exp(ALPHA3 * (t - TT) - BETA3)
             )
 
         else:
@@ -101,11 +101,11 @@ def ice4_slow(
     # 3.4.3 compute the deposition on r_s : RVDEPS
     with computation(PARALLEL), interval(...):
 
-        if rv_t < v_rtmin and rs_t < s_rtmin and ldcompute:
+        if rv_t < V_RTMIN and rs_t < S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
             rv_deps_tnd = (ssi / (rhodref * ai)) * (
-                o0deps * lbdas**ex0deps + o1deps * cj * lbdas**ex1deps
+                O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS
             )
 
         else:
@@ -114,15 +114,15 @@ def ice4_slow(
     # 3.4.4 compute the aggregation on r_s: RIAGGS
     with computation(PARALLEL), interval(...):
 
-        if ri_t > i_rtmin and rs_t > s_rtmin and ldcompute:
+        if ri_t > I_RTMIN and rs_t > S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l138 to 142 kept
             # Translation note : #else REPRO48 l143 to 150 omitted
             ri_aggs_tnd = (
-                fiaggs
-                * exp(colexis * (t - tt))
+                FIAGGS
+                * exp(COLEXIS * (t - TT))
                 * ri_t
-                * lbdas**exiaggs
-                * rhodref ** (-cexvt)
+                * lbdas**EXIAGGS
+                * rhodref ** (-CEXVT)
             )
 
         # Translation note : OELEC = False l151 omitted
@@ -132,11 +132,11 @@ def ice4_slow(
     # 3.4.5 compute the autoconversion of r_i for r_s production: RIAUTS
     with computation(PARALLEL), interval(...):
 
-        if hli_hri > i_rtmin and ldcompute:
-            criauti_tmp = min(criauti, 10 ** (acriauti * (t - tt) + bcriauti))
+        if hli_hri > I_RTMIN and ldcompute:
+            criauti_tmp = min(CRIAUTI, 10 ** (ACRIAUTI * (t - TT) + BCRIAUTI))
             ri_auts_tnd = (
-                timauti
-                * exp(texauti * (t - tt))
+                TIMAUTI
+                * exp(TEXAUTI * (t - TT))
                 * max(0, hli_hri - criauti_tmp * hli_hcf)
             )
 
@@ -145,9 +145,9 @@ def ice4_slow(
 
     # 3.4.6 compute the depsoition on r_g: RVDEPG
     with computation(PARALLEL), interval(...):
-        if rv_t > v_rtmin and rg_t > g_rtmin and ldcompute:
+        if rv_t > V_RTMIN and rg_t > G_RTMIN and ldcompute:
             rv_depg_tnd = (ssi / (rhodref * ai)) * (
-                o0depg * lbdag**ex0depg + o1depg * cj * lbdag**ex1depg
+                O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG
             )
 
         else:
