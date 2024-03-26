@@ -9,6 +9,12 @@ from ice3_gt4py.phyex_common.rain_ice_param import ParamIce, RainIceDescr, RainI
 from ifs_physics_common.utils.f2py import ported_class
 
 
+class Boundary(Enum):
+
+    PRESCRIBED = 0
+    CYCL = 1
+
+
 @ported_class(from_file="PHYEX/src/common/aux/modd_phyex.F90")
 @dataclass
 class Phyex:
@@ -51,35 +57,35 @@ class Phyex:
     rain_ice_param: RainIceParam = field(init=False)
     nebn: Neb = field(init=False)
 
-    itermax: int = field(default=1)
-    tstep: float = field(default=45)
-    nrr: float = field(default=6)
+    ITERMAX: int = field(default=1)
+    TSTEP: float = field(default=45)
+    NRR: float = field(default=6)
 
     # Miscellaneous terms
-    lmfconv: bool = field(default=True)
-    compute_src: bool = field(default=True)
-    khalo: int = field(default=1)
-    program: str = field(default="AROME")
-    nomixlg: bool = field(default=False)
-    ocean: bool = field(default=False)
-    deepoc: bool = field(default=False)
-    couples: bool = field(default=False)
-    blowsnow: bool = field(default=False)
-    rsnow: float = field(default=1.0)
-    lbcx: Tuple[str] = field(default=("CYCL", "CYCL"))
-    lbcy: Tuple[str] = field(default=("CYCL", "CYCL"))
-    ibm: bool = field(default=False)
-    flyer: bool = field(default=False)
-    diag_in_run: bool = field(default=False)
-    o2d: bool = field(default=False)
+    LMFCONV: bool = field(default=True)
+    COMPUTE_SRC: bool = field(default=True)
+    KHALO: int = field(default=1)
+    PROGRAM: str = field(default="AROME")
+    NOMIXLG: bool = field(default=False)
+    OCEAN: bool = field(default=False)
+    DEEPOC: bool = field(default=False)
+    COUPLES: bool = field(default=False)
+    BLOWSNOW: bool = field(default=False)
+    RSNOW: float = field(default=1.0)
+    LBCX: Tuple[int] = field(default=(Boundary.CYCL.value, Boundary.CYCL.value))
+    LBCY: Tuple[int] = field(default=(Boundary.CYCL.value, Boundary.CYCL.value))
+    IBM: bool = field(default=False)
+    FLYER: bool = field(default=False)
+    DIAG_IN_RUN: bool = field(default=False)
+    O2D: bool = field(default=False)
 
     # flat: bool
     # tbuconf: TBudgetConf
 
     def __post_init__(self):
         self.cst = Constants()
-        self.param_icen = ParamIce(hprogram=self.program)
-        self.nebn = Neb(hprogram=self.program)
+        self.param_icen = ParamIce(hprogram=self.PROGRAM)
+        self.nebn = Neb(hprogram=self.PROGRAM)
         self.rain_ice_descrn = RainIceDescr(self.cst, self.param_icen)
         self.rain_ice_param = RainIceParam(
             self.cst, self.rain_ice_descrn, self.param_icen
@@ -92,6 +98,6 @@ class Phyex:
         externals.update(asdict(self.rain_ice_descrn))
         externals.update(asdict(self.rain_ice_param))
         externals.update(asdict(self.nebn))
-        externals.update({"tstep": self.tstep, "nrr": self.nrr})
+        externals.update({"TSTEP": self.TSTEP, "NRR": self.NRR})
 
         return externals
