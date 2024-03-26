@@ -48,26 +48,26 @@ class Neb:
 
     """
 
-    hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
+    HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    tminmix: float = field(default=273.16)
-    tmaxmix: float = field(default=253.16)
-    hgt_qs: float = field(default=False)
-    frac_ice_adjust: FracIceAdjust = field(default="S")
-    frac_ice_shallow: str = field(default="S")
-    vsigqsat: float = field(default=0.02)
-    condens: str = field(default="CB02")
-    lambda3: str = field(default="CB")
-    statnw: bool = field(default=False)
-    sigmas: bool = field(default=True)
-    subg_cond: bool = field(default=False)
+    TMINMIX: float = field(default=273.16)
+    TMAXMIX: float = field(default=253.16)
+    HGT_QS: float = field(default=False)
+    FRAC_ICE_ADJUST: FracIceAdjust = field(default="S")
+    FRAC_ICE_SHALLOW: str = field(default="S")
+    VSIGQSAT: float = field(default=0.02)
+    CONDENS: str = field(default="CB02")
+    LAMBDA3: str = field(default="CB")
+    STATNW: bool = field(default=False)
+    SIGMAS: bool = field(default=True)
+    SUBG_COND: bool = field(default=False)
 
     def __post_init__(self):
-        if self.hprogram == "AROME":
-            self.frac_ice_adjust = FracIceAdjust.S.value
-            self.frac_ice_shallow = FracIceShallow.T.value
-            self.vsigqsat = 0
-            self.sigmas = False
+        if self.HPROGRAM == "AROME":
+            self.FRAC_ICE_ADJUST = FracIceAdjust.S.value
+            self.FRAC_ICE_SHALLOW = FracIceShallow.T.value
+            self.VSIGQSAT = 0
+            self.SIGMAS = False
 
-        elif self.hprogram == "LMDZ":
-            self.subg_cond = True
+        elif self.HPROGRAM == "LMDZ":
+            self.SUBG_COND = True
