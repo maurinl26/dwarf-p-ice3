@@ -39,26 +39,26 @@ def ice4_fast_ri(
         rc_beri_tnd (Field[float]): tendency for Bergeron Findeisen effect
     """
 
-    from __externals__ import c_rtmin, i_rtmin, lbi, lbexi, o0depi, o2depi, di
+    from __externals__ import C_RTMIN, I_RTMIN, LBI, LBEXI, O0DEPI, O2DEPI, DI
 
     # 7.2 Bergeron-Findeisen effect: RCBERI
     with computation(PARALLEL), interval(...):
 
         if (
             ssi > 0
-            and rc_in > c_rtmin
-            and ri_in > i_rtmin
+            and rc_in > C_RTMIN
+            and ri_in > I_RTMIN
             and ci_in > 1e-20
             and ldcompute
         ):
 
             rc_beri_tnd = min(
-                1e-8, lbi * (rhodref * ri_in / ci_in) ** lbexi
+                1e-8, LBI * (rhodref * ri_in / ci_in) ** LBEXI
             )  # lambda_i
             rc_beri_tnd = (
                 (ssi / (rhodref * ai))
                 * ci_in
-                * (o0depi / rc_beri_tnd + o2depi * cj / rc_beri_tnd ** (di + 2.0))
+                * (O0DEPI / rc_beri_tnd + O2DEPI * cj / rc_beri_tnd ** (DI + 2.0))
             )
 
         else:

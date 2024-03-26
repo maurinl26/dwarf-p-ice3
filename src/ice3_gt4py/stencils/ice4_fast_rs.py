@@ -61,78 +61,78 @@ def ice4_fast_rs(
 ):
 
     from __externals__ import (
-        r_rtmin,
-        s_rtmin,
-        c_rtmin,
-        epsilo,
-        levlimit,
-        alpi,
-        betai,
-        gami,
-        tt,
-        cpv,
-        lvtt,
-        estt,
-        Rv,
-        o0deps,
-        o1deps,
-        ex0deps,
-        ex1deps,
-        lmtt,
-        Cl,
-        Ci,
-        tt,
-        crimss,
-        excrimss,
-        cexvt,
-        crimsg,
-        excrimsg,
-        srimcg,
-        exsrimcg,
-        srimcg3,
-        srimcg2,
-        exsrimcg2,
-        fraccss,
-        cxs,
-        lbraccs1,
-        lbraccs2,
-        lbraccs3,
-        lbsaccr1,
-        lbsaccr2,
-        lbsaccr3,
-        bs,
-        fsaccrg,
-        snow_riming,
-        alpw,
-        betaw,
-        gamw,
-        fscvmg,
+        R_RTMIN,
+        S_RTMIN,
+        C_RTMIN,
+        EPSILO,
+        LEVLIMIT,
+        ALPI,
+        BETAI,
+        GAMI,
+        TT,
+        CPV,
+        LVTT,
+        ESTT,
+        RV,
+        O0DEPS,
+        O1DEPS,
+        EX0DEPS,
+        EX1DEPS,
+        LMTT,
+        CL,
+        CI,
+        TT,
+        CRIMSS,
+        EXCRIMSS,
+        CEXVT,
+        CRIMSG,
+        EXCRIMSG,
+        SRIMCG,
+        EXSRIMCG,
+        SRIMCG3,
+        SRIMCG2,
+        EXSRIMCG2,
+        FRACCSS,
+        CXS,
+        LBRACCS1,
+        LBRACCS2,
+        LBRACCS3,
+        LBSACCR1,
+        LBSACCR2,
+        LBSACCR3,
+        BS,
+        FSACCRG,
+        SNOW_RIMING,
+        ALPW,
+        BETAW,
+        GAMW,
+        FSCVMG,
     )
 
     # 5.0 maximum freezing rate
     with computation(PARALLEL), interval(...):
 
         # Translation note l106 removed not LDSOFT
-        if rs_t < s_rtmin and ldcompute:
+        if rs_t < S_RTMIN and ldcompute:
 
-            rs_freez1_tnd = rv_t * pres / (epsilo + rv_t)
-            if levlimit:
+            rs_freez1_tnd = rv_t * pres / (EPSILO + rv_t)
+            if LEVLIMIT:
                 rs_freez1_tnd = min(
-                    rs_freez1_tnd, exp(alpi - betai / t - gami * log(t))
+                    rs_freez1_tnd, exp(ALPI - BETAI / t - GAMI * log(t))
                 )
 
-            rs_freez1_tnd = ka * (tt - t) + dv * (lvtt + (cpv - Cl) * (t - tt)) * (
-                estt - rs_freez1_tnd
-            ) / (Rv * t)
+            rs_freez1_tnd = ka * (TT - t) + dv * (LVTT + (CPV - CL) * (t - TT)) * (
+                ESTT - rs_freez1_tnd
+            ) / (RV * t)
 
             # Translation note l115 to l177 kept #ifdef REPRO48
             # Translation note l119 to l122 removed #else REPRO48
 
             rs_freez1_tnd *= (
-                o0deps * lbda_s**ex0deps + o1deps * cj * lbda_s**ex1deps
-            ) / (rhodref * (lmtt - Cl * (tt - t)))
-            rs_freez2_tnd = (rhodref * (lmtt + (Ci - Cl) * (tt - t))) / (
-                rhodref * (lmtt - Cl * (tt - t))
+                O0DEPS * lbda_s**EX0DEPS + O1DEPS * cj * lbda_s**EX1DEPS
+            ) / (rhodref * (LMTT - CL * (TT - t)))
+            rs_freez2_tnd = (rhodref * (LMTT + (CI - CL) * (TT - t))) / (
+                rhodref * (LMTT - CL * (TT - t))
             )
 
             # Translation note l129 removed
@@ -147,7 +147,7 @@ def ice4_fast_rs(
     # 5.1 cloud droplet riming of the aggregates
     with computation(PARALLEL), interval(...):
 
-        if rc_t > c_rtmin and rs_t > s_rtmin and ldcompute:
+        if rc_t > C_RTMIN and rs_t > S_RTMIN and ldcompute:
             zw_tmp = lbda_s
 
             # Translation note : l144 kept
@@ -181,7 +181,7 @@ def ice4_fast_rs(
             # Translation note : #ifdef REPRO48 l170 to l172 kept
             #                                   l174 to l178 removed
             rs_rcrimss_tnd = (
-                crimss * zw1_tmp * rc_t * lbda_s**excrimss * rhodref ** (-cexvt)
+                CRIMSS * zw1_tmp * rc_t * lbda_s**EXCRIMSS * rhodref ** (-CEXVT)
             )
 
     # 5.1.6 riming convesion of the large size aggregates
@@ -190,20 +190,20 @@ def ice4_fast_rs(
         if grim_tmp:
             # Translation note : #ifdef REPRO48 l189 to l191 kept
             #                                   l193 to l197 removed
-            rs_rcrims_tnd = crimsg * rc_t * lbda_s**excrimsg * rhodref ** (-cexvt)
+            rs_rcrims_tnd = CRIMSG * rc_t * lbda_s**EXCRIMSG * rhodref ** (-CEXVT)
 
     # if parami  csnowriming == M90
     with computation(PARALLEL), interval(...):
 
         # PARAMI%CSNOWRIMING == M90
         # TODO : refactor if statement out of stencil for performance
-        if snow_riming == 0:
+        if SNOW_RIMING == 0:
 
             if grim_tmp:
                 zw_tmp = rs_rsrimcg_tnd - rs_rcrimss_tnd
                 # Translation note : #ifdef REPRO48 l208 kept
                 #                                   l210 and l211 removed
-                rs_rsrimcg_tnd = srimcg * lbda_s**exsrimcg * (1 - zw2_tmp)
+                rs_rsrimcg_tnd = SRIMCG * lbda_s**EXSRIMCG * (1 - zw2_tmp)
 
                 # Translation note : #ifdef REPRO48 l214 to l217 kept
                 #                                   l219 to l223 removed
@@ -212,8 +212,8 @@ def ice4_fast_rs(
                     * rs_rsrimcg_tnd
                     / max(
                         1e-20,
-                        srimcg3 * srimcg2 * lbda_s**exsrimcg2 * (1 - zw3_tmp)
-                        - srimcg3 * rs_rsrimcg_tnd,
+                        SRIMCG3 * SRIMCG2 * lbda_s**EXSRIMCG2 * (1 - zw3_tmp)
+                        - SRIMCG3 * rs_rsrimcg_tnd,
                     )
                 )
 
@@ -222,7 +222,7 @@ def ice4_fast_rs(
 
     #
     with computation(PARALLEL), interval(...):
-        if grim_tmp and t < tt:
+        if grim_tmp and t < TT:
             rc_rimss_out = min(freez_rate_tmp, rs_rcrimss_tnd)
             freez_rate_tmp = max(0, freez_rate_tmp - rc_rimss_out)
 
@@ -242,7 +242,7 @@ def ice4_fast_rs(
 
     # 5.2. rain accretion onto the aggregates
     with computation(PARALLEL), interval(...):
-        if rr_t > r_rtmin and rs_t > s_rtmin and ldcompute:
+        if rr_t > R_RTMIN and rs_t > S_RTMIN and ldcompute:
             gacc_tmp = True
         else:
             gacc_tmp = False
@@ -269,13 +269,13 @@ def ice4_fast_rs(
             #                            l285 to l289 removed
 
             zw_tmp = (
-                fraccss
-                * (lbda_s**cxs)
-                * (rhodref ** (-cexvt))
+                FRACCSS
+                * (lbda_s**CXS)
+                * (rhodref ** (-CEXVT))
                 * (
-                    lbraccs1 / (lbda_s**2)
-                    + lbraccs2 / (lbda_s * lbda_r)
-                    + lbraccs3 / (lbda_r**2)
+                    LBRACCS1 / (lbda_s**2)
+                    + LBRACCS2 / (lbda_s * lbda_r)
+                    + LBRACCS3 / (lbda_r**2)
                 )
                 / lbda_r**4
             )
@@ -284,14 +284,14 @@ def ice4_fast_rs(
     with computation(PARALLEL), interval(...):
         if gacc_tmp:
             rs_rsaccrg_tnd = (
-                fsaccrg
+                FSACCRG
                 * zw3_tmp
-                * (lbda_s ** (cxs - bs))
-                * (rhodref ** (-cexvt - 1))
+                * (lbda_s ** (CXS - BS))
+                * (rhodref ** (-CEXVT - 1))
                 * (
-                    lbsaccr1 / (lbda_s**2)
-                    + lbsaccr2 / (lbda_r * lbda_s)
-                    + lbsaccr3 / (lbda_s**2)
+                    LBSACCR1 / (lbda_s**2)
+                    + LBSACCR2 / (lbda_r * lbda_s)
+                    + LBSACCR3 / (lbda_s**2)
                 )
                 / lbda_r
             )
@@ -299,7 +299,7 @@ def ice4_fast_rs(
     # l324
     # More restrictive ACC mask to be used for accretion by negative temperature only
     with computation(PARALLEL), interval(...):
-        if gacc_tmp and t < tt:
+        if gacc_tmp and t < TT:
             rr_accss_out = min(freez_rate_tmp, rs_rraccss_tnd)
             freez_rate_tmp = max(0, freez_rate_tmp - rr_accss_out)
 
@@ -319,30 +319,30 @@ def ice4_fast_rs(
 
     # 5.3 Conversion-Melting of the aggregates
     with computation(PARALLEL), interval(...):
-        if rs_t < s_rtmin and t > tt and ldcompute:
+        if rs_t < S_RTMIN and t > TT and ldcompute:
             if not ldsoft:
-                rs_mltg_tnd = rv_t * pres / (epsilo + rv_t)
-                if levlimit:
+                rs_mltg_tnd = rv_t * pres / (EPSILO + rv_t)
+                if LEVLIMIT:
                     rs_mltg_tnd = min(
-                        rs_mltg_tnd, exp(alpw - betaw / t - gamw * log(t))
+                        rs_mltg_tnd, exp(ALPW - BETAW / t - GAMW * log(t))
                     )
-                rs_mltg_tnd = ka * (tt - t) + (
+                rs_mltg_tnd = ka * (TT - t) + (
                     dv
-                    * (lvtt + (cpv - Cl) * (t - tt))
-                    * (estt - rs_mltg_tnd)
-                    / (Rv * t)
+                    * (LVTT + (CPV - CL) * (t - TT))
+                    * (ESTT - rs_mltg_tnd)
+                    / (RV * t)
                 )
 
                 # Tranlsation note : #ifdef REPRO48 l360 to l365 kept
                 #                                   l367 to l374 removed
-                rs_mltg_tnd = fscvmg * max(
+                rs_mltg_tnd = FSCVMG * max(
                     0,
                     (
                         -rs_mltg_tnd
-                        * (o0deps * lbda_s**ex0deps + o1deps * cj * lbda_s * ex1deps)
-                        - (rs_rcrims_tnd + rs_rraccs_tnd) * (rhodref * Cl * (tt - t))
+                        * (O0DEPS * lbda_s**EX0DEPS + O1DEPS * cj * lbda_s * EX1DEPS)
+                        - (rs_rcrims_tnd + rs_rraccs_tnd) * (rhodref * CL * (TT - t))
                     )
-                    / (rhodref * lmtt),
+                    / (rhodref * LMTT),
                 )
 
                 # note that RSCVMG = RSMLT*XFSCVMG but no heat is exchanged (at the rate RSMLT)
