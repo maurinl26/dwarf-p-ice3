@@ -21,28 +21,28 @@ def compute_frac_ice(
         _type_: _description_
     """
 
-    from __externals__ import frac_ice_adjust, tmaxmix, tminmix, tt
+    from __externals__ import FRAC_ICE_ADJUST, TMAXMIX, TMINMIX, TT
 
     frac_ice = 0
 
     # using temperature
     # FracIceAdujst.T.value
     if frac_ice_adjust == 0:
-        frac_ice = max(0, min(1, ((tmaxmix - t[0, 0, 0]) / (tmaxmix - tminmix))))
+        frac_ice = max(0, min(1, ((TMAXMIX - t[0, 0, 0]) / (TMAXMIX - TMINMIX))))
 
     # using temperature with old formula
     # FracIceAdujst.O.value
-    elif frac_ice_adjust == 1:
-        frac_ice = max(0, min(1, ((tt - t[0, 0, 0]) / 40)))
+    elif FRAC_ICE_ADJUST == 1:
+        frac_ice = max(0, min(1, ((TT - t[0, 0, 0]) / 40)))
 
     # no ice
     # FracIceAdujst.N.value
-    elif frac_ice_adjust == 2:
+    elif FRAC_ICE_ADJUST == 2:
         frac_ice = 0
 
     # same as previous
     # FracIceAdujst.S.value
-    elif frac_ice_adjust == 3:
+    elif FRAC_ICE_ADJUST == 3:
         frac_ice = max(0, min(1, frac_ice))
 
     return frac_ice

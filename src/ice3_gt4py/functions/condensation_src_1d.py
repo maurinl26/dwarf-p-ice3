@@ -2,6 +2,7 @@
 from gt4py.cartesian.gtscript import function
 
 
+# TODO: change as a global table
 @function
 def src_1d(inq: int) -> float:
     """Replace src_1d table in Fortran version

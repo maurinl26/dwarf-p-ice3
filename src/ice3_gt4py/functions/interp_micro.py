@@ -22,10 +22,10 @@ def index_interp_micro_1d(
         Field[float]: floating index in lookup table (index + offset)
     """
 
-    from __externals__ import rimintp1, rimintp2, ngaminc
+    from __externals__ import RIMINTP1, RIMINTP2, NGAMINC
 
     # Real index for interpolation
-    return max(1, min(ngaminc) - 1e-5, rimintp1 * log(zw) + rimintp2)
+    return max(1, min(NGAMINC) - 1e-5, RIMINTP1 * log(zw) + RIMINTP2)
 
 
 def interp_micro_1d(
