@@ -62,11 +62,12 @@ def ice4_slow(
 
     # 4.2 compute the autoconversion of r_c for r_r : RCAUTR
     with computation(PARALLEL), interval(...):
-
-        # Translation note : ldsoft omitted
-        # TODO: see if ldsoft is used
         if hlc_hrc > C_RTMIN and hlc_hcf > 0 and ldcompute:
-            rc_autr = TIMAUTC * max(hlc_hrc - hlc_hcf * CRIAUTC / rhodref, 0)
+            rc_autr = (
+                TIMAUTC * max(hlc_hrc - hlc_hcf * CRIAUTC / rhodref, 0)
+                if not ldsoft
+                else rc_autr
+            )
         else:
             rc_autr = 0
 
@@ -77,30 +78,34 @@ def ice4_slow(
         # Translation note : HSUBG_RC_RR_ACCR=='NONE'
         if SUBG_RC_RR_ACCR == 0:
             if rc_t > C_RTMIN and rr_t > R_RTMIN and ldcompute:
-
-                # Translation note :
-                rc_accr = FCACCR * rc_t * lbda_r * EXCACCR * rhodref ** (-CEXVT)
+                rc_accr = (
+                    FCACCR * rc_t * lbda_r * EXCACCR * rhodref ** (-CEXVT)
+                    if not ldsoft
+                    else rc_accr
+                )
             else:
                 rc_accr = 0
 
-        # TODO : translate second option from l121 to l155
+        # Translation note : second option from l121 to l155 ommitted
         # elif csubg_rc_rr_accr == 1:
 
     # 4.4 computes the evaporation of r_r :  RREVAV
     with computation(PARALLEL), interval(...):
 
         # NONE in Fortran code
-        if subg_rr_evap == 0:
+        if SUBG_RR_EVAP == 0:
             if rr_t > R_RTMIN and rc_t <= C_RTMIN and ldcompute:
 
-                rr_evav = exp(ALPW - BETAW / t - GAMW * log(t))
-                usw = 1 - rv_t * (pres - rr_evav)
-                rr_evav = (LVTT + (CPV - CL) * (t - TT)) ** 2 / (ka * RV * t**2) + (
-                    RV * t
-                ) / (dv * rr_evav)
-                rr_evav = (max(0, usw / (rhodref * rr_evav))) * (
-                    O0EVAR * lbda_r**EX0EVAR + O1EVAR * cj * EX1EVAR
-                )
+                if not ldsoft:
+
+                    rr_evav = exp(ALPW - BETAW / t - GAMW * log(t))
+                    usw = 1 - rv_t * (pres - rr_evav)
+                    rr_evav = (LVTT + (CPV - CL) * (t - TT)) ** 2 / (
+                        ka * RV * t**2
+                    ) + (RV * t) / (dv * rr_evav)
+                    rr_evav = (max(0, usw / (rhodref * rr_evav))) * (
+                        O0EVAR * lbda_r**EX0EVAR + O1EVAR * cj * EX1EVAR
+                    )
 
     # TODO : translate second option from line 178 to 227
     # HSUBG_RR_EVAP=='CLFR' .OR. HSUBG_RR_EVAP=='PRFR'
