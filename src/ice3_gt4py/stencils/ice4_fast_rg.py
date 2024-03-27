@@ -239,23 +239,25 @@ def ice4_fast_rg(
 
     with computation(PARALLEL), interval(...):
 
-        index_g, index_r = index_interp_micro_2d_gr(lbdag, lbdar)
-        zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
+        if not ldsoft:
+            index_g, index_r = index_interp_micro_2d_gr(lbdag, lbdar)
+            zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
 
     # l233
     with computation(PARALLEL), interval(...):
-        rg_rrdry_tnd = (
-            FRDRYG
-            * zw_tmp
-            * (lbdar ** (-4))
-            * (lbdag**CXG)
-            * (rhodref ** (-CEXVT - 1))
-            * (
-                LBSDRYG1 / (lbdag**2)
-                + LBSDRYG2 / (lbdag * lbdar)
-                + LBSDRYG3 / (lbdar**2)
+        if (not ldsoft) and gdry:
+            rg_rrdry_tnd = (
+                FRDRYG
+                * zw_tmp
+                * (lbdar ** (-4))
+                * (lbdag**CXG)
+                * (rhodref ** (-CEXVT - 1))
+                * (
+                    LBSDRYG1 / (lbdag**2)
+                    + LBSDRYG2 / (lbdag * lbdar)
+                    + LBSDRYG3 / (lbdar**2)
+                )
             )
-        )
 
     # l245
     with computation(PARALLEL), interval(...):
