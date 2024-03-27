@@ -43,10 +43,6 @@ def step_limiter(
     delta_t_soft: Field["float"],
     t_soft: Field["float"],
     ldcompute: Field["bool"],
-    ldmicro: Field["bool"],
-    ci_t: Field["float"],
-    time_threshold_tmp: Field["float"],
-    r_b_max: Field["float"],
 ):
     from __externals__ import (
         TSTEP,
@@ -58,7 +54,6 @@ def step_limiter(
         G_RTMIN,
         MNH_TINY,
         TSTEP_TS,
-        XMRSTEP,
     )
 
     # Adding externals tendencies
