@@ -64,6 +64,8 @@ def state_update(
             delta_t_micro = min(delta_t_micro, time_threshold_tmp)
             ldcompute = False
 
+            # Translation note : ldcompute is LLCOMPUTE in mode_ice4_stepping.F90
+
     # l370
     # Translation note : l370 to l378 in mode_ice4_stepping. F90 contracted in a single stencil
     with computation(PARALLEL), interval(...):
