@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log
+from gt4py.cartesian.gtscript import Field, GlobalTable, exp, log
 
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
+
+from ice3_gt4py.functions.interp_micro import (
+    index_interp_micro_2d_gr,
+    index_interp_micro_2d_gs,
+    interp_micro_2d,
+)
 
 
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rg.F90")
@@ -46,6 +52,8 @@ def ice4_fast_rg(
     rwetg_init_tmp: Field["float"],
     zw_tmp: Field["float"],  # ZZW in Fortran
     ldsoft: "bool",  # bool to update tendencies
+    ker_sdryg: GlobalTable[float, (40, 40)],
+    ker_rdryg: GlobalTable[float, (40, 40)],
 ):
     """Compute fast graupel sources
 
@@ -193,10 +201,12 @@ def ice4_fast_rg(
             rg_rsdry_tnd = 0
             rg_rswet_tnd = 0
 
-    # TODO: l181 to 243
-    # TODO: translate CALL INTERP MICRO
+    with computation(PARALLEL), interval(...):
 
-    # + WHERE GDRY
+        if (not ldsoft) and gdry:
+            index_s, index_g = index_interp_micro_2d_gs(lbdag, lbdas)
+            zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
+
     with computation(PARALLEL), interval(...):
 
         # Translation note : #ifdef REPRO48 l192 to l198 kept
@@ -227,7 +237,10 @@ def ice4_fast_rg(
             gdry = 0
             rg_rrdry_tnd = 0
 
-    # TODO : l224 to l230 interp_micro_2d
+    with computation(PARALLEL), interval(...):
+
+        index_g, index_r = index_interp_micro_2d_gr(lbdag, lbdar)
+        zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
 
     # l233
     with computation(PARALLEL), interval(...):
