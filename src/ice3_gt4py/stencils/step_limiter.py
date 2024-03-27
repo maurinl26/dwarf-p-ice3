@@ -15,18 +15,24 @@ from ice3_gt4py.functions.stepping import mixing_ratio_step_limiter
 def step_limiter(
     exn: Field["float"],
     theta_t: Field["float"],
+    theta_a_tnd: Field["float"],
+    theta_b: Field["float"],
+    theta_ext_tnd: Field["float"],
     rc_t: Field["float"],
     rr_t: Field["float"],
     ri_t: Field["float"],
     rs_t: Field["float"],
     rg_t: Field["float"],
-    theta_a_tnd: Field["float"],
     rc_a_tnd: Field["float"],
     rr_a_tnd: Field["float"],
     ri_a_tnd: Field["float"],
     rs_a_tnd: Field["float"],
     rg_a_tnd: Field["float"],
-    theta_b: Field["float"],
+    rc_ext_tnd: Field["float"],
+    rr_ext_tnd: Field["float"],
+    ri_ext_tnd: Field["float"],
+    rs_ext_tnd: Field["float"],
+    rg_ext_tnd: Field["float"],
     rc_b: Field["float"],
     rr_b: Field["float"],
     ri_b: Field["float"],
@@ -44,7 +50,6 @@ def step_limiter(
 ):
     from __externals__ import (
         TSTEP,
-        LFEEDBACKT,
         TT,
         C_RTMIN,
         R_RTMIN,
@@ -55,6 +60,15 @@ def step_limiter(
         TSTEP_TS,
         XMRSTEP,
     )
+
+    # Adding externals tendencies
+    with computation(PARALLEL), interval(...):
+        theta_a_tnd += theta_ext_tnd
+        rc_a_tnd += rc_ext_tnd
+        rr_a_tnd += rr_ext_tnd
+        ri_a_tnd += ri_ext_tnd
+        rs_a_tnd += rs_ext_tnd
+        rg_a_tnd += rg_ext_tnd
 
     # 4.6 Time integration
     with computation(PARALLEL), interval(...):
@@ -109,74 +123,6 @@ def step_limiter(
             if t_micro + delta_t_micro > t_soft + delta_t_soft:
                 delta_t_micro = t_soft + delta_t_soft - t_micro
                 ldcompute = False
-
-
-############################ MRSTEP != 0 ################################
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=346,
-    to_line=388,
-)
-@stencil_collection("mixing_ratio_limiter")
-def state_update(
-    rc_0r_t: Field["float"],
-    rc_t: Field["float"],
-    rr_t: Field["float"],
-    ri_t: Field["float"],
-    rs_t: Field["float"],
-    rg_t: Field["float"],
-    rc_b: Field["float"],
-    rr_b: Field["float"],
-    ri_b: Field["float"],
-    rs_b: Field["float"],
-    rg_b: Field["float"],
-    rc_tnd_a: Field["float"],
-    rr_tnd_a: Field["float"],
-    ri_tnd_a: Field["float"],
-    rs_tnd_a: Field["float"],
-    rg_tnd_a: Field["float"],
-    delta_t_micro: Field["float"],
-    ldmicro: Field["float"],
-    time_threshold_tmp: Field["float"],
-):
-
-    from __externals__ import MRSTEP
-
-    # TODO:iteration of species
-    # l356
-    with computation(PARALLEL), interval(...):
-        # TODO: add condition on LL_ANY_ITER
-        time_threshold_tmp = (
-            (sign(1, rc_tnd_a) * MRSTEP + rc_0r_t - rc_t - rc_b)
-            if abs(rc_a_tnd) > 1e-20
-            else -1
-        )
-
-    # l363
-    with computation(PARALLEL), interval(...):
-        if (
-            time_threshold_tmp >= 0
-            and time_threshold_tmp < delta_t_micro
-            and (rc_t > C_RTMIN or rc_a_tnd > 0)
-        ):
-            delta_t_micro = min(delta_t_micro, time_threshold_tmp)
-            ldcompute = False
-
-    # l370
-    # Translation note : l370 to l378 in mode_ice4_stepping. F90 contracted in a single stencil
-    with computation(PARALLEL), interval(...):
-        r_b_max = abs(rc_b)  # (c)
-        r_b_max = max(r_b_max, abs(rr_b))  # (r)
-        r_b_max = max(r_b_max, abs(ri_b))  # (i)
-        r_b_max = max(r_b_max, abs(rs_b))  # (s)
-        r_b_max = max(r_b_max, abs(rg_b))  # (g)
-
-    # TODO : insert LLCPZ0RT
-    # l381
-    with computation(PARALLEL), interval(...):
-        if r_b_max > XMRSTEP:
-            delta_t_micro = 0
-            ldcompute = False
 
 
 @ported_method(
