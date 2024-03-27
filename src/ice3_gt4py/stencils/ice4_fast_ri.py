@@ -21,6 +21,7 @@ def ice4_fast_ri(
     rc_in: Field["float"],
     ri_in: Field["float"],
     rc_beri_tnd: Field["float"],
+    ldsoft: Field["bool"],
 ):
     """Computes Bergeron-Findeisen effect RCBERI.
 
@@ -43,23 +44,24 @@ def ice4_fast_ri(
 
     # 7.2 Bergeron-Findeisen effect: RCBERI
     with computation(PARALLEL), interval(...):
+        if not ldsoft:
 
-        if (
-            ssi > 0
-            and rc_in > C_RTMIN
-            and ri_in > I_RTMIN
-            and ci_in > 1e-20
-            and ldcompute
-        ):
+            if (
+                ssi > 0
+                and rc_in > C_RTMIN
+                and ri_in > I_RTMIN
+                and ci_in > 1e-20
+                and ldcompute
+            ):
 
-            rc_beri_tnd = min(
-                1e-8, LBI * (rhodref * ri_in / ci_in) ** LBEXI
-            )  # lambda_i
-            rc_beri_tnd = (
-                (ssi / (rhodref * ai))
-                * ci_in
-                * (O0DEPI / rc_beri_tnd + O2DEPI * cj / rc_beri_tnd ** (DI + 2.0))
-            )
+                rc_beri_tnd = min(
+                    1e-8, LBI * (rhodref * ri_in / ci_in) ** LBEXI
+                )  # lambda_i
+                rc_beri_tnd = (
+                    (ssi / (rhodref * ai))
+                    * ci_in
+                    * (O0DEPI / rc_beri_tnd + O2DEPI * cj / rc_beri_tnd ** (DI + 2.0))
+                )
 
-        else:
-            rc_beri_tnd = 0
+            else:
+                rc_beri_tnd = 0
