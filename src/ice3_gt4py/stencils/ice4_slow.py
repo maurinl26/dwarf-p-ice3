@@ -30,6 +30,7 @@ def ice4_slow(
     ri_aggs_tnd: Field["float"],
     ri_auts_tnd: Field["float"],
     rv_depg_tnd: Field["float"],
+    ldsoft: "bool",
 ):
     """Compute the slow processes
 
@@ -90,8 +91,10 @@ def ice4_slow(
     with computation(PARALLEL), interval(...):
 
         if t < TT - 35.0 and rc_t > C_RTMIN and ldcompute:
-            rc_honi_tnd = min(
-                1000, HON * rhodref * rc_t * exp(ALPHA3 * (t - TT) - BETA3)
+            rc_honi_tnd = (
+                min(1000, HON * rhodref * rc_t * exp(ALPHA3 * (t - TT) - BETA3))
+                if not ldsoft
+                else rc_honi_tnd
             )
 
         else:
@@ -104,8 +107,11 @@ def ice4_slow(
         if rv_t < V_RTMIN and rs_t < S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
-            rv_deps_tnd = (ssi / (rhodref * ai)) * (
-                O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS
+            rv_deps_tnd = (
+                (ssi / (rhodref * ai))
+                * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS)
+                if not ldsoft
+                else rv_deps_tnd
             )
 
         else:
@@ -118,11 +124,15 @@ def ice4_slow(
             # Translation note : #ifdef REPRO48 l138 to 142 kept
             # Translation note : #else REPRO48 l143 to 150 omitted
             ri_aggs_tnd = (
-                FIAGGS
-                * exp(COLEXIS * (t - TT))
-                * ri_t
-                * lbdas**EXIAGGS
-                * rhodref ** (-CEXVT)
+                (
+                    FIAGGS
+                    * exp(COLEXIS * (t - TT))
+                    * ri_t
+                    * lbdas**EXIAGGS
+                    * rhodref ** (-CEXVT)
+                )
+                if not ldsoft
+                else ri_aggs_tnd
             )
 
         # Translation note : OELEC = False l151 omitted
@@ -133,12 +143,13 @@ def ice4_slow(
     with computation(PARALLEL), interval(...):
 
         if hli_hri > I_RTMIN and ldcompute:
-            criauti_tmp = min(CRIAUTI, 10 ** (ACRIAUTI * (t - TT) + BCRIAUTI))
-            ri_auts_tnd = (
-                TIMAUTI
-                * exp(TEXAUTI * (t - TT))
-                * max(0, hli_hri - criauti_tmp * hli_hcf)
-            )
+            if not ldsoft:
+                criauti_tmp = min(CRIAUTI, 10 ** (ACRIAUTI * (t - TT) + BCRIAUTI))
+                ri_auts_tnd = (
+                    TIMAUTI
+                    * exp(TEXAUTI * (t - TT))
+                    * max(0, hli_hri - criauti_tmp * hli_hcf)
+                )
 
         else:
             ri_auts_tnd = 0
@@ -146,8 +157,11 @@ def ice4_slow(
     # 3.4.6 compute the depsoition on r_g: RVDEPG
     with computation(PARALLEL), interval(...):
         if rv_t > V_RTMIN and rg_t > G_RTMIN and ldcompute:
-            rv_depg_tnd = (ssi / (rhodref * ai)) * (
-                O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG
+            rv_depg_tnd = (
+                (ssi / (rhodref * ai))
+                * (O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG)
+                if not ldsoft
+                else rv_depg_tnd
             )
 
         else:
