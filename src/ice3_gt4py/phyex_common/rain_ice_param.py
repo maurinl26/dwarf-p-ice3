@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from math import gamma, log
-from typing import Tuple
+from tyPIng import Tuple
 
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
@@ -28,8 +28,8 @@ class RainIceParam:
     fsedi: float
     excsedi: float
     exrsedi: float
-    fseds: float
-    exseds: float
+    fseDS: float
+    exseDS: float
     fsedg: float
     exsedg: float
 
@@ -53,8 +53,8 @@ class RainIceParam:
     o1evar: float
     ex0evar: float
     ex1evar: float
-    o0depi: float           # deposition DEP on Ice
-    o2depi: float
+    o0dePI: float           # deposition DEP on Ice
+    o2dePI: float
     o0deps: float           # on Snow
     o1deps: float
     ex0deps: float
@@ -117,164 +117,164 @@ class RainIceParam:
     parami: ParamIce
 
     # Parameters for microphysical sources and transformations
-    fsedc: Tuple[float] = field(init=False)  # Constants for sedimentation fluxes of C
-    fsedr: float = field(init=False)  # Constants for sedimentation
-    exsedr: float = field(init=False)
-    fsedi: float = field(init=False)
-    excsedi: float = field(init=False)
-    exrsedi: float = field(init=False)
-    # fseds: float = field(init=False)
-    exseds: float = field(init=False)
-    fsedg: float = field(init=False)
-    exsedg: float = field(init=False)
+    FSEDC: Tuple[float] = field(init=False)  # Constants for sedimentation fluxes of C
+    FSEDR: float = field(init=False)  # Constants for sedimentation
+    EXSEDR: float = field(init=False)
+    FSEDI: float = field(init=False)
+    EXCSEDI: float = field(init=False)
+    EXRSEDI: float = field(init=False)
+    # fseDS: float = field(init=False)
+    EXSEDS: float = field(init=False)
+    FSEDG: float = field(init=False)
+    EXSEDG: float = field(init=False)
 
     # Constants for heterogeneous ice nucleation HEN
-    nu10: float = field(init=False)
-    alpha1: float = 4.5
-    beta1: float = 0.6
-    nu20: float = field(init=False)
-    alpha2: float = 12.96
-    beta2: float = 0.639
-    mnu0: float = 6.88e-13  # Mass of nucleated ice crystal
+    NU10: float = field(init=False)
+    ALPHA1: float = 4.5
+    BETA1: float = 0.6
+    NU20: float = field(init=False)
+    ALPHA2: float = 12.96
+    BETA2: float = 0.639
+    MNU0: float = 6.88e-13  # Mass of nucleated ice crystal
 
     # Constants for homogeneous ice nucleation HON
-    alpha3: float = -3.075
-    beta3: float = 81.00356
-    hon: float = field(init=False)
+    ALPHA3: float = -3.075
+    BETA3: float = 81.00356
+    HON: float = field(init=False)
 
     # Constants for raindrop and evaporation EVA
-    scfac: float = field(init=False)
-    o0evar: float = field(init=False)
-    o1evar: float = field(init=False)
-    ex0evar: float = field(init=False)
-    ex1evar: float = field(init=False)
-    o0depi: float = field(init=False)  # deposition DEP on I
-    o2depi: float = field(init=False)
-    o0deps: float = field(init=False)  # on S
-    o1deps: float = field(init=False)
-    ex0deps: float = field(init=False)
-    ex1deps: float = field(init=False)
-    rdepsred: float = field(init=False)
-    o0depg: float = field(init=False)  # on G
-    o1depg: float = field(init=False)
-    ex0depg: float = field(init=False)
-    ex1depg: float = field(init=False)
-    rdepgred: float = field(init=False)
+    SCFAC: float = field(init=False)
+    O0EVAR: float = field(init=False)
+    O1EVAR: float = field(init=False)
+    EX0EVAR: float = field(init=False)
+    EX1EVAR: float = field(init=False)
+    O0DEPI: float = field(init=False)  # deposition DEP on I
+    O2DEPI: float = field(init=False)
+    O0DEPS: float = field(init=False)  # on S
+    O1DEPS: float = field(init=False)
+    EX0DEPS: float = field(init=False)
+    EX1DEPS: float = field(init=False)
+    RDEPSRED: float = field(init=False)
+    O0DEPG: float = field(init=False)  # on G
+    O1DEPG: float = field(init=False)
+    EX0DEPG: float = field(init=False)
+    EX1DEPG: float = field(init=False)
+    RDEPGRED: float = field(init=False)
 
     # Constants for pristine ice autoconversion : AUT
-    timauti: float = 1e-3  # Time constant at T=T_t
-    texauti: float = 0.015
-    criauti: float = field(init=False)
-    t0criauti: float = field(init=False)
-    acriauti: float = field(init=False)
-    bcriauti: float = field(init=False)
+    TIMAUTI: float = 1e-3  # Time constant at T=T_t
+    TEXAUTI: float = 0.015
+    CRIAUTI: float = field(init=False)
+    T0CRIAUTI: float = field(init=False)
+    ACRIAUTI: float = field(init=False)
+    BCRIAUTI: float = field(init=False)
 
     # Constants for snow aggregation : AGG
-    colis: float = 0.25  # Collection efficiency of I + S
-    colexis: float = 0.05  # Temperature factor of the I+S collection efficiency
-    fiaggs: float = field(init=False)
-    exiaggs: float = field(init=False)
+    COLIS: float = 0.25  # Collection efficiency of I + S
+    COLEXIS: float = 0.05  # Temperature factor of the I+S collection efficiency
+    FIAGGS: float = field(init=False)
+    EXIAGGS: float = field(init=False)
 
     # Constants for cloud droplet autoconversion AUT
-    timautc: float = 1e-3
-    criautc: float = field(init=False)
+    TIMAUTC: float = 1e-3
+    CRIAUTC: float = field(init=False)
 
     # Constants for cloud droplets accretion on raindrops : ACC
-    fcaccr: float = field(init=False)
-    excaccr: float = field(init=False)
+    FCACCR: float = field(init=False)
+    EXCACCR: float = field(init=False)
 
     # Constants for the riming of the aggregates : RIM
-    dcslim: float = 0.007
-    colcs: float = 1.0
-    excrimss: float = field(init=False)
-    crimss: float = field(init=False)
-    excrimsg: float = field(init=False)
-    crimsg: float = field(init=False)
+    DCSLIM: float = 0.007
+    COLCS: float = 1.0
+    EXCRIMSS: float = field(init=False)
+    CRIMSS: float = field(init=False)
+    EXCRIMSG: float = field(init=False)
+    CRIMSG: float = field(init=False)
 
-    excrimsg: float = field(init=False)
-    crimsg: float = field(init=False)
-    exsrimcg: float = field(init=False)
-    exsrimcg2: float = field(init=False)
-    srimcg: float = field(init=False)
-    srimcg2: float = field(init=False)
-    srimcg3: float = field(init=False)
+    EXCRIMSG: float = field(init=False)
+    CRIMSG: float = field(init=False)
+    EXSRIMCG: float = field(init=False)
+    EXSRIMCG2: float = field(init=False)
+    SRIMCG: float = field(init=False)
+    SRIMCG2: float = field(init=False)
+    SRIMCG3: float = field(init=False)
 
-    gaminc_bound_min: float = field(init=False)
-    gaminc_bound_max: float = field(init=False)
+    GAMINC_BOUND_MIN: float = field(init=False)
+    GAMINC_BOUND_MAX: float = field(init=False)
     # TODO : look at kernel computations
     # rimintp1: float = field(init=False)
     # rimintp2: float = field(init=False)
 
-    ngaminc: int = field(init=False)  # Number of tab. Lbda_s
+    NGAMINC: int = field(init=False)  # Number of tab. Lbda_s
 
     # TODO : tabulations for incomplete gamma
 
     # Constants for the accretion
-    fraccss: float = field(init=False)
-    lbraccs1: float = field(init=False)
-    lbraccs2: float = field(init=False)
-    lbraccs3: float = field(init=False)
-    fsaccrg: float = field(init=False)
-    lbsaccr1: float = field(init=False)
-    lbsaccr2: float = field(init=False)
-    lbsaccr3: float = field(init=False)
-    acclbdas_min: float = field(default=5e1)
-    acclbdas_max: float = field(default=5e5)
-    acclbdar_min: float = field(default=1e3)
-    acclbdar_max: float = field(default=1e7)
-    accintp1s: float = field(init=False)
-    accintp2s: float = field(init=False)
-    accintp1r: float = field(init=False)
-    accintp2r: float = field(init=False)
+    FRACCSS: float = field(init=False)
+    LBRACCS1: float = field(init=False)
+    LBRACCS2: float = field(init=False)
+    LBRACCS3: float = field(init=False)
+    FSACCRG: float = field(init=False)
+    LBSACCR1: float = field(init=False)
+    LBSACCR2: float = field(init=False)
+    LBSACCR3: float = field(init=False)
+    ACCLBDAS_MIN: float = field(default=5e1)
+    ACCLBDAS_MAX: float = field(default=5e5)
+    ACCLBDAR_MIN: float = field(default=1e3)
+    ACCLBDAR_MAX: float = field(default=1e7)
+    ACCINTP1S: float = field(init=False)
+    ACCINTP2S: float = field(init=False)
+    ACCINTP1R: float = field(init=False)
+    ACCINTP2R: float = field(init=False)
 
     # number of values in global tables (per axis)
-    nacclbdas: int = field(default=40)
-    nacclbdar: int = field(default=40)
+    NACCLBDAS: int = field(default=40)
+    NACCLBDAR: int = field(default=40)
 
     # TODO : reference vers global tables
     # 7.3 Constant for the conversion-melting rate
-    fscvmg: float = field(default=2)
+    FSCVMG: float = field(default=2)
 
     # Constants for rain contact freezing
-    colir: float = field(default=1.0)
-    exrcfri: float = field(init=False)
-    rcfri: float = field(init=False)
-    exicfrr: float = field(init=False)
-    icfrr: float = field(init=False)
+    COLIR: float = field(default=1.0)
+    EXRCFRI: float = field(init=False)
+    RCFRI: float = field(init=False)
+    EXICFRR: float = field(init=False)
+    ICFRR: float = field(init=False)
 
     # Constants for the dry growth of the graupel : DRY
-    fcdryg: float = field(init=False)
-    colig: float = field(default=0.01)
-    colexig: float = field(default=0.1)
-    fidryg: float = field(init=False)
-    fidryg2: float = field(init=False)
-    exfidryg: float = field(init=False)
-    colsg: float = field(default=0.01)
-    colexsg: float = field(default=0.1)
-    fsdryg: float = field(init=False)
-    lbsdryg1: float = field(init=False)
-    lbsdryg2: float = field(init=False)
-    lbsdryg3: float = field(init=False)
-    frdryg: float = field(init=False)
-    lbrdryg1: float = field(init=False)
-    lbrdryg2: float = field(init=False)
-    lbrdryg3: float = field(init=False)
-    drylbdar_min: float = field(default=1e3)
-    drylbdar_max: float = field(default=1e7)
-    drylbdas_min: float = field(default=2.5e1)
-    drylbdas_max: float = field(default=2.5e9)
-    drylbdag_min: float = field(default=1e3)
-    drylbdag_max: float = field(default=1e7)
-    dryintp1r: float = field(init=False)
-    dryintp2r: float = field(init=False)
-    dryintp1s: float = field(init=False)
-    dryintp2s: float = field(init=False)
-    dryintp1g: float = field(init=False)
-    dryintp2g: float = field(init=False)
+    FCDRYG: float = field(init=False)
+    COLIG: float = field(default=0.01)
+    COLEXIG: float = field(default=0.1)
+    FIDRYG: float = field(init=False)
+    FIDRYG2: float = field(init=False)
+    EXFIDRYG: float = field(init=False)
+    COLSG: float = field(default=0.01)
+    COLEXSG: float = field(default=0.1)
+    FSDRYG: float = field(init=False)
+    LBSDRYG1: float = field(init=False)
+    LBSDRYG2: float = field(init=False)
+    LBSDRYG3: float = field(init=False)
+    FRDRYG: float = field(init=False)
+    LBRDRYG1: float = field(init=False)
+    LBRDRYG2: float = field(init=False)
+    LBRDRYG3: float = field(init=False)
+    DRYLBDAR_MIN: float = field(default=1e3)
+    DRYLBDAR_MAX: float = field(default=1e7)
+    DRYLBDAS_MIN: float = field(default=2.5e1)
+    DRYLBDAS_MAX: float = field(default=2.5e9)
+    DRYLBDAG_MIN: float = field(default=1e3)
+    DRYLBDAG_MAX: float = field(default=1e7)
+    DRYINTP1R: float = field(init=False)
+    DRYINTP2R: float = field(init=False)
+    DRYINTP1S: float = field(init=False)
+    DRYINTP2S: float = field(init=False)
+    DRYINTP1G: float = field(init=False)
+    DRYINTP2G: float = field(init=False)
 
-    ndrylbdar: int = field(default=40)
-    ndrylbdas: int = field(default=80)
-    ndrylbdag: int = field(default=40)
+    NDRYLBDAR: int = field(default=40)
+    NDRYLBDAS: int = field(default=80)
+    NDRYLBDAG: int = field(default=40)
 
     # growth kernel tabulations
     # TODO: xker_sdryg, xker_rdryg
@@ -284,235 +284,235 @@ class RainIceParam:
         # 4.1 Exponent of the fall-speed air density correction
 
         e = 0.5 * np.exp(
-            self.cst.alpw - self.cst.betaw / 293.15 - self.cst.gamw * log(293.15)
+            self.cst.ALPW - self.cst.BETAW / 293.15 - self.cst.GAMW * log(293.15)
         )
         rv = (self.cst.Rd_Rv) * e / (101325 - e)
-        rho00 = 101325 * (1 + rv) / (self.cst.Rd + rv * self.cst.Rv) / 293.15
+        rho00 = 101325 * (1 + rv) / (self.cst.RD + rv * self.cst.RV) / 293.15
 
         # 4.2    Constants for sedimentation
-        self.fsedc = (
+        self.FSEDC = (
             (
-                gamma(self.rid.nuc + (self.rid.dc + 3) / self.rid.alphac)
-                / gamma(self.rid.nuc + 3 / self.rid.alphac)
-                * rho00**self.rid.cexvt
+                gamma(self.rid.NUC + (self.rid.DC + 3) / self.rid.ALPHAC)
+                / gamma(self.rid.NUC + 3 / self.rid.ALPHAC)
+                * rho00**self.rid.CEXVT
             ),
             (
-                gamma(self.rid.nuc2 + (self.rid.dc + 3) / self.rid.alphac2)
-                / gamma(self.rid.nuc2 + 3 / self.rid.alphac2)
-                * rho00**self.rid.cexvt
+                gamma(self.rid.NUC2 + (self.rid.DC + 3) / self.rid.ALPHAC2)
+                / gamma(self.rid.NUC2 + 3 / self.rid.ALPHAC2)
+                * rho00**self.rid.CEXVT
             ),
         )
 
         momg = lambda alpha, nu, p: gamma(nu + p / alpha) / gamma(nu)
 
-        self.exsedr = (self.rid.br + self.rid.dr + 1.0) / (self.rid.br + 1.0)
-        self.fsedr = (
-            self.rid.cr
-            + self.rid.ar
-            + self.rid.ccr
-            * momg(self.rid.alphar, self.rid.nur, self.rid.br)
+        self.EXSEDR = (self.rid.BR + self.rid.DR + 1.0) / (self.rid.BR + 1.0)
+        self.FSEDR = (
+            self.rid.CR
+            + self.rid.AR
+            + self.rid.CCR
+            * momg(self.rid.ALPHAR, self.rid.NUR, self.rid.BR)
             * (
-                self.rid.ar
-                * self.rid.ccr
-                * momg(self.rid.alphar, self.rid.nur, self.rid.br) ** (-self.exsedr)
-                * rho00**self.rid.cexvt
+                self.rid.AR
+                * self.rid.CCR
+                * momg(self.rid.ALPHAR, self.rid.NUR, self.rid.BR) ** (-self.EXSEDR)
+                * rho00**self.rid.CEXVT
             )
         )
 
-        self.exrsedi = (self.rid.bi + self.rid.di) / self.rid.bi
-        self.excsedi = 1 - self.exrsedi
-        self.fsedi = (
-            (4 * 900 * self.cst.pi) ** (-self.excsedi)
-            * self.rid.c_i
-            * self.rid.ai
-            * momg(self.rid.alphai, self.rid.nui, self.rid.bi + self.rid.di)
+        self.EXRSEDI = (self.rid.bi + self.rid.di) / self.rid.bi
+        self.EXCSEDI = 1 - self.exrsedi
+        self.FSEDI = (
+            (4 * 900 * self.cst.PI) ** (-self.EXCSEDI)
+            * self.rid.C_I
+            * self.rid.AI
+            * momg(self.rid.ALPHAI, self.rid.NUI, self.rid.BI + self.rid.DI)
             * (
-                (self.rid.ai * momg(self.rid.alphai, self.rid.nui, self.rid.bi))
-                ** (-self.exrsedi)
-                * rho00**self.rid.cexvt
+                (self.rid.AI * momg(self.rid.ALPHAI, self.rid.NUI, self.rid.BI))
+                ** (-self.EXRSEDI)
+                * rho00**self.rid.CEXVT
             )
         )
 
-        self.exseds = (self.rid.bs + self.rid.ds - self.rid.cxs) / (
-            self.rid.bs - self.rid.cxs
+        self.EXSEDS = (self.rid.BS + self.rid.DS - self.rid.CXS) / (
+            self.rid.BS - self.rid.CXS
         )
-        self.seds = (
-            self.rid.cs
-            * self.rid.a_s
-            * self.rid.ccs
-            * momg(self.rid.alphas, self.rid.nus, self.rid.bs + self.rid.ds)
+        self.SEDS = (
+            self.rid.CS
+            * self.rid.A_S
+            * self.rid.CCS
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + self.rid.DS)
             * (
-                self.rid.a_s
-                * self.rid.ccs
-                * momg(self.rid.alphas, self.rid.nus, self.rid.bs)
+                self.rid.A_S
+                * self.rid.CCS
+                * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
             )
-            ** (-self.exseds)
-            * rho00**self.rid.cexvt
+            ** (-self.EXSEDS)
+            * rho00**self.rid.CEXVT
         )
 
-        if self.parami.lred:
-            self.exseds = self.rid.ds - self.rid.bs
-            self.fseds = (
-                self.cs
-                * momg(self.rid.alphas, self.rid.nus, self.rid.bs + self.rid.ds)
-                / momg(self.rid.alphas, self.rid.nus, self.rid.bs)
-                * rho00**self.rid.cexvt
+        if self.parami.LRED:
+            self.exseDS = self.rid.DS - self.rid.BS
+            self.fseDS = (
+                self.CS
+                * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + self.rid.DS)
+                / momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
+                * rho00**self.rid.CEXVT
             )
 
-        self.exsedg = (self.rid.bg + self.rid.dg - self.rid.cxg) / (
-            self.rid.bg - self.rid.cxg
+        self.EXSEDG = (self.rid.BG + self.rid.DG - self.rid.CXG) / (
+            self.rid.BG - self.rid.CXG
         )
-        self.fsedg = (
-            self.rid.cg
-            * self.rid.ag
-            * self.rid.ccg
-            * momg(self.rid.alphag, self.rid.nug, self.rid.bg + self.rid.dg)
+        self.FSEDG = (
+            self.rid.CG
+            * self.rid.AG
+            * self.rid.CCG
+            * momg(self.rid.ALPHAG, self.rid.NUG, self.rid.BG + self.rid.DG)
             * (
-                self.rid.ag
-                * self.rid.ccg
-                * momg(self.rid.alphag, self.rid.nug, self.rid.bg)
+                self.rid.AG
+                * self.rid.CCG
+                * momg(self.rid.ALPHAG, self.rid.NUG, self.rid.BG)
             )
-            ** (-self.exsedg)
+            ** (-self.EXSEDG)
             * rho00
-            * self.rid.cexvt
+            * self.rid.CEXVT
         )
 
         # 5. Constants for the slow cold processes
         fact_nucl = 0
-        if self.parami.pristine_ice == "PLAT":
+        if self.parami.PRISTINE_ICE == "PLAT":
             fact_nucl = 1.0  # Plates
-        elif self.parami.pristine_ice == "COLU":
+        elif self.parami.PRISTINE_ICE == "COLU":
             fact_nucl = 25.0  # Columns
-        elif self.parami.pristine_ice == "BURO":
+        elif self.parami.PRISTINE_ICE == "BURO":
             fact_nucl = 17.0  # Bullet rosettes
 
-        self.nu10 = 50 * fact_nucl
-        self.nu20 = 1000 * fact_nucl
+        self.NU10 = 50 * fact_nucl
+        self.NU20 = 1000 * fact_nucl
 
-        self.hon = (self.cst.pi / 6) * ((2 * 3 * 4 * 5 * 6) / (2 * 3)) * (1.1e5) ** (-3)
+        self.HON = (self.cst.PI / 6) * ((2 * 3 * 4 * 5 * 6) / (2 * 3)) * (1.1e5) ** (-3)
 
         # 5.2 Constants for vapor deposition on ice
-        self.scfac = (0.63 ** (1 / 3)) * np.sqrt((rho00) ** self.rid.cexvt)
-        self.o0depi = (
-            (4 * self.cst.pi)
-            * self.rid.c1i
-            * self.rid.f0i
-            * momg(self.rid.alphai, self.rid.nui, 1)
+        self.scfaPc = (0.63 ** (1 / 3)) * np.sqrt((rho00) ** self.rid.CEXVT)
+        self.O0DEPI = (
+            (4 * self.cst.PI)
+            * self.rid.C1I
+            * self.rid.F0I
+            * momg(self.rid.ALPHAI, self.rid.NUI, 1)
         )
-        self.o2depi = (
-            (4 * self.cst.pi)
-            * self.rid.c1i
-            * self.rid.f2i
-            * self.rid.c_i
-            * momg(self.rid.alphai, self.rid.nui, self.rid.di + 2.0)
+        self.O2DEPI = (
+            (4 * self.cst.PI)
+            * self.rid.C1I
+            * self.rid.F2I
+            * self.rid.C_I
+            * momg(self.rid.ALPHAI, self.rid.NUI, self.rid.DI + 2.0)
         )
 
         # Translation note: #ifdef REPRO48 l588 to l591 kept in mode_ini_rain_ice.F90
         #                                  l593 to l596 removed
-        self.o0deps = (
-            self.rid.ns
-            * (4 * self.cst.pi)
-            * self.rid.ccs
-            * self.rid.c1s
-            * self.rid.f0s
-            * momg(self.rid.alphas, self.rid.nus, 1)
+        self.O0DEPS = (
+            self.rid.NS
+            * (4 * self.cst.PI)
+            * self.rid.CCS
+            * self.rid.C1S
+            * self.rid.F0S
+            * momg(self.rid.ALPHAS, self.rid.NUS, 1)
         )
-        self.o1deps = (
-            self.rid.ns
-            * (4 * self.cst.pi)
-            * self.rid.ccs
-            * self.rid.c1s
-            * self.rid.f1s
-            * np.sqrt(self.rid.cs)
-            * momg(self.rid.alphas, self.rid.nus, 0.5 * self.rid.ds + 1.5)
+        self.O1DEPS = (
+            self.rid.NS
+            * (4 * self.cst.PI)
+            * self.rid.CCS
+            * self.rid.C1S
+            * self.rid.F1S
+            * np.sqrt(self.rid.CS)
+            * momg(self.rid.ALPHAS, self.rid.NUS, 0.5 * self.rid.DS + 1.5)
         )
-        self.ex0deps = self.rid.cxs - 1.0
-        self.ex1deps = self.rid.cxs - 0.5 * (self.rid.ds + 3.0)
-        self.rdepsred = self.parami.rdepsred_nam
+        self.EX0DEPS = self.rid.CXS - 1.0
+        self.EX1DEPS = self.rid.CXS - 0.5 * (self.rid.DS + 3.0)
+        self.RDEPSRED = self.parami.RDEPSRED_NAM
 
-        self.o0depg = (
-            (4 * self.cst.pi)
-            * self.rid.ccg
-            * self.rid.c1g
-            * self.rid.f0g
-            * momg(self.rid.alphag, self.rid.nug, 1)
+        self.O0DEPG = (
+            (4 * self.cst.PI)
+            * self.rid.CCG
+            * self.rid.C1G
+            * self.rid.F0G
+            * momg(self.rid.ALPHAG, self.rid.NUG, 1)
         )
-        self.o1depg = (
-            (4 * self.cst.pi)
-            * self.rid.ccg
-            * self.rid.c1g
-            * self.rid.f1g
-            * np.sqrt(self.rid.cg)
-            * momg(self.rid.alphag, self.rid.nug, 0.5 * self.rid.dg + 1.5)
+        self.O1DEPG = (
+            (4 * self.cst.PI)
+            * self.rid.CCG
+            * self.rid.C1G
+            * self.rid.F1G
+            * np.sqrt(self.rid.CG)
+            * momg(self.rid.ALPHAG, self.rid.NUG, 0.5 * self.rid.DG + 1.5)
         )
-        self.ex0depg = self.rid.cxg - 1.0
-        self.ex1depg = self.rid.cxg - 0.5 * (self.rid.dg + 3.0)
-        self.rdepgred = self.parami.rdepgred_nam
+        self.EX0DEPG = self.rid.CXG - 1.0
+        self.EX1DEPG = self.rid.CXG - 0.5 * (self.rid.DG + 3.0)
+        self.RDEPGRED = self.parami.RDEPGRED_NAM
 
         # 5.3 Constants for pristine ice autoconversion
-        self.criauti = self.parami.criauti_nam
-        if self.parami.lcriauti:
-            self.t0criauti = self.parami.t0criauti_nam
+        self.CRIAUTI = self.parami.CRIAUTI_NAM
+        if self.parami.LCRIAUTI:
+            self.T0CRIAUTI = self.parami.T0CRIAUTI_NAM
             tcrio = -40
             crio = 1.25e-6
-            self.bcriauti = (
-                -(np.log10(self.criauti) - np.log10(crio) * self.t0criauti / tcrio)
+            self.BCRIAUTI = (
+                -(np.log10(self.CRIAUTI) - np.log10(crio) * self.T0CRIAUTI / tcrio)
                 * tcrio
-                / (self.t0criauti - tcrio)
+                / (self.T0CRIAUTI - tcrio)
             )
-            self.acriauti = (np.log10(crio) - self.bcriauti) / tcrio
+            self.ACRIAUTI = (np.log10(crio) - self.BCRIAUTI) / tcrio
 
         else:
-            self.acriauti = self.parami.acriauti_nam
-            self.bcriauti = self.parami.brcriauti_nam
-            self.t0criauti = (np.log10(self.criauti) - self.bcriauti) / 0.06
+            self.ACRIAUTI = self.parami.ACRIAUTI_NAM
+            self.BCRIAUTI = self.parami.BRCRIAUTI_NAM
+            self.T0CRIAUTI = (np.log10(self.CRIAUTI) - self.BCRIAUTI) / 0.06
 
         # 5.4 Constants for snow aggregation
         # Translation note: #ifdef REPRO48 l655 to l656 kept in mode_ini_rain_ice.F90
         #                                  l658 to l659 removed
-        self.fiaggs = (
-            (self.cst.pi / 4)
-            * self.colis
-            * self.rid.ccs
-            * self.rid.cs
-            * (rho00**self.rid.cexvt)
-            * momg(self.rid.alphas, self.rid.nus, self.rid.ds + 2.0)
+        self.FIAGGS = (
+            (self.cst.PI / 4)
+            * self.COLIS
+            * self.rid.CCS
+            * self.rid.CS
+            * (rho00**self.rid.CEXVT)
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.DS + 2.0)
         )
-        self.exiaggs = self.rid.cxs - self.rid.ds - 2.0
+        self.EXIAGGS = self.rid.CXS - self.rid.DS - 2.0
 
         # 6. Constants for the slow warm processes
         # 6.1 Constants for the accretion of cloud droplets autoconversion
-        self.criautc = self.parami.criautc_nam
+        self.CRIAUTC = self.parami.CRIAUTC_NAM
 
         # 6.2 Constants for the accretion of cloud droplets by raindrops
-        self.fcaccr = (
-            (self.cst.pi / 4)
-            * self.rid.ccr
-            * self.rid.cr
-            * (rho00**self.rid.cexvt)
-            * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 2.0)
+        self.FCACCR = (
+            (self.cst.PI / 4)
+            * self.rid.CCR
+            * self.rid.CR
+            * (rho00**self.rid.CEXVT)
+            * momg(self.rid.ALPHAR, self.rid.NUR, self.rid.DR + 2.0)
         )
-        self.excaccr = -self.rid.dr - 3.0
+        self.EXCACCR = -self.rid.DR - 3.0
 
         # 6.3 Constants for the evaporation of rain drops
-        self.o0evar = (
-            (4.0 * self.cst.pi)
-            * self.rid.ccr
-            * self.rid.cr
-            * self.rid.f0r
-            * momg(self.rid.alphar, self.rid.nur, 1)
+        self.O0EVAR = (
+            (4.0 * self.cst.PI)
+            * self.rid.CCR
+            * self.rid.CR
+            * self.rid.F0R
+            * momg(self.rid.ALPHAR, self.rid.NUR, 1)
         )
-        self.o1evar = (
-            (4.0 * self.cst.pi)
-            * self.rid.ccr
-            * self.rid.c1r
-            * self.rid.f1r
-            * momg(self.rid.alphar, self.rid.nur, 0.5 * self.rid.dr + 1.5)
+        self.O1EVAR = (
+            (4.0 * self.cst.PI)
+            * self.rid.CCR
+            * self.rid.C1R
+            * self.rid.F1R
+            * momg(self.rid.ALPHAR, self.rid.NUR, 0.5 * self.rid.DR + 1.5)
         )
-        self.ex0evar = -2.0
-        self.ex1evar = -1.0 - 0.5 * (self.rid.dr + 3.0)
+        self.EX0EVAR = -2.0
+        self.EX1EVAR = -1.0 - 0.5 * (self.rid.DR + 3.0)
 
-        # 7. Constants for the fast cold processes for the aggregateds
+        # 7. Constants for the fast cold processes for the aggregateDS
         # 7.1 Constants for the riming of the aggregates
 
         # Translation note: #ifdef REPRO48 l712 and l713 kept in mode_ini_rain_ice.F90
@@ -521,87 +521,86 @@ class RainIceParam:
         # Translation note: #ifdef REPRO48 l721 to l725 kept in mode_ini_rain_ice.F90
         #                                  l727 to l731 removed
 
-        self.excrimss = -self.rid.ds - 2.0
-        self.crimss = (
-            self.rid.ns
-            * (self.cst.pi / 4)
-            * self.colcs
-            * self.rid.cs
-            * (rho00**self.rid.cexvt)
-            * momg(self.rid.alphas, self.rid.nus, self.rid.ds + 2)
+        self.EXCRIMSS = -self.rid.DS - 2.0
+        self.CRIMSS = (
+            self.rid.NS
+            * (self.cst.PI / 4)
+            * self.COLCS
+            * self.rid.CS
+            * (rho00**self.rid.CEXVT)
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.DS + 2)
         )
 
-        self.excrimsg = self.excrimss
-        self.crimsg = self.crimss
+        self.EXCRIMSG = self.EXCRIMSS
+        self.CRIMSG = self.CRIMSS
 
-        self.srimcg = (
-            self.rid.ccs
-            * self.rid.a_s
-            * momg(self.rid.alphas, self.rid.nus, self.rid.bs)
+        self.SRIMCG = (
+            self.rid.CCS
+            * self.rid.A_S
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
         )
-        self.exsrimcg = self.rid.cxs - self.rid.bs
-        self.srimcg2 = (
-            self.rid.ccs
-            * self.rid.ag
-            * momg(self.rid.alphas, self.rid.nus, self.rid.bs)
+        self.EXSRIMCG = self.rid.CXS - self.rid.BS
+        self.SRIMCG2 = (
+            self.rid.CCS
+            * self.rid.AG
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
         )
-        self.srimcg3 = self.parami.frac_m90
-        self.exsrimcg2 = self.rid.cxs - self.rid.bg
+        self.SRIMCG3 = self.parami.FRAC_M90
+        self.EXSRIMCG2 = self.rid.CXS - self.rid.BG
 
-        # TODO: translate modd_ini_rain_ice.F90 from l734
-        self.ngaminc = 80
-        self.gaminc_bound_min = 1e-1
-        self.gaminc_bound_max = 1e7
+        self.NGAMINC = 80
+        self.GAMINC_BOUND_MIN = 1e-1
+        self.GAMINC_BOUND_MAX = 1e7
 
         # 7.2 Constants for the accretion of raindrops
 
         # Translation note: #ifdef REPRO48 l763 kept
         #                                  l765 removed
 
-        self.fraccss = (
-            ((self.cst.pi**2) / 24)
-            * self.rid.ccs
-            * self.rid.ccr
-            * self.cst.rholw
-            * (rho00**self.rid.cexvt)
+        self.FRACCSS = (
+            ((self.cst.PI**2) / 24)
+            * self.rid.CCS
+            * self.rid.CCR
+            * self.cst.RHOLW
+            * (rho00**self.rid.CEXVT)
         )
 
-        self.lbraccs1 = momg(self.rid.alphas, self.rid.nus, 2) * momg(
-            self.rid.alphar, self.rid.nur, 3
+        self.LBRACCS1 = momg(self.rid.ALPHAS, self.rid.NUS, 2) * momg(
+            self.rid.ALPHAR, self.rid.NUR, 3
         )
-        self.lbraccs2 = (
+        self.LBRACCS2 = (
             2
-            * momg(self.rid.alphas, self.rid.nus, 1)
-            * momg(self.rid.alphar, self.rid.nur, 4)
+            * momg(self.rid.ALPHAS, self.rid.NUS, 1)
+            * momg(self.rid.ALPHAR, self.rid.NUR, 4)
         )
-        self.lbraccs3 = momg(self.rid.alphar, self.rid.nur, 5)
+        self.LBRACCS3 = momg(self.rid.ALPHAR, self.rid.NUR, 5)
 
         # Translation note : #ifdef REPRO48 l773 kept
         #                                   l775 removed
-        self.fsaccrg = (
-            (self.cst.pi / 4)
-            * self.rid.a_s
-            * self.rid.ccs
-            * self.rid.ccr
-            * (rho00**self.rid.cexvt)
+        self.FSACCRG = (
+            (self.cst.PI / 4)
+            * self.rid.A_S
+            * self.rid.CCS
+            * self.rid.CCR
+            * (rho00**self.rid.CEXVT)
         )
 
-        self.lbsaccr1 = momg(self.rid.alphar, self.rid.nur, 2) * momg(
-            self.rid.alphas, self.rid.nus, self.rid.bs
+        self.LBSACCR1 = momg(self.rid.ALPHAR, self.rid.NUR, 2) * momg(
+            self.rid.ALPHAS, self.rid.NUS, self.rid.BS
         )
-        self.lbsaccr2 = momg(self.rid.alphar, self.rid.nur, 1) * momg(
-            self.rid.alphas, self.rid.nus, self.rid.bs + 1
+        self.LBSACCR2 = momg(self.rid.ALPHAR, self.rid.NUR, 1) * momg(
+            self.rid.ALPHAS, self.rid.NUS, self.rid.BS + 1
         )
-        self.lbsaccr3 = momg(self.rid.alphas, self.rid.nus, self.rid.bs + 2)
+        self.LBSACCR3 = momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + 2)
 
         # Defining the ranges for the computation of kernels
-        zrate = log(self.acclbdas_max / self.acclbdas_min) / (self.nacclbdas - 1)
-        self.accintp1s = 1 / zrate
-        self.accintp2s = 1 - log(self.acclbdas_min) / zrate
+        zrate = log(self.ACCLBDAS_MAX / self.ACCLBDAS_MIN) / (self.NACCLBDAS - 1)
+        self.ACCINTP1S = 1 / zrate
+        self.ACCINTP2S = 1 - log(self.ACCLBDAS_MIN) / zrate
 
-        zrate = log(self.acclbdar_max / self.acclbdar_min) / (self.nacclbdar - 1)
-        self.accintp1r = 1 / zrate
-        self.accintp2r = 1 - log(self.acclbdar_min) / zrate
+        zrate = log(self.ACCLBDAR_MAX / self.ACCLBDAR_MIN) / (self.NACCLBDAR - 1)
+        self.ACCINTP1R = 1 / zrate
+        self.ACCINTP2R = 1 - log(self.ACCLBDAR_MIN) / zrate
 
         # Translation note : l800 to 902 -> computation of the kernels
         # TODO : compute kernels in another method
@@ -610,101 +609,101 @@ class RainIceParam:
 
         # 8.1 Constants for the rain contact freezing
         xr = -1
-        self.exrcfri = -self.rid.dr - 5 + xr
-        self.rcfri = (
-            ((self.cst.pi**2) / 24)
-            * self.rid.ccr
-            * self.cst.rholw
-            * self.colir
-            * self.rid.cr
-            * (rho00 * self.rid.cexvt)
-            * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 5)
+        self.EXRCFRI = -self.rid.DR - 5 + xr
+        self.RCFRI = (
+            ((self.cst.PI**2) / 24)
+            * self.rid.CCR
+            * self.cst.RHOLW
+            * self.COLIR
+            * self.rid.CR
+            * (rho00 * self.rid.CEXVT)
+            * momg(self.rid.ALPHAR, self.rid.NUR, self.rid.DR + 5)
         )
 
-        self.exicfrr = -self.rid.dr - 2 + xr
-        self.icfrr = (
-            (self.cst.pi / 4)
-            * self.colir
-            * self.rid.cr
-            * (rho00**self.rid.cexvt)
-            * self.rid.ccr
-            * momg(self.rid.alphar, self.rid.nur, self.rid.dr + 2)
+        self.EXICFRR = -self.rid.DR - 2 + xr
+        self.ICFRR = (
+            (self.cst.PI / 4)
+            * self.COLIR
+            * self.rid.CR
+            * (rho00**self.rid.CEXVT)
+            * self.rid.CCR
+            * momg(self.rid.ALPHAR, self.rid.NUR, self.rid.DR + 2)
         )
 
         # 8.2 Constants for the dry growth of the graupel
 
         # 8.2.1 Constants for the cloud droplets collection by the graupel
-        self.fcdryg = self.cst.pi / 4
+        self.FCDRYG = self.cst.PI / 4
 
         # 8.2.2 Constants for the cloud ice collection by the graupel
-        self.fidryg = (
-            (self.cst.pi / 4)
-            * self.colig
-            * self.rid.ccg
-            * (rho00**self.rid.cexvt)
-            * momg(self.rid.alphag, self.rid.nug, self.rid.dg + 2)
+        self.FIDRYG = (
+            (self.cst.PI / 4)
+            * self.COLIG
+            * self.rid.CCG
+            * (rho00**self.rid.CEXVT)
+            * momg(self.rid.ALPHAG, self.rid.NUG, self.rid.DG + 2)
         )
-        self.exfidryg = (self.rid.cxg - self.rid.dg - 2) / (self.rid.cxg - self.rid.bg)
-        self.fidryg2 = (
-            self.fidryg
-            * self.colig
+        self.EXFIDRYG = (self.rid.CXG - self.rid.DG - 2) / (self.rid.CXG - self.rid.BG)
+        self.FIDRYG2 = (
+            self.FIDRYG
+            * self.COLIG
             * (
-                self.rid.ag
-                * self.rid.ccg
-                * momg(self.rid.alphag, self.rid.nug, self.rid.bg)
+                self.rid.AG
+                * self.rid.CCG
+                * momg(self.rid.ALPHAG, self.rid.NUG, self.rid.BG)
             )
         )
 
         # 8.2.3 Constants for the aggregate collection by the graupel
         # Translation note : #ifdef REPRO48 l973 kept
         #                                   l975 removed
-        self.fsdryg = (
-            (self.cst.pi**2 / 24)
-            * self.rid.ccg
-            * self.rid.ccr
-            * self.cst.rholw
-            * (rho00**self.rid.cexvt)
+        self.FSDRYG = (
+            (self.cst.PI**2 / 24)
+            * self.rid.CCG
+            * self.rid.CCR
+            * self.cst.RHOLW
+            * (rho00**self.rid.CEXVT)
         )
-        self.lbsdryg1 = momg(self.rid.alphag, self.rid.nug, 2) * momg(
-            self.rid.alphas, self.rid.nus, self.rid.bs
+        self.LBSDRYG1 = momg(self.rid.ALPHAG, self.rid.NUG, 2) * momg(
+            self.rid.ALPHAS, self.rid.NUS, self.rid.BS
         )
-        self.lbsdryg2 = (
+        self.LBSDRYG2 = (
             2
-            * momg(self.rid.alphag, self.rid.nug, 1)
-            * momg(self.rid.alphas, self.rid.nus, self.rid.bs + 1)
+            * momg(self.rid.ALPHAG, self.rid.NUG, 1)
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + 1)
         )
-        self.lbsdryg3 = momg(self.rid.alphas, self.rid.nus, self.rid.bs + 2)
+        self.LBSDRYG3 = momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + 2)
 
         # 8.2.4 Constants for the raindrop collection by the graupel
-        self.frdryg = (
-            (self.cst.pi**2 / 24)
-            * self.rid.ccg
-            * self.rid.ccg
-            * self.cst.rholw
-            * (rho00**self.rid.cexvt)
+        self.FRDRYG = (
+            (self.cst.PI**2 / 24)
+            * self.rid.CCG
+            * self.rid.CCG
+            * self.cst.RHOLW
+            * (rho00**self.rid.CEXVT)
         )
-        self.lbrdryg1 = momg(self.rid.alphag, self.rid.nug, 3) * momg(
-            self.rid.alphar, self.rid.nur, 3
+        self.LBRDRYG1 = momg(self.rid.ALPHAG, self.rid.NUG, 3) * momg(
+            self.rid.ALPHAR, self.rid.NUR, 3
         )
-        self.lbrdryg2 = (
+        self.LBRDRYG2 = (
             2
-            * momg(self.rid.alphag, self.rid.nug, 1)
-            * momg(self.rid.alphar, self.rid.nur, 4)
+            * momg(self.rid.ALPHAG, self.rid.nuPg, 1)
+            * momg(self.rid.ALPHAR, self.rid.NUR, 4)
         )
-        self.lbrdryg3 = momg(self.rid.alphar, self.rid.nur, 5)
+        self.LBRDRYG3 = momg(self.rid.ALPHAR, self.rid.NUR, 5)
 
         # Notice: one magnitude of lambda discretized over 10 points
-        zrate = log(self.drylbdar_max / self.drylbdar_min) / (self.ndrylbdar - 1)
-        self.dryintp1r = 1 / zrate
-        self.dryintp2r = 1 - log(self.drylbdar_min) / zrate
+        zrate = log(self.DRYLBDAR_MAX / self.DRYLBDAR_MIN) / (self.NDRYLBDAR - 1)
+        self.DRYINTP1R = 1 / zrate
+        self.DRYINTP2R = 1 - log(self.DRYLBDAR_MIN) / zrate
 
-        zrate = log(self.drylbdas_max / self.drylbdas_min) / (self.ndrylbdas - 1)
-        self.dryintp1s = 1 / zrate
-        self.dryintp2s = 1 - log(self.drylbdas_min) / zrate
+        zrate = log(self.DRYLBDAS_MAX / self.DRYLBDAS_MIN) / (self.NDRYLBDAS - 1)
+        self.DRYINTP1S = 1 / zrate
+        self.DRYINTP2S = 1 - log(self.DRYLBDAS_MIN) / zrate
 
-        zrate = log(self.drylbdag_max / self.drylbdag_min) / (self.ndrylbdag - 1)
-        self.dryintp1g = 1 / zrate
-        self.dryintp2g = 1 - log(self.drylbdag_min) / zrate
+        zrate = log(self.DRYLBDAG_MAX / self.DRYLBDAG_MIN) / (self.NDRYLBDAG - 1)
+        self.DRYINTP1G = 1 / zrate
+        self.DRYINTP2G = 1 - log(self.DRYLBDAG_MIN) / zrate
 
         # Translation note : l1018 to l1152 -> computation of the kernels
         # TODO : compute kernels in another method
