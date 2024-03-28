@@ -208,7 +208,7 @@ def maximum_time_step(
     wsed_tmp: Field["float"],
     remaining_time: Field["float"],
 ):
-    from __externals__ import split_maxcfl
+    from __externals__ import SPLIT_MAXCFL
 
     tstep = max_tstep
     if r > rtmin and wsed_tmp > 1e-20 and remaining_time > 0:
