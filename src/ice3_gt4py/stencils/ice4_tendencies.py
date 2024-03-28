@@ -229,3 +229,73 @@ def ice4_derived_fields(
             RV * t / (dv * zw)
         )
         cj = SCFAC * rhodref**0.3 / sqrt(1.718e-5 + 4.9 - 8 * (t - TT))
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=285,
+    to_line=329,
+)
+@stencil_collection("ice4_slope_parameters")
+def ice4_slope_parameters(
+    rhodref: Field["float"],
+    t: Field["float"],
+    rr_t: Field["float"],
+    rs_t: Field["float"],
+    rg_t: Field["float"],
+    lbdar: Field["float"],
+    lbdar_rf: Field["float"],
+    lbdas: Field["float"],
+    lbdag: Field["float"],
+):
+
+    from __externals__ import (
+        TRANS_MP_GAMMA,
+        LBR,
+        LBEXR,
+        R_RTMIN,
+        LSNOW_T,
+        LBDAG_MAX,
+        LBDAS_MIN,
+        LBDAS_MAX,
+        LBDAS_MIN,
+        LBS,
+        LBEXS,
+        G_RTMIN,
+        R_RTMIN,
+        S_RTMIN,
+    )
+
+    with computation(PARALLEL), interval(...):
+
+        lbdar = LBR * (rhodref * max(rr_t, R_RTMIN)) ** LBEXR if rr_t > 0 else 0
+
+        # Translation note : l293 to l298 omitted LLRFR = True (not used in AROME)
+        # Translation note : l299 to l301 kept (used in AROME)
+        lbdar_rf = lbdar
+
+        if LSNOW_T:
+            if rs_t > 0 and t > 263.15:
+                lbdas = (
+                    max(min(LBDAS_MAX, 10 ** (14.554 - 0.0423 * t)), LBDAS_MIN)
+                    * TRANS_MP_GAMMA
+                )
+            elif rs_t > 0 and t <= 263.15:
+                lbdas = (
+                    max(min(LBDAS_MAX, 10 ** (6.226 - 0.0106 * t)), LBDAS_MIN)
+                    * TRANS_MP_GAMMA
+                )
+            else:
+                lbdas = 0
+        else:
+            lbdas = (
+                min(LBDAS_MAX, LBS * (rhodref * max(rs_t, S_RTMIN)) ** LBEXS)
+                if rs_t > 0
+                else 0
+            )
+
+        lbdag = (
+            min(LBDAG_MAX, LBS * (rhodref * max(rg_t, G_RTMIN)) ** LBEXS)
+            if rg_t > 0
+            else 0
+        )
