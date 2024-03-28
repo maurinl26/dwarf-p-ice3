@@ -25,8 +25,8 @@ def ice4_stepping_init_tmicro(t_micro: Field["float"], ldmicro: Field["bool"]):
     on LSOFT condition.
 
     Args:
-        t_micro (Field[&quot;float&quot;]): time for microphsyics loops
-        t_soft (Field[&quot;float&quot;]): time for lsoft blocks loops
+        t_micro (Field[float]): time for microphsyics loops
+        ldmicro (Field[bool]): microphsyics activation mask
     """
 
     from __externals__ import TSTEP
@@ -47,8 +47,8 @@ def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
     on LSOFT condition.
 
     Args:
-        t_micro (Field[&quot;float&quot;]): time for microphsyics loops
-        t_soft (Field[&quot;float&quot;]): time for lsoft blocks loops
+        t_micro (Field[float]): time for microphsyics loops
+        t_soft (Field[float]): time for lsoft blocks loops
     """
 
     from __externals__ import TSTEP_TS
