@@ -370,3 +370,29 @@ def ice4_fast_rg(
 
         else:
             rg_mltr = 0
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=386,
+    to_line=390,
+)
+@stencil_collection("fast_rg_pre_processing")
+def ice4_fast_rg_pre_post_processing(
+    rgsi: Field["float"],
+    rgsi_mr: Field["float"],
+    rvdepg: Field["float"],
+    rsmltg: Field["float"],
+    rraccsg: Field["float"],
+    rsaccrg: Field["float"],
+    rcrimsg: Field["float"],
+    rsrimcg: Field["float"],
+    rrhong_mr: Field["float"],
+    rsrimcg_mr: Field["float"],
+):
+
+    with computation(PARALLEL), interval(...):
+
+        rgsi = rvdepg + rsmltg + rraccsg + rsaccrg + rcrimsg + rsrimcg
+
+        rgsi_mr = rrhong_mr + rsrimcg_mr

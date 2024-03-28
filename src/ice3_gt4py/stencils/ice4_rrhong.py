@@ -44,3 +44,38 @@ def ice4_rrhong(
 
         else:
             rrhong_mr = 0
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=166,
+    to_line=171,
+)
+@stencil_collection("rrhong_post_processing")
+def ice4_rrhong_post_processing(
+    t: Field["float"],
+    exn: Field["float"],
+    ls_fact: Field["float"],
+    lv_fact: Field["float"],
+    theta_t: Field["float"],
+    rr_t: Field["float"],
+    rg_t: Field["float"],
+    rrhong_mr: Field["float"],
+):
+    """adjust mixing ratio with nucleation increments
+
+    Args:
+        t (Field[float]): temperature
+        exn (Field[float]): exner pressure
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        theta_t (Field[float]): potential temperature
+        rr_t (Field[float]): rain m.r.
+        rg_t (Field[float]): graupel m.r.
+        rrhong (Field[float]): rain m.r. increment due to homogeneous nucleation
+    """
+
+    with computation(PARALLEL), interval(...):
+        theta_t += rrhong_mr * (ls_fact - lv_fact)
+        t = theta_t / exn
+        rr_t -= rrhong_mr
+        rg_t += rrhong_mr

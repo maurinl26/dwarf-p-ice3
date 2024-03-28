@@ -123,3 +123,38 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
         if t < TT and rv_t > V_RTMIN and ldcompute:
             ci_t = max(w2 + ci_t, ci_t)
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=152,
+    to_line=157,
+)
+@stencil_collection("nucleation_post_processing")
+def ice4_nucleation_post_processing(
+    t: Field["float"],
+    exn: Field["float"],
+    ls_fact: Field["float"],
+    lv_fact: Field["float"],
+    theta_t: Field["float"],
+    rv_t: Field["float"],
+    ri_t: Field["float"],
+    rvheni_mr: Field["float"],
+):
+    """adjust mixing ratio with nucleation increments
+
+    Args:
+        t (Field[float]): temperature
+        exn (Field[float]): exner pressure
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        theta_t (Field[float]): potential temperature
+        rv_t (Field[float]): vapour m.r.
+        ri_t (Field[float]): ice m.r.
+        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
+    """
+
+    with computation(PARALLEL), interval(...):
+        theta_t += rvheni_mr * (ls_fact - lv_fact)
+        t = theta_t / exn
+        rv_t -= rvheni_mr
+        ri_t += rvheni_mr
