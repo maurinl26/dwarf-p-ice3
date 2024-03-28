@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
+from dataclasses import Field, dataclass, field, fields
+
 import f90nml
-from dataclasses import dataclass, field, Field, fields
 
 
 @dataclass
 class Namparar:
-
     nml_file_path: str
 
     cfrac_ice_adjust: str = field(init=False)
@@ -43,7 +43,6 @@ class Namparar:
         """Read namelist file and allocate attributes values"""
 
         with open(self.nml_file_path) as nml_file:
-
             nml = f90nml.read(nml_file)
             nml_namparar = nml.get("NAMPARAR")
 

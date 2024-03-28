@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-import numpy as np
+
 from os.path import dirname, join, normpath
 
+import numpy as np
 from ifs_physics_common.framework.config import (
     DataTypes,
     FortranConfig,
@@ -10,7 +11,6 @@ from ifs_physics_common.framework.config import (
     IOConfig,
     PythonConfig,
 )
-
 
 config_files_dir = normpath(join(dirname(__file__), "../../../config-files"))
 default_python_config = PythonConfig(
