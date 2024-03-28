@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Literal
+
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
-from enum import Enum
 
 from ice3_gt4py.drivers.namel2config import Namparar
+
 
 # Stands for CSUBG_MF_PDF in modd_param_icen.F90
 # Default to NONE
 class SubGridMassFluxPDF(Enum):
-
     NONE = 0
     TRIANGLE = 1
 
@@ -18,7 +19,6 @@ class SubGridMassFluxPDF(Enum):
 # Stands for CSUBG_RC_RR_ACCR in modd_param_icen.F90
 # Default to NONE
 class SubgRRRCAccr(Enum):
-
     NONE = 0
     PRFR = 1
 
@@ -26,7 +26,6 @@ class SubgRRRCAccr(Enum):
 # Stands for CSUBG_RR_EVAP in modd_param_icen.F90
 # Default to NONE
 class SubgRREvap(Enum):
-
     NONE = 0
     CLFR = 1
     PRFR = 2
@@ -35,7 +34,6 @@ class SubgRREvap(Enum):
 # Stands for CSUBG_PR_PDF in modd_param_icen.F90
 # Default to SIGM
 class SubgPRPDF(Enum):
-
     SIGM = 0
     HLCRECTPDF = 1
     HLCISOTRIPDF = 2
@@ -46,7 +44,6 @@ class SubgPRPDF(Enum):
 # Stands for CSUBG_AUCV_RC in modd_param_icen.F90
 # Default to NONE
 class SubgAucvRc(Enum):
-
     NONE = 0
     PDF = 1
     ADJU = 2
@@ -57,14 +54,12 @@ class SubgAucvRc(Enum):
 # Stands for CSUBG_AUCV_RI in modd_param_icen.F90
 # Default to NONE
 class SubgAucvRi(Enum):
-
     NONE = 0
     CLFR = 1
     ADJU = 2
 
 
 class SnowRiming(Enum):
-
     M90 = 0
     OLD = 1
 
@@ -246,7 +241,6 @@ class ParamIce:
             self.LADJ_AFTER = True
 
     def set_frmin_nam(self):
-
         tmp_frmin_nam = np.empty(41)
         tmp_frmin_nam[1:6] = 0
         tmp_frmin_nam[7:9] = 1.0

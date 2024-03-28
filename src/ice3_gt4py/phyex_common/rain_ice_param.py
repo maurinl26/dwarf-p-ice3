@@ -4,11 +4,11 @@ from math import gamma, log
 from typing import Tuple
 
 import numpy as np
+from ifs_physics_common.utils.f2py import ported_class
 
 from ice3_gt4py.phyex_common.constants import Constants
 from ice3_gt4py.phyex_common.param_ice import ParamIce
 from ice3_gt4py.phyex_common.rain_ice_descr import RainIceDescr
-from ifs_physics_common.utils.f2py import ported_class
 
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90")

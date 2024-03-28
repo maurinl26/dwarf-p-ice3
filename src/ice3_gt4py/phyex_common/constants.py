@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
+
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
 
@@ -183,7 +184,6 @@ class Constants:
     # res_prep: float    # default     prep      residual tolerance
 
     def __post_init__(self):
-
         # 2. Astronomical constants
         self.SIYEA = 365.25 * self.DAY / 6.283076
         self.SIDAY = self.DAY / (1 + self.DAY / self.SIYEA)
