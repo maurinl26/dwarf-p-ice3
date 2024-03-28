@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
+from gt4py.cartesian.gtscript import Field, exp, log, sqrt
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -145,3 +145,87 @@ def ice4_tendencies_update(
             + rrdryg
             - rgmltr
         )
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=220,
+    to_line=238,
+)
+@stencil_collection("ice4_increment_update")
+def ice4_increment_update(
+    ls_fact: Field["float"],
+    lv_fact: Field["float"],
+    theta_increment: Field["float"],
+    rv_increment: Field["float"],
+    rc_increment: Field["float"],
+    rr_increment: Field["float"],
+    ri_increment: Field["float"],
+    rs_increment: Field["float"],
+    rg_increment: Field["float"],
+    rvheni_mr: Field["float"],
+    rimltc_mr: Field["float"],
+    rrhong_mr: Field["float"],
+    rsrimcg_mr: Field["float"],
+):
+
+    # 5.1.6 riming-conversion of the large sized aggregates into graupel
+    # Translation note : l189 to l215 omitted (since CSNOWRIMING = M90 in AROME)
+    with computation(PARALLEL), interval(...):
+        theta_increment += (
+            rvheni_mr * ls_fact
+            + rrhong_mr * (ls_fact - lv_fact)
+            + rimltc_mr * (ls_fact - lv_fact)
+        )
+
+        rv_increment -= rvheni_mr
+        rc_increment += rimltc_mr
+        rr_increment -= rrhong_mr
+        ri_increment += rvheni_mr - rimltc_mr
+        rs_increment -= rsrimcg_mr
+        rg_increment += rrhong_mr + rsrimcg_mr
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=220,
+    to_line=238,
+)
+@stencil_collection("ice4_derived_fields")
+def ice4_derived_fields(
+    t: Field["float"],
+    rhodref: Field["float"],
+    pres: Field["float"],
+    ssi: Field["float"],
+    ka: Field["float"],
+    dv: Field["float"],
+    ai: Field["float"],
+    cj: Field["float"],
+    zw: Field["float"],
+    rv_t: Field["float"],
+):
+
+    from __externals__ import (
+        ALPI,
+        BETAI,
+        GAMI,
+        ESPILO,
+        TT,
+        CI,
+        CPV,
+        RV,
+        P00,
+        LSTT,
+        SCFAC,
+    )
+
+    with computation(PARALLEL), interval(...):
+
+        zw = exp(ALPI - BETAI / t - GAMI * log(t))
+        ssi = rv_t * (pres - zw) / (ESPILO * zw)  # Supersaturation over ice
+        ka = 2.38e-2 + 7.1e-5 * (t - TT)
+        dv = 2.11e-5 * (t / TT) ** 1.94 * (P00 / pres)
+        ai = (LSTT + (CPV - CI) * (t - TT)) ** 2 / (ka**RV * t**2) + (
+            RV * t / (dv * zw)
+        )
+        cj = SCFAC * rhodref**0.3 / sqrt(1.718e-5 + 4.9 - 8 * (t - TT))
