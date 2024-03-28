@@ -16,12 +16,56 @@ from ice3_gt4py.functions.temperature import theta2temperature
 
 @ported_method(
     from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+    from_line=215,
+    to_line=221,
+)
+@stencil_collection("ice4_stepping_tmicro_init")
+def ice4_stepping_init_tmicro(t_micro: Field["float"], ldmicro: Field["bool"]):
+    """Initialise t_soft with value of t_micro after each loop
+    on LSOFT condition.
+
+    Args:
+        t_micro (Field[&quot;float&quot;]): time for microphsyics loops
+        t_soft (Field[&quot;float&quot;]): time for lsoft blocks loops
+    """
+
+    from __externals__ import TSTEP
+
+    # 4.4 Temporal loop
+    with computation(PARALLEL), interval(...):
+        t_micro = 0 if ldmicro else TSTEP
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+    from_line=225,
+    to_line=228,
+)
+@stencil_collection("ice4_stepping_tsoft_init")
+def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
+    """Initialise t_soft with value of t_micro after each loop
+    on LSOFT condition.
+
+    Args:
+        t_micro (Field[&quot;float&quot;]): time for microphsyics loops
+        t_soft (Field[&quot;float&quot;]): time for lsoft blocks loops
+    """
+
+    from __externals__ import TSTEP_TS
+
+    with computation(PARALLEL), interval(...):
+        t_soft = t_micro
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
     from_line=230,
     to_line=237,
 )
 @stencil_collection("ice4_stepping_ldcompute")
 def ice4_stepping_ldcompute(
-    sub_time: Field["float"], ldcompute: Field["bool"], tstep: float
+    sub_time: Field["float"],
+    ldcompute: Field["bool"],
 ):
     """Compute ldcompute mask
 
@@ -30,13 +74,10 @@ def ice4_stepping_ldcompute(
         ldcompute (Field[bool]): mask of computations
         tstep: time step
     """
+    from __externals__ import TSTEP
 
     with computation(PARALLEL), interval(...):
-
-        if sub_time < tstep:
-            ldcompute = True
-        else:
-            ldcompute = False
+        ldcompute = True if sub_time < TSTEP else False
 
 
 @ported_method(
@@ -58,66 +99,24 @@ def ice4_stepping_heat(
     lv_fact: Field["float"],
     t: Field["float"],
 ):
-    """"""
+    """Compute and convert heat variables before computations
 
-    from __externals__ import cpd, cpv, Cl, Ci, tt
-
+    Args:
+        rv_t (Field[float]): vapour mixing ratio
+        rc_t (Field[float]): cloud droplet mixing ratio
+        rr_t (Field[float]): rain m.r.
+        ri_t (Field[float]): ice m.r.
+        rs_t (Field[float]): snow m.r.
+        rg_t (Field[float]): graupel m.r.
+        exn (Field[float]): exner pressure
+        th_t (Field[float]): potential temperature
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        lv_fact (Field[float]): vapourisation latent heat over heat capacity
+        t (Field[float]): temperature
+    """
     with computation(PARALLEL), interval(...):
 
         specific_heat = cph(rv_t, rc_t, ri_t, rr_t, rs_t, rg_t)
         t = theta2temperature(t, th_t, exn)
         ls_fact = sublimation_latent_heat(t) / specific_heat
         lv_fact = vaporisation_latent_heat(t) / specific_heat
-
-
-# 4.6 Time integration
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=244,
-    to_line=254,
-)
-@stencil_collection("ice4_stepping_time_integration")
-def ice4_stepping_time_integration(
-    ldcompute: Field["bool"],
-    time: Field["float"],
-    max_time: Field["float"],
-    exn: Field["float"],
-    theta: Field["float"],
-    theta_a: Field["float"],
-    theta_b: Field["float"],  # theta stored in ZB
-    tstep: "float",
-):
-    """_summary_
-
-    Args:
-        ldcompute (Field[bool]): mask of computation
-        time (Field[float]): current time (between 0 and tstep)
-        max_time (Field[float]): max remaining step
-        tstep (float): time step for dycore
-    """
-    from __externals__ import tstep_ts, tt
-
-    # l290
-    # if we can, we shall use these tenedencies until the end of the time step
-    with computation(PARALLEL), interval(...):
-        if ldcompute:
-            max_time = tstep - time
-        else:
-            max_time = 0
-
-    # l297
-    # TODO : insert LFEEDBACKT
-    with computation(PARALLEL), interval(...):
-        th_tt = tt / exn
-        if (theta - th_tt) * (theta + theta_b - th_tt) < 0:
-            max_time = 0
-
-        if abs(theta_a > 1e-20):
-            time_threshold = (th_tt - theta_b - theta) / theta_a
-            if time_threshold > 0:
-                max_time = min(max_time, time_threshold)
-
-    # We stop when the end ot the timestep is reached
-    with computation(PARALLEL), interval(...):
-        if time + max_time > tstep:
-            ldcompute = False
