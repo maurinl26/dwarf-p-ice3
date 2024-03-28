@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-import numpy as np
+
 from typing import TYPE_CHECKING
 
+import numpy as np
 from ifs_physics_common.utils.numpyx import assign
 
 if TYPE_CHECKING:
-    from numpy.typing import NDArray
-
     from ifs_physics_common.utils.typingx import DataArray, NDArrayLike
+    from numpy.typing import NDArray
 
 
 def initialize_storage_2d(storage: NDArrayLike, buffer: NDArray) -> None:
