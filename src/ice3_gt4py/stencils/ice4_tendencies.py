@@ -5,116 +5,143 @@ from gt4py.cartesian.gtscript import Field
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
-from ice3_gt4py.functions.ice_adjust import (
-    cph,
-    sublimation_latent_heat,
-    vaporisation_latent_heat,
-)
-from ice3_gt4py.functions.temperature import theta2temperature
-
 
 @ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=215,
-    to_line=221,
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=454,
+    to_line=559,
 )
-@stencil_collection("ice4_stepping_tmicro_init")
-def ice4_stepping_init_tmicro(t_micro: Field["float"], ldmicro: Field["bool"]):
-    """Initialise t_soft with value of t_micro after each loop
-    on LSOFT condition.
-
-    Args:
-        t_micro (Field[float]): time for microphsyics loops
-        ldmicro (Field[bool]): microphsyics activation mask
-    """
-
-    from __externals__ import TSTEP
-
-    # 4.4 Temporal loop
-    with computation(PARALLEL), interval(...):
-        t_micro = 0 if ldmicro else TSTEP
-
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=225,
-    to_line=228,
-)
-@stencil_collection("ice4_stepping_tsoft_init")
-def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
-    """Initialise t_soft with value of t_micro after each loop
-    on LSOFT condition.
-
-    Args:
-        t_micro (Field[float]): time for microphsyics loops
-        t_soft (Field[float]): time for lsoft blocks loops
-    """
-
-    from __externals__ import TSTEP_TS
-
-    with computation(PARALLEL), interval(...):
-        t_soft = t_micro
-
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=230,
-    to_line=237,
-)
-@stencil_collection("ice4_stepping_ldcompute")
-def ice4_stepping_ldcompute(
-    sub_time: Field["float"],
-    ldcompute: Field["bool"],
-):
-    """Compute ldcompute mask
-
-    Args:
-        sub_time (Field[bool]): time in sub_step (from 0 to tstep_ts)
-        ldcompute (Field[bool]): mask of computations
-        tstep: time step
-    """
-    from __externals__ import TSTEP
-
-    with computation(PARALLEL), interval(...):
-        ldcompute = True if sub_time < TSTEP else False
-
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=244,
-    to_line=254,
-)
-@stencil_collection("ice4_stepping_heat")
-def ice4_stepping_heat(
-    rv_t: Field["float"],
-    rc_t: Field["float"],
-    rr_t: Field["float"],
-    ri_t: Field["float"],
-    rs_t: Field["float"],
-    rg_t: Field["float"],
-    exn: Field["float"],
-    th_t: Field["float"],
+@stencil_collection("ice4_tendencies_update")
+def ice4_tendencies_update(
     ls_fact: Field["float"],
     lv_fact: Field["float"],
-    t: Field["float"],
+    theta_tnd: Field["float"],
+    rv_tnd: Field["float"],
+    rc_tnd: Field["float"],
+    rr_tnd: Field["float"],
+    ri_tnd: Field["float"],
+    rs_tnd: Field["float"],
+    rg_tnd: Field["float"],
+    rchoni: Field["float"],  # 1
+    rvdeps: Field["float"],  # 2
+    riaggs: Field["float"],  # 3  # Aggregation on r_s
+    riauts: Field["float"],  # 4  # Autoconversion of r_i for r_s production
+    rvdepg: Field["float"],  # 5  # Deposition on r_g
+    rcautr: Field["float"],  # 6  # Autoconversion of r_c for r_r production
+    rcaccr: Field["float"],  # 7  # Accretion of r_c for r_r production
+    rrevav: Field["float"],  # 8  # Evaporation of r_r
+    rcberi: Field["float"],  # 9  # Bergeron-Findeisen effect
+    rsmltg: Field["float"],  # 11  # Conversion-Melting of the aggregates
+    rcmltsr: Field[
+        "float"
+    ],  # 12  # Cloud droplet collection onto aggregates by positive temperature
+    rraccss: Field["float"],  # 13
+    rraccsg: Field["float"],  # 14
+    rsaccrg: Field["float"],  # 15  # Rain accretion onto the aggregates
+    rcrimss: Field["float"],  # 16
+    rcrimsg: Field["float"],  # 17
+    rsrimcg: Field["float"],  # 18  # Cloud droplet riming of the aggregates
+    ricfrrg: Field["float"],  # 19
+    rrcfrig: Field["float"],  # 20
+    ricfrr: Field["float"],  # 21  # Rain contact freezing
+    rcwetg: Field["float"],  # 22
+    riwetg: Field["float"],  # 23
+    rrwetg: Field["float"],  # 24
+    rswetg: Field["float"],  # 25  # Graupel wet growth
+    rcdryg: Field["float"],  # 26
+    ridryg: Field["float"],  # 27
+    rrdryg: Field["float"],  # 28
+    rsdryg: Field["float"],  # 29  # Graupel dry growth
+    rgmltr: Field["float"],  # 31  # Melting of the graupel
+    rvheni_mr: Field["float"],  # 43  # heterogeneous nucleation mixing ratio change
+    rrhong_mr: Field["float"],  # 44  # Spontaneous freezing mixing ratio change
+    rimltc_mr: Field["float"],  # 45  # Cloud ce melting mixing ratio change
+    rsrimcg_mr: Field["float"],  # 46  # Cloud droplet riming of the aggregates
 ):
-    """Compute and convert heat variables before computations
 
-    Args:
-        rv_t (Field[float]): vapour mixing ratio
-        rc_t (Field[float]): cloud droplet mixing ratio
-        rr_t (Field[float]): rain m.r.
-        ri_t (Field[float]): ice m.r.
-        rs_t (Field[float]): snow m.r.
-        rg_t (Field[float]): graupel m.r.
-        exn (Field[float]): exner pressure
-        th_t (Field[float]): potential temperature
-        ls_fact (Field[float]): sublimation latent heat over heat capacity
-        lv_fact (Field[float]): vapourisation latent heat over heat capacity
-        t (Field[float]): temperature
-    """
     with computation(PARALLEL), interval(...):
-        specific_heat = cph(rv_t, rc_t, ri_t, rr_t, rs_t, rg_t)
-        t = theta2temperature(t, th_t, exn)
-        ls_fact = sublimation_latent_heat(t) / specific_heat
-        lv_fact = vaporisation_latent_heat(t) / specific_heat
+
+        theta_tnd += (
+            rvdepg * ls_fact
+            + rchoni * (ls_fact - lv_fact)
+            + rvdeps * ls_fact
+            - rrevav * lv_fact
+            + rcrimss * (ls_fact - lv_fact)
+            + rcrimsg * (ls_fact - lv_fact)
+            + rraccss * (ls_fact - lv_fact)
+            + rraccsg * (ls_fact - lv_fact)
+            + (rrcfrig - ricfrr) * (ls_fact - lv_fact)
+            + (rcwetg + rrwetg) * (ls_fact - lv_fact)
+            + (rcdryg + rrdryg) * (ls_fact - lv_fact)
+            - rgmltr * (ls_fact - lv_fact)
+            + rcberi * (ls_fact - lv_fact)
+        )
+
+        # (v)
+        rv_tnd += -rvdepg - rvdeps + rrevav
+
+        # (c)
+        rc_tnd += (
+            -rchoni
+            - rcautr
+            - rcaccr
+            - rcrimss
+            - rcrimsg
+            - rcmltsr
+            - rcwetg
+            - rcdryg
+            - rcberi
+        )
+
+        # (r)
+        rr_tnd += (
+            rcautr
+            + rcaccr
+            - rrevav
+            - rraccss
+            - rraccsg
+            + rcmltsr
+            - rrcfrig
+            + ricfrr
+            - rrwetg
+            - rrdryg
+            + rgmltr
+        )
+
+        # (i)
+        ri_tnd += rchoni - riaggs - riauts - ricfrrg - ricfrr - riwetg - ridryg + rcberi
+
+        # (s)
+        rs_tnd += (
+            rvdeps
+            + riaggs
+            + riauts
+            + rcrimss
+            - rcrimsg
+            + rraccss
+            - rsaccrg
+            - rsmltg
+            - rswetg
+            - rsdryg
+        )
+
+        # (g)
+        rg_tnd += (
+            rvdepg
+            + rcrimsg
+            + rsrimcg
+            + rraccsg
+            + rsaccrg
+            + rsmltg
+            + ricfrrg
+            + rrcfrig
+            + rcwetg
+            + riwetg
+            + rswetg
+            + rrwetg
+            + rcdryg
+            + ridryg
+            + rsdryg
+            + rrdryg
+            - rgmltr
+        )
