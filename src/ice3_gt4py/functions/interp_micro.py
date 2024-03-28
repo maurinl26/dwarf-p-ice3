@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+
 from typing import Tuple
 
-from gt4py.cartesian.gtscript import Field, GlobalTable, function, log, floor
+from gt4py.cartesian.gtscript import Field, GlobalTable, floor, function, log
 from ifs_physics_common.utils.f2py import ported_method
 
 
@@ -22,7 +23,7 @@ def index_interp_micro_1d(
         Field[float]: floating index in lookup table (index + offset)
     """
 
-    from __externals__ import RIMINTP1, RIMINTP2, NGAMINC
+    from __externals__ import NGAMINC, RIMINTP1, RIMINTP2
 
     # Real index for interpolation
     return max(1, min(NGAMINC) - 1e-5, RIMINTP1 * log(zw) + RIMINTP2)
@@ -66,12 +67,12 @@ def index_interp_micro_2d_rs(
     """
 
     from __externals__ import (
-        accintp1s,
-        accintp2s,
         accintp1r,
+        accintp1s,
         accintp2r,
-        nacclbdas,
+        accintp2s,
         nacclbdar,
+        nacclbdas,
     )
 
     # Real index for interpolation
@@ -99,12 +100,12 @@ def index_interp_micro_2d_gs(
     """
 
     from __externals__ import (
-        dryintp1s,
-        dryintp2s,
         dryintp1g,
+        dryintp1s,
         dryintp2g,
-        ndrylbdas,
+        dryintp2s,
         ndrylbdag,
+        ndrylbdas,
     )
 
     # Real index for interpolation
@@ -132,10 +133,10 @@ def index_interp_micro_2d_gr(
     """
 
     from __externals__ import (
-        dryintp1r,
-        dryintp2r,
         dryintp1g,
+        dryintp1r,
         dryintp2g,
+        dryintp2r,
         ndrylbdag,
         ndrylbdar,
     )

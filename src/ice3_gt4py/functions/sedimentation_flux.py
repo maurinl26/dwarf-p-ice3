@@ -12,7 +12,6 @@ def weighted_sedimentation_flux_1(
     content_in: Field["float"],
     dt: "float",
 ):
-
     return min(rhodref * dz * content_in / dt, wsedw * rhodref, content_in)
 
 
@@ -22,7 +21,6 @@ def weighted_sedimentation_flux_1(
 def weighted_sedimentation_flux_2(
     wsedw: Field["float"], wsedsup: Field["float"], dz: Field["float"], dt: "float"
 ):
-
     return max(0, 1 - dz / (dt * wsedw)) * wsedsup[0, 0, 1]
 
 
@@ -30,7 +28,6 @@ def weighted_sedimentation_flux_2(
 def other_species(
     fsed: "float", exsed: "float", content_in: Field["float"], rhodref: Field["float"]
 ):
-
     from __externals__ import cexvt
 
     wsedw = fsed * content_in * (exsed - 1) * rhodref ** (exsed - cexvt - 1)

@@ -17,7 +17,7 @@ def vaporisation_latent_heat(
         Field[float]: point wise vaporisation latent heat
     """
 
-    from __externals__ import LVTT, CPV, CL, TT
+    from __externals__ import CL, CPV, LVTT, TT
 
     return LVTT + (CPV - CL) * (t - TT)
 
@@ -35,7 +35,7 @@ def sublimation_latent_heat(
         Field[float]: point wise sublimation latent heat
     """
 
-    from __externals__ import LSTT, CPV, CI, TT
+    from __externals__ import CI, CPV, LSTT, TT
 
     return LSTT + (CPV - CI) * (t - TT)
 
@@ -56,6 +56,6 @@ def cph(
         Field[float]: specific heat of parcel
     """
 
-    from __externals__ import CPD, CPV, CL, CI
+    from __externals__ import CI, CL, CPD, CPV
 
     return CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs + rg)
