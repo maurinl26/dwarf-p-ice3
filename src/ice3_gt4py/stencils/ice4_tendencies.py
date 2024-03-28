@@ -248,6 +248,19 @@ def ice4_slope_parameters(
     lbdas: Field["float"],
     lbdag: Field["float"],
 ):
+    """Compute lambda parameters for distributions of falling species (r, s, g)
+
+    Args:
+        rhodref (Field[float]): reference dry density
+        t (Field[float]): temperature
+        rr_t (Field[float]): rain m.r. at t
+        rs_t (Field[float]): snow m.r. at t
+        rg_t (Field[float]): graupel m.r. at t
+        lbdar (Field[float]): lambda parameter for rain distribution
+        lbdar_rf (Field[float]): _description_
+        lbdas (Field[float]): lambda parameter for snow distribution
+        lbdag (Field[float]): lambda parameter for graupel distribution
+    """
 
     from __externals__ import (
         TRANS_MP_GAMMA,
