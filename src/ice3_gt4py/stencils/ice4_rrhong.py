@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, function
-
+from gt4py.cartesian.gtscript import Field
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
@@ -30,11 +29,10 @@ def ice4_rrhong(
         rrhong_mr (Field[float]): mixing ratio for spontaneous freezing source
     """
 
-    from __externals__ import R_RTMIN, TT, LFEEDBACKT
+    from __externals__ import LFEEDBACKT, R_RTMIN, TT
 
     # 3.3 compute the spontaneous frezzing source: RRHONG
     with computation(PARALLEL), interval(...):
-
         if t < TT - 35 and rr_t > R_RTMIN and ldcompute:
             rrhong_mr = rr_t
 

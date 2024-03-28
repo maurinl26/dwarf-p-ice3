@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, exp
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -40,12 +39,11 @@ def ice4_fast_ri(
         rc_beri_tnd (Field[float]): tendency for Bergeron Findeisen effect
     """
 
-    from __externals__ import C_RTMIN, I_RTMIN, LBI, LBEXI, O0DEPI, O2DEPI, DI
+    from __externals__ import C_RTMIN, DI, I_RTMIN, LBEXI, LBI, O0DEPI, O2DEPI
 
     # 7.2 Bergeron-Findeisen effect: RCBERI
     with computation(PARALLEL), interval(...):
         if not ldsoft:
-
             if (
                 ssi > 0
                 and rc_in > C_RTMIN
@@ -53,7 +51,6 @@ def ice4_fast_ri(
                 and ci_in > 1e-20
                 and ldcompute
             ):
-
                 rc_beri_tnd = min(
                     1e-8, LBI * (rhodref * ri_in / ci_in) ** LBEXI
                 )  # lambda_i

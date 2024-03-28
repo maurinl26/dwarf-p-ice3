@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -115,7 +114,6 @@ def ice4_stepping_heat(
         t (Field[float]): temperature
     """
     with computation(PARALLEL), interval(...):
-
         specific_heat = cph(rv_t, rc_t, ri_t, rr_t, rs_t, rg_t)
         t = theta2temperature(t, th_t, exn)
         ls_fact = sublimation_latent_heat(t) / specific_heat

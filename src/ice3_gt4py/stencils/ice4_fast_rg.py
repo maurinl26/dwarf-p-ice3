@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, GlobalTable, exp, log
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -85,62 +84,61 @@ def ice4_fast_rg(
     """
 
     from __externals__ import (
+        LCRFLIMIT,
+    )  # TRUE TO LIMIT RAIN CONTACT FREEZING TO POSSIBLE HEAT EXCHANGE
+    from __externals__ import (
+        ALPI,
+        ALPW,
+        BETAI,
+        BETAW,
+        BS,
+        CEXVT,
         CI,
         CL,
-        TT,
-        LVTT,
-        I_RTMIN,
-        R_RTMIN,
-        G_RTMIN,
-        S_RTMIN,
-        ICFRR,
-        RCFRI,
-        EXICFRR,
-        EXRCFRI,
-        CEXVT,
-        LCRFLIMIT,  # TRUE TO LIMIT RAIN CONTACT FREEZING TO POSSIBLE HEAT EXCHANGE
-        CXG,
-        DG,
-        FCDRYG,
-        FIDRYG,
         COLEXIG,
         COLIG,
-        ESTT,
-        RV,
+        COLSG,
         CPV,
-        LMTT,
-        O0DEPG,
-        O1DEPG,
+        CXG,
+        CXS,
+        DG,
+        EPSILO,
+        ESTT,
         EX0DEPG,
         EX1DEPG,
-        LEVLIMIT,
-        ALPI,
-        BETAI,
-        GAMI,
-        LWETGPOST,
-        LNULLWETG,
-        EPSILO,
+        EXICFRR,
+        EXRCFRI,
+        FCDRYG,
+        FIDRYG,
         FRDRYG,
+        FSDRYG,
+        G_RTMIN,
+        GAMI,
+        GAMW,
+        I_RTMIN,
+        ICFRR,
         LBSDRYG1,
         LBSDRYG2,
         LBSDRYG3,
-        FSDRYG,
-        COLSG,
-        CXS,
-        BS,
-        ALPW,
-        BETAW,
-        GAMW,
+        LEVLIMIT,
+        LMTT,
+        LNULLWETG,
+        LVTT,
+        LWETGPOST,
+        O0DEPG,
+        O1DEPG,
+        R_RTMIN,
+        RCFRI,
+        RV,
+        S_RTMIN,
+        TT,
     )
 
     # 6.1 rain contact freezing
     with computation(PARALLEL), interval(...):
-
         if ri_t > I_RTMIN and rr_t > R_RTMIN and ldcompute:
-
             # not LDSOFT : compute the tendencies
             if not ldsoft:
-
                 ricfrrg = ICFRR * ri_t * lbdar**EXICFRR * rhodref ** (-CEXVT)
                 rrcfrig = RCFRI * ci_t * lbdar**EXRCFRI * rhodref ** (-CEXVT)
 
@@ -168,9 +166,7 @@ def ice4_fast_rg(
 
     # 6.3 compute graupel growth
     with computation(PARALLEL), interval(...):
-
         if rg_t > G_RTMIN and rc_t > R_RTMIN and ldcompute:
-
             if not ldsoft:
                 rg_rcdry_tnd = lbdag ** (CXG - DG - 2.0) * rhodref ** (-CEXVT)
                 rg_rcdry_tnd = rg_rcdry_tnd * FCDRYG * rc_t
@@ -179,7 +175,6 @@ def ice4_fast_rg(
             rg_rcdry_tnd = 0
 
         if rg_t > G_RTMIN and ri_t > I_RTMIN and ldcompute:
-
             if not ldsoft:
                 rg_ridry_tnd = lbdag ** (CXG - DG - 2.0) * rhodref ** (-CEXVT)
                 rg_ridry_tnd = FIDRYG * exp(COLEXIG * (t - TT)) * ri_t * rg_ridry_tnd
@@ -192,7 +187,6 @@ def ice4_fast_rg(
     # 6.2.1 wet and dry collection of rs on graupel
     # Translation note : l171 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
-
         if rs_t > S_RTMIN and rg_t > G_RTMIN and ldcompute:
             gdry = 1  # GDRY is a boolean field in f90
 
@@ -202,13 +196,11 @@ def ice4_fast_rg(
             rg_rswet_tnd = 0
 
     with computation(PARALLEL), interval(...):
-
         if (not ldsoft) and gdry:
             index_s, index_g = index_interp_micro_2d_gs(lbdag, lbdas)
             zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
 
     with computation(PARALLEL), interval(...):
-
         # Translation note : #ifdef REPRO48 l192 to l198 kept
         #                                   l200 to l206 removed
         if gdry == 1:
@@ -230,7 +222,6 @@ def ice4_fast_rg(
 
     # 6.2.6 accreation of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
-
         if rr_t < R_RTMIN and rg_t < G_RTMIN and ldcompute:
             gdry = 1
         else:
@@ -238,7 +229,6 @@ def ice4_fast_rg(
             rg_rrdry_tnd = 0
 
     with computation(PARALLEL), interval(...):
-
         if not ldsoft:
             index_g, index_r = index_interp_micro_2d_gr(lbdag, lbdar)
             zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
@@ -268,9 +258,7 @@ def ice4_fast_rg(
     # Freezing rate and growth mode
     # Translation note : l251 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
-
         if rg_t > G_RTMIN and ldcompute:
-
             # Duplicated code with ice4_fast_rs
             if not ldsoft:
                 rg_freez1_tnd = rv_t * pres / (EPSILO + rv_t)
@@ -335,7 +323,6 @@ def ice4_fast_rg(
 
     # l317
     with computation(PARALLEL), interval(...):
-
         if ldwetg == 1:
             rr_wetg = -(rg_riwet_tnd + rg_rswet_tnd + rg_rcdry_tnd - rwetg_init_tmp)
             rc_wetg = rg_rcdry_tnd
@@ -362,7 +349,6 @@ def ice4_fast_rg(
 
     # 6.5 Melting of the graupel
     with computation(PARALLEL), interval(...):
-
         if rg_t > G_RTMIN and t > TT and ldcompute:
             if not ldsoft:
                 rg_mltr = rv_t * pres / (EPSILO + rv_t)

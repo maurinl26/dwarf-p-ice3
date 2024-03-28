@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, function
+from ifs_physics_common.framework.stencil import stencil_collection
+
 from ice3_gt4py.functions.sedimentation_flux import (
     other_species,
     weighted_sedimentation_flux_1,
     weighted_sedimentation_flux_2,
 )
-
-from ifs_physics_common.framework.stencil import stencil_collection
 
 
 @stencil_collection("statistical_sedimentation")
@@ -55,33 +55,29 @@ def sedimentation_stat(
     inst_rs_out: Field["float"],  # instant snow precipitation PINPRS
     inst_rg_out: Field["float"],  # instant graupel precipitation PINPRG
 ):
-
+    from __externals__ import C_RTMIN  # CLOUD DROPLET RC MIN
+    from __externals__ import RHOLW  # VOLUMIC LASS OF LIQUID WATER
     from __externals__ import (
-        LSEDIC,
-        RHOLW,  # VOLUMIC LASS OF LIQUID WATER
-        C_RTMIN,  # CLOUD DROPLET RC MIN
-        R_RTMIN,
-        LBEXC,
         CC,
-        DC,
         CEXVT,
+        DC,
+        EXSEDR,
         FSEDC,
         FSEDR,
-        EXSEDR,
+        LBEXC,
+        LSEDIC,
+        R_RTMIN,
     )
 
     # Note Hail is omitted
     # Note : lsedic = True in Arome
     # Note : frp is sed_tmp
     # FRPR present for AROME config
-
     # 1. Compute the fluxes
     # Gamma computations shifted in RainIceDescr
     # Warning : call shift
-
     # 2. Fluxes
     with computation(PARALLEL), interval(...):
-
         dt__rho_dz_tmp = dt / (rhodref * dz)
 
         # 2.1 cloud
@@ -91,7 +87,6 @@ def sedimentation_stat(
 
             qp_tmp = c_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
             if rc_in > C_RTMIN or qp_tmp > C_RTMIN:
-
                 if rc_in > C_RTMIN:
                     wsedw1_tmp = terminal_velocity(
                         rc_in, tht, pabst, rhodref, lbc_tmp, ray_tmp, conc3d_tmp
@@ -196,7 +191,6 @@ def sedimentation_stat(
     # 3. Sources
     # Calcul des tendances
     with computation(PARALLEL), interval(...):
-
         rcs_tnd = (
             rcs_tnd + dt__rho_dz_tmp * (c_sed_tmp[0, 0, 1] - c_sed_tmp[0, 0, 0]) / dt
         )
@@ -215,7 +209,6 @@ def sedimentation_stat(
 
     # Instantaneous fluxes
     with computation(PARALLEL), interval(0, 1):
-
         inst_rc_out = c_sed_tmp / RHOLW
         inst_rr_out = r_sed_tmp / RHOLW
         inst_ri_out = i_sed_tmp / RHOLW
@@ -233,7 +226,7 @@ def terminal_velocity(
     ray: Field["float"],
     conc3d: Field["float"],
 ):
-    from __externals__ import CC, LBEXC, FSEDC, CEXVT, DC
+    from __externals__ import CC, CEXVT, DC, FSEDC, LBEXC
 
     wlbda_tmp = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
     wlbdc_tmp = (lbc * conc3d / (rhodref * content)) ** LBEXC

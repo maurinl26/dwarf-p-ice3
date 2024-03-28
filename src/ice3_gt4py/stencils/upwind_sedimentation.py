@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, IJ, function
+from gt4py.cartesian.gtscript import IJ, Field, function
 from ifs_physics_common.framework.stencil import stencil_collection
+
 
 #
 @stencil_collection("upstream_sedimentation")
@@ -43,24 +44,23 @@ def upstream_sedimentation(
     fpr_i_out: Field["float"],
     fpr_g_out: Field["float"],
 ):
+    from __externals__ import C_RTMIN  # MIN CONTENT FOR CLOUD DROPLETS
+    from __externals__ import T00  # 293.15
+    from __externals__ import XCC  # FROM ICED
     from __externals__ import (
+        CEXVT,
+        CPD,
+        G_RTMIN,
+        I_RTMIN,
         LBEXC,
         P00,
-        T00,  # 293.15
-        RD,
-        CPD,
-        XCC,  # FROM ICED
-        CEXVT,
-        C_RTMIN,  # MIN CONTENT FOR CLOUD DROPLETS
-        I_RTMIN,
         R_RTMIN,
-        G_RTMIN,
+        RD,
         S_RTMIN,
     )
 
     # TODO
     # remaining time to be initialized
-
     # 2. Compute the fluxes
     # l219 to l262
     rcs_tnd -= rc_in / dt
@@ -76,7 +76,6 @@ def upstream_sedimentation(
     # TODO: extend by functions to other species
     # TODO add #else l590 to l629 for  #ifdef REPRO48
     with computation(PARALLEL), interval(...):
-
         wlbdc = (lbc_in * conc3d_in / (rhodref * rc_in)) ** lbexc
         ray_tmp = ray_in / wlbdc
 
@@ -166,7 +165,6 @@ def upper_air_flux(
     max_tstep: Field[IJ, "float"],
     dt: "float",
 ):
-
     return wsed_tmp * (max_tstep / dt)
 
 
@@ -230,7 +228,6 @@ def maximum_time_step(
 def instant_precipitation(
     wsed_tmp: Field["float"], max_tstep: Field["float"], dt: "float"
 ) -> Field["float"]:
-
     from __externals__ import RHOLW
 
     return wsed_tmp[0, 0, 0] / RHOLW * (max_tstep / dt)

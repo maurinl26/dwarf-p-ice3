@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
-from ice3_gt4py.functions.sign import sign
 from ice3_gt4py.functions.stepping import mixing_ratio_step_limiter
 
 
@@ -45,15 +43,15 @@ def step_limiter(
     ldcompute: Field["bool"],
 ):
     from __externals__ import (
-        TSTEP,
-        TT,
         C_RTMIN,
-        R_RTMIN,
-        I_RTMIN,
-        S_RTMIN,
         G_RTMIN,
+        I_RTMIN,
         MNH_TINY,
+        R_RTMIN,
+        S_RTMIN,
+        TSTEP,
         TSTEP_TS,
+        TT,
     )
 
     # Adding externals tendencies
@@ -71,7 +69,6 @@ def step_limiter(
 
     # Adjustment of tendencies when temperature reaches 0
     with computation(PARALLEL), interval(...):
-
         theta_tt = TT / exn
         if (theta_t - theta_tt) * (theta_t + theta_b - theta_tt) < 0:
             delta_t_micro = 0

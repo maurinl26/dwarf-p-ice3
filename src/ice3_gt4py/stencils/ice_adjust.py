@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
-from gt4py.cartesian.gtscript import exp, log, sqrt, floor, atan
+from gt4py.cartesian.gtscript import Field, atan, exp, floor, log, sqrt
+from ifs_physics_common.framework.stencil import stencil_collection
+
 from ice3_gt4py.functions.compute_ice_frac import compute_frac_ice
+from ice3_gt4py.functions.ice_adjust import (
+    sublimation_latent_heat,
+    vaporisation_latent_heat,
+)
 from ice3_gt4py.functions.src_1d import src_1d
 from ice3_gt4py.functions.temperature import update_temperature
 
-from ice3_gt4py.functions.ice_adjust import (
-    vaporisation_latent_heat,
-    sublimation_latent_heat,
-)
-from ifs_physics_common.framework.stencil import stencil_collection
 
 # TODO: remove POUT (not used in aro_adjust)
 # TODO: add SSIO, SSIU, IFR, SRCS
@@ -145,28 +145,27 @@ def ice_adjust(
     >>>>>>> c0ab6b245aa4f09e607f1e476b7d5ff25bdfe9c8:src/phyex_gt4py/stencils/ice_adjust.py
     """
 
+    from __externals__ import NRR  # NUMBER OF MOIST VARIABLES
     from __externals__ import (
-        TT,
-        SUBG_MF_PDF,
-        SUBG_COND,
+        ACRIAUTI,
+        ALPI,
+        ALPW,
+        BCRIAUTI,
+        BETAI,
+        BETAW,
+        CI,
+        CL,
         CPD,
         CPV,
-        CL,
-        CI,
-        TT,
-        ALPW,
-        BETAW,
-        GAMW,
-        ALPI,
-        BETAI,
-        GAMI,
-        RD,
-        RV,
         CRIAUTC,
         CRIAUTI,
-        ACRIAUTI,
-        BCRIAUTI,
-        NRR,  # NUMBER OF MOIST VARIABLES
+        GAMI,
+        GAMW,
+        RD,
+        RV,
+        SUBG_COND,
+        SUBG_MF_PDF,
+        TT,
     )
 
     # 2.3 Compute the variation of mixing ratio

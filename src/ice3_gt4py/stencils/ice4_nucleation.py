@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, exp, log
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -41,28 +40,27 @@ def ice4_fast_rg(
     """
 
     from __externals__ import (
+        ALPHA1,
+        ALPHA2,
+        ALPI,
+        ALPW,
+        BETA1,
+        BETA2,
+        BETAI,
+        BETAW,
+        EPSILO,
+        GAMI,
+        GAMW,
+        LFEEDBACKT,
+        MNU0,
+        NU10,
+        NU20,
         TT,
         V_RTMIN,
-        ALPI,
-        BETAI,
-        GAMI,
-        ALPW,
-        BETAW,
-        GAMW,
-        EPSILO,
-        NU20,
-        ALPHA2,
-        BETA2,
-        NU10,
-        BETA1,
-        ALPHA1,
-        MNU0,
-        LFEEDBACKT,
     )
 
     # l72
     with computation(PARALLEL), interval(...):
-
         if t < TT and rv_t > V_RTMIN and ldcompute:
             usw = 0
             w2 = 0
@@ -73,9 +71,7 @@ def ice4_fast_rg(
 
     # l83
     with computation(PARALLEL), interval(...):
-
         if t < TT and rv_t > V_RTMIN and ldcompute:
-
             ssi = 0
             w2 = min(pabs_t / 2, w2)
             ssi = rv_t * (pabs_t - w2) / (EPSILO * w2) - 1
@@ -89,7 +85,6 @@ def ice4_fast_rg(
 
     # l96
     with computation(PARALLEL), interval(...):
-
         w2 = 0
         if t < TT and rv_t > V_RTMIN and ldcompute:
             if t < TT - 5 and ssi > 0:

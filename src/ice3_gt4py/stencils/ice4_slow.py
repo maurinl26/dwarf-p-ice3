@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, function, exp
-
+from gt4py.cartesian.gtscript import Field, exp
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
@@ -59,37 +58,36 @@ def ice4_slow(
     """
 
     from __externals__ import (
-        TT,
+        ACRIAUTI,
+        ALPHA3,
+        BCRIAUTI,
+        BETA3,
         C_RTMIN,
-        V_RTMIN,
-        S_RTMIN,
-        I_RTMIN,
+        CEXVT,
+        COLEXIS,
+        CRIAUTI,
+        EX0DEPG,
+        EX0DEPS,
+        EX1DEPG,
+        EX1DEPS,
+        EXIAGGS,
+        FIAGGS,
         G_RTMIN,
         HON,
-        ALPHA3,
-        BETA3,
-        O0DEPS,
-        EX0DEPS,
-        EX1DEPS,
-        O1DEPS,
-        FIAGGS,
-        COLEXIS,
-        EXIAGGS,
-        CEXVT,
-        CRIAUTI,
-        ACRIAUTI,
-        BCRIAUTI,
-        TIMAUTI,
-        TEXAUTI,
+        I_RTMIN,
         O0DEPG,
-        EX0DEPG,
+        O0DEPS,
         O1DEPG,
-        EX1DEPG,
+        O1DEPS,
+        S_RTMIN,
+        TEXAUTI,
+        TIMAUTI,
+        TT,
+        V_RTMIN,
     )
 
     # 3.2 compute the homogeneous nucleation source : RCHONI
     with computation(PARALLEL), interval(...):
-
         if t < TT - 35.0 and rc_t > C_RTMIN and ldcompute:
             rc_honi_tnd = (
                 min(1000, HON * rhodref * rc_t * exp(ALPHA3 * (t - TT) - BETA3))
@@ -103,7 +101,6 @@ def ice4_slow(
     # 3.4 compute the deposition, aggregation and autoconversion sources
     # 3.4.3 compute the deposition on r_s : RVDEPS
     with computation(PARALLEL), interval(...):
-
         if rv_t < V_RTMIN and rs_t < S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
@@ -119,7 +116,6 @@ def ice4_slow(
 
     # 3.4.4 compute the aggregation on r_s: RIAGGS
     with computation(PARALLEL), interval(...):
-
         if ri_t > I_RTMIN and rs_t > S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l138 to 142 kept
             # Translation note : #else REPRO48 l143 to 150 omitted
@@ -141,7 +137,6 @@ def ice4_slow(
 
     # 3.4.5 compute the autoconversion of r_i for r_s production: RIAUTS
     with computation(PARALLEL), interval(...):
-
         if hli_hri > I_RTMIN and ldcompute:
             if not ldsoft:
                 criauti_tmp = min(CRIAUTI, 10 ** (ACRIAUTI * (t - TT) + BCRIAUTI))

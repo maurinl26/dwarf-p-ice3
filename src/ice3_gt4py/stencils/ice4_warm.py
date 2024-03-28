@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, function, exp, log
-
+from gt4py.cartesian.gtscript import Field, exp, log
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
@@ -33,31 +32,30 @@ def ice4_slow(
     rr_evap: Field["float"],  # evaporation of rr
     ldsoft: "bool",
 ):
-
     from __externals__ import (
-        SUBG_RC_RR_ACCR,
-        SUBG_RR_EVAP,
-        C_RTMIN,
-        R_RTMIN,
-        TIMAUTC,
-        CRIAUTC,
-        CEXVT,
-        FCACCR,
-        EXCACCR,
         ALPW,
         BETAW,
-        GAMW,
-        RV,
+        C_RTMIN,
+        CEXVT,
         CL,
-        LVTT,
-        TT,
-        CPV,
-        O0EVAR,
-        EX0EVAR,
-        O1EVAR,
-        EX1EVAR,
         CPD,
+        CPV,
+        CRIAUTC,
         EPSILO,
+        EX0EVAR,
+        EX1EVAR,
+        EXCACCR,
+        FCACCR,
+        GAMW,
+        LVTT,
+        O0EVAR,
+        O1EVAR,
+        R_RTMIN,
+        RV,
+        SUBG_RC_RR_ACCR,
+        SUBG_RR_EVAP,
+        TIMAUTC,
+        TT,
     )
 
     # 4.2 compute the autoconversion of r_c for r_r : RCAUTR
@@ -74,7 +72,6 @@ def ice4_slow(
     # 4.3 compute the accretion of r_c for r_r : RCACCR
     # TODO : code hsubg_rc_accr to enumeration
     with computation(PARALLEL), interval(...):
-
         # Translation note : HSUBG_RC_RR_ACCR=='NONE'
         if SUBG_RC_RR_ACCR == 0:
             if rc_t > C_RTMIN and rr_t > R_RTMIN and ldcompute:
@@ -91,13 +88,10 @@ def ice4_slow(
 
     # 4.4 computes the evaporation of r_r :  RREVAV
     with computation(PARALLEL), interval(...):
-
         # NONE in Fortran code
         if SUBG_RR_EVAP == 0:
             if rr_t > R_RTMIN and rc_t <= C_RTMIN and ldcompute:
-
                 if not ldsoft:
-
                     rr_evav = exp(ALPW - BETAW / t - GAMW * log(t))
                     usw = 1 - rv_t * (pres - rr_evav)
                     rr_evav = (LVTT + (CPV - CL) * (t - TT)) ** 2 / (
@@ -110,9 +104,7 @@ def ice4_slow(
     # TODO : translate second option from line 178 to 227
     # HSUBG_RR_EVAP=='CLFR' .OR. HSUBG_RR_EVAP=='PRFR'
     with computation(PARALLEL), interval(...):
-
         if SUBG_RR_EVAP == 1 or SUBG_RR_EVAP == 2:
-
             # HSUBG_RR_EVAP=='CLFR'
             if SUBG_RR_EVAP == 1:
                 zw4 = 1  # precipitation fraction
@@ -125,7 +117,6 @@ def ice4_slow(
 
             if rr_t > R_RTMIN and zw4 > cf and ldcompute:
                 if not ldsoft:
-
                     # outside the cloud (environment) the use of T^u (unsaturated) instead of T
                     # ! Bechtold et al. 1993
 

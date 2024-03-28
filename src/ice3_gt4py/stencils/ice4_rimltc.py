@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
-
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
@@ -30,13 +29,9 @@ def ice4_rimltc(
         rimltc_mr (Field[float]): mixing ratio change due to cloud ice melting
     """
 
-    from __externals__ import (
-        TT,
-        LFEEDBACKT,
-    )
+    from __externals__ import LFEEDBACKT, TT
 
     with computation(PARALLEL), interval(...):
-
         # 7.1 cloud ice melting
         if ri_t > 0 and t > TT and ldcompute:
             rimltc_mr = ri_t

@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, GlobalTable, exp, log
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
+
 from ice3_gt4py.functions.interp_micro import (
     index_interp_micro_1d,
     index_interp_micro_2d_rs,
@@ -62,62 +62,58 @@ def ice4_fast_rs(
     ker_raccss: GlobalTable[float, (40, 40)],
     ker_saccrg: GlobalTable[float, (40, 40)],
 ):
-
     from __externals__ import (
-        R_RTMIN,
-        S_RTMIN,
-        C_RTMIN,
-        EPSILO,
-        LEVLIMIT,
         ALPI,
+        ALPW,
         BETAI,
-        GAMI,
-        TT,
+        BETAW,
+        BS,
+        C_RTMIN,
+        CEXVT,
+        CI,
+        CL,
         CPV,
-        LVTT,
+        CRIMSG,
+        CRIMSS,
+        CXS,
+        EPSILO,
         ESTT,
-        RV,
-        O0DEPS,
-        O1DEPS,
         EX0DEPS,
         EX1DEPS,
-        LMTT,
-        CL,
-        CI,
-        TT,
-        CRIMSS,
-        EXCRIMSS,
-        CEXVT,
-        CRIMSG,
         EXCRIMSG,
-        SRIMCG,
+        EXCRIMSS,
         EXSRIMCG,
-        SRIMCG3,
-        SRIMCG2,
         EXSRIMCG2,
         FRACCSS,
-        CXS,
+        FSACCRG,
+        FSCVMG,
+        GAMI,
+        GAMW,
         LBRACCS1,
         LBRACCS2,
         LBRACCS3,
         LBSACCR1,
         LBSACCR2,
         LBSACCR3,
-        BS,
-        FSACCRG,
+        LEVLIMIT,
+        LMTT,
+        LVTT,
+        O0DEPS,
+        O1DEPS,
+        R_RTMIN,
+        RV,
+        S_RTMIN,
         SNOW_RIMING,
-        ALPW,
-        BETAW,
-        GAMW,
-        FSCVMG,
+        SRIMCG,
+        SRIMCG2,
+        SRIMCG3,
+        TT,
     )
 
     # 5.0 maximum freezing rate
     with computation(PARALLEL), interval(...):
-
         # Translation note l106 removed not LDSOFT
         if rs_t < S_RTMIN and ldcompute:
-
             rs_freez1_tnd = rv_t * pres / (EPSILO + rv_t)
             if LEVLIMIT:
                 rs_freez1_tnd = min(
@@ -142,14 +138,12 @@ def ice4_fast_rs(
             freez_rate_tmp = 0
 
         else:
-
             rs_freez1_tnd = 0
             rs_freez2_tnd = 0
             freez_rate_tmp = 0
 
     # 5.1 cloud droplet riming of the aggregates
     with computation(PARALLEL), interval(...):
-
         if rc_t > C_RTMIN and rs_t > S_RTMIN and ldcompute:
             zw_tmp = lbda_s
 
@@ -166,9 +160,7 @@ def ice4_fast_rs(
 
     # Interpolation + Lookup Table
     with computation(PARALLEL), interval(...):
-
         if (not ldsoft) and grim_tmp:
-
             # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
             #                                    l90 to l123 kept
             index = index_interp_micro_1d(zw_tmp)
@@ -178,9 +170,7 @@ def ice4_fast_rs(
 
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
-
         if grim_tmp:
-
             # Translation note : #ifdef REPRO48 l170 to l172 kept
             #                                   l174 to l178 removed
             rs_rcrimss_tnd = (
@@ -189,7 +179,6 @@ def ice4_fast_rs(
 
     # 5.1.6 riming convesion of the large size aggregates
     with computation(PARALLEL), interval(...):
-
         if grim_tmp:
             # Translation note : #ifdef REPRO48 l189 to l191 kept
             #                                   l193 to l197 removed
@@ -197,11 +186,9 @@ def ice4_fast_rs(
 
     # if parami  csnowriming == M90
     with computation(PARALLEL), interval(...):
-
         # PARAMI%CSNOWRIMING == M90
         # TODO : refactor if statement out of stencil for performance
         if SNOW_RIMING == 0:
-
             if grim_tmp:
                 zw_tmp = rs_rsrimcg_tnd - rs_rcrimss_tnd
                 # Translation note : #ifdef REPRO48 l208 kept
@@ -272,7 +259,6 @@ def ice4_fast_rs(
 
     # 5.2.4. raindrop accreation on the small sized aggregates
     with computation(PARALLEL), interval(...):
-
         if gacc_tmp:
             # Translation note : REPRO48 l279 to l283 kept
             #                            l285 to l289 removed

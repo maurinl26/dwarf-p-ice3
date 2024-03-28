@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
-
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -40,8 +39,7 @@ def state_update(
     delta_t_micro: Field["float"],
     time_threshold_tmp: Field["float"],
 ):
-
-    from __externals__ import MRSTEP, C_RTMIN, R_RTMIN, I_RTMIN, S_RTMIN, G_RTMIN
+    from __externals__ import C_RTMIN, G_RTMIN, I_RTMIN, MRSTEP, R_RTMIN, S_RTMIN
 
     ############## (c) ###########
     # l356

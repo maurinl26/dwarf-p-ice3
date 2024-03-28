@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
+from ifs_physics_common.framework.stencil import stencil_collection
 
 from ice3_gt4py.functions.ice_adjust import (
     cph,
-    vaporisation_latent_heat,
     sublimation_latent_heat,
+    vaporisation_latent_heat,
 )
-from ifs_physics_common.framework.stencil import stencil_collection
 
 
 @stencil_collection("aro_filter")
@@ -51,7 +51,6 @@ def aro_filter(
 
     # 3.1. Remove negative values
     with computation(PARALLEL), interval(...):
-
         rrs[0, 0, 0] = max(0, rrs[0, 0, 0])
         rss[0, 0, 0] = max(0, rss[0, 0, 0])
         rgs[0, 0, 0] = max(0, rgs[0, 0, 0])
@@ -111,7 +110,6 @@ def aro_filter(
 
     # 9. Transform sources to tendencies (*= 2 dt)
     with computation(PARALLEL), interval(...):
-
         rvs[0, 0, 0] = rvs[0, 0, 0] * 2 * dt
         rcs[0, 0, 0] = rcs[0, 0, 0] * 2 * dt
         rrs[0, 0, 0] = rrs[0, 0, 0] * 2 * dt
