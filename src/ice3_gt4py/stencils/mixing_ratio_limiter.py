@@ -38,7 +38,6 @@ def state_update(
     rs_tnd_a: Field["float"],
     rg_tnd_a: Field["float"],
     delta_t_micro: Field["float"],
-    ldmicro: Field["float"],
     time_threshold_tmp: Field["float"],
 ):
 
