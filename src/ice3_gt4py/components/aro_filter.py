@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
+
+import logging
 from dataclasses import asdict
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
-import logging
 
-from ifs_physics_common.framework.grid import ComputationalGrid
-from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
-from ifs_physics_common.utils.typingx import PropertyDict, NDArrayLikeDict
-from ifs_physics_common.framework.grid import I, J, K
+from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
+from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
@@ -93,7 +94,6 @@ class AroFilter(ImplicitTendencyComponent):
         out_diagnostics: NDArrayLikeDict,
         overwrite_tendencies: Dict[str, bool],
     ) -> None:
-
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "float"), 5),
