@@ -11,3 +11,6 @@ import ice3_gt4py.stencils.ice4_warm
 import ice3_gt4py.stencils.ice_adjust
 import ice3_gt4py.stencils.statistical_sedimentation
 import ice3_gt4py.stencils.upwind_sedimentation
+import ice3_gt4py.stencils.step_limiter
+import ice3_gt4py.stencils.mixing_ratio_limiter
+import ice3_gt4py.stencils.ice4_tendencies
