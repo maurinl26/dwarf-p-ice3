@@ -15,10 +15,10 @@ def compute_frac_ice(
     frac_ice_adjust is the mode of calculation
 
     Args:
-        t (Field[float&]): _description_
+        t (Field[float]): temperatue
 
     Returns:
-        _type_: _description_
+        Field[float]: ice fraction with respect to ice + liquid
     """
 
     from __externals__ import FRAC_ICE_ADJUST, TMAXMIX, TMINMIX, TT
@@ -27,7 +27,7 @@ def compute_frac_ice(
 
     # using temperature
     # FracIceAdujst.T.value
-    if frac_ice_adjust == 0:
+    if FRAC_ICE_ADJUST == 0:
         frac_ice = max(0, min(1, ((TMAXMIX - t[0, 0, 0]) / (TMAXMIX - TMINMIX))))
 
     # using temperature with old formula
