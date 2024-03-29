@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from math import gamma, log
-from tyPIng import Tuple
+from typing import Tuple
 
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
