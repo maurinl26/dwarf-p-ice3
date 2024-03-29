@@ -214,7 +214,7 @@ def maximum_time_step(
     if r > rtmin and wsed_tmp > 1e-20 and remaining_time > 0:
         tstep[0, 0] = min(
             max_tstep,
-            split_maxcfl
+            SPLIT_MAXCFL
             * rhodref[0, 0, 0]
             * r[0, 0, 0]
             * dz[0, 0, 0]
