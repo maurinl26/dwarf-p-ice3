@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, atan, exp, floor, log, sqrt
+from gt4py.cartesian.gtscript import Field, atan, exp, floor, log, sqrt, GlobalTable
 from ifs_physics_common.framework.stencil import stencil_collection
 
 from ice3_gt4py.functions.compute_ice_frac import compute_frac_ice
@@ -9,7 +9,6 @@ from ice3_gt4py.functions.ice_adjust import (
     sublimation_latent_heat,
     vaporisation_latent_heat,
 )
-from ice3_gt4py.functions.src_1d import src_1d
 from ice3_gt4py.functions.temperature import update_temperature
 
 
@@ -17,7 +16,6 @@ from ice3_gt4py.functions.temperature import update_temperature
 # TODO: add SSIO, SSIU, IFR, SRCS
 @stencil_collection("ice_adjust")
 def ice_adjust(
-    # IN - Inputs
     sigqsat: Field["float"],
     exnref: Field["float"],
     exn: Field["float"],
@@ -64,12 +62,12 @@ def ice_adjust(
     sbar: Field["float"],
     sigma: Field["float"],
     q1: Field["float"],
+    src_1d: GlobalTable[float, 34],
     dt: "float",
 ):
     """Microphysical adjustments for specific contents due to condensation.
 
         Args:
-    <<<<<<< HEAD:src/ice3_gt4py/stencils/ice_adjust.py
             sigqsat (Field[float]): _description_
             exnref (Field[float]): reference exner pressure
             exn (Field[float]): true exner pressure
@@ -93,46 +91,10 @@ def ice_adjust(
             cldfr (Field[float]): cloud fraction
             ifr (Field[float]): ratio cloud ice moist part to dry part
             hlc_hrc (Field[float]): _description_
-    =======
-            sigqsat (Field[float]):
-            exnref (Field[float]): reference exner pressure
-            exn (Field[float]): true exner pressure
-            rhodref (Field[float]): reference density
-            pabs (Field[float]): absolute pressure at t
-            sigs (Field[float]): standard deviation for subgrid supersaturation
-            cf_mf (Field[float]): cloud fraction mass flux from shallow convection
-            rc_mf (Field[float]): cloud droplet mass flux from shallow convection
-            ri_mf (Field[float]): ice mass flux from shallow convection
-
-            rv (Field[float]): water vapour content
-            ifr (Field[float]): ice
-    >>>>>>> c0ab6b245aa4f09e607f1e476b7d5ff25bdfe9c8:src/phyex_gt4py/stencils/ice_adjust.py
             hlc_hcf (Field[float]): _description_
             hli_hri (Field[float]): _description_
             hli_hcf (Field[float]): _description_
             sigrc (Field[float]): _description_
-    <<<<<<< HEAD:src/ice3_gt4py/stencils/ice_adjust.py
-            rv_tmp (Field[float]): temp. array for vapour m.r.
-            ri_tmp (Field[float]): temp. array for ice m.r.
-            rc_tmp (Field[float]): temp. array for cloud droplets m.r.
-            t_tmp (Field[float]): temp. array for temperature
-            cph (Field[float]): total specific heat
-            lv (Field[float]): vaporisation latent heat - guess at t+1
-            ls (Field[float]): sublimation latent heat - guess at t+1
-            criaut (Field[float]): autoconversion thresholds
-            rt (Field[float]): total water m.r.
-            pv (Field[IJ, float]): saturation pressure over water
-            piv (Field[IJ, float]): saturation pressure over ice
-            qsl (Field[float]): liquid created due to supersaturation
-            qsi (Field[float]): ice created due to supersaturation
-            frac_tmp (Field[float]): fraction of ice with respect to ice + liquid specific contents
-            cond_tmp (Field[float]): normalized stauration deficit
-            a (Field[float]): _description_
-            sbar (Field[float]): supersaturation mean
-            sigma (Field[float]): total standard deviation (turbulence + convection)
-            q1 (Field[float]): deficit of stauration
-            dt (float): timestep in seconds
-    =======
             rv_tmp (Field[float]): _description_
             ri_tmp (Field[float]): _description_
             rc_tmp (Field[float]): _description_
@@ -142,7 +104,6 @@ def ice_adjust(
             sigma (Field[float]): _description_
             q1 (Field[float]): _description_
             dt (float): _description_
-    >>>>>>> c0ab6b245aa4f09e607f1e476b7d5ff25bdfe9c8:src/phyex_gt4py/stencils/ice_adjust.py
     """
 
     from __externals__ import NRR  # NUMBER OF MOIST VARIABLES
@@ -293,7 +254,7 @@ def ice_adjust(
         inc = 2 * q1 - inq1
 
         sigrc[0, 0, 0] = min(
-            1, (1 - inc) * src_1d(inq1 + 22) + inc * src_1d(inq1 + 1 + 22)
+            1, (1 - inc) * src_1d.at[inq1 + 22] + inc * src_1d.at[inq1 + 22 +1]
         )
 
         # # Translation notes : 506 -> 514 (not ocnd2)
