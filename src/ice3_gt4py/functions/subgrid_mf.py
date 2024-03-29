@@ -7,7 +7,6 @@ from gt4py.cartesian.gtscript import Field, function
 @function
 def subgrid_mf(
     criaut: Field["float"],
-    subg_mf_pdf: Field["float"],
     hl_hr: Field["float"],
     hl_hc: Field["float"],
     cf_mf: Field["float"],
@@ -28,13 +27,17 @@ def subgrid_mf(
     Returns:
         _type_: _description_
     """
+    
+    from __externals__ import SUBG_MF_PDF
 
-    if subg_mf_pdf == "NONE":
+    # SUBG_MF_PDF == "NONE"
+    if SUBG_MF_PDF == 0:
         if w * tstep > cf_mf[0, 0, 0] * criaut:
             hl_hr += w * tstep
             hl_hc = min(1, hl_hc[0, 0, 0] + cf_mf[0, 0, 0])
 
-    elif subg_mf_pdf == "TRIANGLE":
+    # SUBG_MF_PDF == "TRIANGLE"
+    elif SUBG_MF_PDF == "NONE":
         if w * tstep > cf_mf[0, 0, 0] * criaut:
             hcf = 1 - 0.5 * (criaut * cf_mf[0, 0, 0]) / max(1e-20, w * tstep)
             hr = w * tstep - (criaut * cf_mf[0, 0, 0]) ** 3 / (

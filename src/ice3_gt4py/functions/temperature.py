@@ -53,7 +53,6 @@ def update_temperature(
     ri_out: Field["float"],
     lv: Field["float"],
     ls: Field["float"],
-    cpd: float,
 ) -> Field["float"]:
     """Compute temperature given a change of mixing ratio in ice and liquid
 
@@ -70,13 +69,16 @@ def update_temperature(
     Returns:
         Field[float]: updated temperature
     """
+    
+    from __externals__ import CPD
+    
     t = (
         t[0, 0, 0]
         + (
             (rc_out[0, 0, 0] - rc_in[0, 0, 0]) * lv[0, 0, 0]
             + (ri_out[0, 0, 0] - ri_in[0, 0, 0]) * ls[0, 0, 0]
         )
-        / cpd
+        / CPD
     )
 
     return t
