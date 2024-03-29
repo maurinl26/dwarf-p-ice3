@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
+from gt4py.cartesian.gtscript import Field, computation, interval, PARALLEL
 from ifs_physics_common.framework.stencil import stencil_collection
+from ifs_physics_common.utils.f2py import ported_method
 
 
+@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_rimltc.F90")
 @stencil_collection("ice4_rimltc")
 def ice4_rimltc(
     ldcompute: Field["bool"],

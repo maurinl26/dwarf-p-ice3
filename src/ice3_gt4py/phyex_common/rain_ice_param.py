@@ -286,7 +286,7 @@ class RainIceParam:
         e = 0.5 * np.exp(
             self.cst.ALPW - self.cst.BETAW / 293.15 - self.cst.GAMW * log(293.15)
         )
-        rv = (self.cst.Rd_Rv) * e / (101325 - e)
+        rv = (self.cst.RD_RV) * e / (101325 - e)
         rho00 = 101325 * (1 + rv) / (self.cst.RD + rv * self.cst.RV) / 293.15
 
         # 4.2    Constants for sedimentation
@@ -319,8 +319,8 @@ class RainIceParam:
             )
         )
 
-        self.EXRSEDI = (self.rid.bi + self.rid.di) / self.rid.bi
-        self.EXCSEDI = 1 - self.exrsedi
+        self.EXRSEDI = (self.rid.BI + self.rid.DI) / self.rid.BI
+        self.EXCSEDI = 1 - self.EXRSEDI
         self.FSEDI = (
             (4 * 900 * self.cst.PI) ** (-self.EXCSEDI)
             * self.rid.C_I
@@ -392,7 +392,7 @@ class RainIceParam:
         self.HON = (self.cst.PI / 6) * ((2 * 3 * 4 * 5 * 6) / (2 * 3)) * (1.1e5) ** (-3)
 
         # 5.2 Constants for vapor deposition on ice
-        self.scfaPc = (0.63 ** (1 / 3)) * np.sqrt((rho00) ** self.rid.CEXVT)
+        self.SCFAC = (0.63 ** (1 / 3)) * np.sqrt((rho00) ** self.rid.CEXVT)
         self.O0DEPI = (
             (4 * self.cst.PI)
             * self.rid.C1I
@@ -687,7 +687,7 @@ class RainIceParam:
         )
         self.LBRDRYG2 = (
             2
-            * momg(self.rid.ALPHAG, self.rid.nuPg, 1)
+            * momg(self.rid.ALPHAG, self.rid.NUG, 1)
             * momg(self.rid.ALPHAR, self.rid.NUR, 4)
         )
         self.LBRDRYG3 = momg(self.rid.ALPHAR, self.rid.NUR, 5)

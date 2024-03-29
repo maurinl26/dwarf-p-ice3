@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
+from gt4py.cartesian.gtscript import (
+    Field,
+    __externals__,
+    computation,
+    interval,
+    PARALLEL,
+)
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -14,8 +20,8 @@ from ice3_gt4py.functions.sign import sign
     from_line=346,
     to_line=388,
 )
-@stencil_collection("mixing_ratio_limiter")
-def state_update(
+@stencil_collection("mixing_ratio_step_limiter")
+def mixing_ratio_step_limiter(
     rc_0r_t: Field["float"],
     rr_0r_t: Field["float"],
     ri_0r_t: Field["float"],
@@ -39,6 +45,32 @@ def state_update(
     delta_t_micro: Field["float"],
     time_threshold_tmp: Field["float"],
 ):
+    """_summary_
+
+    Args:
+        rc_0r_t (Field[float]): _description_
+        rr_0r_t (Field[float]): _description_
+        ri_0r_t (Field[float]): _description_
+        rs_0r_t (Field[float]): _description_
+        rg_0r_t (Field[float]): _description_
+        rc_t (Field[float]): _description_
+        rr_t (Field[float]): _description_
+        ri_t (Field[float]): _description_
+        rs_t (Field[float]): _description_
+        rg_t (Field[float]): _description_
+        rc_b (Field[float]): _description_
+        rr_b (Field[float]): _description_
+        ri_b (Field[float]): _description_
+        rs_b (Field[float]): _description_
+        rg_b (Field[float]): _description_
+        rc_tnd_a (Field[float]): _description_
+        rr_tnd_a (Field[float]): _description_
+        ri_tnd_a (Field[float]): _description_
+        rs_tnd_a (Field[float]): _description_
+        rg_tnd_a (Field[float]): _description_
+        delta_t_micro (Field[float]): _description_
+        time_threshold_tmp (Field[float]): _description_
+    """
     from __externals__ import C_RTMIN, G_RTMIN, I_RTMIN, MRSTEP, R_RTMIN, S_RTMIN
 
     ############## (c) ###########

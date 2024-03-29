@@ -51,14 +51,41 @@ class Ice4Stepping(ImplicitTendencyComponent):
             }
         )
 
-        self.ice4_nucleation = self.compile_stencil("ice4_nucleation")
-        self.ice4_rrhong = self.compile_stencil("ice4_rrhong")
-        self.ice4_rimltc = self.compile_stencil("ice4_rimltc")
-        self.ice4_slow = self.compile_stencil("ice4_slow")
-        self.ice4_warm = self.compile_stencil("ice4_warm")
-        self.ice4_fast_rs = self.compile_stencil("ice4_fast_rs")
-        self.ice4_fast_rg = self.compile_stencil("ice4_fast_rg")
-        self.ice4_fast_ri = compile_stencil("ice4_fast_ri")
+        # Tendencies
+        self.ice4_nucleation = compile_stencil("ice4_nucleation", externals)
+        self.nucleation_post_processing = compile_stencil(
+            "nucleation_post_processing", externals
+        )
+
+        self.ice4_rrhong = compile_stencil("ice4_rrhong", externals)
+        self.ice4_rrhong_post_processing = compile_stencil(
+            "ice4_rrhong_post_processing", externals
+        )
+
+        self.ice4_rimltc = compile_stencil("ice4_rimltc", externals)
+        self.ice4_rimltc_post_processing = compile_stencil("rimltc_post_processing")
+
+        self.ice4_increment_update = compile_stencil("ice4_increment_update", externals)
+        self.ice4_derived_fields = compile_stencil("ice4_derived_fields", externals)
+
+        # TODO: add ice4_compute_pdf
+        self.ice4_slope_parameters = compile_stencil("ice4_slope_parameters", externals)
+
+        self.ice4_slow = compile_stencil("ice4_slow", externals)
+        self.ice4_warm = compile_stencil("ice4_warm", externals)
+
+        self.ice4_fast_rs = compile_stencil("ice4_fast_rs", externals)
+
+        self.ice4_fast_rg_pre_processing = compile_stencil(
+            "ice4_fast_rg_pre_processing", externals
+        )
+        self.ice4_fast_rg = compile_stencil("ice4_fast_rg", externals)
+
+        self.ice4_fast_ri = compile_stencil("ice4_fast_ri", externals)
+
+        self.ice4_tendencies_update = compile_stencil(
+            "ice4_tendencies_update", externals
+        )
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -88,28 +115,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             self.computational_grid,
             *repeat(((I, J, K), "float"), 20),
             gt4py_config=self.gt4py_config,
-        ) as (
-            rt,
-            pv,
-            piv,
-            qsl,
-            qsi,
-            frac_tmp,
-            cond_tmp,
-            a,
-            sbar,
-            sigma,
-            q1,
-            lv,
-            ls,
-            cph,
-            criaut,
-            sigrc,
-            rv_tmp,
-            ri_tmp,
-            rc_tmp,
-            t_tmp,
-        ):
+        ) as ():
             inputs = {
                 name.split("_", maxsplit=1)[1]: state[name]
                 for name in self.input_properties
@@ -122,53 +128,67 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 name.split("_", maxsplit=1)[1]: out_diagnostics[name]
                 for name in self.diagnostic_properties
             }
-            temporaries = {
-                "rt": rt,
-                "pv": pv,
-                "piv": piv,
-                "qsl": qsl,
-                "qsi": qsi,
-                "frac_tmp": frac_tmp,
-                "cond_tmp": cond_tmp,
-                "a": a,
-                "sbar": sbar,
-                "sigma": sigma,
-                "q1": q1,
-                "lv": lv,
-                "ls": ls,
-                "cph": cph,
-                "criaut": criaut,
-                "sigrc": sigrc,
-                "rv_tmp": rv_tmp,
-                "ri_tmp": ri_tmp,
-                "rc_tmp": rc_tmp,
-                "t_tmp": t_tmp,
-            }
+            temporaries = {}
 
-            self.ice_adjust(
-                **inputs,
-                **tendencies,
-                **diagnostics,
-                **temporaries,
-                dt=timestep.total_seconds(),
-                origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
-            )
+            # TODO fill fields
+            self.ice4_nucleation()
+            self.nucleation_post_processing()
+
+            self.ice4_rrhong()
+            self.ice4_rrhong_post_processing()
+
+            self.ice4_rimltc()
+            self.ice4_rimltc_post_processing()
+
+            self.ice4_increment_update()
+            self.ice4_derived_fields()
+
+            # TODO: add ice4_compute_pdf
+            self.ice4_slope_parameters()
+
+            self.ice4_slow()
+            self.ice4_warm()
+
+            self.ice4_fast_rs()
+
+            self.ice4_fast_rg_pre_processing()
+            self.ice4_fast_rg()
+
+            self.ice4_fast_ri()
+
+            self.ice4_tendencies_update()
 
 
-def stepping():
-    """Stepping function for microphysical processes"""
+def ice4_stepping(externals):
+    """Stepping function from Phyex / ice4"""
 
-    NotImplemented
+    tmicro_init = compile_stencil("ice4_stepping_tmicro_init", externals)
 
+    # DO WHILE ZTIME < PTSTEP
+    # while tmicro.any():
+    tsoft_init = compile_stencil("ice4_stepping_tsoft_init", externals)
 
-def ice4_tendencies():
-    """Run rain_ice processes in order.
-    Update estimates of values given tendencies computed by each process
+    # DO WHILE LLCOMPUTE
+    # while ldcompute.any():
+    ice4_stepping_heat = compile_stencil("ice4_stepping_heat", externals)
+    lsoft = False
 
-    nucleation >> rrhong >> rimltc >> riming conversion >> pdf computation >> slow cold >> warm >> fast rs >> fast rg >> fast ri
-    """
+    # Tendencies stencils
+    # ice4_tendencies(externals)
 
-    NotImplemented
+    # TODO : add possibility to update external tendencies
+    ice4_step_limiter = compile_stencil("step_limiter", externals)
+    ice4_mixing_ratio_step_limiter = compile_stencil(
+        "mixing_ratio_step_limiter", externals
+    )
+
+    ice4_state_update = compile_stencil("state_update", externals)
+
+    lsoft = True
+    # end do while
+
+    # Out of loop:
+    # if lext_tend
+    external_tendencies_update = compile_stencil(
+        "external_tendencies_update", externals
+    )

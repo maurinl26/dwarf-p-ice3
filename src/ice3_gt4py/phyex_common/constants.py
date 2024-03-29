@@ -208,7 +208,7 @@ class Constants:
         self.GAMW = (self.CL - self.CPV) / self.RV
         self.BETAW = (self.LVTT / self.RV) + (self.GAMW * self.TT)
         self.ALPW = (
-            np.log(self.ESTT) + (self.BETAW / self.TT) + (self.GAMW * np.log(self.tt))
+            np.log(self.ESTT) + (self.BETAW / self.TT) + (self.GAMW * np.log(self.TT))
         )
         self.GAMI = (self.CI - self.CPV) / self.RV
         self.BETAI = (self.LSTT / self.RV) + self.GAMI * self.TT

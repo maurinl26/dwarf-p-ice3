@@ -2,7 +2,13 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
-from ifs_physics_common.framework.stencil import stencil_collection
+from ifs_physics_common.framework.stencil import (
+    stencil_collection,
+    interval,
+    computation,
+    PARALLEL,
+    __externals__,
+)
 from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.ice_adjust import (

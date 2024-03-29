@@ -162,7 +162,7 @@ class RainIceDescr:
             self.BI = 2.5
             self.C_I = 800
             self.DI = 1.0
-            self.C1I = 1 / self.cst.pi
+            self.C1I = 1 / self.cst.PI
 
         elif self.parami.PRISTINE_ICE == "COLU":
             self.AI = 2.14e-3
@@ -209,7 +209,7 @@ class RainIceDescr:
         gamc2 = momg(self.ALPHAC2, self.NUC2, 3)
         self.LBC = (self.AR * gamc, self.AR * gamc2)
 
-        self.lbr = (self.AR * self.CCR * momg(self.ALPHAR, self.NUR, self.BR)) ** (
+        self.LBR = (self.AR * self.CCR * momg(self.ALPHAR, self.NUR, self.BR)) ** (
             -self.LBEXR
         )
         self.LBI = (self.AI * self.C_I * momg(self.ALPHAI, self.NUI, self.BI)) ** (

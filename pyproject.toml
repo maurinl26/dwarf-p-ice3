@@ -9,7 +9,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
 ifs-physics-common = {git = "https://github.com/maurinl26/ifs-physics-common.git"}
-gt4py = "^1.0.1"
+gt4py = "==1.0.3"
 
 
 [tool.poetry.group.dev.dependencies]

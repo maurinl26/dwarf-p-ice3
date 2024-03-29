@@ -259,4 +259,4 @@ class ParamIce:
         tmp_frmin_nam[39] = 0.25
         tmp_frmin_nam[40] = 0.15
 
-        self.frmin_nam = tmp_frmin_nam
+        self.FRMIN_NAM = tmp_frmin_nam

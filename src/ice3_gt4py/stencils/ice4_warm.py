@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log
+from gt4py.cartesian.gtscript import (
+    Field,
+    exp,
+    log,
+    computation,
+    PARALLEL,
+    interval,
+    __externals__,
+)
 from ifs_physics_common.framework.stencil import stencil_collection
 
 

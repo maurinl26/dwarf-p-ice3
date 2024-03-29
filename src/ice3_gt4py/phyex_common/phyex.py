@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import asdict, dataclass, field
 from typing import Literal, Tuple
+from enum import Enum
 
 from ifs_physics_common.utils.f2py import ported_class
 
@@ -84,8 +85,8 @@ class Phyex:
 
     def __post_init__(self):
         self.cst = Constants()
-        self.param_icen = ParamIce(hprogram=self.PROGRAM)
-        self.nebn = Neb(hprogram=self.PROGRAM)
+        self.param_icen = ParamIce(self.PROGRAM)
+        self.nebn = Neb(self.PROGRAM)
         self.rain_ice_descrn = RainIceDescr(self.cst, self.param_icen)
         self.rain_ice_param = RainIceParam(
             self.cst, self.rain_ice_descrn, self.param_icen
