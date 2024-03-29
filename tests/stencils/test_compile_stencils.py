@@ -15,14 +15,26 @@ STENCIL_COLLECTIONS = [
     "aro_filter",
     "ice_adjust",
     "ice4_nucleation",
-    "ice4_fast_rg",
-    "ice4_fast_rs",
-    "ice4_fast_ri",
-    "ice4_nucleation",
+    "nucleation_post_processing",
     "ice4_rimltc",
-    "ice4_rrhong",
+    "rimltc_post_processing",
+    "ice4_increment_update",
+    "ice4_derived_fields",
+    "ice4_slope_parameters",
     "ice4_slow",
     "ice4_warm",
+    "ice4_fast_rs",
+    "ice4_fast_rg_pre_processing",
+    "ice4_fast_rg",
+    "ice4_fast_ri",
+    "ice4_tendencies_update",
+    "ice4_stepping_tmicro_init",
+    "ice4_stepping_tsoft_init",
+    "ice4_stepping_heat",
+    "step_limiter",
+    "mixing_ratio_step_limiter",
+    "state_update",
+    "external_tendencies_update",
 ]
 
 STENCIL_COLLECTIONS_WITH_EXTERNALS = {
@@ -235,7 +247,17 @@ STENCIL_COLLECTIONS_WITH_EXTERNALS = {
 
 
 def test_ice_adjust_stencils():
+    """Compile the list of stencils with given backend"""
+
     def _build(externals, backend, config, stencil_collection):
+        """Compile stencils given externals, backends and config
+
+        Args:
+            externals (_type_): list of externals
+            backend (_type_): backend for gt4py
+            config (_type_): gt4py config (including precision)
+            stencil_collection (_type_): stencil_collection to compile
+        """
         try:
             _ = compile_stencil(stencil_collection, config, externals=externals)
         except:
