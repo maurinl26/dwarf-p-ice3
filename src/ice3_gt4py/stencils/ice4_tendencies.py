@@ -209,7 +209,7 @@ def ice4_derived_fields(
         ALPI,
         BETAI,
         GAMI,
-        ESPILO,
+        EPSILO,
         TT,
         CI,
         CPV,
@@ -222,7 +222,7 @@ def ice4_derived_fields(
     with computation(PARALLEL), interval(...):
 
         zw = exp(ALPI - BETAI / t - GAMI * log(t))
-        ssi = rv_t * (pres - zw) / (ESPILO * zw)  # Supersaturation over ice
+        ssi = rv_t * (pres - zw) / (EPSILO * zw)  # Supersaturation over ice
         ka = 2.38e-2 + 7.1e-5 * (t - TT)
         dv = 2.11e-5 * (t / TT) ** 1.94 * (P00 / pres)
         ai = (LSTT + (CPV - CI) * (t - TT)) ** 2 / (ka**RV * t**2) + (
