@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
+from gt4py.cartesian.gtscript import Field, computation, PARALLEL, interval
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -107,7 +107,7 @@ def step_limiter(
 
     # We stop when the end of the timestep is reached
     with computation(PARALLEL), interval(...):
-        llcompute = False if t_micro + delta_t_micro > TSTEP else llcompute
+        ldcompute = False if t_micro + delta_t_micro > TSTEP else ldcompute
 
     # TODO : TSTEP_TS out of the loop
     with computation(PARALLEL), interval(...):
@@ -143,8 +143,9 @@ def state_update(
     rs_tnd_a: Field["float"],
     rg_tnd_a: Field["float"],
     delta_t_micro: Field["float"],
-    ldmicro: Field["float"],
+    ldmicro: Field["bool"],
     ci_t: Field["float"],
+    t_micro: Field["float"]
 ):
     """Update values of guess of potential temperature and mixing ratios after each step
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log, sqrt
+from gt4py.cartesian.gtscript import Field, exp, log, sqrt, computation, PARALLEL, interval
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -263,7 +263,7 @@ def ice4_slope_parameters(
     """
 
     from __externals__ import (
-        TRANS_MP_GAMMA,
+        TRANS_MP_GAMMAS,
         LBR,
         LBEXR,
         R_RTMIN,
@@ -280,9 +280,8 @@ def ice4_slope_parameters(
     )
 
     with computation(PARALLEL), interval(...):
-
+        
         lbdar = LBR * (rhodref * max(rr_t, R_RTMIN)) ** LBEXR if rr_t > 0 else 0
-
         # Translation note : l293 to l298 omitted LLRFR = True (not used in AROME)
         # Translation note : l299 to l301 kept (used in AROME)
         lbdar_rf = lbdar
@@ -291,24 +290,17 @@ def ice4_slope_parameters(
             if rs_t > 0 and t > 263.15:
                 lbdas = (
                     max(min(LBDAS_MAX, 10 ** (14.554 - 0.0423 * t)), LBDAS_MIN)
-                    * TRANS_MP_GAMMA
+                    * TRANS_MP_GAMMAS
                 )
             elif rs_t > 0 and t <= 263.15:
                 lbdas = (
                     max(min(LBDAS_MAX, 10 ** (6.226 - 0.0106 * t)), LBDAS_MIN)
-                    * TRANS_MP_GAMMA
+                    * TRANS_MP_GAMMAS
                 )
             else:
                 lbdas = 0
         else:
-            lbdas = (
-                min(LBDAS_MAX, LBS * (rhodref * max(rs_t, S_RTMIN)) ** LBEXS)
-                if rs_t > 0
-                else 0
-            )
-
-        lbdag = (
-            min(LBDAG_MAX, LBS * (rhodref * max(rg_t, G_RTMIN)) ** LBEXS)
-            if rg_t > 0
-            else 0
-        )
+            lbdas = min(LBDAS_MAX, LBS * (rhodref * max(rs_t, S_RTMIN)) ** LBEXS) if rs_t > 0 else 0
+                
+        lbdag = min(LBDAG_MAX, LBS * (rhodref * max(rg_t, G_RTMIN)) ** LBEXS) if rg_t > 0 else 0
+        
