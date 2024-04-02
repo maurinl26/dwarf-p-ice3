@@ -163,6 +163,8 @@ class ParamIce:
     LCONVHG: bool = field(default=False)
     LCRFLIMIT: bool = field(default=True)
 
+    TSTEP_TS: float = field(default=0)
+
     SUBG_RC_RR_ACCR: int = field(
         default=SubgRRRCAccr.NONE.value
     )  # subgrid rc-rr accretion
