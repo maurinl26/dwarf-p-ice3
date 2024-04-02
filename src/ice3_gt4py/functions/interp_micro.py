@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Tuple
 
-from gt4py.cartesian.gtscript import Field, GlobalTable, floor, function, log
+from gt4py.cartesian.gtscript import Field, GlobalTable, floor, function, log, max, min
 from ifs_physics_common.utils.f2py import ported_method
 
 
@@ -13,7 +13,7 @@ from ifs_physics_common.utils.f2py import ported_method
 @function
 def index_interp_micro_1d(
     zw: Field["float"],
-) -> Field["float"]:
+) -> Field["int"]:
     """Compute index in logspace for table
 
     Args:
@@ -26,7 +26,7 @@ def index_interp_micro_1d(
     from __externals__ import NGAMINC, RIMINTP1, RIMINTP2
 
     # Real index for interpolation
-    return max(1, min(NGAMINC) - 1e-5, RIMINTP1 * log(zw) + RIMINTP2)
+    return max(1, min(NGAMINC - 1e-5, RIMINTP1 * log(zw) + RIMINTP2))
 
 
 def interp_micro_1d(
@@ -45,8 +45,8 @@ def interp_micro_1d(
     lut_index = floor(index)
     floating_index = index - lut_index
     return (
-        floating_index * lookup_table.at[lut_index + 1]
-        + (1 - floating_index) * lookup_table.at[lut_index]
+        floating_index * lookup_table.A[lut_index + 1]
+        + (1 - floating_index) * lookup_table.A[lut_index]
     )
 
 
@@ -67,20 +67,20 @@ def index_interp_micro_2d_rs(
     """
 
     from __externals__ import (
-        accintp1r,
-        accintp1s,
-        accintp2r,
-        accintp2s,
-        nacclbdar,
-        nacclbdas,
+        ACCINTP1R,
+        ACCINTP1S,
+        ACCINTP2R,
+        ACCINTP2S,
+        NACCLBDAR,
+        NACCLBDAS,
     )
 
     # Real index for interpolation
     index_r = max(
-        1 + 1e-5, min(nacclbdar) - 1e-5, accintp1r * log(lambda_r) + accintp2r
+        1 + 1e-5, min(NACCLBDAR) - 1e-5, ACCINTP1R * log(lambda_r) + ACCINTP2R
     )
     index_s = max(
-        1 + 1e-5, min(nacclbdas) - 1e-5, accintp1s * log(lambda_s) + accintp2s
+        1 + 1e-5, min(NACCLBDAS) - 1e-5, ACCINTP1S * log(lambda_s) + ACCINTP2S
     )
 
     return index_r, index_s
@@ -100,20 +100,20 @@ def index_interp_micro_2d_gs(
     """
 
     from __externals__ import (
-        dryintp1g,
-        dryintp1s,
-        dryintp2g,
-        dryintp2s,
-        ndrylbdag,
-        ndrylbdas,
+        DRYINTP1G,
+        DRYINTP1S,
+        DRYINTP2G,
+        DRYINTP2S,
+        NDRYLBDAG,
+        NDRYLBDAS,
     )
 
     # Real index for interpolation
     index_g = max(
-        1 + 1e-5, min(ndrylbdag) - 1e-5, dryintp1g * log(lambda_g) + dryintp2g
+        1 + 1e-5, min(NDRYLBDAG) - 1e-5, DRYINTP1G * log(lambda_g) + DRYINTP2G
     )
     index_s = max(
-        1 + 1e-5, min(ndrylbdas) - 1e-5, dryintp1s * log(lambda_s) + dryintp2s
+        1 + 1e-5, min(NDRYLBDAS) - 1e-5, DRYINTP1S * log(lambda_s) + DRYINTP2S
     )
 
     return index_g, index_s
@@ -133,20 +133,20 @@ def index_interp_micro_2d_gr(
     """
 
     from __externals__ import (
-        dryintp1g,
-        dryintp1r,
-        dryintp2g,
-        dryintp2r,
-        ndrylbdag,
-        ndrylbdar,
+        DRYINTP1G,
+        DRYINTP1R,
+        DRYINTP2G,
+        DRYINTP2R,
+        NDRYLBDAG,
+        NDRYLBDAR,
     )
 
     # Real index for interpolation
     index_r = max(
-        1 + 1e-5, min(ndrylbdar) - 1e-5, dryintp1r * log(lambda_r) + dryintp2r
+        1 + 1e-5, min(NDRYLBDAR) - 1e-5, DRYINTP1R * log(lambda_r) + DRYINTP2R
     )
     index_g = max(
-        1 + 1e-5, min(ndrylbdag) - 1e-5, dryintp1g * log(lambda_g) + dryintp2g
+        1 + 1e-5, min(NDRYLBDAG) - 1e-5, DRYINTP1G * log(lambda_g) + DRYINTP2G
     )
 
     return index_g, index_r
@@ -170,12 +170,12 @@ def interp_micro_2d(
     """
 
     lut_index_r, lut_index_s = floor(index_r), floor(index_s)
-
     floating_index_r, floating_index_s = index_r - lut_index_r, index_s - lut_index_s
+
     return floating_index_s * (
-        floating_index_r * lookup_table.at[lut_index_s + 1, lut_index_r + 1]
-        + (1 - floating_index_r) * lookup_table.at[lut_index_s + 1, lut_index_r]
+        floating_index_r * lookup_table.A[lut_index_s + 1, lut_index_r + 1]
+        + (1 - floating_index_r) * lookup_table.A[lut_index_s + 1, lut_index_r]
     ) + (1 - floating_index_s) * (
-        floating_index_r * lookup_table.at[lut_index_s, lut_index_r + 1]
-        + (1 - floating_index_r) * lookup_table.at[lut_index_s, lut_index_r]
+        floating_index_r * lookup_table.A[lut_index_s, lut_index_r + 1]
+        + (1 - floating_index_r) * lookup_table.A[lut_index_s, lut_index_r]
     )
