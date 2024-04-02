@@ -385,7 +385,7 @@ def ice4_fast_rg(
     from_line=386,
     to_line=390,
 )
-@stencil_collection("fast_rg_pre_processing")
+@stencil_collection("ice4_fast_rg_pre_processing")
 def ice4_fast_rg_pre_post_processing(
     rgsi: Field["float"],
     rgsi_mr: Field["float"],
@@ -400,7 +400,5 @@ def ice4_fast_rg_pre_post_processing(
 ):
 
     with computation(PARALLEL), interval(...):
-
         rgsi = rvdepg + rsmltg + rraccsg + rsaccrg + rcrimsg + rsrimcg
-
         rgsi_mr = rrhong_mr + rsrimcg_mr
