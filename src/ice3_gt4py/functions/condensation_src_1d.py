@@ -13,9 +13,9 @@ def src_1d(inq: int, src: GlobalTable(float, 34)) -> float:
     Returns:
         float: src_1d value on increment index
     """
-    
+
     # TODO: specify src as a global table
-    return src.at[inq]
+    return src.A[inq]
 
     # if inq == 0:
     #     src = 0.0
