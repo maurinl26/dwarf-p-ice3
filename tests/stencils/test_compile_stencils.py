@@ -265,14 +265,6 @@ def test_ice_adjust_stencils():
                 f"Building {stencil_collection}, on {backend} : Compilation Failed"
             )
 
-            required_externals = list(
-                STENCIL_COLLECTIONS_WITH_EXTERNALS[stencil_collection].keys()
-            )
-            phyex_externals = list(externals.keys())
-
-            missing_externals = set(required_externals).difference(set(phyex_externals))
-            logging.info(f"Missing externals : {missing_externals} \n")
-
         else:
             logging.info(
                 f"Building {stencil_collection}, on {backend} : Compilation Succeded \n"
