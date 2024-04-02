@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 
+import sys
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
 
@@ -173,15 +174,17 @@ class Constants:
     INVXP00: float = field(init=False)  # 1 / p00
 
     # 8. Machine precision
-    # mnh_tiny: float    # minimum real on this machine
-    # mnh_tiny_12: float # sqrt(minimum real on this machine)
-    # mnh_epsilon: float # minimum space with 1.0
-    # mnh_huge: float    # minimum real on this machine
-    # mnh_huge_12_log: float # maximum log(sqrt(real)) on this machine
-    # eps_dt: float      # default value for dt
-    # res_flat_cart: float   # default     flat&cart residual tolerance
-    # res_other: float   # default not flat&cart residual tolerance
-    # res_prep: float    # default     prep      residual tolerance
+    MNH_TINY: float = field(
+        default=sys.float_info.epsilon
+    )  # minimum real on this machine
+    # MNH_TINY_12: float = field(default=sys.float_info.) # sqrt(minimum real on this machine)
+    # MNH_EPSILON: float # minimum space with 1.0
+    # MNH_HUGE: float    # minimum real on this machine
+    # MNH_HUGE_12_LOG: float # maximum log(sqrt(real)) on this machine
+    # EPS_DT: float      # default value for dt
+    # RES_FLAT_CART: float   # default     flat&cart residual tolerance
+    # RES_OTHER: float   # default not flat&cart residual tolerance
+    # RES_PREP: float    # default     prep      residual tolerance
 
     def __post_init__(self):
         # 2. Astronomical constants
