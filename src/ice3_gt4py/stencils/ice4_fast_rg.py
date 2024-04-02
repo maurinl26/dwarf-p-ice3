@@ -14,8 +14,9 @@ from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.interp_micro import (
-    index_interp_micro_2d_gr,
-    index_interp_micro_2d_gs,
+    index_micro2d_dry_g,
+    index_micro2d_dry_r,
+    index_micro2d_dry_s,
     interp_micro_2d,
 )
 
@@ -52,7 +53,7 @@ def ice4_fast_rg(
     rg_freez1_tnd: Field["float"],
     rg_freez2_tnd: Field["float"],
     rg_mltr: Field["float"],
-    gdry: Field["int"],
+    gdry: Field["bool"],
     ldwetg: Field["int"],  # bool, true if graupel grows in wet mode (out)
     lldryg: Field["int"],  # linked to gdry + temporary
     rdryg_init_tmp: Field["float"],
@@ -196,22 +197,23 @@ def ice4_fast_rg(
     # Translation note : l171 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
         if rs_t > S_RTMIN and rg_t > G_RTMIN and ldcompute:
-            gdry = 1  # GDRY is a boolean field in f90
+            gdry = True  # GDRY is a boolean field in f90
 
         else:
-            gdry = 0
+            gdry = False
             rg_rsdry_tnd = 0
             rg_rswet_tnd = 0
 
     with computation(PARALLEL), interval(...):
         if (not ldsoft) and gdry:
-            index_s, index_g = index_interp_micro_2d_gs(lbdag, lbdas)
-            zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
+            index_s = index_micro2d_dry_s(lbdas)
+            index_g = index_micro2d_dry_g(lbdag)
+    # #         # zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
 
     with computation(PARALLEL), interval(...):
         # Translation note : #ifdef REPRO48 l192 to l198 kept
         #                                   l200 to l206 removed
-        if gdry == 1:
+        if gdry:
             rg_rswet_tnd = (
                 FSDRYG
                 * zw_tmp
@@ -231,17 +233,18 @@ def ice4_fast_rg(
     # 6.2.6 accreation of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
         if rr_t < R_RTMIN and rg_t < G_RTMIN and ldcompute:
-            gdry = 1
+            gdry = True
         else:
-            gdry = 0
+            gdry = False
             rg_rrdry_tnd = 0
 
     with computation(PARALLEL), interval(...):
         if not ldsoft:
-            index_g, index_r = index_interp_micro_2d_gr(lbdag, lbdar)
-            zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
+            index_g = index_micro2d_dry_g(lbdag)
+            index_r = index_micro2d_dry_r(lbdar)
+            # zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
 
-    # l233
+    # # l233
     with computation(PARALLEL), interval(...):
         if (not ldsoft) and gdry:
             rg_rrdry_tnd = (

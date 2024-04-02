@@ -15,7 +15,8 @@ from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.interp_micro import (
     index_interp_micro_1d,
-    index_interp_micro_2d_rs,
+    index_micro2d_acc_r,
+    index_micro2d_acc_s,
     interp_micro_1d,
     interp_micro_2d,
 )
@@ -172,9 +173,9 @@ def ice4_fast_rs(
             # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
             #                                    l90 to l123 kept
             index = index_interp_micro_1d(zw_tmp)
-            zw1_tmp = interp_micro_1d(index, gaminc_rim1)
-            zw2_tmp = interp_micro_1d(index, gaminc_rim2)
-            zw3_tmp = interp_micro_1d(index, gaminc_rim4)
+            # zw1_tmp = interp_micro_1d(index, gaminc_rim1)
+            # zw2_tmp = interp_micro_1d(index, gaminc_rim2)
+            # zw3_tmp = interp_micro_1d(index, gaminc_rim4)
 
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
@@ -257,13 +258,14 @@ def ice4_fast_rs(
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
 
-            index_r, index_s = index_interp_micro_2d_rs(lbda_r, lbda_s)
+            index_r = index_micro2d_acc_r(lbda_r)
+            index_s = index_micro2d_acc_s(lbda_s)
 
-            zw1_tmp = interp_micro_2d(index_r, index_s, ker_raccss)
-            zw2_tmp = interp_micro_2d(index_r, index_s, ker_raccs)
-            zw3_tmp = interp_micro_2d(index_r, index_s, ker_saccrg)
+            # zw1_tmp = interp_micro_2d(index_r, index_s, ker_raccss)
+            # zw2_tmp = interp_micro_2d(index_r, index_s, ker_raccs)
+            # zw3_tmp = interp_micro_2d(index_r, index_s, ker_saccrg)
 
-            # CALL INTERP_MICRO_2D
+    #         # CALL INTERP_MICRO_2D
 
     # 5.2.4. raindrop accreation on the small sized aggregates
     with computation(PARALLEL), interval(...):
