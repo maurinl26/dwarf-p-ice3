@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
-from ifs_physics_common.framework.stencil import (
-    stencil_collection,
-    interval,
-    computation,
-    PARALLEL,
-    __externals__,
-)
+from gt4py.cartesian.gtscript import Field, interval, computation, PARALLEL
+from ifs_physics_common.framework.stencil import stencil_collection
+
 from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.ice_adjust import (
@@ -56,33 +51,8 @@ def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
         t_soft (Field[float]): time for lsoft blocks loops
     """
 
-    from __externals__ import TSTEP_TS
-
     with computation(PARALLEL), interval(...):
         t_soft = t_micro
-
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=230,
-    to_line=237,
-)
-@stencil_collection("ice4_stepping_ldcompute")
-def ice4_stepping_ldcompute(
-    sub_time: Field["float"],
-    ldcompute: Field["bool"],
-):
-    """Compute ldcompute mask
-
-    Args:
-        sub_time (Field[bool]): time in sub_step (from 0 to tstep_ts)
-        ldcompute (Field[bool]): mask of computations
-        tstep: time step
-    """
-    from __externals__ import TSTEP
-
-    with computation(PARALLEL), interval(...):
-        ldcompute = True if sub_time < TSTEP else False
 
 
 @ported_method(
