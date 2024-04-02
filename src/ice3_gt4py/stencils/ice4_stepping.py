@@ -91,6 +91,6 @@ def ice4_stepping_heat(
     """
     with computation(PARALLEL), interval(...):
         specific_heat = cph(rv_t, rc_t, ri_t, rr_t, rs_t, rg_t)
-        t = theta2temperature(t, th_t, exn)
+        t = theta2temperature(th_t, exn)
         ls_fact = sublimation_latent_heat(t) / specific_heat
         lv_fact = vaporisation_latent_heat(t) / specific_heat
