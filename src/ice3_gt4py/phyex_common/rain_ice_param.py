@@ -202,8 +202,8 @@ class RainIceParam:
     GAMINC_BOUND_MIN: float = field(init=False)
     GAMINC_BOUND_MAX: float = field(init=False)
     # TODO : look at kernel computations
-    # rimintp1: float = field(init=False)
-    # rimintp2: float = field(init=False)
+    RIMINTP1: float = field(init=False)
+    RIMINTP2: float = field(init=False)
 
     NGAMINC: int = field(init=False)  # Number of tab. Lbda_s
 
@@ -551,6 +551,14 @@ class RainIceParam:
         self.NGAMINC = 80
         self.GAMINC_BOUND_MIN = 1e-1
         self.GAMINC_BOUND_MAX = 1e7
+        zrate = np.exp(
+            log(self.GAMINC_BOUND_MAX / self.GAMINC_BOUND_MIN) / (self.NGAMINC - 1)
+        )
+
+        self.RIMINTP1 = self.rid.ALPHAS / log(zrate)
+        self.RIMINTP2 = 1 + self.RIMINTP1 * log(
+            self.DCSLIM / (self.GAMINC_BOUND_MIN) ** (1 / self.rid.ALPHAS)
+        )
 
         # 7.2 Constants for the accretion of raindrops
 
