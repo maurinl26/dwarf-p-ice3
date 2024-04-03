@@ -17,8 +17,6 @@ from ice3_gt4py.functions.interp_micro import (
     index_interp_micro_1d,
     index_micro2d_acc_r,
     index_micro2d_acc_s,
-    interp_micro_1d,
-    interp_micro_2d,
 )
 from ice3_gt4py.functions.sign import sign
 
@@ -60,6 +58,7 @@ def ice4_fast_rs(
     rs_freez2_tnd: Field["float"],
     grim_tmp: Field["bool"],
     gacc_tmp: Field["bool"],
+    zw_tmp: Field["float"],
     zw1_tmp: Field["float"],
     zw2_tmp: Field["float"],
     zw3_tmp: Field["float"],
@@ -179,9 +178,9 @@ def ice4_fast_rs(
             # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
             #                                    l90 to l123 kept
             index_floor, index_float = index_interp_micro_1d(zw_tmp)
-            # zw1_tmp = interp_micro_1d(index_floor, index_float, gaminc_rim1)
-            # zw2_tmp = interp_micro_1d(index_floor, index_float, gaminc_rim2)
-            # zw3_tmp = interp_micro_1d(index_floor, index_float, gaminc_rim4)
+            zw1_tmp = index_float * gaminc_rim1.A[index_floor + 1] + (1 - index_float) * gaminc_rim1.A[index_floor]
+            zw2_tmp = index_float * gaminc_rim2.A[index_floor + 1] + (1 - index_float) * gaminc_rim2.A[index_floor]
+            zw3_tmp = index_float * gaminc_rim4.A[index_floor + 1] + (1 - index_float) * gaminc_rim4.A[index_floor]
 
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
@@ -266,9 +265,29 @@ def ice4_fast_rs(
 
             index_floor_r, index_float_r = index_micro2d_acc_r(lbda_r)
             index_floor_s, index_float_s = index_micro2d_acc_s(lbda_s)
-            # zw1_tmp = interp_micro_2d(index_r, index_s, ker_raccss)
-            # zw2_tmp = interp_micro_2d(index_r, index_s, ker_raccs)
-            # zw3_tmp = interp_micro_2d(index_r, index_s, ker_saccrg)
+            zw1_tmp = index_float_s * (
+                index_float_r * ker_raccss.A[index_floor_s + 1, index_floor_r + 1]
+                + (1 - index_float_r) * ker_raccss.A[index_floor_s + 1, index_floor_r]
+            ) + (1 - index_float_s) * (
+                index_float_r * ker_raccss.A[index_floor_s, index_floor_r + 1]
+                + (1 - index_float_r) * ker_raccss.A[index_floor_s, index_floor_r]
+            )
+
+            zw2_tmp = index_float_s * (
+                index_float_r * ker_raccs.A[index_floor_s + 1, index_floor_r + 1]
+                + (1 - index_float_r) * ker_raccs.A[index_floor_s + 1, index_floor_r]
+            ) + (1 - index_float_s) * (
+                index_float_r * ker_raccs.A[index_floor_s, index_floor_r + 1]
+                + (1 - index_float_r) * ker_raccs.A[index_floor_s, index_floor_r]
+            )
+            
+            zw3_tmp = index_float_s * (
+                index_float_r * ker_saccrg.A[index_floor_s + 1, index_floor_r + 1]
+                + (1 - index_float_r) * ker_saccrg.A[index_floor_s + 1, index_floor_r]
+            ) + (1 - index_float_s) * (
+                index_float_r * ker_saccrg.A[index_floor_s, index_floor_r + 1]
+                + (1 - index_float_r) * ker_saccrg.A[index_floor_s, index_floor_r]
+            )
 
     #         # CALL INTERP_MICRO_2D
 

@@ -17,7 +17,6 @@ from ice3_gt4py.functions.interp_micro import (
     index_micro2d_dry_g,
     index_micro2d_dry_r,
     index_micro2d_dry_s,
-    interp_micro_2d,
 )
 
 
@@ -214,7 +213,13 @@ def ice4_fast_rg(
         if (not ldsoft) and gdry:
             index_floor_s, index_float_s = index_micro2d_dry_s(lbdas)
             index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
-            # zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
+            zw_tmp = index_float_g * (
+                index_float_s * ker_sdryg.A[index_floor_g + 1, index_floor_s + 1]
+                + (1 - index_float_s) * ker_sdryg.A[index_floor_g + 1, index_floor_s]
+            ) + (1 - index_float_g) * (
+                index_float_s * ker_sdryg.A[index_floor_g, index_floor_s + 1]
+                + (1 - index_float_s) * ker_sdryg.A[index_floor_g, index_floor_s]
+            )
 
     with computation(PARALLEL), interval(...):
         # Translation note : #ifdef REPRO48 l192 to l198 kept
@@ -248,7 +253,13 @@ def ice4_fast_rg(
         if not ldsoft:
             index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
             index_floor_r, index_float_r = index_micro2d_dry_r(lbdar)
-            # zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
+            zw_tmp = index_float_r * (
+                index_float_g * ker_rdryg.A[index_floor_r + 1, index_floor_g + 1]
+                + (1 - index_float_g) * ker_rdryg.A[index_floor_r + 1, index_floor_g]
+            ) + (1 - index_float_r) * (
+                index_float_g * ker_rdryg.A[index_floor_r, index_floor_g + 1]
+                + (1 - index_float_g) * ker_rdryg.A[index_floor_r, index_floor_g]
+            )
 
     # # l233
     with computation(PARALLEL), interval(...):
