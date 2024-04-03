@@ -24,13 +24,16 @@ def index_interp_micro_1d(
     """
 
     from __externals__ import NGAMINC, RIMINTP1, RIMINTP2
-
+    
+    index = max(1, min(NGAMINC - 1e-5, RIMINTP1 * log(zw) + RIMINTP2))
     # Real index for interpolation
-    return max(1, min(NGAMINC - 1e-5, RIMINTP1 * log(zw) + RIMINTP2))
+    return floor(index), index - floor(index)
 
 
 def interp_micro_1d(
-    index: Field["float"], lookup_table: GlobalTable[float, (80)]
+    index_floor: Field["int"], 
+    index_float: Field["float"], 
+    lookup_table: GlobalTable[float, (80)]
 ) -> Field["float"]:
     """Perform 1d interpolation on global table with index
 
@@ -42,11 +45,9 @@ def interp_micro_1d(
         Field[float]: interpolated value
     """
 
-    lut_index = floor(index)
-    floating_index = index - lut_index
     return (
-        floating_index * lookup_table.A[lut_index + 1]
-        + (1 - floating_index) * lookup_table.A[lut_index]
+        index_float * lookup_table.A[index_floor + 1]
+        + (1 - index_float) * lookup_table.A[index_floor]
     )
 
 
@@ -72,7 +73,8 @@ def index_micro2d_acc_r(lambda_r: Field["float"]) -> Field["float"]:
     )
 
     # Real index for interpolation
-    return max(1 + 1e-5, min(NACCLBDAR - 1e-5, ACCINTP1R * log(lambda_r) + ACCINTP2R))
+    index = max(1 + 1e-5, min(NACCLBDAR - 1e-5, ACCINTP1R * log(lambda_r) + ACCINTP2R))
+    return floor(index), index - floor(index)
 
 
 @ported_method(
@@ -95,7 +97,8 @@ def index_micro2d_acc_s(lambda_s: Field["float"]) -> Field["float"]:
         NACCLBDAS,
     )
 
-    return max(1 + 1e-5, min(NACCLBDAS - 1e-5, ACCINTP1S * log(lambda_s) + ACCINTP2S))
+    index =  max(1 + 1e-5, min(NACCLBDAS - 1e-5, ACCINTP1S * log(lambda_s) + ACCINTP2S))
+    return floor(index), index - floor(index)
 
 
 ################ DRY COLLECTION #####################
@@ -118,7 +121,8 @@ def index_micro2d_dry_g(lambda_g: Field["float"]) -> Field["float"]:
     )
 
     # Real index for interpolation
-    return max(1 + 1e-5, min(NDRYLBDAG - 1e-5, DRYINTP1G * log(lambda_g) + DRYINTP2G))
+    index = max(1 + 1e-5, min(NDRYLBDAG - 1e-5, DRYINTP1G * log(lambda_g) + DRYINTP2G))
+    return floor(index), index - floor(index)
 
 
 @function
@@ -138,7 +142,8 @@ def index_micro2d_dry_s(lambda_s: Field["float"]) -> Field["float"]:
         NDRYLBDAS,
     )
 
-    return max(1 + 1e-5, min(NDRYLBDAS - 1e-5, DRYINTP1S * log(lambda_s) + DRYINTP2S))
+    index = max(1 + 1e-5, min(NDRYLBDAS - 1e-5, DRYINTP1S * log(lambda_s) + DRYINTP2S))
+    return floor(index), index - floor(index)
 
 
 # (r) -> (g)
@@ -160,15 +165,16 @@ def index_micro2d_dry_r(lambda_r: Field["float"]) -> Field["float"]:
     )
 
     # Real index for interpolation
-    return max(1 + 1e-5, min(NDRYLBDAR - 1e-5, DRYINTP1R * log(lambda_r) + DRYINTP2R))
+    index = max(1 + 1e-5, min(NDRYLBDAR - 1e-5, DRYINTP1R * log(lambda_r) + DRYINTP2R))
+    return floor(index), index - floor(index)
 
 
 ### Look up + interpolation
-
-
 def interp_micro_2d(
-    index_r: Field["float"],
-    index_s: Field[float],
+    index_floor_r: Field["int"],
+    index_float_r: Field["float"],
+    index_floor_s: Field["int"],
+    index_float_s: Field["float"],
     lookup_table: GlobalTable[float, (40, 40)],
 ) -> Field["float"]:
     """Perform 1d interpolation on global table with index
@@ -183,13 +189,10 @@ def interp_micro_2d(
         Field[float]: interpolated value
     """
 
-    lut_index_r, lut_index_s = floor(index_r), floor(index_s)
-    floating_index_r, floating_index_s = index_r - lut_index_r, index_s - lut_index_s
-
-    return floating_index_s * (
-        floating_index_r * lookup_table.A[lut_index_s + 1, lut_index_r + 1]
-        + (1 - floating_index_r) * lookup_table.A[lut_index_s + 1, lut_index_r]
-    ) + (1 - floating_index_s) * (
-        floating_index_r * lookup_table.A[lut_index_s, lut_index_r + 1]
-        + (1 - floating_index_r) * lookup_table.A[lut_index_s, lut_index_r]
+    return index_float_s * (
+        index_float_r * lookup_table.A[index_floor_s + 1, index_floor_r + 1]
+        + (1 - index_float_r) * lookup_table.A[index_floor_s + 1, index_floor_r]
+    ) + (1 - index_float_s) * (
+        index_float_r * lookup_table.A[index_floor_s, index_floor_r + 1]
+        + (1 - index_float_r) * lookup_table.A[index_floor_s, index_floor_r]
     )
