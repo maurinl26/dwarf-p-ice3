@@ -30,27 +30,6 @@ def index_interp_micro_1d(
     return floor(index), index - floor(index)
 
 
-def interp_micro_1d(
-    index_floor: Field["int"], 
-    index_float: Field["float"], 
-    lookup_table: GlobalTable[float, (80)]
-) -> Field["float"]:
-    """Perform 1d interpolation on global table with index
-
-    Args:
-        index (Field[float]): index for interpolation table (integer index + offset)
-        lookup_table (GlobalTable[float, (80)]): lookup_table for value retrieval
-
-    Returns:
-        Field[float]: interpolated value
-    """
-
-    return (
-        index_float * lookup_table.A[index_floor + 1]
-        + (1 - index_float) * lookup_table.A[index_floor]
-    )
-
-
 ######################### Index 2D ###############################
 @ported_method(
     from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
@@ -168,31 +147,3 @@ def index_micro2d_dry_r(lambda_r: Field["float"]) -> Field["float"]:
     index = max(1 + 1e-5, min(NDRYLBDAR - 1e-5, DRYINTP1R * log(lambda_r) + DRYINTP2R))
     return floor(index), index - floor(index)
 
-
-### Look up + interpolation
-def interp_micro_2d(
-    index_floor_r: Field["int"],
-    index_float_r: Field["float"],
-    index_floor_s: Field["int"],
-    index_float_s: Field["float"],
-    lookup_table: GlobalTable[float, (40, 40)],
-) -> Field["float"]:
-    """Perform 1d interpolation on global table with index
-
-    (40, 40) = (NLBDAR, NBLDAS)
-
-    Args:
-        index (Field[float]): index for interpolation table (integer index + offset)
-        lookup_table (GlobalTable[float, (80)]): lookup_table for value retrieval
-
-    Returns:
-        Field[float]: interpolated value
-    """
-
-    return index_float_s * (
-        index_float_r * lookup_table.A[index_floor_s + 1, index_floor_r + 1]
-        + (1 - index_float_r) * lookup_table.A[index_floor_s + 1, index_floor_r]
-    ) + (1 - index_float_s) * (
-        index_float_r * lookup_table.A[index_floor_s, index_floor_r + 1]
-        + (1 - index_float_r) * lookup_table.A[index_floor_s, index_floor_r]
-    )
