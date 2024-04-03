@@ -64,9 +64,15 @@ def ice4_fast_rs(
     zw2_tmp: Field["float"],
     zw3_tmp: Field["float"],
     ldsoft: "bool",
+    index_floor: Field["int"],
+    index_float: Field["float"],
     gaminc_rim1: GlobalTable[float, (80)],
     gaminc_rim2: GlobalTable[float, (80)],
     gaminc_rim4: GlobalTable[float, (80)],
+    index_floor_s: Field["int"],
+    index_float_s: Field["float"],
+    index_floor_r: Field["int"],
+    index_float_r: Field["float"],
     ker_raccs: GlobalTable[float, (40, 40)],
     ker_raccss: GlobalTable[float, (40, 40)],
     ker_saccrg: GlobalTable[float, (40, 40)],
@@ -172,10 +178,10 @@ def ice4_fast_rs(
         if (not ldsoft) and grim_tmp:
             # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
             #                                    l90 to l123 kept
-            index = index_interp_micro_1d(zw_tmp)
-            # zw1_tmp = interp_micro_1d(index, gaminc_rim1)
-            # zw2_tmp = interp_micro_1d(index, gaminc_rim2)
-            # zw3_tmp = interp_micro_1d(index, gaminc_rim4)
+            index_floor, index_float = index_interp_micro_1d(zw_tmp)
+            # zw1_tmp = interp_micro_1d(index_floor, index_float, gaminc_rim1)
+            # zw2_tmp = interp_micro_1d(index_floor, index_float, gaminc_rim2)
+            # zw3_tmp = interp_micro_1d(index_floor, index_float, gaminc_rim4)
 
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
@@ -258,9 +264,8 @@ def ice4_fast_rs(
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
 
-            index_r = index_micro2d_acc_r(lbda_r)
-            index_s = index_micro2d_acc_s(lbda_s)
-
+            index_floor_r, index_float_r = index_micro2d_acc_r(lbda_r)
+            index_floor_s, index_float_s = index_micro2d_acc_s(lbda_s)
             # zw1_tmp = interp_micro_2d(index_r, index_s, ker_raccss)
             # zw2_tmp = interp_micro_2d(index_r, index_s, ker_raccs)
             # zw3_tmp = interp_micro_2d(index_r, index_s, ker_saccrg)
