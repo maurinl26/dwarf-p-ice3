@@ -59,9 +59,15 @@ def ice4_fast_rg(
     rdryg_init_tmp: Field["float"],
     rwetg_init_tmp: Field["float"],
     zw_tmp: Field["float"],  # ZZW in Fortran
-    ldsoft: "bool",  # bool to update tendencies
+    index_floor_s: Field["int"],
+    index_floor_g: Field["int"],
+    index_floor_r: Field["int"],
+    index_float_s: Field["float"],
+    index_float_g: Field["float"],
+    index_float_r: Field["float"],
     ker_sdryg: GlobalTable[float, (40, 40)],
     ker_rdryg: GlobalTable[float, (40, 40)],
+    ldsoft: "bool",  # bool to update tendencies
 ):
     """Compute fast graupel sources
 
@@ -162,7 +168,7 @@ def ice4_fast_rg(
                         ),
                     )
                     rrcfrig = zw0d * rrcfrig
-                    ricffr = (1 - zw0d) * rrcfrig
+                    ricfrr = (1 - zw0d) * rrcfrig
                     ricfrrg = zw0d * ricfrrg
 
                 else:
@@ -206,9 +212,9 @@ def ice4_fast_rg(
 
     with computation(PARALLEL), interval(...):
         if (not ldsoft) and gdry:
-            index_s = index_micro2d_dry_s(lbdas)
-            index_g = index_micro2d_dry_g(lbdag)
-    # #         # zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
+            index_floor_s, index_float_s = index_micro2d_dry_s(lbdas)
+            index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
+            # zw_tmp = interp_micro_2d(index_s, index_g, ker_sdryg)
 
     with computation(PARALLEL), interval(...):
         # Translation note : #ifdef REPRO48 l192 to l198 kept
@@ -240,8 +246,8 @@ def ice4_fast_rg(
 
     with computation(PARALLEL), interval(...):
         if not ldsoft:
-            index_g = index_micro2d_dry_g(lbdag)
-            index_r = index_micro2d_dry_r(lbdar)
+            index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
+            index_floor_r, index_float_r = index_micro2d_dry_r(lbdar)
             # zw_tmp = interp_micro_2d(index_g, index_r, ker_rdryg)
 
     # # l233
@@ -295,7 +301,6 @@ def ice4_fast_rg(
 
             # Growth mode
             # bool calculation :
-
             ldwetg = (
                 1
                 if (
