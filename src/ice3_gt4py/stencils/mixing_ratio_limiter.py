@@ -44,6 +44,7 @@ def mixing_ratio_step_limiter(
     rg_tnd_a: Field["float"],
     delta_t_micro: Field["float"],
     time_threshold_tmp: Field["float"],
+    ldcompute: Field["bool"]
 ):
     """_summary_
 
