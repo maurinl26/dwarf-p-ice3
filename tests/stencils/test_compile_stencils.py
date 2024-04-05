@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
-import itertools
 from ifs_physics_common.framework.stencil import compile_stencil
-from ice3_gt4py.drivers.config import default_python_config
-from ifs_physics_common.framework.config import GT4PyConfig
 import sys
 import logging
-
-from ice3_gt4py.phyex_common.phyex import Phyex
-from tests.utils.config import BACKEND_LIST
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -246,42 +240,23 @@ STENCIL_COLLECTIONS_WITH_EXTERNALS = {
 }
 
 
-def test_ice_adjust_stencils():
-    """Compile the list of stencils with given backend"""
+def build(externals, backend, config, stencil_collection):
+    """Compile stencils given externals, backends and config
 
-    def _build(externals, backend, config, stencil_collection):
-        """Compile stencils given externals, backends and config
-
-        Args:
-            externals (_type_): list of externals
-            backend (_type_): backend for gt4py
-            config (_type_): gt4py config (including precision)
-            stencil_collection (_type_): stencil_collection to compile
-        """
-        try:
-            _ = compile_stencil(stencil_collection, config, externals=externals)
-        except:
-            logging.info(
-                f"Building {stencil_collection}, on {backend} : Compilation Failed"
-            )
-
-        else:
-            logging.info(
-                f"Building {stencil_collection}, on {backend} : Compilation Succeded \n"
-            )
-
-    # Compiling with phyex externals
-    for backend, stencil_collection in itertools.product(
-        ["numpy"], STENCIL_COLLECTIONS
-    ):
-
-        logging.info("Building with Phyex externals")
-        config = GT4PyConfig(
-            backend=backend, rebuild=True, validate_args=True, verbose=True
+    Args:
+        externals (_type_): list of externals
+        backend (_type_): backend for gt4py
+        config (_type_): gt4py config (including precision)
+        stencil_collection (_type_): stencil_collection to compile
+    """
+    try:
+        _ = compile_stencil(stencil_collection, config, externals=externals)
+    except:
+        logging.info(
+            f"Building {stencil_collection}, on {backend} : Compilation Failed"
         )
-        phyex = Phyex("AROME")
-        _build(phyex.to_externals(), backend, config, stencil_collection)
 
-
-if __name__ == "__main__":
-    test_ice_adjust_stencils()
+    else:
+        logging.info(
+            f"Building {stencil_collection}, on {backend} : Compilation Succeded \n"
+        )
