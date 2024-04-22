@@ -116,14 +116,3 @@ def build_component(
 
     except:
         logging.error(f"Failed for backend {backend}")
-
-
-if __name__ == "__main__":
-
-    from ice3_gt4py.components.aro_adjust import AroAdjust
-    from ice3_gt4py.components.aro_filter import AroFilter
-    from ice3_gt4py.components.ice_adjust import IceAdjust
-    from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
-
-    logging.info("Testing AroAdjust on numpy backend")
-    build_component("numpy", AroAdjust)
