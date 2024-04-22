@@ -14,11 +14,13 @@ from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.stencil import compile_stencil
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+from ifs_physics_common.utils.f2py import ported_method
+
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
-class Ice4Stepping(ImplicitTendencyComponent):
+class Ice4Tendencies(ImplicitTendencyComponent):
     """Implicit Tendency Component calling
     ice_adjust : saturation adjustment of temperature and mixing ratios
 
@@ -159,6 +161,108 @@ class Ice4Stepping(ImplicitTendencyComponent):
             self.ice4_tendencies_update()
 
 
+class Ice4StepLimiter(ImplicitTendencyComponent):
+    """Component for step computation"""
+
+    def __init__(
+        self,
+        computational_grid: ComputationalGrid,
+        gt4py_config: GT4PyConfig,
+        phyex: Phyex,
+        *,
+        enable_checks: bool = True,
+    ) -> None:
+        super().__init__(
+            computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
+        )
+
+        externals = {}
+        externals.update(asdict(phyex.nebn))
+        externals.update(asdict(phyex.cst))
+        externals.update(asdict(phyex.param_icen))
+        externals.update(
+            {
+                "nrr": 6,
+                "criautc": 0,
+                "acriauti": 0,
+                "bcriauti": 0,
+                "criauti": 0,
+            }
+        )
+
+        # Stencil collections
+        self.tmicro_init = compile_stencil("ice4_stepping_tmicro_init", externals)
+        self.tsoft_init = compile_stencil("ice4_stepping_tsoft_init", externals)
+        self.ice4_stepping_heat = compile_stencil("ice4_stepping_heat", externals)
+        self.ice4_step_limiter = compile_stencil("step_limiter", externals)
+        self.ice4_mixing_ratio_step_limiter = compile_stencil(
+            "mixing_ratio_step_limiter", externals
+        )
+        self.ice4_state_update = compile_stencil("state_update", externals)
+        self.external_tendencies_update = compile_stencil(
+            "external_tendencies_update", externals
+        )
+
+        # Component for tendency update
+        self.ice4_tendencies = Ice4Tendencies(
+            self.computational_grid, self.gt4py_config, phyex
+        )
+
+    @cached_property
+    def _input_properties(self) -> PropertyDict:
+        return {}
+
+    @cached_property
+    def _tendency_properties(self) -> PropertyDict:
+        return {}
+
+    @cached_property
+    def _diagnostic_properties(self) -> PropertyDict:
+        return {}
+
+    @cached_property
+    def _temporaries(self) -> PropertyDict:
+        return {}
+
+    @ported_method(
+        from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+        from_line=214,
+        to_line=438,
+    )
+    def array_call(self, state: NDArrayLikeDict, timestep: timedelta):
+
+        # Translation note : Ice4Stepping is implemented assuming PARAMI%XTSTEP_TS = 0
+        #                   l225 to l229 omitted
+        #                   l334 to l341 omitted
+        #                   l174 to l178 omitted
+
+        # l214 to l221
+        self.tmicro_init()
+
+        # TODO while t < TSTEP
+        # TODO while ldcompute
+
+        # l249 to l254
+        self.ice4_stepping_heat()
+
+        # l261
+        self.ice4_tendencies()
+
+        # l277 to l283
+        self.external_tendencies_update()
+
+        # l290 to l332
+        self.ice4_step_limiter()
+
+        # l346 to l388
+        self.ice4_mixing_ratio_step_limiter()
+
+        # l394 to l404
+        self.ice4_state_update()
+
+        # TODO : next loop
+
+
 def ice4_stepping(externals):
     """Stepping function from Phyex / ice4"""
 
@@ -175,8 +279,10 @@ def ice4_stepping(externals):
 
     # Tendencies stencils
     # ice4_tendencies(externals)
+    # Ice4Tendencies.array_call(**tnd, **diag, **tmp)
 
     # TODO : add possibility to update external tendencies
+    # TODO : merge step limiters
     ice4_step_limiter = compile_stencil("step_limiter", externals)
     ice4_mixing_ratio_step_limiter = compile_stencil(
         "mixing_ratio_step_limiter", externals
