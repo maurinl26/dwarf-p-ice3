@@ -8,7 +8,7 @@ from ifs_physics_common.utils.f2py import ported_method
 
 @ported_method(from_file="PHYEX/src/common/micro/ice4_nucleation.func.h")
 @stencil_collection("ice4_nucleation")
-def ice4_fast_rg(
+def ice4_nucleation(
     ldcompute: Field["bool"],
     tht: Field["float"],
     pabs_t: Field["float"],
@@ -27,7 +27,7 @@ def ice4_fast_rg(
     """Compute nucleation
 
     Args:
-        ldcompute (Field[bool]): _description_
+        ldcompute (Field[bool]): compuation mask for microphysical sources
         tht (Field[float]): potential temperature at t
         pabs_t (Field[float]): absolute pressure at t
         rhodref (Field[float]): reference density
