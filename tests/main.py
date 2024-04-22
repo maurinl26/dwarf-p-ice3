@@ -33,6 +33,7 @@ def test_compile_stencils(backend: str):
 
 @app.command()
 def test_components(backend: str):
+    """Test ImplicitTendencyComponents for parts of model"""
 
     from ice3_gt4py.components.aro_adjust import AroAdjust
 
