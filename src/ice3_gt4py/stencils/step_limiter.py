@@ -8,7 +8,11 @@ from ifs_physics_common.utils.f2py import ported_method
 from ice3_gt4py.functions.stepping import mixing_ratio_step_limiter
 
 
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90")
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+    from_line=290,
+    to_line=332,
+)
 @stencil_collection("step_limiter")
 def step_limiter(
     exn: Field["float"],
@@ -145,7 +149,7 @@ def state_update(
     delta_t_micro: Field["float"],
     ldmicro: Field["bool"],
     ci_t: Field["float"],
-    t_micro: Field["float"]
+    t_micro: Field["float"],
 ):
     """Update values of guess of potential temperature and mixing ratios after each step
 
