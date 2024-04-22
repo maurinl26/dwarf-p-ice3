@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 import logging
-from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 import sys
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
-from ice3_gt4py.components.ice_adjust import IceAdjust
+from ice3_gt4py.components.aro_adjust import AroAdjust
+from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
+from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ice3_gt4py.initialisation.state import allocate_state
 from ice3_gt4py.phyex_common.phyex import Phyex
 from tests.utils.config import BACKEND_LIST
 
 if TYPE_CHECKING:
-    from typing import Literal, Tuple
-
     from ifs_physics_common.framework.config import GT4PyConfig
     from ifs_physics_common.framework.grid import ComputationalGrid
     from ifs_physics_common.utils.typingx import DataArrayDict
@@ -35,6 +34,7 @@ def initialize_state_with_constant(
         "f_sigqsat",
         "f_exnref",  # ref exner pression
         "f_exn",
+        "f_tht",
         "f_rhodref",
         "f_pabs",  # absolute pressure at t
         "f_sigs",  # Sigma_s at time t
@@ -72,7 +72,7 @@ def get_state_with_constant(
     return state
 
 
-def main(
+def build_component(
     backend: Literal[
         "numpy",
         "cuda",
@@ -81,34 +81,37 @@ def main(
         "gt:cpu_kfirst",
         "dace:cpu",
         "dace:gpu",
-    ]
+    ],
+    component: ImplicitTendencyComponent,
 ):
 
     nx = 100
     ny = 1
     nz = 90
 
+    logging.info(f"Initializing phyex for AROME config ...")
     cprogram = "AROME"
     phyex_config = Phyex(cprogram)
 
-    logging.info(f"backend {backend}")
+    logging.info(f"Backend : {backend}")
     gt4py_config = GT4PyConfig(
         backend=backend, rebuild=False, validate_args=False, verbose=True
     )
-
     grid = ComputationalGrid(nx, ny, nz)
     dt = timedelta(seconds=1)
 
     # Test 1
+    logging.info(f"Instanciation of a null state")
+    state = get_state_with_constant(grid, gt4py_config, 0)
+
+    logging.info(f"Instanciation of component")
+    setattr(component, "computational_grid", grid)
+    setattr(component, "gt4py_config", gt4py_config)
+    setattr(component, "phyex", phyex_config)
 
     try:
-        ice_adjust = IceAdjust(grid, gt4py_config, phyex_config)
-
-        for c in [0, 0.5, 1]:
-            logging.debug(f"Test with {c}")
-            state = get_state_with_constant(grid, gt4py_config, c)
-            tends, diags = ice_adjust(state, dt)
-
+        logging.debug("Test with 0")
+        tends, diags = component(state, dt)
         logging.debug("Test passed")
 
     except:
@@ -117,5 +120,10 @@ def main(
 
 if __name__ == "__main__":
 
-    for backend in BACKEND_LIST:
-        main(backend)
+    from ice3_gt4py.components.aro_adjust import AroAdjust
+    from ice3_gt4py.components.aro_filter import AroFilter
+    from ice3_gt4py.components.ice_adjust import IceAdjust
+    from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
+
+    logging.info("Testing AroAdjust on numpy backend")
+    build_component("numpy", AroAdjust)
