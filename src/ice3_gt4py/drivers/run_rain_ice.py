@@ -43,6 +43,9 @@ if __name__ == "__main__":
         backend=BACKEND, rebuild=True, validate_args=False, verbose=True
     )
 
+    ######### State and field declaration ######
+    global_state = {"ldcompute": ones((nx, ny, nz), backend=BACKEND, dtype=bool)}
+
     ############## t_micro_init ################
     logging.info("t_micro_init")
     t_micro_init = compile_stencil("ice4_stepping_tmicro_init", gt4py_config, externals)
@@ -51,8 +54,6 @@ if __name__ == "__main__":
         "t_micro": ones((nx, ny, nz), backend=BACKEND),
         "ldmicro": ones((nx, ny, nz), backend=BACKEND, dtype=bool),
     }
-
-    global_state = {"ldcompute": ones((nx, ny, nz), backend=BACKEND, dtype=bool)}
 
     t_micro_init(**state_t_micro_init)
 
