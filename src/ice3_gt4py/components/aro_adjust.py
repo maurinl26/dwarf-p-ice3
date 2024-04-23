@@ -12,7 +12,9 @@ from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
+from gt4py.storage import zeros
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+import numpy as np
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 
@@ -45,11 +47,11 @@ class AroAdjust(ImplicitTendencyComponent):
         externals.update(asdict(phyex.param_icen))
         externals.update(
             {
-                "nrr": 6,
-                "criautc": 0,
-                "acriauti": 0,
-                "bcriauti": 0,
-                "criauti": 0,
+                "NRR": 6,
+                "CRIAUTC": 0,
+                "ACRIAUTI": 0,
+                "BCRIAUTI": 0,
+                "CRIAUTI": 0,
             }
         )
 
@@ -151,7 +153,7 @@ class AroAdjust(ImplicitTendencyComponent):
     ) -> None:
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 22),
+            *repeat(((I, J, K), "float"), 23),
             gt4py_config=self.gt4py_config,
         ) as (
             rt,
@@ -176,6 +178,7 @@ class AroAdjust(ImplicitTendencyComponent):
             t_tmp,
             cor_tmp,
             cph_tmp,
+            inq1,
         ):
             input_filter_keys = ["f_exnref", "f_tht"]
 
@@ -240,6 +243,50 @@ class AroAdjust(ImplicitTendencyComponent):
             tendencies.pop("rss")
             tendencies.pop("rgs")
 
+            # Global Table
+            # Translation note : src_1d is ZSRC_1D in condensation.F90
+            src_1d = zeros(
+                shape=(1, 34), dtype=float, backend=self.gt4py_config.backend
+            )
+            src_1d[...] = np.array(
+                [
+                    0.0,
+                    0.0,
+                    2.0094444e-04,
+                    0.316670e-03,
+                    4.9965648e-04,
+                    0.785956e-03,
+                    1.2341294e-03,
+                    0.193327e-02,
+                    3.0190963e-03,
+                    0.470144e-02,
+                    7.2950651e-03,
+                    0.112759e-01,
+                    1.7350994e-02,
+                    0.265640e-01,
+                    4.0427860e-02,
+                    0.610997e-01,
+                    9.1578111e-02,
+                    0.135888e00,
+                    0.1991484,
+                    0.230756e00,
+                    0.2850565,
+                    0.375050e00,
+                    0.5000000,
+                    0.691489e00,
+                    0.8413813,
+                    0.933222e00,
+                    0.9772662,
+                    0.993797e00,
+                    0.9986521,
+                    0.999768e00,
+                    0.9999684,
+                    0.999997e00,
+                    1.0000000,
+                    1.000000,
+                ]
+            )
+
             diagnostics = {
                 name.split("_", maxsplit=1)[1]: out_diagnostics[name]
                 for name in self.diagnostic_properties
@@ -265,6 +312,7 @@ class AroAdjust(ImplicitTendencyComponent):
                 "ri_tmp": ri_tmp,
                 "rc_tmp": rc_tmp,
                 "t_tmp": t_tmp,
+                "src_1d": src_1d,
             }
 
             # Condensation adjustments
