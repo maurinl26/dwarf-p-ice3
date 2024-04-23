@@ -15,12 +15,12 @@ def ice4_fast_ri(
     ls_fact: Field["float"],
     ai: Field["float"],
     cj: Field["float"],
-    ci_in: Field["float"],
+    ci_t: Field["float"],
     ssi: Field["float"],
-    rc_in: Field["float"],
-    ri_in: Field["float"],
+    rc_t: Field["float"],
+    ri_t: Field["float"],
     rc_beri_tnd: Field["float"],
-    ldsoft: Field["bool"],
+    ldsoft: "bool",
 ):
     """Computes Bergeron-Findeisen effect RCBERI.
 
@@ -34,8 +34,8 @@ def ice4_fast_ri(
         cj (Field[float]): function to compute ventilation factor
         ci_t (Field[float]): _description_
         ssi (Field[float]): supersaturation over ice
-        rc_in (Field[float]): cloud droplets mixing ratio at t
-        ri_in (Field[float]): pristine ice mixing ratio at t
+        rc_t (Field[float]): cloud droplets mixing ratio at t
+        ri_t (Field[float]): pristine ice mixing ratio at t
         rc_beri_tnd (Field[float]): tendency for Bergeron Findeisen effect
     """
 
@@ -46,17 +46,17 @@ def ice4_fast_ri(
         if not ldsoft:
             if (
                 ssi > 0
-                and rc_in > C_RTMIN
-                and ri_in > I_RTMIN
-                and ci_in > 1e-20
+                and rc_t > C_RTMIN
+                and ri_t > I_RTMIN
+                and ci_t > 1e-20
                 and ldcompute
             ):
                 rc_beri_tnd = min(
-                    1e-8, LBI * (rhodref * ri_in / ci_in) ** LBEXI
+                    1e-8, LBI * (rhodref * ri_t / ci_t) ** LBEXI
                 )  # lambda_i
                 rc_beri_tnd = (
                     (ssi / (rhodref * ai))
-                    * ci_in
+                    * ci_t
                     * (O0DEPI / rc_beri_tnd + O2DEPI * cj / rc_beri_tnd ** (DI + 2.0))
                 )
 
