@@ -8,6 +8,8 @@ from functools import cached_property
 from itertools import repeat
 from typing import Dict
 
+from gt4py.storage import from_array, ones
+
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
@@ -17,6 +19,11 @@ from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 import numpy as np
 
 from ice3_gt4py.phyex_common.phyex import Phyex
+import sys
+from ice3_gt4py.phyex_common.tables import src_1d
+
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
 
 
 class AroAdjust(ImplicitTendencyComponent):
@@ -41,19 +48,7 @@ class AroAdjust(ImplicitTendencyComponent):
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
         )
 
-        externals = {}
-        externals.update(asdict(phyex.nebn))
-        externals.update(asdict(phyex.cst))
-        externals.update(asdict(phyex.param_icen))
-        externals.update(
-            {
-                "NRR": 6,
-                "CRIAUTC": 0,
-                "ACRIAUTI": 0,
-                "BCRIAUTI": 0,
-                "CRIAUTI": 0,
-            }
-        )
+        externals = phyex.to_externals()
 
         # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
         self.aro_filter = self.compile_stencil("aro_filter", externals)
@@ -64,55 +59,55 @@ class AroAdjust(ImplicitTendencyComponent):
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "f_sigqsat": {
+            "sigqsat": {
                 "grid": (I, J, K),
                 "units": "",
             },  # coeff applied to qsat variance
-            "f_exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
-            "f_exn": {"grid": (I, J, K), "units": ""},
-            "f_rhodref": {"grid": (I, J, K), "units": ""},  #
-            "f_pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
-            "f_sigs": {"grid": (I, J, K), "units": ""},  # Sigma_s at time t
-            "f_cf_mf": {
+            "exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
+            "exn": {"grid": (I, J, K), "units": ""},
+            "rhodref": {"grid": (I, J, K), "units": ""},  #
+            "pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
+            "sigs": {"grid": (I, J, K), "units": ""},  # Sigma_s at time t
+            "cmf": {
                 "grid": (I, J, K),
                 "units": "",
             },  # convective mass flux fraction
-            "f_rc_mf": {
+            "rc_mf": {
                 "grid": (I, J, K),
                 "units": "",
             },  # convective mass flux liquid mixing ratio
-            "f_ri_mf": {"grid": (I, J, K), "units": ""},
-            "f_tht": {"grid": (I, J, K), "units": ""},
+            "ri_mf": {"grid": (I, J, K), "units": ""},
+            "tht": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
         return {
-            "f_ths": {"grid": (I, J, K), "units": ""},
-            "f_rvs": {"grid": (I, J, K), "units": ""},  # PRS(1)
-            "f_rcs": {"grid": (I, J, K), "units": ""},  # PRS(2)
-            "f_ris": {"grid": (I, J, K), "units": ""},  # PRS(4)
-            "f_rrs": {"grid": (I, J, K), "units": ""},
-            "f_rss": {"grid": (I, J, K), "units": ""},
-            "f_rgs": {"grid": (I, J, K), "units": ""},
-            "f_th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
-            "f_rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
-            "f_rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
-            "f_rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
-            "f_ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
-            "f_rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
-            "f_rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
-            "f_cldfr": {"grid": (I, J, K), "units": ""},
+            "ths": {"grid": (I, J, K), "units": ""},
+            "rvs": {"grid": (I, J, K), "units": ""},  # PRS(1)
+            "rcs": {"grid": (I, J, K), "units": ""},  # PRS(2)
+            "ris": {"grid": (I, J, K), "units": ""},  # PRS(4)
+            "rrs": {"grid": (I, J, K), "units": ""},
+            "rss": {"grid": (I, J, K), "units": ""},
+            "rgs": {"grid": (I, J, K), "units": ""},
+            "th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
+            "rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
+            "rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
+            "rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
+            "ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
+            "rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
+            "rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
+            "cldfr": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
         return {
-            "f_ifr": {"grid": (I, J, K), "units": ""},
-            "f_hlc_hrc": {"grid": (I, J, K), "units": ""},
-            "f_hlc_hcf": {"grid": (I, J, K), "units": ""},
-            "f_hli_hri": {"grid": (I, J, K), "units": ""},
-            "f_hli_hcf": {"grid": (I, J, K), "units": ""},
+            "ifr": {"grid": (I, J, K), "units": ""},
+            "hlc_hrc": {"grid": (I, J, K), "units": ""},
+            "hlc_hcf": {"grid": (I, J, K), "units": ""},
+            "hli_hri": {"grid": (I, J, K), "units": ""},
+            "hli_hcf": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
@@ -180,150 +175,259 @@ class AroAdjust(ImplicitTendencyComponent):
             cph_tmp,
             inq1,
         ):
-            input_filter_keys = ["f_exnref", "f_tht"]
 
-            tendencies_filter_keys = [
-                "f_ths",
-                "f_rvs",
-                "f_rcs",
-                "f_ris",
-                "f_rrs",
-                "f_rss",
-                "f_rgs",
-            ]
+            ############## AroFilter - Compilation ################
+            logging.info(f"Compilation for aro_filter")
+            # aro_filter = compile_stencil("aro_filter", gt4py_config, externals)
 
-            logging.debug(f"State : {state.keys()}")
-            input_filter = {
-                name.split("_", maxsplit=1)[1]: state[name]
-                for name in input_filter_keys
-            }
-
-            logging.debug(f"Out tendencies : {out_tendencies.keys()}")
-            tendencies_filter = {
-                name.split("_", maxsplit=1)[1]: out_tendencies[name]
-                for name in tendencies_filter_keys
+            ############## AroFilter - State ####################
+            state_filter = {
+                "exnref": ones(
+                    self.computational_grid.grids[(I, J, K)].shape,
+                    backend=self.gt4py_config.backend,
+                ),
+                "tht": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ths": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rcs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rrs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ris": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rvs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rgs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rss": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
             }
 
             temporaries_filter = {
-                "cor_tmp": cor_tmp,  # ZCOR in aro_adjust.f90
-                "cph_tmp": cph_tmp,
-                "t_tmp": t_tmp,
-                "lv_tmp": lv,
-                "ls_tmp": ls,
+                "t_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ls_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "lv_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "cph_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "cor_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
             }
 
-            logging.debug("Launching aro_filter")
-            self.aro_filter(
-                **input_filter,
-                **tendencies_filter,
-                # **diagnostics_filter,
-                **temporaries_filter,
-                dt=timestep.total_seconds(),
-                origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
-            )
-            logging.debug("aro_filter passed")
+            # timestep
+            dt = 1.0
+            self.aro_filter(dt=dt, **state_filter, **temporaries_filter)
 
-            inputs = {
-                name.split("_", maxsplit=1)[1]: state[name]
-                for name in self.input_properties
+            ############## IceAdjust - Compilation ####################
+            # logging.info(f"Compilation for ice_adjust")
+            # ice_adjust = compile_stencil("ice_adjust", gt4py_config, externals)
+
+            ############## IceAdjust - State ##########################
+            state_ice_adjust = {
+                "sigqsat": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "exn": state_filter["exnref"],
+                "exnref": state_filter["exnref"],
+                "rhodref": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "pabs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "sigs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "cmf": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rc_mf": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ri_mf": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "th": state_filter["tht"],
+                "rv": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rc": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ri": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rr": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rs": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rg": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ths": state_filter["ths"],
+                "rvs": state_filter["rvs"],
+                "rcs": state_filter["rcs"],
+                "ris": state_filter["ris"],
+                "cldfr": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ifr": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "hlc_hrc": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "hlc_hcf": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "hli_hri": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "hli_hcf": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "sigrc": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rv_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ri_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rc_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "t_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "cph": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "lv": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "ls": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "criaut": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "rt": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "pv": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "piv": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "qsl": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "qsi": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "frac_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "cond_tmp": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "a": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "sbar": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "sigma": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "q1": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                ),
+                "inq1": ones(
+                    (self.computational_grid.grids[(I, J, K)].shape),
+                    backend=self.gt4py_config.backend,
+                    dtype=np.int64,
+                ),
             }
-            # drop fields used for filtering
-            inputs.pop("tht")
-
-            tendencies = {
-                name.split("_", maxsplit=1)[1]: out_tendencies[name]
-                for name in self.tendency_properties
-            }
-
-            # drop fields used for filtering
-            tendencies.pop("rrs")
-            tendencies.pop("rss")
-            tendencies.pop("rgs")
 
             # Global Table
-            # Translation note : src_1d is ZSRC_1D in condensation.F90
-            src_1d = zeros(
-                shape=(1, 34), dtype=float, backend=self.gt4py_config.backend
-            )
-            src_1d[...] = np.array(
-                [
-                    0.0,
-                    0.0,
-                    2.0094444e-04,
-                    0.316670e-03,
-                    4.9965648e-04,
-                    0.785956e-03,
-                    1.2341294e-03,
-                    0.193327e-02,
-                    3.0190963e-03,
-                    0.470144e-02,
-                    7.2950651e-03,
-                    0.112759e-01,
-                    1.7350994e-02,
-                    0.265640e-01,
-                    4.0427860e-02,
-                    0.610997e-01,
-                    9.1578111e-02,
-                    0.135888e00,
-                    0.1991484,
-                    0.230756e00,
-                    0.2850565,
-                    0.375050e00,
-                    0.5000000,
-                    0.691489e00,
-                    0.8413813,
-                    0.933222e00,
-                    0.9772662,
-                    0.993797e00,
-                    0.9986521,
-                    0.999768e00,
-                    0.9999684,
-                    0.999997e00,
-                    1.0000000,
-                    1.000000,
-                ]
-            )
+            logging.info("GlobalTable")
+            # src_1d = zeros(shape=(34,),  backend=self.gt4py_config.backend, dtype=np.float64),
+            src_1D = from_array(src_1d, backend=self.gt4py_config.backend)
 
-            diagnostics = {
-                name.split("_", maxsplit=1)[1]: out_diagnostics[name]
-                for name in self.diagnostic_properties
-            }
-            temporaries = {
-                "rt": rt,
-                "pv": pv,
-                "piv": piv,
-                "qsl": qsl,
-                "qsi": qsi,
-                "frac_tmp": frac_tmp,
-                "cond_tmp": cond_tmp,
-                "a": a,
-                "sbar": sbar,
-                "sigma": sigma,
-                "q1": q1,
-                "lv": lv,
-                "ls": ls,
-                "cph": cph,
-                "criaut": criaut,
-                "sigrc": sigrc,
-                "rv_tmp": rv_tmp,
-                "ri_tmp": ri_tmp,
-                "rc_tmp": rc_tmp,
-                "t_tmp": t_tmp,
-                "src_1d": src_1d,
-            }
-
-            # Condensation adjustments
-            self.ice_adjust(
-                **inputs,
-                **tendencies,
-                **diagnostics,
-                **temporaries,
-                dt=timestep.total_seconds(),
-                origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
-            )
+            # Timestep
+            dt = 1.0
+            self.ice_adjust(dt=dt, src_1d=src_1D, **state_ice_adjust)
