@@ -32,8 +32,8 @@ def ice4_fast_rs(
     dv: Field["float"],  # diffusivity of water vapor in the air
     ka: Field["float"],  # thermal conductivity of the air
     cj: Field["float"],  # function to compute the ventilation coefficient
-    lbda_r: Field["float"],  # Slope parameter for rain distribution
-    lbda_s: Field["float"],  # Slope parameter for snow distribution
+    lbdar: Field["float"],  # Slope parameter for rain distribution
+    lbdas: Field["float"],  # Slope parameter for snow distribution
     t: Field["float"],  # Temperature
     rv_t: Field["float"],  # vapour m.r. at t
     rc_t: Field["float"],
@@ -142,7 +142,7 @@ def ice4_fast_rs(
             # Translation note l119 to l122 removed #else REPRO48
 
             rs_freez1_tnd *= (
-                O0DEPS * lbda_s**EX0DEPS + O1DEPS * cj * lbda_s**EX1DEPS
+                O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS
             ) / (rhodref * (LMTT - CL * (TT - t)))
             rs_freez2_tnd = (rhodref * (LMTT + (CI - CL) * (TT - t))) / (
                 rhodref * (LMTT - CL * (TT - t))
@@ -159,7 +159,7 @@ def ice4_fast_rs(
     # 5.1 cloud droplet riming of the aggregates
     with computation(PARALLEL), interval(...):
         if rc_t > C_RTMIN and rs_t > S_RTMIN and ldcompute:
-            zw_tmp = lbda_s
+            zw_tmp = lbdas
 
             # Translation note : l144 kept
             #                    l146 removed
@@ -178,9 +178,18 @@ def ice4_fast_rs(
             # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
             #                                    l90 to l123 kept
             index_floor, index_float = index_interp_micro_1d(zw_tmp)
-            zw1_tmp = index_float * gaminc_rim1.A[index_floor + 1] + (1 - index_float) * gaminc_rim1.A[index_floor]
-            zw2_tmp = index_float * gaminc_rim2.A[index_floor + 1] + (1 - index_float) * gaminc_rim2.A[index_floor]
-            zw3_tmp = index_float * gaminc_rim4.A[index_floor + 1] + (1 - index_float) * gaminc_rim4.A[index_floor]
+            zw1_tmp = (
+                index_float * gaminc_rim1.A[index_floor + 1]
+                + (1 - index_float) * gaminc_rim1.A[index_floor]
+            )
+            zw2_tmp = (
+                index_float * gaminc_rim2.A[index_floor + 1]
+                + (1 - index_float) * gaminc_rim2.A[index_floor]
+            )
+            zw3_tmp = (
+                index_float * gaminc_rim4.A[index_floor + 1]
+                + (1 - index_float) * gaminc_rim4.A[index_floor]
+            )
 
     # 5.1.4 riming of the small sized aggregates
     with computation(PARALLEL), interval(...):
@@ -188,7 +197,7 @@ def ice4_fast_rs(
             # Translation note : #ifdef REPRO48 l170 to l172 kept
             #                                   l174 to l178 removed
             rs_rcrimss_tnd = (
-                CRIMSS * zw1_tmp * rc_t * lbda_s**EXCRIMSS * rhodref ** (-CEXVT)
+                CRIMSS * zw1_tmp * rc_t * lbdas**EXCRIMSS * rhodref ** (-CEXVT)
             )
 
     # 5.1.6 riming convesion of the large size aggregates
@@ -196,7 +205,7 @@ def ice4_fast_rs(
         if grim_tmp:
             # Translation note : #ifdef REPRO48 l189 to l191 kept
             #                                   l193 to l197 removed
-            rs_rcrims_tnd = CRIMSG * rc_t * lbda_s**EXCRIMSG * rhodref ** (-CEXVT)
+            rs_rcrims_tnd = CRIMSG * rc_t * lbdas**EXCRIMSG * rhodref ** (-CEXVT)
 
     # if parami  csnowriming == M90
     with computation(PARALLEL), interval(...):
@@ -207,7 +216,7 @@ def ice4_fast_rs(
                 zw_tmp = rs_rsrimcg_tnd - rs_rcrimss_tnd
                 # Translation note : #ifdef REPRO48 l208 kept
                 #                                   l210 and l211 removed
-                rs_rsrimcg_tnd = SRIMCG * lbda_s**EXSRIMCG * (1 - zw2_tmp)
+                rs_rsrimcg_tnd = SRIMCG * lbdas**EXSRIMCG * (1 - zw2_tmp)
 
                 # Translation note : #ifdef REPRO48 l214 to l217 kept
                 #                                   l219 to l223 removed
@@ -216,7 +225,7 @@ def ice4_fast_rs(
                     * rs_rsrimcg_tnd
                     / max(
                         1e-20,
-                        SRIMCG3 * SRIMCG2 * lbda_s**EXSRIMCG2 * (1 - zw3_tmp)
+                        SRIMCG3 * SRIMCG2 * lbdas**EXSRIMCG2 * (1 - zw3_tmp)
                         - SRIMCG3 * rs_rsrimcg_tnd,
                     )
                 )
@@ -263,8 +272,8 @@ def ice4_fast_rs(
             rs_rraccss_tnd = 0
             rs_rsaccrg_tnd = 0
 
-            index_floor_r, index_float_r = index_micro2d_acc_r(lbda_r)
-            index_floor_s, index_float_s = index_micro2d_acc_s(lbda_s)
+            index_floor_r, index_float_r = index_micro2d_acc_r(lbdar)
+            index_floor_s, index_float_s = index_micro2d_acc_s(lbdas)
             zw1_tmp = index_float_s * (
                 index_float_r * ker_raccss.A[index_floor_s + 1, index_floor_r + 1]
                 + (1 - index_float_r) * ker_raccss.A[index_floor_s + 1, index_floor_r]
@@ -280,7 +289,7 @@ def ice4_fast_rs(
                 index_float_r * ker_raccs.A[index_floor_s, index_floor_r + 1]
                 + (1 - index_float_r) * ker_raccs.A[index_floor_s, index_floor_r]
             )
-            
+
             zw3_tmp = index_float_s * (
                 index_float_r * ker_saccrg.A[index_floor_s + 1, index_floor_r + 1]
                 + (1 - index_float_r) * ker_saccrg.A[index_floor_s + 1, index_floor_r]
@@ -299,14 +308,14 @@ def ice4_fast_rs(
 
             zw_tmp = (
                 FRACCSS
-                * (lbda_s**CXS)
+                * (lbdas**CXS)
                 * (rhodref ** (-CEXVT))
                 * (
-                    LBRACCS1 / (lbda_s**2)
-                    + LBRACCS2 / (lbda_s * lbda_r)
-                    + LBRACCS3 / (lbda_r**2)
+                    LBRACCS1 / (lbdas**2)
+                    + LBRACCS2 / (lbdas * lbdar)
+                    + LBRACCS3 / (lbdar**2)
                 )
-                / lbda_r**4
+                / lbdar**4
             )
 
     # 5.2.6 raindrop accretion-conversion of the large sized aggregates
@@ -315,14 +324,14 @@ def ice4_fast_rs(
             rs_rsaccrg_tnd = (
                 FSACCRG
                 * zw3_tmp
-                * (lbda_s ** (CXS - BS))
+                * (lbdas ** (CXS - BS))
                 * (rhodref ** (-CEXVT - 1))
                 * (
-                    LBSACCR1 / (lbda_s**2)
-                    + LBSACCR2 / (lbda_r * lbda_s)
-                    + LBSACCR3 / (lbda_s**2)
+                    LBSACCR1 / (lbdas**2)
+                    + LBSACCR2 / (lbdar * lbdas)
+                    + LBSACCR3 / (lbdas**2)
                 )
-                / lbda_r
+                / lbdar
             )
 
     # l324
@@ -368,7 +377,7 @@ def ice4_fast_rs(
                     0,
                     (
                         -rs_mltg_tnd
-                        * (O0DEPS * lbda_s**EX0DEPS + O1DEPS * cj * lbda_s * EX1DEPS)
+                        * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas * EX1DEPS)
                         - (rs_rcrims_tnd + rs_rraccs_tnd) * (rhodref * CL * (TT - t))
                     )
                     / (rhodref * LMTT),
