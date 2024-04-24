@@ -18,7 +18,7 @@ def ice4_nucleation(
     t: Field["float"],
     rv_t: Field["float"],
     ci_t: Field["float"],
-    rv_heni_mr: Field["float"],
+    rvheni_mr: Field["float"],
     usw: Field["float"],  # PBUF(USW) in Fortran
     w2: Field["float"],
     w1: Field["float"],
@@ -36,7 +36,7 @@ def ice4_nucleation(
         t (Field[float]): temperature
         rv_t (Field[float]): vapour mixing ratio at t
         ci_t (Field[float]): ice content at t
-        rv_heni_mr (Field[float]): mixing ratio change of vapour
+        rvheni_mr (Field[float]): mixing ratio change of vapour
     """
 
     from __externals__ import (
@@ -102,21 +102,21 @@ def ice4_nucleation(
 
     # l114
     with computation(PARALLEL), interval(...):
-        rv_heni_mr = 0
+        rvheni_mr = 0
         if t < TT and rv_t > V_RTMIN and ldcompute:
-            rv_heni_mr = max(w2, 0) * MNU0 / rhodref
-            rv_heni_mr = min(rv_t, rv_heni_mr)
+            rvheni_mr = max(w2, 0) * MNU0 / rhodref
+            rvheni_mr = min(rv_t, rvheni_mr)
 
     # l122
     with computation(PARALLEL), interval(...):
         if LFEEDBACKT:
             w1 = 0
             if t < TT and rv_t > V_RTMIN and ldcompute:
-                w1 = min(rv_heni_mr, max(0, (TT / exn - tht)) / ls_fact) / max(
-                    rv_heni_mr, 1e-20
+                w1 = min(rvheni_mr, max(0, (TT / exn - tht)) / ls_fact) / max(
+                    rvheni_mr, 1e-20
                 )
 
-            rv_heni_mr *= w1
+            rvheni_mr *= w1
             w2 *= w1
 
     # l134
@@ -139,7 +139,7 @@ def ice4_nucleation_post_processing(
     tht: Field["float"],
     rv_t: Field["float"],
     ri_t: Field["float"],
-    rv_heni_mr: Field["float"],
+    rvheni_mr: Field["float"],
 ):
     """adjust mixing ratio with nucleation increments
 
@@ -150,11 +150,11 @@ def ice4_nucleation_post_processing(
         tht (Field[float]): potential temperature
         rv_t (Field[float]): vapour m.r.
         ri_t (Field[float]): ice m.r.
-        rv_heni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
+        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
     """
 
     with computation(PARALLEL), interval(...):
-        tht += rv_heni_mr * (ls_fact - lv_fact)
+        tht += rvheni_mr * (ls_fact - lv_fact)
         t = tht / exn
-        rv_t -= rv_heni_mr
-        ri_t += rv_heni_mr
+        rv_t -= rvheni_mr
+        ri_t += rvheni_mr
