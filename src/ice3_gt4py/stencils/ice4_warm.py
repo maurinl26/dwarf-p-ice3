@@ -37,7 +37,7 @@ def ice4_slow(
     rr_t: Field["float"],  # rain water mixing ratio at t
     rcautr: Field["float"],  # autoconversion of rc for rr production
     rcaccr: Field["float"],  # accretion of r_c for r_r production
-    rrevap: Field["float"],  # evaporation of rr
+    rrevav: Field["float"],  # evaporation of rr
     ldsoft: "bool",
 ):
     from __externals__ import (
@@ -100,12 +100,12 @@ def ice4_slow(
         if SUBG_RR_EVAP == 0:
             if rr_t > R_RTMIN and rc_t <= C_RTMIN and ldcompute:
                 if not ldsoft:
-                    rr_evav = exp(ALPW - BETAW / t - GAMW * log(t))
-                    usw = 1 - rv_t * (pres - rr_evav)
-                    rr_evav = (LVTT + (CPV - CL) * (t - TT)) ** 2 / (
+                    rrevav = exp(ALPW - BETAW / t - GAMW * log(t))
+                    usw = 1 - rv_t * (pres - rrevav)
+                    rrevav = (LVTT + (CPV - CL) * (t - TT)) ** 2 / (
                         ka * RV * t**2
-                    ) + (RV * t) / (dv * rr_evav)
-                    rr_evav = (max(0, usw / (rhodref * rr_evav))) * (
+                    ) + (RV * t) / (dv * rrevav)
+                    rrevav = (max(0, usw / (rhodref * rrevav))) * (
                         O0EVAR * lbdar**EX0EVAR + O1EVAR * cj * EX1EVAR
                     )
 
@@ -135,20 +135,20 @@ def ice4_slow(
                     zw2 = thlt_tmp * t / tht
 
                     # saturation over water
-                    rr_evav = exp(ALPW - BETAW / zw2 - GAMW * log(zw2))
+                    rrevav = exp(ALPW - BETAW / zw2 - GAMW * log(zw2))
 
                     # s, undersaturation over water (with new theta^u)
-                    usw = 1 - rv_t * (pres - rr_evav) / (EPSILO * rr_evav)
+                    usw = 1 - rv_t * (pres - rrevav) / (EPSILO * rrevav)
 
-                    rr_evav = (LVTT + (CPV - CL) * (zw2 - TT)) ** 2 / (
+                    rrevav = (LVTT + (CPV - CL) * (zw2 - TT)) ** 2 / (
                         ka * RV * zw2**2
-                    ) + RV * zw2 / (dv * rr_evav)
-                    rr_evav = (
+                    ) + RV * zw2 / (dv * rrevav)
+                    rrevav = (
                         max(0, usw)
-                        / (rhodref * rr_evav)
+                        / (rhodref * rrevav)
                         * (O0EVAR * zw3**EX0EVAR + O1EVAR * cj * zw3**EX1EVAR)
                     )
-                    rr_evav = rr_evav * (zw4 - cf)
+                    rrevav = rrevav * (zw4 - cf)
 
             else:
-                rr_evav = 0
+                rrevav = 0
