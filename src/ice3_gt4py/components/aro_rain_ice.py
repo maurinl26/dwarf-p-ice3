@@ -36,19 +36,7 @@ class Ice4StepLimiter(ImplicitTendencyComponent):
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
         )
 
-        externals = {}
-        externals.update(asdict(phyex.nebn))
-        externals.update(asdict(phyex.cst))
-        externals.update(asdict(phyex.param_icen))
-        externals.update(
-            {
-                "nrr": 6,
-                "criautc": 0,
-                "acriauti": 0,
-                "bcriauti": 0,
-                "criauti": 0,
-            }
-        )
+        externals = phyex.to_externals()
 
         # Stencil collections
         self.tmicro_init = compile_stencil("ice4_stepping_tmicro_init", externals)

@@ -17,6 +17,9 @@ from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
 
 
+from ice3_gt4py.initialisation.state_ice4_tendencies import (
+    get_constant_state_ice4_tendencies,
+)
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
@@ -39,19 +42,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
         )
 
-        externals = {}
-        externals.update(asdict(phyex.nebn))
-        externals.update(asdict(phyex.cst))
-        externals.update(asdict(phyex.param_icen))
-        externals.update(
-            {
-                "nrr": 6,
-                "criautc": 0,
-                "acriauti": 0,
-                "bcriauti": 0,
-                "criauti": 0,
-            }
-        )
+        externals = phyex.to_externals()
 
         # Tendencies
         self.ice4_nucleation = compile_stencil("ice4_nucleation", externals)
@@ -91,15 +82,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
-        return {
-            "tht": {"grid": (I, J, K), "units": ""},
-            "pabs_t": {"grid": (I, J, K), "units": ""},
-            "rhodref": {"grid": (I, J, K), "units": ""},
-            "exn": {"grid": (I, J, K), "units": ""},
-            "t": {"grid": (I, J, K), "units": ""},
-            "ls_fact": {"grid": (I, J, K), "units": ""},
-            "rv_t": {"grid": (I, J, K), "units": ""},
-        }
+        return {}
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
@@ -264,6 +247,8 @@ if __name__ == "__main__":
     )
 
     ################ Global state #################
+
+    state = get_constant_state_ice4_tendencies(grid, gt4py_config=gt4py_config)
 
     time_state = {
         "t_micro": ones((nx, ny, nz), backend=BACKEND),
