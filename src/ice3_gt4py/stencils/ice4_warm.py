@@ -21,8 +21,8 @@ def ice4_slow(
     t: Field["float"],  # temperature
     pres: Field["float"],
     tht: Field["float"],
-    lbda_r: Field["float"],  # slope parameter for the rain drop distribution
-    lbda_r_rf: Field["float"],  # slope parameter for the rain fraction part
+    lbdar: Field["float"],  # slope parameter for the rain drop distribution
+    lbdar_rf: Field["float"],  # slope parameter for the rain fraction part
     ka: Field["float"],  # thermal conductivity of the air
     dv: Field["float"],  # diffusivity of water vapour
     cj: Field["float"],  # function to compute the ventilation coefficient
@@ -84,7 +84,7 @@ def ice4_slow(
         if SUBG_RC_RR_ACCR == 0:
             if rc_t > C_RTMIN and rr_t > R_RTMIN and ldcompute:
                 rc_accr = (
-                    FCACCR * rc_t * lbda_r * EXCACCR * rhodref ** (-CEXVT)
+                    FCACCR * rc_t * lbdar * EXCACCR * rhodref ** (-CEXVT)
                     if not ldsoft
                     else rc_accr
                 )
@@ -106,7 +106,7 @@ def ice4_slow(
                         ka * RV * t**2
                     ) + (RV * t) / (dv * rr_evav)
                     rr_evav = (max(0, usw / (rhodref * rr_evav))) * (
-                        O0EVAR * lbda_r**EX0EVAR + O1EVAR * cj * EX1EVAR
+                        O0EVAR * lbdar**EX0EVAR + O1EVAR * cj * EX1EVAR
                     )
 
     # TODO : translate second option from line 178 to 227
@@ -116,12 +116,12 @@ def ice4_slow(
             # HSUBG_RR_EVAP=='CLFR'
             if SUBG_RR_EVAP == 1:
                 zw4 = 1  # precipitation fraction
-                zw3 = lbda_r
+                zw3 = lbdar
 
             # HSUBG_RR_EVAP=='PRFR'
             elif SUBG_RR_EVAP == 2:
                 zw4 = rf  # precipitation fraction
-                zw3 = lbda_r_rf
+                zw3 = lbdar_rf
 
             if rr_t > R_RTMIN and zw4 > cf and ldcompute:
                 if not ldsoft:
