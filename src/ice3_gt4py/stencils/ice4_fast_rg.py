@@ -51,7 +51,7 @@ def ice4_fast_rg(
     rg_rswet_tnd: Field["float"],
     rg_freez1_tnd: Field["float"],
     rg_freez2_tnd: Field["float"],
-    rg_mltr: Field["float"],
+    rgmltr: Field["float"],
     gdry: Field["bool"],
     ldwetg: Field["int"],  # bool, true if graupel grows in wet mode (out)
     lldryg: Field["int"],  # linked to gdry + temporary
@@ -378,17 +378,17 @@ def ice4_fast_rg(
     with computation(PARALLEL), interval(...):
         if rg_t > G_RTMIN and t > TT and ldcompute:
             if not ldsoft:
-                rg_mltr = rv_t * pres / (EPSILO + rv_t)
+                rgmltr = rv_t * pres / (EPSILO + rv_t)
                 if LEVLIMIT:
-                    rg_mltr = min(rg_mltr, exp(ALPW - BETAW / t - GAMW * log(t)))
+                    rgmltr = min(rgmltr, exp(ALPW - BETAW / t - GAMW * log(t)))
 
-                rg_mltr = ka * (TT - t) + dv * (LVTT + (CPV - CL) * (t - TT)) * (
-                    ESTT - rg_mltr
+                rgmltr = ka * (TT - t) + dv * (LVTT + (CPV - CL) * (t - TT)) * (
+                    ESTT - rgmltr
                 ) / (RV * t)
-                rg_mltr = max(
+                rgmltr = max(
                     0,
                     (
-                        -rg_mltr
+                        -rgmltr
                         * (O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG)
                         - (rg_rcdry_tnd + rg_rrdry_tnd) * (rhodref * CL * (TT - t))
                     )
@@ -396,7 +396,7 @@ def ice4_fast_rg(
                 )
 
         else:
-            rg_mltr = 0
+            rgmltr = 0
 
 
 @ported_method(

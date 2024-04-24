@@ -39,13 +39,13 @@ def ice4_fast_rs(
     rc_t: Field["float"],
     rr_t: Field["float"],
     rs_t: Field["float"],
-    ri_aggs: Field["float"],  # ice aggregation on snow
-    rc_rimss_out: Field["float"],  # cloud droplet riming of the aggregates
-    rc_rimsg_out: Field["float"],
-    rs_rimcg_out: Field["float"],
-    rr_accss_out: Field["float"],  # rain accretion onto the aggregates
-    rr_accsg_out: Field["float"],
-    rs_accrg_out: Field["float"],
+    riaggs: Field["float"],  # ice aggregation on snow
+    rcrimss: Field["float"],  # cloud droplet riming of the aggregates
+    rcrimsg: Field["float"],
+    rsrimcg: Field["float"],
+    rraccss: Field["float"],  # rain accretion onto the aggregates
+    rraccsg: Field["float"],
+    rsaccrg: Field["float"],
     rs_mltg_tnd: Field["float"],  # conversion-melting of the aggregates
     rc_mltsr_tnd: Field["float"],  # cloud droplet collection onto aggregates
     rs_rcrims_tnd: Field["float"],  # extra dimension 8 in Fortran PRS_TEND
@@ -236,22 +236,22 @@ def ice4_fast_rs(
     #
     with computation(PARALLEL), interval(...):
         if grim_tmp and t < TT:
-            rc_rimss_out = min(freez_rate_tmp, rs_rcrimss_tnd)
-            freez_rate_tmp = max(0, freez_rate_tmp - rc_rimss_out)
+            rcrimss = min(freez_rate_tmp, rs_rcrimss_tnd)
+            freez_rate_tmp = max(0, freez_rate_tmp - rcrimss)
 
             # proportion we are able to freeze
-            zw0_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rcrims_tnd - rc_rimss_out))
-            rc_rimsg_out = zw0_tmp * max(0, rs_rcrims_tnd - rc_rimss_out)  # rc_rimsg
-            freez_rate_tmp = max(0, freez_rate_tmp - rc_rimsg_out)
-            rs_rimcg_out = zw0_tmp * rs_rsrimcg_tnd
+            zw0_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rcrims_tnd - rcrimss))
+            rcrimsg = zw0_tmp * max(0, rs_rcrims_tnd - rcrimss)  # rc_rimsg
+            freez_rate_tmp = max(0, freez_rate_tmp - rcrimsg)
+            rsrimcg = zw0_tmp * rs_rsrimcg_tnd
 
-            rs_rimcg_out *= max(0, -sign(1, -rc_rimsg_out))
-            rc_rimsg_out = max(0, rc_rimsg_out)
+            rsrimcg *= max(0, -sign(1, -rcrimsg))
+            rcrimsg = max(0, rcrimsg)
 
         else:
-            rc_rimss_out = 0
-            rc_rimsg_out = 0
-            rs_rimcg_out = 0
+            rcrimss = 0
+            rcrimsg = 0
+            rsrimcg = 0
 
     # 5.2. rain accretion onto the aggregates
     with computation(PARALLEL), interval(...):
@@ -338,22 +338,22 @@ def ice4_fast_rs(
     # More restrictive ACC mask to be used for accretion by negative temperature only
     with computation(PARALLEL), interval(...):
         if gacc_tmp and t < TT:
-            rr_accss_out = min(freez_rate_tmp, rs_rraccss_tnd)
-            freez_rate_tmp = max(0, freez_rate_tmp - rr_accss_out)
+            rraccss = min(freez_rate_tmp, rs_rraccss_tnd)
+            freez_rate_tmp = max(0, freez_rate_tmp - rraccss)
 
             # proportion we are able to freeze
-            zw_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rraccss_tnd - rr_accss_out))
-            rr_accsg_out = zw_tmp * max(0, rs_rraccs_tnd - rr_accss_out)
-            freez_rate_tmp = max(0, freez_rate_tmp - rr_accsg_out)
-            rs_accrg_out = zw_tmp * rs_rsaccrg_tnd
+            zw_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rraccss_tnd - rraccss))
+            rraccsg = zw_tmp * max(0, rs_rraccs_tnd - rraccss)
+            freez_rate_tmp = max(0, freez_rate_tmp - rraccsg)
+            rsaccrg = zw_tmp * rs_rsaccrg_tnd
 
-            rs_accrg_out *= max(0, -sign(1, -rr_accsg_out))
-            rr_accsg_out = max(0, rr_accsg_out)
+            rsaccrg *= max(0, -sign(1, -rraccsg))
+            rraccsg = max(0, rraccsg)
 
         else:
-            rr_accss_out = 0
-            rr_accsg_out = 0
-            rs_accrg_out = 0
+            rraccss = 0
+            rraccsg = 0
+            rsaccrg = 0
 
     # 5.3 Conversion-Melting of the aggregates
     with computation(PARALLEL), interval(...):
