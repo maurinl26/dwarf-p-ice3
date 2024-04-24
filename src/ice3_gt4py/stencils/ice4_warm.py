@@ -35,9 +35,9 @@ def ice4_slow(
     rv_t: Field["float"],  # water vapour mixing ratio at t
     rc_t: Field["float"],  # cloud water mixing ratio at t
     rr_t: Field["float"],  # rain water mixing ratio at t
-    rc_autr: Field["float"],  # autoconversion of rc for rr production
-    rc_accr: Field["float"],  # accretion of r_c for r_r production
-    rr_evap: Field["float"],  # evaporation of rr
+    rcautr: Field["float"],  # autoconversion of rc for rr production
+    rcaccr: Field["float"],  # accretion of r_c for r_r production
+    rrevap: Field["float"],  # evaporation of rr
     ldsoft: "bool",
 ):
     from __externals__ import (
@@ -69,27 +69,27 @@ def ice4_slow(
     # 4.2 compute the autoconversion of r_c for r_r : RCAUTR
     with computation(PARALLEL), interval(...):
         if hlc_hrc > C_RTMIN and hlc_hcf > 0 and ldcompute:
-            rc_autr = (
+            rcautr = (
                 TIMAUTC * max(hlc_hrc - hlc_hcf * CRIAUTC / rhodref, 0)
                 if not ldsoft
-                else rc_autr
+                else rcautr
             )
         else:
-            rc_autr = 0
+            rcautr = 0
 
     # 4.3 compute the accretion of r_c for r_r : RCACCR
-    # TODO : code hsubg_rc_accr to enumeration
+    # TODO : code hsubg_rcaccr to enumeration
     with computation(PARALLEL), interval(...):
         # Translation note : HSUBG_RC_RR_ACCR=='NONE'
         if SUBG_RC_RR_ACCR == 0:
             if rc_t > C_RTMIN and rr_t > R_RTMIN and ldcompute:
-                rc_accr = (
+                rcaccr = (
                     FCACCR * rc_t * lbdar * EXCACCR * rhodref ** (-CEXVT)
                     if not ldsoft
-                    else rc_accr
+                    else rcaccr
                 )
             else:
-                rc_accr = 0
+                rcaccr = 0
 
         # Translation note : second option from l121 to l155 ommitted
         # elif csubg_rc_rr_accr == 1:
