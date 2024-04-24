@@ -139,7 +139,7 @@ def ice4_nucleation_post_processing(
     tht: Field["float"],
     rv_t: Field["float"],
     ri_t: Field["float"],
-    rvheni_mr: Field["float"],
+    rv_heni_mr: Field["float"],
 ):
     """adjust mixing ratio with nucleation increments
 
@@ -150,11 +150,11 @@ def ice4_nucleation_post_processing(
         tht (Field[float]): potential temperature
         rv_t (Field[float]): vapour m.r.
         ri_t (Field[float]): ice m.r.
-        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
+        rv_heni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
     """
 
     with computation(PARALLEL), interval(...):
-        tht += rvheni_mr * (ls_fact - lv_fact)
+        tht += rv_heni_mr * (ls_fact - lv_fact)
         t = tht / exn
-        rv_t -= rvheni_mr
-        ri_t += rvheni_mr
+        rv_t -= rv_heni_mr
+        ri_t += rv_heni_mr
