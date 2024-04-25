@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import json
 import typer
 import logging
-from datetime import timedelta
+import datetime
 import time
 import sys
 
@@ -9,7 +10,10 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
 from ice3_gt4py.components.aro_adjust import AroAdjust
-from ice3_gt4py.initialisation.state_aro_adjust import get_constant_state_aro_adjust
+from ice3_gt4py.initialisation.state_aro_adjust import (
+    get_constant_state_aro_adjust,
+    aro_adjust_fields_keys,
+)
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -30,7 +34,7 @@ def run_aro_adjust(
     ny = 1
     nz = 90
     grid = ComputationalGrid(nx, ny, nz)
-    dt = timedelta(seconds=1).total_seconds
+    dt = datetime.timedelta(seconds=1)
 
     ################## Phyex #################
     logging.info("Initializing Phyex ...")
@@ -53,26 +57,29 @@ def run_aro_adjust(
 
     ####### Create state for AroAdjust #######
     logging.info("Getting constant state for AroAdjust")
-    state = get_constant_state_aro_adjust(grid, gt4py_config=gt4py_config)
-
+    state = get_constant_state_aro_adjust(
+        grid, gt4py_config=gt4py_config, keys=aro_adjust_fields_keys
+    )
+    logging.info(f"Keys : {list(state.keys())}")
     # out_tendencies =
     # out_diagnostics =
     # overwrite_tendencies =
 
     ###### Launching AroAdjust ###############
     logging.info("Launching AroAdjust")
-    try:
-        start = time.time()
-        aro_adjust(state, dt)
-        stop = time.time()
-        elapsed_time = stop - start
-        logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
 
-    except:
-        logging.error("Execution failed for AroAdjust")
+    start = time.time()
+    tends, diags = aro_adjust(state, dt)
+    stop = time.time()
+    elapsed_time = stop - start
+    logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
 
-    else:
-        logging.info("Extracting state data to ...")
+    logging.error("Execution failed for AroAdjust")
+
+    logging.info("Extracting state data to ...")
+
+    with open("run_aro_adjust.json", "w") as file:
+        json.dump(gt4py_config.exec_info, file)
 
 
 @app.command()
