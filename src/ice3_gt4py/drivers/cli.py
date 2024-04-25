@@ -74,8 +74,6 @@ def run_aro_adjust(
     elapsed_time = stop - start
     logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
 
-    logging.error("Execution failed for AroAdjust")
-
     logging.info("Extracting state data to ...")
 
     with open("run_aro_adjust.json", "w") as file:
