@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from datetime import datetime
+import datetime
 from functools import partial
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Dict, List
 
 from gt4py.storage import ones
 from ifs_physics_common.framework.grid import I, J, K
@@ -55,7 +55,7 @@ def allocate_state_aro_adjust(
     allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
 
     state = {
-        "exnref": allocate_f(),
+        "time": datetime.datetime(year=2024, month=1, day=1),
         "tht": allocate_f(),
         "exn": allocate_f(),
         "exnref": allocate_f(),
@@ -95,8 +95,37 @@ def allocate_state_aro_adjust(
     return {**state, **diagnostics}
 
 
+aro_adjust_fields_keys = [
+    "exnref",
+    "tht",
+    "exn",
+    "exnref",
+    "rhodref",
+    "pabs",
+    "sigs",
+    "cf_mf",
+    "rc_mf",
+    "ri_mf",
+    "th",
+    "rv",
+    "rc",
+    "ri",
+    "rr",
+    "rs",
+    "rg",
+    "sigqsat",
+    "cldfr",
+    "ifr",
+    "hlc_hrc",
+    "hlc_hcf",
+    "hli_hri",
+    "hli_hcf",
+    "sigrc",
+]
+
+
 def get_constant_state_aro_adjust(
-    computational_grid: ComputationalGrid, *, gt4py_config: GT4PyConfig
+    computational_grid: ComputationalGrid, *, gt4py_config: GT4PyConfig, keys: List[str]
 ) -> DataArrayDict:
     """Create state dictionnary with allocation of tables and setup to a constant value.
 
@@ -108,5 +137,5 @@ def get_constant_state_aro_adjust(
         DataArrayDict: initialized dictionnary of state
     """
     state = allocate_state_aro_adjust(computational_grid, gt4py_config=gt4py_config)
-    initialize_state_with_constant(state, 0.5, gt4py_config, list(state.keys()))
+    initialize_state_with_constant(state, 0.5, gt4py_config, keys)
     return state
