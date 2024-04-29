@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from typing import Literal, Union
 import numpy as np
 import logging
 import sys
@@ -6,6 +7,7 @@ import os
 import xarray as xr
 import typer
 from pathlib import Path
+import yaml
 
 from testprogs_data.generate_data import get_array, get_dims
 
@@ -18,43 +20,36 @@ app = typer.Typer()
 
 @app.command()
 def extract_testsprogs_data(
-    dir: str,
-    output_file: str,
-    nproma: int = 23,
-    ngpblks: int = 296,
+    dir: str, output_file: str, conf: str, dataset: str, krr: int = 6
 ):
+    """Extract unformatted fortran datasets to netcdf via xarray
 
-    KRR = 6
+    Args:
+        dir (str): directory with raw data (.dat files)
+        output_file (str): name of output file
+        conf (str): configuration yaml with fields names
+        dataset (str): dataset to extract, whether ice_adjust or rain_ice
+        krr (int, optional): number of microphysical species. Defaults to 6.
+    """
 
+    KRR = krr
+
+    output_path = Path(dir, output_file)
+
+    with open(Path(conf), "r") as f:
+        conf = yaml.safe_load(f)
+        FIELD_KEYS_LIST = conf[dataset]
+
+    logging.info(f"{FIELD_KEYS_LIST}")
+
+    ###### Init loop ##############
     # in getdata_ice_adjust.F90
     ibl = 0  # File number
     file_path = Path(dir, f"{ibl:08}.dat")
-    output_path = Path(output_file)
 
-    FIELD_KEYS_LIST = [
-        "PRHODJ",
-        "PEXNREF",
-        "PRHODREF",
-        "PSIGS",
-        "PMFCONV",
-        "PPABSM",
-        "ZZZ",
-        "PCF_MF",
-        "PRC_MF",
-        "PRI_MF",
-        "ZRS",
-        "PRS",
-        "PTHS",
-        "PRS_OUT",
-        "PSRCS_OUT",
-        "PCLDFR_OUT",
-        "PHLC_HRC_OUT",
-        "PHLC_HCF_OUT",
-        "PHLI_HRI_OUT",
-        "PHLI_HCF_OUT",
-    ]
-
-    output_dataset = xr.Dataset()
+    logging.info(
+        f"Init decoding : indice={ibl}, file_path={file_path}, is_file={file_path.is_file()}"
+    )
 
     ###### Loop over files ########
     # Slicing
@@ -72,54 +67,119 @@ def extract_testsprogs_data(
 
             file_dataset = xr.Dataset()
 
-            for key in FIELD_KEYS_LIST:
-                logging.info(f"Decoding : {key}")
+            if dataset == "ice_adjust":
+                for key in FIELD_KEYS_LIST:
+                    logging.info(f"Decoding : {key}")
 
-                if key in ["PRS", "PRS_OUT"]:
-                    data_array = xr.DataArray(
-                        data=get_array(f, KLON * KLEV * KRR).reshape(
-                            (KLON, KLEV, KRR), order="F"
-                        ),
-                        dims=["IJ", "K", "Specy"],
-                        coords={
-                            "IJ": range(IOFF + 1, IOFF + KLON + 1),
-                            "K": range(0, KLEV),
-                            "Specy": ["v", "c", "r", "i", "s", "g"],
-                        },
-                        name=f"{key}",
-                    )
+                    if key in ["PRS", "PRS_OUT"]:
+                        data_array = xr.DataArray(
+                            data=get_array(f, KLON * KLEV * KRR).reshape(
+                                (KLON, KLEV, KRR), order="F"
+                            ),
+                            dims=["IJ", "K", "Specy"],
+                            coords={
+                                "IJ": range(IOFF + 1, IOFF + KLON + 1),
+                                "K": range(0, KLEV),
+                                "Specy": ["v", "c", "r", "i", "s", "g"],
+                            },
+                            name=f"{key}",
+                        )
 
-                elif key in ["ZRS"]:
-                    data_array = xr.DataArray(
-                        data=get_array(f, KLON * KLEV * (KRR + 1)).reshape(
-                            (KLON, KLEV, KRR + 1), order="F"
-                        ),
-                        dims=["IJ", "K", "Specy"],
-                        coords={
-                            "IJ": range(IOFF + 1, IOFF + KLON + 1),
-                            "K": range(0, KLEV),
-                            "Specy": ["th", "v", "c", "r", "i", "s", "g"],
-                        },
-                        name=f"{key}",
-                    )
+                    elif key in ["ZRS"]:
+                        data_array = xr.DataArray(
+                            data=get_array(f, KLON * KLEV * (KRR + 1)).reshape(
+                                (KLON, KLEV, KRR + 1), order="F"
+                            ),
+                            dims=["IJ", "K", "Specy"],
+                            coords={
+                                "IJ": range(IOFF + 1, IOFF + KLON + 1),
+                                "K": range(0, KLEV),
+                                "Specy": ["th", "v", "c", "r", "i", "s", "g"],
+                            },
+                            name=f"{key}",
+                        )
 
-                elif key not in ["PRS", "PRS_OUT", "ZRS"]:
-                    data_array = xr.DataArray(
-                        data=get_array(f, KLON * KLEV).reshape((KLON, KLEV), order="F"),
-                        dims=["IJ", "K"],
-                        coords={
-                            "IJ": range(IOFF + 1, IOFF + KLON + 1),
-                            "K": range(0, KLEV),
-                        },
-                        name=f"{key}",
-                    )
+                    elif key not in ["PRS", "PRS_OUT", "ZRS"]:
+                        data_array = xr.DataArray(
+                            data=get_array(f, KLON * KLEV).reshape(
+                                (KLON, KLEV), order="F"
+                            ),
+                            dims=["IJ", "K"],
+                            coords={
+                                "IJ": range(IOFF + 1, IOFF + KLON + 1),
+                                "K": range(0, KLEV),
+                            },
+                            name=f"{key}",
+                        )
 
-                file_dataset[key] = data_array
+                    file_dataset[key] = data_array
 
-                if ibl == 0:
-                    output_dataset = file_dataset
-                else:
-                    output_dataset = xr.merge([output_dataset, file_dataset])
+            if dataset == "rain_ice":
+
+                for key in FIELD_KEYS_LIST:
+                    logging.info(f"Decoding : {key}")
+
+                    if key in [
+                        "PSEA",
+                        "PTOWN",
+                        "ZINPRC_OUT",
+                        "PINPRR_OUT",
+                        "PINPRS_OUT",
+                        "PINPRG_OUT",
+                    ]:
+                        data_array = xr.DataArray(
+                            data=get_array(f, KLON),
+                            dims=["IJ", "K", "Specy"],
+                            coords={
+                                "IJ": range(IOFF + 1, IOFF + KLON + 1),
+                            },
+                            name=f"{key}",
+                        )
+
+                    elif key in ["PRT", "PRS", "PRS_OUT", "PFPR_OUT"]:
+                        data_array = xr.DataArray(
+                            data=get_array(f, KLON * KLEV * KRR).reshape(
+                                (KLON, KLEV, KRR + 1), order="F"
+                            ),
+                            dims=["IJ", "K", "Specy"],
+                            coords={
+                                "IJ": range(IOFF + 1, IOFF + KLON + 1),
+                                "K": range(0, KLEV),
+                                "Specy": ["v", "c", "r", "i", "s", "g"],
+                            },
+                            name=f"{key}",
+                        )
+
+                    elif key not in [
+                        "PRT",
+                        "PRS",
+                        "PRS_OUT",
+                        "PFPR_OUT",
+                        "PSEA",
+                        "PTOWN",
+                        "ZINPRC_OUT",
+                        "PINPRR_OUT",
+                        "PINPRS_OUT",
+                        "PINPRG_OUT",
+                    ]:
+                        data_array = xr.DataArray(
+                            data=get_array(f, KLON * KLEV).reshape(
+                                (KLON, KLEV), order="F"
+                            ),
+                            dims=["IJ", "K"],
+                            coords={
+                                "IJ": range(IOFF + 1, IOFF + KLON + 1),
+                                "K": range(0, KLEV),
+                            },
+                            name=f"{key}",
+                        )
+
+                    file_dataset[key] = data_array
+
+            if ibl == 0:
+                output_dataset = file_dataset
+            else:
+                output_dataset = xr.merge([output_dataset, file_dataset])
 
             ibl += 1
             file_path = Path(dir, f"{ibl:08}.dat")
