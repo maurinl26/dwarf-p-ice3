@@ -1,4 +1,4 @@
-rain_ice:
+fields:
   - LLMICRO      #\(IOFF+1:IOFF+KLON,:,1)
   - PEXNREF      #\(IOFF+1:IOFF+KLON,:,1)
   - PDZZ         #\(IOFF+1:IOFF+KLON,:,1)
