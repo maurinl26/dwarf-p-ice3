@@ -8,9 +8,12 @@ from typing import TYPE_CHECKING, Dict
 from gt4py.storage import ones
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
+import numpy as np
 
 from ice3_gt4py.initialisation.state import initialize_state_with_constant
 from ice3_gt4py.initialisation.utils import initialize_field
+from ice3_gt4py.utils.reader import NetCDFReader
+import logging
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple
@@ -25,24 +28,32 @@ if TYPE_CHECKING:
 
 
 ######################### Ice Adjust ###########################
-keys_ice_adjust = [
-    "f_sigqsat",
-    "f_exnref",  # ref exner pression
-    "f_exn",
-    "f_rhodref",
-    "f_pabs",  # absolute pressure at t
-    "f_sigs",  # Sigma_s at time t
-    "f_cf_mf",  # convective mass flux fraction
-    "f_rc_mf",  # convective mass flux liquid mixing ratio
-    "f_ri_mf",
-    "f_th",
-    "f_rv",
-    "f_rc",
-    "f_rr",
-    "f_ri",
-    "f_rs",
-    "f_rg",
-    "f_tht",
+ice_adjust_fields_keys = [
+    "sigqsat",
+    "exnref",  # ref exner pression
+    "exn",
+    "rhodref",
+    "pabs",  # absolute pressure at t
+    "sigs",  # Sigma_s at time t
+    "cf_mf",  # convective mass flux fraction
+    "rc_mf",  # convective mass flux liquid mixing ratio
+    "ri_mf",
+    "th",
+    "rv",
+    "rc",
+    "rr",
+    "ri",
+    "rs",
+    "rg",
+    "tht",
+    "sigqsat",
+    "cldfr",
+    "ifr",
+    "hlc_hrc",
+    "hlc_hcf",
+    "hli_hri",
+    "hli_hcf",
+    "sigrc",
 ]
 
 
@@ -70,36 +81,41 @@ def allocate_state_ice_adjust(
 
     allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
     allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
-    allocate_f_h = partial(
-        _allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float"
-    )
-    allocate_f_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
+    allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
+    allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
     allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
 
     return {
-        # "time": datetime(year=2024, month=1, day=1),
-        "f_sigqsat": allocate_f(),
-        "f_exnref": allocate_f(),  # ref exner pression
-        "f_exn": allocate_f(),
-        "f_rhodref": allocate_f(),
-        "f_pabs": allocate_f(),  # absolute pressure at t
-        "f_sigs": allocate_f(),  # Sigma_s at time t
-        "f_cf_mf": allocate_f(),  # convective mass flux fraction
-        "f_rc_mf": allocate_f(),  # convective mass flux liquid mixing ratio
-        "f_ri_mf": allocate_f(),
-        "f_th": allocate_f(),
-        "f_rv": allocate_f(),
-        "f_rc": allocate_f(),
-        "f_rr": allocate_f(),
-        "f_ri": allocate_f(),
-        "f_rs": allocate_f(),
-        "f_rg": allocate_f(),
-        "f_tht": allocate_f(),
-        # "f_zzf": allocate_f(),
+        "time": datetime(year=2024, month=1, day=1),
+        "sigqsat": allocate_f(),
+        "exnref": allocate_f(),  # ref exner pression
+        "exn": allocate_f(),
+        "rhodref": allocate_f(),
+        "pabs": allocate_f(),  # absolute pressure at t
+        "sigs": allocate_f(),  # Sigma_s at time t
+        "cf_mf": allocate_f(),  # convective mass flux fraction
+        "rc_mf": allocate_f(),  # convective mass flux liquid mixing ratio
+        "ri_mf": allocate_f(),
+        "th": allocate_f(),
+        "rv": allocate_f(),
+        "rc": allocate_f(),
+        "rr": allocate_f(),
+        "ri": allocate_f(),
+        "rs": allocate_f(),
+        "rg": allocate_f(),
+        "tht": allocate_f(),
+        "sigqsat": allocate_f(),
+        "cldfr": allocate_f(),
+        "ifr": allocate_f(),
+        "hlc_hrc": allocate_f(),
+        "hlc_hcf": allocate_f(),
+        "hli_hri": allocate_f(),
+        "hli_hcf": allocate_f(),
+        "sigrc": allocate_f(),
     }
 
 
-def get_state_ice_adjust(
+def get_constant_state_ice_adjust(
     computational_grid: ComputationalGrid,
     *,
     gt4py_config: GT4PyConfig,
@@ -115,21 +131,93 @@ def get_state_ice_adjust(
         DataArrayDict: initialized dictionnary of state
     """
     state = allocate_state_ice_adjust(computational_grid, gt4py_config=gt4py_config)
-    initialize_state_with_constant(state, 0.5, keys)
+    initialize_state_with_constant(state, 0.5, gt4py_config, keys)
     return state
 
 
-################################## Rain Ice #########################################
-keys_rain_ice = [
-    "f_exn",
-    "f_rhodref",
-    "f_pabs",  # absolute pressure at t
-    "f_th",
-    "f_rv",
-    "f_rc",
-    "f_rr",
-    "f_ri",
-    "f_rs",
-    "f_rg",
-    "f_tht",
-]
+def get_state_ice_adjust(
+    computational_grid: ComputationalGrid,
+    *,
+    gt4py_config: GT4PyConfig,
+    netcdf_reader: NetCDFReader,
+) -> DataArrayDict:
+    """Create a state with reproductibility data set.
+
+    Args:
+        computational_grid (ComputationalGrid): grid
+        gt4py_config (GT4PyConfig): config for gt4py
+        keys (Dict[keys]): field names
+
+    Returns:
+        DataArrayDict: dictionnary of data array containing reproductibility data
+    """
+    state = allocate_state_ice_adjust(computational_grid, gt4py_config=gt4py_config)
+    initialize_state(state, netcdf_reader)
+    return state
+
+
+def initialize_state(
+    state: DataArrayDict,
+    netcdreader: NetCDFReader,
+) -> None:
+    """Initialize fields of state dictionnary with a constant field.
+
+    Args:
+        state (DataArrayDict): dictionnary of state
+        gt4py_config (GT4PyConfig): configuration of gt4py
+    """
+    keys = {
+        "exn": "PEXNREF",
+        "exnref": "PEXNREF",
+        "rhodref": "PRHODREF",
+        "pabs": "PPABSM",
+        "sigs": "PSIGS",
+        "cf_mf": "PCF_MF",
+        "rc_mf": "PRC_MF",
+        "ri_mf": "PRI_MF",
+        "th": "ZRS",
+        "rv": "ZRS",
+        "rc": "ZRS",
+        "rr": "ZRS",
+        "ri": "ZRS",
+        "rs": "ZRS",
+        "rg": "ZRS",
+        "cldfr": "PCLDFR_OUT",
+        "sigqsat": None,
+        "ifr": None,
+        "hlc_hrc": "PHLC_HRC_OUT",
+        "hlc_hcf": "PHLC_HCF_OUT",
+        "hli_hri": "PHLI_HRI_OUT",
+        "hli_hcf": "PHLI_HCF_OUT",
+        "sigrc": None,
+        "f_ths": "PRS",
+        "f_rcs": "PRS",
+        "f_rrs": "PRS",
+        "f_ris": "PRS",
+        "f_rss": "PRS",
+        "f_rvs": "PRS",
+        "f_rgs": "PRS",
+    }
+
+    krr_mapping = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
+
+    for name, FORTRAN_NAME in keys.items():
+        logging.info(f"name={name}, FORTRAN_NAME={FORTRAN_NAME}")
+        if FORTRAN_NAME is not None:
+            if FORTRAN_NAME == "ZRS":
+                buffer = netcdreader.get_field(FORTRAN_NAME)[
+                    :, :, krr_mapping[name][-1]
+                ]
+                initialize_field(state[name], buffer)
+            if FORTRAN_NAME == "PRS":
+                buffer = netcdreader.get_field(FORTRAN_NAME)[
+                    :, :, krr_mapping[name][-2]
+                ]
+                initialize_field(state[name], buffer)
+            else:
+                buffer = netcdreader.get_field(FORTRAN_NAME)
+                initialize_field(state[name], buffer)
+
+        else:
+            buffer = np.zeros(state[name].shape)
+            initialize_field(state[name], buffer)
