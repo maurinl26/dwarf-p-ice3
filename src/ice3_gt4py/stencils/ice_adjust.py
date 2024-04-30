@@ -12,6 +12,7 @@ from gt4py.cartesian.gtscript import (
     interval,
     log,
     sqrt,
+    IJ,
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 import numpy as np

@@ -112,6 +112,14 @@ def allocate_state_ice_adjust(
         "hli_hri": allocate_f(),
         "hli_hcf": allocate_f(),
         "sigrc": allocate_f(),
+        # tendencies
+        "f_ths": allocate_f(),
+        "f_rvs": allocate_f(),
+        "f_rcs": allocate_f(),
+        "f_rrs": allocate_f(),
+        "f_ris": allocate_f(),
+        "f_rss": allocate_f(),
+        "f_rgs": allocate_f(),
     }
 
 
@@ -206,18 +214,23 @@ def initialize_state(
         if FORTRAN_NAME is not None:
             if FORTRAN_NAME == "ZRS":
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
-                    :, :, krr_mapping[name][-1]
+                    :, :, krr_mapping[name[-1]]
                 ]
-                initialize_field(state[name], buffer)
-            if FORTRAN_NAME == "PRS":
-                buffer = netcdreader.get_field(FORTRAN_NAME)[
-                    :, :, krr_mapping[name][-2]
-                ]
-                initialize_field(state[name], buffer)
-            else:
-                buffer = netcdreader.get_field(FORTRAN_NAME)
+                logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
                 initialize_field(state[name], buffer)
 
-        else:
-            buffer = np.zeros(state[name].shape)
-            initialize_field(state[name], buffer)
+            if FORTRAN_NAME == "PRS":
+                buffer = netcdreader.get_field(FORTRAN_NAME)[
+                    :, :, krr_mapping[name[-2]]
+                ]
+                logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
+                initialize_field(state[name], buffer)
+            elif FORTRAN_NAME not in ["ZRS", "PRS"]:
+                buffer = netcdreader.get_field(FORTRAN_NAME)
+                logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
+                initialize_field(state[name], buffer)
+
+        # elif FORTRAN_NAME is None:
+        #     buffer = np.zeros(state[name].shape)
+        #     logging.info(f"name = {name}, buffer.shape = {state[name].shape}")
+        #     initialize_field(state[name], buffer)

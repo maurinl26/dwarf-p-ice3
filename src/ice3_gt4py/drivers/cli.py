@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 import json
+from pathlib import Path
 import typer
 import logging
 import datetime
 import time
 import sys
+import xarray as xr
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
@@ -30,9 +32,7 @@ app = typer.Typer()
 
 
 @app.command()
-def run_ice_adjust(
-    backend: str,
-):
+def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: str):
     """Run ice_adjust component"""
 
     ##### Grid #####
@@ -63,14 +63,14 @@ def run_ice_adjust(
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
 
     ####### Create state for AroAdjust #######
-    reader = NetCDFReader("./data/ice_adjust/reference.nc")
+    reader = NetCDFReader(Path(dataset))
 
     logging.info("Getting state for IceAdjust")
     state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
     logging.info(f"Keys : {list(state.keys())}")
 
     ###### Launching AroAdjust ###############
-    logging.info("Launching AroAdjust")
+    logging.info("Launching IceAdjust")
 
     start = time.time()
     tends, diags = ice_adjust(state, dt)
@@ -78,9 +78,25 @@ def run_ice_adjust(
     elapsed_time = stop - start
     logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
 
-    logging.info("Extracting state data to ...")
+    logging.info(f"Extracting state data to {output_path}")
+    output_fields = xr.Dataset(state)
+    for key, field in state.items():
+        if key not in ["time"]:
+            array = xr.DataArray(
+                data=field.data,
+                dims=["I", "J", "K"],
+                coords={
+                    "I": range(nx),
+                    "J": range(ny),
+                    "K": range(nz),
+                },
+                name=f"{key}",
+            )
+            output_fields[key] = array
+    output_fields.to_netcdf(Path(output_path))
 
-    with open("run_aro_adjust.json", "w") as file:
+    logging.info(f"Extracting exec tracking to {tracking_file}")
+    with open(tracking_file, "w") as file:
         json.dump(gt4py_config.exec_info, file)
 
 
