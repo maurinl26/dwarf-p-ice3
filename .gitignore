@@ -11,3 +11,6 @@ src/phyex_gt4py/__pycache__/
 *.pyc
 src/phyex_gt4py/drivers/tests.py
 src/phyex_gt4py/stencils/ice4*
+
+*.log
+*.sh
