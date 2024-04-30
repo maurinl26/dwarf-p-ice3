@@ -361,3 +361,6 @@ if __name__ == "__main__":
     }
 
     externals_tendencies_update(**state_external_tendencies_update)
+
+    # ice4_correct_negativities
+    # ice4_sedimentation
