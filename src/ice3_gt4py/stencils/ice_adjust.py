@@ -82,13 +82,13 @@ def ice_adjust(
     """Microphysical adjustments for specific contents due to condensation.
 
     Args:
-        sigqsat (Field[float]): _description_
+        sigqsat (Field[float]): external qsat variance contribution
         exnref (Field[float]): reference exner pressure
         exn (Field[float]): true exner pressure
         rhodref (Field[float]): reference density
         pabs (Field[float]): absolute pressure at time t
-        sigs (Field[float]): _description_
-        cf_mf (Field[float]): convective mass flux cloud fraction             (from shallow convection)
+        sigs (Field[float]): standard dev for sub-grid saturation -- from turbulence scheme
+        cf_mf (Field[float]): convective mass flux cloud fraction       (from shallow convection)
         rc_mf (Field[float]): convective mass flux liquid mixing ratio  (from shallow convection)
         ri_mf (Field[float]): convective mass flux ice mixing ratio     (from shallow convection)
         th (Field[float]): potential temperature
@@ -109,15 +109,15 @@ def ice_adjust(
         hli_hri (Field[float]): _description_
         hli_hcf (Field[float]): _description_
         sigrc (Field[float]): _description_
-        rv_tmp (Field[float]): _description_
-        ri_tmp (Field[float]): _description_
-        rc_tmp (Field[float]): _description_
-        t_tmp (Field[float]): _description_
-        cph (Field[float]): _description_
-        frac_tmp (Field[float]): _description_
-        sigma (Field[float]): _description_
-        q1 (Field[float]): _description_
-        dt (float): _description_
+        rv_tmp (Field[float]): temp. array for vapour m.r.
+        ri_tmp (Field[float]): temp. array for ice m.r.
+        rc_tmp (Field[float]): temp. array for cloud droplets m.r.
+        t_tmp (Field[float]): temp. array for true temperature
+        cph (Field[float]): specific heat
+        frac_tmp (Field[float]): fraction of ice with respect to liquid (given with temperature)
+        sigma (Field[float]): temp. array for sigma
+        q1 (Field[float]): normalized saturation
+        dt (float): time step
     """
 
     from __externals__ import (

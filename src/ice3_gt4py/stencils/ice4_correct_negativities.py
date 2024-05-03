@@ -78,7 +78,7 @@ def ice4_correct_negativities(
         rs_t -= w
         th_t -= w * ls_fact
 
-        w = min(max(rg_t, 0), max(g_rtmin - rv_t))  # rg -> rv
+        w = min(max(rg_t, 0), max(g_rtmin - rv_t, 0))  # rg -> rv
         rv_t += w
         rg_t -= w
         th_t -= w * ls_fact

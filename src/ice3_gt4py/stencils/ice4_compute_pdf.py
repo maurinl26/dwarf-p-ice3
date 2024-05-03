@@ -36,12 +36,12 @@ def ice4_compute_pdf(
     """PDF used to split clouds into high and low content parts
 
     Args:
-        ldmicro (Field[bool]): _description_
-        rc_t (Field[float]): _description_
-        ri_t (Field[float]): _description_
-        cf (Field[float]): _description_
-        t (Field[float]): _description_
-        sigma_rc (Field[float]): _description_
+        ldmicro (Field[bool]): mask for microphysics computation
+        rc_t (Field[float]): cloud droplet m.r. estimate at t
+        ri_t (Field[float]): ice m.r. estimate at t
+        cf (Field[float]): cloud fraction
+        t (Field[float]): temperature
+        sigma_rc (Field[float]): standard dev of cloud droplets m.r. over the cell
         hlc_hcf (Field[float]): _description_
         hlc_lcf (Field[float]): _description_
         hlc_hrc (Field[float]): _description_
