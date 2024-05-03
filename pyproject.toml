@@ -5,6 +5,11 @@ description = "Externalized App for ICE3 Microphysics in GT4Py"
 authors = ["Loïc Maurin <loic.maurin@meteo.fr>"]
 license = "\"CeCILL-C\""
 readme = "README.md"
+packages = [
+    { include = "ice3_gt4py", from = "src" },
+    { include = "testprogs_data", from = "src"},
+    { include = "test_util"     , from = "src" },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12"
@@ -15,6 +20,12 @@ gt4py = "==1.0.3"
 [tool.poetry.group.dev.dependencies]
 virtualenv = "^20.25.0"
 pre-commit = "^3.5.0"
+
+[tool.poetry.scripts]
+ice-adjust = "ice3_gt4py.driver.cli:run_ice_adjust"
+rain-ice = "ice3_gt4py.driver.cli:run_rain_ice"
+extract-ice-adjust-data = "testprogs_data.main:extract_data_ice_adjust"
+extract-rain-ice-data = "testprogs_data.main:extract_data_rain_ice"
 
 [build-system]
 requires = ["poetry-core"]
