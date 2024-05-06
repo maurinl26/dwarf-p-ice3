@@ -7,6 +7,8 @@ from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
+from gt4py.storage import from_array
+import numpy as np
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -121,14 +123,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ri_increment": {"grid": (I, J, K), "units": ""},
             "rs_increment": {"grid": (I, J, K), "units": ""},
             "rg_increment": {"grid": (I, J, K), "units": ""},
-            # tnd_update : TODO : in tendencies
-            "theta_tnd": {"grid": (I, J, K), "units": ""},
-            "rv_tnd": {"grid": (I, J, K), "units": ""},
-            "rc_tnd": {"grid": (I, J, K), "units": ""},
-            "rr_tnd": {"grid": (I, J, K), "units": ""},
-            "ri_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_tnd": {"grid": (I, J, K), "units": ""},
             # others
             "hlc_hcf": {"grid": (I, J, K), "units": ""},
             "hlc_lcf": {"grid": (I, J, K), "units": ""},
@@ -164,31 +158,10 @@ class Ice4Tendencies(ImplicitTendencyComponent):
     ) -> None:
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 10),
+            *repeat(((I, J, K), "float"), 22),  # TODO : local temporaries
+            *repeat(((I, J, K), "float"), 64),
             gt4py_config=self.gt4py_config,
         ) as (
-            usw,
-            w1,
-            w2,
-            grim_tmp,
-            gacc_tmp,
-            zw_tmp,
-            zw1_tmp,
-            zw2_tmp,
-            zw3_tmp,
-            index_floor,
-            index_float,
-            index_floor_s,
-            index_float_s,
-            index_floor_r,
-            index_float_r,
-            gdry,
-            ldwetg,  # bool, true if graupel grows in wet mode (out)
-            lldryg,  # linked to gdry + temporary
-            rdryg_init_tmp,
-            rwetg_init_tmp,
-            index_floor_g,
-            index_float_g,
             # mr
             rvheni_mr,
             rrhong_mr,
@@ -279,9 +252,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             temporaries_nucleation = {
                 "rvheni_mr": rvheni_mr,
-                "usw": usw,
-                "w1": w1,
-                "w2": w2,
             }
 
             # timestep
@@ -409,13 +379,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 ]
             }
 
-            temporaries_derived_fields = {
-                "zw": zw_tmp,
-            }
-
-            self.ice4_derived_fields(
-                **state_derived_fields, **temporaries_derived_fields
-            )
+            self.ice4_derived_fields(**state_derived_fields)
 
             ######################## ice4_slope_parameters ##########################
             state_slope_parameters = {
@@ -546,19 +510,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rraccss": rraccss,
                 "rraccsg": rraccsg,
                 "rsaccrg": rsaccrg,
-                # TODO : remove following temps from signature
-                "grim_tmp": grim_tmp,
-                "gacc_tmp": gacc_tmp,
-                "zw_tmp": zw_tmp,
-                "zw1_tmp": zw1_tmp,
-                "zw2_tmp": zw2_tmp,
-                "zw3_tmp": zw3_tmp,
-                "index_floor": index_floor,
-                "index_float": index_float,
-                "index_floor_s": index_floor_s,
-                "index_float_s": index_float_s,
-                "index_floor_r": index_floor_r,
-                "index_float_r": index_float_r,
             }
 
             # TODO: replace by real values
@@ -645,19 +596,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rrcfrig": rrcfrig,
                 "ricfrr": ricfrr,
                 "rgmltr": rgmltr,
-                # TODO : remove following temporaries
-                "gdry": gdry,
-                "ldwetg": ldwetg,  # bool, true if graupel grows in wet mode (out)
-                "lldryg": lldryg,  # linked to gdry + temporary
-                "rdryg_init_tmp": rdryg_init_tmp,
-                "rwetg_init_tmp": rwetg_init_tmp,
-                "zw_tmp": zw_tmp,  # ZZW in Fortran
-                "index_floor_s": index_floor_s,
-                "index_floor_g": index_floor_g,
-                "index_floor_r": index_floor_r,
-                "index_float_s": index_float_s,
-                "index_float_g": index_float_g,
-                "index_float_r": index_float_r,
             }
 
             ker_sdryg = from_array(np.ones((40, 40)), backend=BACKEND)
