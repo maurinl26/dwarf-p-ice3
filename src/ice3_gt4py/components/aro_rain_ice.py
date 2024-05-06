@@ -15,13 +15,14 @@ from ifs_physics_common.framework.stencil import compile_stencil
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
+import numpy as np
 
 
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
-class Ice4StepLimiter(ImplicitTendencyComponent):
+class Ice4Stepping(ImplicitTendencyComponent):
     """Component for step computation"""
 
     def __init__(
@@ -58,7 +59,28 @@ class Ice4StepLimiter(ImplicitTendencyComponent):
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
-        return {}
+        return {
+            "t_micro": {"grid": (I, J, K), "units": ""},
+            "ldmicro": {"grid": (I, J, K), "units": ""},
+            "exn": {"grid": (I, J, K), "units": ""},
+            "th_t": {"grid": (I, J, K), "units": ""},
+            "ls_fact": {"grid": (I, J, K), "units": ""},
+            "lv_fact": {"grid": (I, J, K), "units": ""},
+            "t": {"grid": (I, J, K), "units": ""},
+            "rv_t": {"grid": (I, J, K), "units": ""},
+            "rc_t": {"grid": (I, J, K), "units": ""},
+            "rr_t": {"grid": (I, J, K), "units": ""},
+            "ri_t": {"grid": (I, J, K), "units": ""},
+            "rs_t": {"grid": (I, J, K), "units": ""},
+            "rg_t": {"grid": (I, J, K), "units": ""},
+            # external tendencies
+            "theta_ext_tnd": {"grid": (I, J, K), "units": ""},
+            "rc_ext_tnd": {"grid": (I, J, K), "units": ""},
+            "rr_ext_tnd": {"grid": (I, J, K), "units": ""},
+            "ri_ext_tnd": {"grid": (I, J, K), "units": ""},
+            "rs_ext_tnd": {"grid": (I, J, K), "units": ""},
+            "rg_ext_tnd": {"grid": (I, J, K), "units": ""},
+        }
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
@@ -79,288 +101,290 @@ class Ice4StepLimiter(ImplicitTendencyComponent):
     )
     def array_call(self, state: NDArrayLikeDict, timestep: timedelta):
 
-        # Translation note : Ice4Stepping is implemented assuming PARAMI%XTSTEP_TS = 0
-        #                   l225 to l229 omitted
-        #                   l334 to l341 omitted
-        #                   l174 to l178 omitted
+        with managed_temporary_storage(
+            self.computational_grid,
+            *repeat(((I, J, K), "float"), 17),
+            gt4py_config=self.gt4py_config,
+        ) as (
+            # masks
+            ldcompute,
+            # intial mixing ratios
+            rc_0r_t,
+            rr_0r_t,
+            ri_0r_t,
+            rs_0r_t,
+            rg_0r_t,
+            # increments
+            theta_b,
+            rv_b,
+            rc_b,
+            rr_b,
+            ri_b,
+            rs_b,
+            rg_b,
+            # tnd update
+            theta_a_tnd,
+            rv_a_tnd,
+            rc_a_tnd,
+            rr_a_tnd,
+            ri_a_tnd,
+            rs_a_tnd,
+            rg_a_tnd,
+            # timing
+            t_micro,
+            delta_t_micro,
+            time_threshold_tmp,
+        ):
+            # Translation note : Ice4Stepping is implemented assuming PARAMI%XTSTEP_TS = 0
+            #                   l225 to l229 omitted
+            #                   l334 to l341 omitted
+            #                   l174 to l178 omitted
 
-        # l214 to l221
-        self.tmicro_init()
+            ############## t_micro_init ################
 
-        # TODO while t < TSTEP
-        # TODO while ldcompute
+            self.tmicro_init(t_micro, state["ldmicro"])
 
-        # l249 to l254
-        self.ice4_stepping_heat()
+            outerloop_counter = 0
+            max_outerloop_iterations = 10
 
-        # l261
-        self.ice4_tendencies()
+            innerloop_counter = 0
+            max_innerloop_iterations = 10
 
-        # l290 to l332
-        self.ice4_step_limiter()
+            while np.any(t_micro[...] < TSTEP):
 
-        # l346 to l388
-        self.ice4_mixing_ratio_step_limiter()
+                # Iterations limiter
+                if outerloop_counter >= max_outerloop_iterations:
+                    break
 
-        # l394 to l404
-        self.ice4_state_update()
+                # TODO : set ldcompute as a temporary for this component
+                while np.any(ldcompute[...]):
 
-        # TODO : next loop
-        # l440 to l452
-        self.external_tendencies_update()
+                    # Iterations limiter
+                    if innerloop_counter >= max_innerloop_iterations:
+                        break
 
+                    # 244
 
-if __name__ == "__main__":
+                    # 249
+                    ####### ice4_stepping_heat #############
 
-    import numpy as np
-    from gt4py.storage import ones
+                    state_stepping_heat = {
+                        key: state[key]
+                        for key in [
+                            "rv_t",
+                            "rc_t",
+                            "rr_t",
+                            "ri_t",
+                            "rs_t",
+                            "rg_t",
+                            "exn",
+                            "th_t",
+                            "ls_fact",
+                            "lv_fact",
+                            "t",
+                        ]
+                    }
 
-    BACKEND = "gt:cpu_kfirst"
+                    self.ice4_stepping_heat(**state_stepping_heat)
 
-    ################### Grid #################
-    logging.info("Initializing grid ...")
-    nx = 100
-    ny = 1
-    nz = 90
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = timedelta(seconds=2)
+                    ####### tendencies #######
+                    #### TODO : tendencies state + components #####
+                    state_ice4_tendencies = {
+                        **{
+                            key: state[key]
+                            for key in [
+                                "pres",
+                                "rhodref",
+                                "exn",
+                                "ls_fact",
+                                "lv_fact",
+                                "rv_t",
+                                "cf",
+                                "sigma_rc",
+                                "ci_t",
+                                "ai",
+                                "cj",
+                                "ssi",
+                                "t",
+                                "tht",
+                                "rv_t",
+                                "rc_t",
+                                "rr_t",
+                                "ri_t",
+                                "rs_t",
+                                "rg_t",
+                                "hlc_hcf",
+                                "hlc_lcf",
+                                "hlc_hrc",
+                                "hlc_lrc",
+                                "hli_hcf",
+                                "hli_lcf",
+                                "hli_hri",
+                                "hli_lri",
+                                "fr",
+                            ]
+                        }
+                    }
 
-    TSTEP = dt.total_seconds()
+                    tmps_ice4_tendencies = {
+                        "ldcompute": ldcompute,
+                        "theta_tnd": theta_a_tnd,
+                        "rv_tnd": rv_a_tnd,
+                        "rc_tnd": rc_a_tnd,
+                        "rr_tnd": rr_a_tnd,
+                        "ri_tnd": ri_a_tnd,
+                        "rs_tnd": rs_a_tnd,
+                        "rg_tnd": rg_a_tnd,
+                        "theta_increment": theta_b,
+                        "rv_increment": rv_b,
+                        "rc_increment": rc_b,
+                        "rr_increment": rr_b,
+                        "ri_increment": ri_b,
+                        "rs_increment": rs_b,
+                        "rg_increment": rg_b,
+                    }
 
-    ################## Phyex #################
-    logging.info("Initializing Phyex ...")
-    cprogram = "AROME"
-    phyex_config = Phyex(cprogram)
+                    # others
 
-    externals = phyex_config.to_externals()
+                    self.ice4_tendencies(
+                        ldsoft=lsoft, **state_ice4_tendencies, **tmps_ice4_tendencies
+                    )
 
-    ######## Backend and gt4py config #######
-    logging.info(f"With backend {BACKEND}")
-    gt4py_config = GT4PyConfig(
-        backend=BACKEND, rebuild=True, validate_args=False, verbose=True
-    )
+                    ######### ice4_step_limiter ############################
+                    state_step_limiter = {
+                        key: state[key]
+                        for key in [
+                            "exn",
+                            "rc_t",
+                            "rr_t",
+                            "ri_t",
+                            "rs_t",
+                            "rg_t",
+                            "tht",
+                        ]
+                    }
 
-    ############################################
-    ########## Compile stencils ################
-    ############################################
-    logging.info("t_micro_init")
-    t_micro_init = compile_stencil("ice4_stepping_tmicro_init", gt4py_config, externals)
+                    tmps_step_limiter = {
+                        "t_micro": t_micro,
+                        "delta_t_micro": delta_t_micro,
+                        "ldcompute": ldcompute,
+                        "theta_a_tnd": theta_a_tnd,
+                        "rc_a_tnd": rc_a_tnd,
+                        "rr_a_tnd": rr_a_tnd,
+                        "ri_a_tnd": ri_a_tnd,
+                        "rs_a_tnd": rs_a_tnd,
+                        "rg_a_tnd": rg_a_tnd,
+                        "theta_b": theta_b,
+                        "rc_b": rc_b,
+                        "rr_b": rr_b,
+                        "ri_b": ri_b,
+                        "rs_b": rs_b,
+                        "rg_b": rg_b,
+                    }
 
-    ice4_step_limiter = compile_stencil("ice4_step_limiter", gt4py_config, externals)
+                    self.ice4_step_limiter(**state_step_limiter, **tmps_step_limiter)
 
-    ice4_stepping_heat = compile_stencil("ice4_stepping_heat", gt4py_config, externals)
+                    # l346 to l388
+                    ############ ice4_mixing_ratio_step_limiter ############
+                    state_mixing_ratio_step_limiter = {
+                        key: state[key]
+                        for key in ["rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]
+                    }
 
-    ice4_mixing_ratio_step_limiter = compile_stencil("ice4_mixing_ratio_step_limiter")
+                    temporaries_mixing_ratio_step_limiter = {
+                        "ldcompute": ldcompute,
+                        "theta_a_tnd": theta_a_tnd,
+                        "rc_a_tnd": rc_a_tnd,
+                        "rr_a_tnd": rr_a_tnd,
+                        "ri_a_tnd": ri_a_tnd,
+                        "rs_a_tnd": rs_a_tnd,
+                        "rg_a_tnd": rg_a_tnd,
+                        "theta_b": theta_b,
+                        "rc_b": rc_b,
+                        "rr_b": rr_b,
+                        "ri_b": ri_b,
+                        "rs_b": rs_b,
+                        "rg_b": rg_b,
+                        "rc_0r_t": rc_0r_t,
+                        "rr_0r_t": rr_0r_t,
+                        "ri_0r_t": ri_0r_t,
+                        "rs_0r_t": rs_0r_t,
+                        "rg_0r_t": rg_0r_t,
+                        "delta_t_micro": delta_t_micro,
+                        "time_threshold_tmp": time_threshold_tmp,
+                    }
 
-    ice4_state_update = compile_stencil("state_update", gt4py_config, externals)
+                    self.ice4_mixing_ratio_step_limiter(
+                        **state_mixing_ratio_step_limiter,
+                        **temporaries_mixing_ratio_step_limiter,
+                    )
 
-    externals_tendencies_update = compile_stencil(
-        "external_tendencies_update", gt4py_config, externals
-    )
+                    # l394 to l404
+                    # 4.7 new values for next iteration
+                    ############### ice4_state_update ######################
+                    state_state_update = {
+                        key: state[key]
+                        for key in [
+                            "tht",
+                            "rc_t",
+                            "rr_t",
+                            "ri_t",
+                            "rs_t",
+                            "rg_t",
+                            "ci_t",
+                            "ldmicro",
+                        ]
+                    }
 
-    ######### State and field declaration ######
-    masks = {
-        "ldcompute": ones((nx, ny, nz), backend=BACKEND, dtype=bool),
-        "ldmicro": ones((nx, ny, nz), backend=BACKEND, dtype=bool),
-    }
+                    tmps_state_update = {
+                        "theta_a_tnd": theta_a_tnd,
+                        "rc_a_tnd": rc_a_tnd,
+                        "rr_a_tnd": rr_a_tnd,
+                        "ri_a_tnd": ri_a_tnd,
+                        "rs_a_tnd": rs_a_tnd,
+                        "rg_a_tnd": rg_a_tnd,
+                        "theta_b": theta_b,
+                        "rc_b": rc_b,
+                        "rr_b": rr_b,
+                        "ri_b": ri_b,
+                        "rs_b": rs_b,
+                        "rg_b": rg_b,
+                        "delta_t_micro": delta_t_micro,
+                        "t_micro": t_micro,
+                    }
 
-    timing = {
-        "t_micro": ones((nx, ny, nz), backend=BACKEND),
-        "t_soft": ones((nx, ny, nz), backend=BACKEND),
-        "delta_t_micro": ones((nx, ny, nz), backend=BACKEND),
-        "delta_t_soft": ones((nx, ny, nz), backend=BACKEND),
-    }
+                    self.ice4_state_update(**state_state_update, **tmps_state_update)
 
-    state = {
-        "rv_t": ones((nx, ny, nz), backend=BACKEND),
-        "rc_t": ones((nx, ny, nz), backend=BACKEND),
-        "rr_t": ones((nx, ny, nz), backend=BACKEND),
-        "ri_t": ones((nx, ny, nz), backend=BACKEND),
-        "rs_t": ones((nx, ny, nz), backend=BACKEND),
-        "rg_t": ones((nx, ny, nz), backend=BACKEND),
-        "exn": ones((nx, ny, nz), backend=BACKEND),
-        "th_t": ones((nx, ny, nz), backend=BACKEND),
-        "ls_fact": ones((nx, ny, nz), backend=BACKEND),
-        "lv_fact": ones((nx, ny, nz), backend=BACKEND),
-        "t": ones((nx, ny, nz), backend=BACKEND),
-    }
+                    # TODO : next loop
+                    lsoft = True
+                    innerloop_counter += 1
+                outerloop_counter += 1
 
-    external_tendencies = {
-        "theta_ext_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rc_ext_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rr_ext_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "ri_ext_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rs_ext_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rg_ext_tnd": ones((nx, ny, nz), backend=BACKEND),
-    }
+            # l440 to l452
+            ################ external_tendencies_update ############
+            # if ldext_tnd
 
-    increments = {
-        "theta_b": ones((nx, ny, nz), backend=BACKEND),
-        "rc_b": ones((nx, ny, nz), backend=BACKEND),
-        "rr_b": ones((nx, ny, nz), backend=BACKEND),
-        "ri_b": ones((nx, ny, nz), backend=BACKEND),
-        "rs_b": ones((nx, ny, nz), backend=BACKEND),
-        "rg_b": ones((nx, ny, nz), backend=BACKEND),
-    }
-
-    internal_tnd = {
-        "theta_a_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rc_a_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rr_a_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "ri_a_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rs_a_tnd": ones((nx, ny, nz), backend=BACKEND),
-        "rg_a_tnd": ones((nx, ny, nz), backend=BACKEND),
-    }
-
-    initial_state_for_soft_loop = {
-        "rc_0r_t": ones((nx, ny, nz), backend=BACKEND),
-        "rr_0r_t": ones((nx, ny, nz), backend=BACKEND),
-        "ri_0r_t": ones((nx, ny, nz), backend=BACKEND),
-        "rs_0r_t": ones((nx, ny, nz), backend=BACKEND),
-        "rg_0r_t": ones((nx, ny, nz), backend=BACKEND),
-    }
-
-    ############## t_micro_init ################
-
-    state_t_micro_init = {
-        "t_micro": timing["t_micro"],
-        "ldmicro": masks["ldmicro"],
-    }
-
-    t_micro_init(**state_t_micro_init)
-
-    outerloop_counter = 0
-    max_outerloop_iterations = 10
-
-    innerloop_counter = 0
-    max_innerloop_iterations = 10
-
-    while np.any(timing["t_micro"][...] < TSTEP):
-
-        # Iterations limiter
-        if outerloop_counter >= max_outerloop_iterations:
-            break
-
-        while np.any(masks["ldcompute"][...]):
-
-            # Iterations limiter
-            if innerloop_counter >= max_innerloop_iterations:
-                break
-
-            # 244
-
-            # 249
-            ####### ice4_stepping_heat #############
-
-            state_stepping_heat = {
+            state_external_tendencies_update = {
                 key: state[key]
                 for key in [
-                    "rv_t",
+                    "tht",
                     "rc_t",
                     "rr_t",
                     "ri_t",
                     "rs_t",
                     "rg_t",
-                    "exn",
-                    "th_t",
-                    "ls_fact",
-                    "lv_fact",
-                    "t",
+                    "ldmicro",
+                    "theta_ext_tnd",
+                    "rc_ext_tnd",
+                    "rr_ext_tnd",
+                    "ri_ext_tnd",
+                    "rs_ext_tnd",
+                    "rg_ext_tnd",
                 ]
             }
 
-            ice4_stepping_heat(**state_stepping_heat)
+            self.external_tendencies_update(**state_external_tendencies_update)
 
-            ####### tendencies #######
-            #### TODO : tendencies state + components #####
-
-            ######### ice4_step_limiter ############################
-            state_step_limiter = {
-                **{
-                    key: state[key]
-                    for key in ["exn", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "tht"]
-                },
-                **internal_tnd,
-                **external_tendencies,
-                **timing,
-                "ldcompute": masks["ldcompute"],
-            }
-
-            ice4_step_limiter(**state_step_limiter)
-
-            # l346 to l388
-            ############ ice4_mixing_ratio_step_limiter ############
-            state_mixing_ratio_step_limiter = {
-                **{
-                    key: initial_state_for_soft_loop[key]
-                    for key in [
-                        "rc_0r_t",
-                        "rr_0r_t",
-                        "ri_0r_t",
-                        "rs_0r_t",
-                        "rg_0r_t",
-                    ]
-                },
-                **{key: state[key] for key in ["rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]},
-                **{
-                    key: increments[key]
-                    for key in ["rc_b", "rr_b", "ri_b", "rs_b", "rg_b"]
-                },
-                **{
-                    key: internal_tnd[key]
-                    for key in [
-                        "rc_tnd_a",
-                        "rr_tnd_a",
-                        "ri_tnd_a",
-                        "rs_tnd_a",
-                        "rg_tnd_a",
-                    ]
-                },
-                "delta_t_micro": timing["delta_t_micro"],
-                "ldcompute": masks["ldcompute"],
-            }
-
-            temporaries_mixing_ratio_step_limiter = {
-                "time_threshold_tmp": ones((nx, ny, nz), backend=BACKEND),
-            }
-
-            ice4_mixing_ratio_step_limiter(
-                **state_mixing_ratio_step_limiter,
-                **temporaries_mixing_ratio_step_limiter,
-            )
-
-            # l394 to l404
-            # 4.7 new values for next iteration
-            ############### ice4_state_update ######################
-            state_state_update = {
-                **{
-                    key: state[key]
-                    for key in ["tht", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "ci_t"]
-                },
-                **increments,
-                **internal_tnd,
-                **{key: timing[key] for key in ["delta_t_micro", "t_micro"]},
-                "ldmicro": masks["ldmicro"],
-            }
-
-            ice4_state_update(**state_state_update)
-
-            # TODO : next loop
-            lsoft = True
-            innerloop_counter += 1
-        outerloop_counter += 1
-
-    # l440 to l452
-    ################ external_tendencies_update ############
-    # if ldext_tnd
-
-    state_external_tendencies_update = {
-        **{key: state[key] for key in ["tht", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]},
-        **external_tendencies,
-        "ldmicro": masks["ldmicro"],
-    }
-
-    externals_tendencies_update(**state_external_tendencies_update)
-
-    # ice4_correct_negativities
-    # ice4_sedimentation
+            # TODO : add following stencils
+            # ice4_correct_negativities
+            # ice4_sedimentation
