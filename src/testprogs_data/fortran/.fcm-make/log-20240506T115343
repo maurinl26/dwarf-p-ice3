@@ -1,0 +1,682 @@
+[info] shell(32768  0.0) git --git-dir=/home/maurinl/fcm-2019.09.0/bin/../.git describe
+[info] FCM 2019.05.0 (/home/maurinl/fcm-2019.09.0)
+[init] make config-parse   # 2024-05-06T11:53:43Z
+[info] shell(256  0.0) svn info /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran
+[info] config-file=/home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/fcm-make-with-netcdf.cfg
+[done] make config-parse   # 0.0s
+[init] make dest-init      # 2024-05-06T11:53:43Z
+[info] dest=maurinl@pxdesrtls007:/home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran
+[info] mode=incremental
+[done] make dest-init      # 0.0s
+[init] make build          # 2024-05-06T11:53:43Z
+[info] analyse  0.0 getdata_ice_adjust_mod/.
+[info]              -> ( f.module) parkind1
+[info]              -> ( f.module) arrays_manip
+[info] sources: total=10, analysed=1, elapsed-time=0.0s, total-time=0.0s
+[info] source->target / -> (archive) lib/ libo.a
+[info] source->target arrays_manip -> (archive) lib/ arrays_manip/libo.a
+[info] source->target arrays_manip/. -> (install) include/ arrays_manip.F90
+[info] source->target arrays_manip/. -> (compile+) include/ arrays_manip.mod
+[info] source->target arrays_manip/. -> (compile) o/ arrays_manip.o
+[info] source->target getdata_ice_adjust_mod -> (archive) lib/ getdata_ice_adjust_mod/libo.a
+[info] source->target getdata_ice_adjust_mod/. -> (install) include/ getdata_ice_adjust_mod.F90
+[info] source->target getdata_ice_adjust_mod/. -> (compile+) include/ getdata_ice_adjust_mod.mod
+[info] source->target getdata_ice_adjust_mod/. -> (compile) o/ getdata_ice_adjust_mod.o
+[info] source->target main_ice_adjust.F90 -> (install) include/ main_ice_adjust.F90
+[info] source->target main_ice_adjust.F90 -> (link) bin/ main_ice_adjust.bin
+[info] source->target main_ice_adjust.F90 -> (compile) o/ main_ice_adjust.o
+[info] source->target modd_io -> (archive) lib/ modd_io/libo.a
+[info] source->target modd_io/. -> (install) include/ modd_io.F90
+[info] source->target modd_io/. -> (compile+) include/ modd_io.mod
+[info] source->target modd_io/. -> (compile) o/ modd_io.o
+[info] source->target modd_parameters -> (archive) lib/ modd_parameters/libo.a
+[info] source->target modd_parameters/. -> (install) include/ modd_parameters.F90
+[info] source->target modd_parameters/. -> (compile+) include/ modd_parameters.mod
+[info] source->target modd_parameters/. -> (compile) o/ modd_parameters.o
+[info] source->target parkind1 -> (archive) lib/ parkind1/libo.a
+[info] source->target parkind1/. -> (install) include/ parkind1.F90
+[info] source->target parkind1/. -> (compile+) include/ parkind1.mod
+[info] source->target parkind1/. -> (compile) o/ parkind1.o
+[info] source->target stack_mod -> (archive) lib/ stack_mod/libo.a
+[info] source->target stack_mod/. -> (install) include/ stack_mod.F90
+[info] source->target stack_mod/. -> (compile+) include/ stack_mod.mod
+[info] source->target stack_mod/. -> (compile) o/ stack_mod.o
+[info] source->target writedata_ice_adjust_mod -> (archive) lib/ writedata_ice_adjust_mod/libo.a
+[info] source->target writedata_ice_adjust_mod/. -> (install) include/ writedata_ice_adjust_mod.F90
+[info] source->target writedata_ice_adjust_mod/. -> (compile+) include/ writedata_ice_adjust_mod.mod
+[info] source->target writedata_ice_adjust_mod/. -> (compile) o/ writedata_ice_adjust_mod.o
+[info] source->target xrd_getoptions -> (archive) lib/ xrd_getoptions/libo.a
+[info] source->target xrd_getoptions/. -> (install) include/ xrd_getoptions.F90
+[info] source->target xrd_getoptions/. -> (compile+) include/ xrd_getoptions.mod
+[info] source->target xrd_getoptions/. -> (compile) o/ xrd_getoptions.o
+[info] source->target xrd_unix_env -> (archive) lib/ xrd_unix_env/libo.a
+[info] source->target xrd_unix_env/. -> (install) include/ xrd_unix_env.F90
+[info] source->target xrd_unix_env/. -> (compile+) include/ xrd_unix_env.mod
+[info] source->target xrd_unix_env/. -> (compile) o/ xrd_unix_env.o
+[info] target main_ice_adjust.bin
+[info] target  - arrays_manip.o
+[info] target  -  - parkind1.mod
+[info] target  -  -  - parkind1.o
+[info] target  - getdata_ice_adjust_mod.o
+[info] target  -  - arrays_manip.mod
+[info] target  -  -  - arrays_manip.o (n-deps=1)
+[info] target  -  - parkind1.mod (n-deps=1)
+[info] target  - main_ice_adjust.o
+[info] target  -  - getdata_ice_adjust_mod.mod
+[info] target  -  -  - getdata_ice_adjust_mod.o (n-deps=2)
+[info] target  -  - modd_io.mod
+[info] target  -  -  - modd_io.o
+[info] target  -  -  -  - modd_parameters.mod
+[info] target  -  -  -  -  - modd_parameters.o
+[info] target  -  - stack_mod.mod
+[info] target  -  -  - stack_mod.o
+[info] target  -  - writedata_ice_adjust_mod.mod
+[info] target  -  -  - writedata_ice_adjust_mod.o
+[info] target  -  -  -  - arrays_manip.mod (n-deps=1)
+[info] target  -  -  -  - parkind1.mod (n-deps=1)
+[info] target  -  - xrd_getoptions.mod
+[info] target  -  -  - xrd_getoptions.o
+[info] target  -  -  -  - parkind1.mod (n-deps=1)
+[info] target  -  -  -  - xrd_unix_env.mod
+[info] target  -  -  -  -  - xrd_unix_env.o
+[info] target  -  -  -  -  -  - parkind1.mod (n-deps=1)
+[info] target  - modd_io.o (n-deps=1)
+[info] target  - modd_parameters.o
+[info] target  - parkind1.o
+[info] target  - stack_mod.o
+[info] target  - writedata_ice_adjust_mod.o (n-deps=2)
+[info] target  - xrd_getoptions.o (n-deps=2)
+[info] target  - xrd_unix_env.o (n-deps=1)
+[info] required-target: link      bin     main_ice_adjust.bin
+[info] target-tree-analysis: elapsed-time=0.0s
+[info] compile   ---- U stack_mod.o          <- stack_mod/.
+[info] compile   ---- U parkind1.o           <- parkind1/.
+[info] compile+  ---- U parkind1.mod         <- parkind1/.
+[info] compile   ---- U xrd_unix_env.o       <- xrd_unix_env/.
+[info] compile+  ---- U xrd_unix_env.mod     <- xrd_unix_env/.
+[info] compile   ---- U xrd_getoptions.o     <- xrd_getoptions/.
+[info] compile   ---- U modd_parameters.o    <- modd_parameters/.
+[info] compile+  ---- U modd_parameters.mod  <- modd_parameters/.
+[info] compile   ---- U modd_io.o            <- modd_io/.
+[info] compile+  ---- U xrd_getoptions.mod   <- xrd_getoptions/.
+[info] compile+  ---- U stack_mod.mod        <- stack_mod/.
+[info] compile+  ---- U modd_io.mod          <- modd_io/.
+[info] compile   ---- U arrays_manip.o       <- arrays_manip/.
+[info] compile+  ---- U arrays_manip.mod     <- arrays_manip/.
+[info] shell(256  0.0) gfortran -oo/writedata_ice_adjust_mod.o -c -I./include -I/home/maurinl/var/task/include /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/writedata_ice_adjust_mod.F90
+[FAIL] gfortran -oo/writedata_ice_adjust_mod.o -c -I./include -I/home/maurinl/var/task/include /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/writedata_ice_adjust_mod.F90 # rc=1
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/writedata_ice_adjust_mod.F90:2:9:
+[FAIL]
+[FAIL]     2 |     use netCDF
+[FAIL]       |         1
+[FAIL] Fatal Error: Cannot open module file ‘netcdf.mod’ for reading at (1): Aucun fichier ou dossier de ce nom
+[FAIL] compilation terminated.
+[FAIL] compile    0.0 ! writedata_ice_adjust_mod.o <- writedata_ice_adjust_mod/.
+[info] shell(256  0.0) gfortran -oo/getdata_ice_adjust_mod.o -c -I./include -I/home/maurinl/var/task/include /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90
+[FAIL] gfortran -oo/getdata_ice_adjust_mod.o -c -I./include -I/home/maurinl/var/task/include /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90 # rc=1
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:10:132:
+[FAIL]
+[FAIL]    10 | & ZSIGQSAT_B, PSIGS_B, PMFCONV_B, PRC_MF_B, PRI_MF_B, PCF_MF_B, ZDUM1_B, ZDUM2_B, ZDUM3_B, ZDUM4_B, ZDUM5_B, PTHS_B, PRS_B, PSRCS_B, PCLDFR_B, PHLC_HRC_B, PHLC_HCF_B,   &
+[FAIL]       |                                                                                                                                    1
+[FAIL] Error: Line truncated at (1) [-Werror=line-truncation]
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:10:132:
+[FAIL]
+[FAIL]    10 | & ZSIGQSAT_B, PSIGS_B, PMFCONV_B, PRC_MF_B, PRI_MF_B, PCF_MF_B, ZDUM1_B, ZDUM2_B, ZDUM3_B, ZDUM4_B, ZDUM5_B, PTHS_B, PRS_B, PSRCS_B, PCLDFR_B, PHLC_HRC_B, PHLC_HCF_B,   &
+[FAIL]       |                                                                                                                                    1
+[FAIL] Error: Invalid character in name at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:11:2:
+[FAIL]
+[FAIL]    11 | & PHLI_HRI_B, PHLI_HCF_B, ZRS_B, ZZZ_B, PRS_OUT_B, PSRCS_OUT_B, PCLDFR_OUT_B, PHLC_HRC_OUT_B, PHLC_HCF_OUT_B,         &
+[FAIL]       |  1
+[FAIL] Error: Invalid character in name at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:14:13:
+[FAIL]
+[FAIL]    14 | IMPLICIT NONE
+[FAIL]       |             1
+[FAIL] Error: Unexpected IMPLICIT NONE statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:16:32:
+[FAIL]
+[FAIL]    16 | INTEGER, PARAMETER :: IFILE = 77
+[FAIL]       |                                1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:18:20:
+[FAIL]
+[FAIL]    18 | INTEGER      :: KLON
+[FAIL]       |                    1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:19:21:
+[FAIL]
+[FAIL]    19 | INTEGER      :: KIDIA
+[FAIL]       |                     1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:20:21:
+[FAIL]
+[FAIL]    20 | INTEGER      :: KFDIA
+[FAIL]       |                     1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:21:20:
+[FAIL]
+[FAIL]    21 | INTEGER      :: KLEV
+[FAIL]       |                    1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:22:19:
+[FAIL]
+[FAIL]    22 | INTEGER      :: KRR
+[FAIL]       |                   1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:23:20:
+[FAIL]
+[FAIL]    23 | INTEGER      :: KDUM
+[FAIL]       |                    1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:25:32:
+[FAIL]
+[FAIL]    25 | LOGICAL, INTENT(IN) :: LDVERBOSE
+[FAIL]       |                                1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:62:56:
+[FAIL]
+[FAIL]    62 | REAL(KIND=JPRD), ALLOCATABLE   :: PRHODJ         (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:63:56:
+[FAIL]
+[FAIL]    63 | REAL(KIND=JPRD), ALLOCATABLE   :: PEXNREF        (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:64:56:
+[FAIL]
+[FAIL]    64 | REAL(KIND=JPRD), ALLOCATABLE   :: PRHODREF       (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:65:56:
+[FAIL]
+[FAIL]    65 | REAL(KIND=JPRD), ALLOCATABLE   :: PPABSM         (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:66:56:
+[FAIL]
+[FAIL]    66 | REAL(KIND=JPRD), ALLOCATABLE   :: PTHT           (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:67:56:
+[FAIL]
+[FAIL]    67 | REAL(KIND=JPRD), ALLOCATABLE   :: PSIGS          (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:68:56:
+[FAIL]
+[FAIL]    68 | REAL(KIND=JPRD), ALLOCATABLE   :: PMFCONV        (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:69:56:
+[FAIL]
+[FAIL]    69 | REAL(KIND=JPRD), ALLOCATABLE   :: PRC_MF         (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:70:56:
+[FAIL]
+[FAIL]    70 | REAL(KIND=JPRD), ALLOCATABLE   :: PRI_MF         (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:71:56:
+[FAIL]
+[FAIL]    71 | REAL(KIND=JPRD), ALLOCATABLE   :: PCF_MF         (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:72:56:
+[FAIL]
+[FAIL]    72 | REAL(KIND=JPRD), ALLOCATABLE   :: PTHS           (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:73:58:
+[FAIL]
+[FAIL]    73 | REAL(KIND=JPRD), ALLOCATABLE   :: PRS            (:,:,:,:)
+[FAIL]       |                                                          1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:74:58:
+[FAIL]
+[FAIL]    74 | REAL(KIND=JPRD), ALLOCATABLE   :: PRS_OUT        (:,:,:,:)
+[FAIL]       |                                                          1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:75:56:
+[FAIL]
+[FAIL]    75 | REAL(KIND=JPRD), ALLOCATABLE   :: PSRCS_OUT      (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:76:56:
+[FAIL]
+[FAIL]    76 | REAL(KIND=JPRD), ALLOCATABLE   :: PCLDFR_OUT     (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:77:56:
+[FAIL]
+[FAIL]    77 | REAL(KIND=JPRD), ALLOCATABLE   :: PHLC_HRC_OUT   (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:78:56:
+[FAIL]
+[FAIL]    78 | REAL(KIND=JPRD), ALLOCATABLE   :: PHLC_HCF_OUT   (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:79:56:
+[FAIL]
+[FAIL]    79 | REAL(KIND=JPRD), ALLOCATABLE   :: PHLI_HRI_OUT   (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:80:56:
+[FAIL]
+[FAIL]    80 | REAL(KIND=JPRD), ALLOCATABLE   :: PHLI_HCF_OUT   (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:81:58:
+[FAIL]
+[FAIL]    81 | REAL(KIND=JPRD), ALLOCATABLE   :: ZRS            (:,:,:,:)
+[FAIL]       |                                                          1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:82:56:
+[FAIL]
+[FAIL]    82 | REAL(KIND=JPRD), ALLOCATABLE   :: ZZZ            (:,:,:)
+[FAIL]       |                                                        1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:84:38:
+[FAIL]
+[FAIL]    84 | INTEGER, INTENT(IN) :: NPROMA, NGPBLKS
+[FAIL]       |                                      1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:85:17:
+[FAIL]
+[FAIL]    85 | INTEGER :: NGPTOT
+[FAIL]       |                 1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:86:32:
+[FAIL]
+[FAIL]    86 | INTEGER, INTENT(INOUT) :: NFLEVG
+[FAIL]       |                                1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:87:20:
+[FAIL]
+[FAIL]    87 | INTEGER :: IOFF, IBL
+[FAIL]       |                    1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:88:18:
+[FAIL]
+[FAIL]    88 | LOGICAL :: LLEXIST
+[FAIL]       |                  1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:89:27:
+[FAIL]
+[FAIL]    89 | CHARACTER(LEN=32) :: CLFILE
+[FAIL]       |                           1
+[FAIL] Error: Unexpected data declaration statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:91:12:
+[FAIL]
+[FAIL]    91 | CALL SETUP()
+[FAIL]       |            1
+[FAIL] Error: Unexpected CALL statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:93:5:
+[FAIL]
+[FAIL]    93 | KRR=6
+[FAIL]       |     1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:94:25:
+[FAIL]
+[FAIL]    94 | NGPTOT = NPROMA * NGPBLKS
+[FAIL]       |                         1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:96:7:
+[FAIL]
+[FAIL]    96 | IBL = 1
+[FAIL]       |       1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:97:43:
+[FAIL]
+[FAIL]    97 | WRITE (CLFILE, '("data/",I8.8,".dat")') IBL
+[FAIL]       |                                           1
+[FAIL] Error: Unexpected WRITE statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:98:52:
+[FAIL]
+[FAIL]    98 | OPEN (IFILE, FILE=TRIM (CLFILE), FORM='UNFORMATTED')
+[FAIL]       |                                                    1
+[FAIL] Error: Unexpected OPEN statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:99:29:
+[FAIL]
+[FAIL]    99 | READ (IFILE) KLON, KDUM, KLEV
+[FAIL]       |                             1
+[FAIL] Error: Unexpected READ statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:100:13:
+[FAIL]
+[FAIL]   100 | CLOSE (IFILE)
+[FAIL]       |             1
+[FAIL] Error: Unexpected CLOSE statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:102:29:
+[FAIL]
+[FAIL]   102 | IF (NFLEVG < 0) NFLEVG = KLEV
+[FAIL]       |                             1
+[FAIL] Error: Unexpected simple IF statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:171:40:
+[FAIL]
+[FAIL]   171 | ZSIGQSAT_B     = 2.0000000000000000E-002
+[FAIL]       |                                        1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:172:20:
+[FAIL]
+[FAIL]   172 | ZICE_CLD_WGT_B = 1.5
+[FAIL]       |                    1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:174:8:
+[FAIL]
+[FAIL]   174 | IOFF = 0
+[FAIL]       |        1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:175:7:
+[FAIL]
+[FAIL]   175 | IBL = 0
+[FAIL]       |       1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:176:16:
+[FAIL]
+[FAIL]   176 | LLEXIST = .TRUE.
+[FAIL]       |                1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:178:17:
+[FAIL]
+[FAIL]   178 | DO WHILE(LLEXIST)
+[FAIL]       |                 1
+[FAIL] Error: Unexpected DO statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:179:15:
+[FAIL]
+[FAIL]   179 |   IBL = IBL + 1
+[FAIL]       |               1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:180:45:
+[FAIL]
+[FAIL]   180 |   WRITE (CLFILE, '("data/",I8.8,".dat")') IBL
+[FAIL]       |                                             1
+[FAIL] Error: Unexpected WRITE statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:182:45:
+[FAIL]
+[FAIL]   182 |   INQUIRE (FILE=TRIM (CLFILE), EXIST=LLEXIST)
+[FAIL]       |                                             1
+[FAIL] Error: Unexpected INQUIRE statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:184:39:
+[FAIL]
+[FAIL]   184 |   IF (LDVERBOSE) PRINT *, TRIM (CLFILE)
+[FAIL]       |                                       1
+[FAIL] Error: Unexpected simple IF statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:186:25:
+[FAIL]
+[FAIL]   186 |   IF (.NOT. LLEXIST) EXIT
+[FAIL]       |                         1
+[FAIL] Error: EXIT statement at (1) is not within a construct
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:188:54:
+[FAIL]
+[FAIL]   188 |   OPEN (IFILE, FILE=TRIM (CLFILE), FORM='UNFORMATTED')
+[FAIL]       |                                                      1
+[FAIL] Error: Unexpected OPEN statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:190:31:
+[FAIL]
+[FAIL]   190 |   READ (IFILE) KLON, KDUM, KLEV
+[FAIL]       |                               1
+[FAIL] Error: Unexpected READ statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:192:20:
+[FAIL]
+[FAIL]   192 |   IF (IBL == 1) THEN
+[FAIL]       |                    1
+[FAIL] Error: Unexpected block IF statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:193:14:
+[FAIL]
+[FAIL]   193 |     ALLOCATE (PRHODJ       (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:194:14:
+[FAIL]
+[FAIL]   194 |     ALLOCATE (PEXNREF      (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:195:14:
+[FAIL]
+[FAIL]   195 |     ALLOCATE (PRHODREF     (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:196:14:
+[FAIL]
+[FAIL]   196 |     ALLOCATE (PPABSM       (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:197:14:
+[FAIL]
+[FAIL]   197 |     ALLOCATE (PTHT         (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:198:14:
+[FAIL]
+[FAIL]   198 |     ALLOCATE (PSIGS        (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:199:14:
+[FAIL]
+[FAIL]   199 |     ALLOCATE (PMFCONV      (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:200:14:
+[FAIL]
+[FAIL]   200 |     ALLOCATE (PRC_MF       (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:201:14:
+[FAIL]
+[FAIL]   201 |     ALLOCATE (PRI_MF       (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:202:14:
+[FAIL]
+[FAIL]   202 |     ALLOCATE (PCF_MF       (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:203:14:
+[FAIL]
+[FAIL]   203 |     ALLOCATE (PTHS         (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:204:14:
+[FAIL]
+[FAIL]   204 |     ALLOCATE (PRS          (NGPTOT,KLEV,KRR,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:205:14:
+[FAIL]
+[FAIL]   205 |     ALLOCATE (PRS_OUT      (NGPTOT,KLEV,KRR,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:206:14:
+[FAIL]
+[FAIL]   206 |     ALLOCATE (PSRCS_OUT    (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:207:14:
+[FAIL]
+[FAIL]   207 |     ALLOCATE (PCLDFR_OUT   (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:208:14:
+[FAIL]
+[FAIL]   208 |     ALLOCATE (ZRS          (NGPTOT,KLEV,0:KRR,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:209:14:
+[FAIL]
+[FAIL]   209 |     ALLOCATE (ZZZ          (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:210:14:
+[FAIL]
+[FAIL]   210 |     ALLOCATE (PHLC_HRC_OUT (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:211:14:
+[FAIL]
+[FAIL]   211 |     ALLOCATE (PHLC_HCF_OUT (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:212:14:
+[FAIL]
+[FAIL]   212 |     ALLOCATE (PHLI_HRI_OUT (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:213:14:
+[FAIL]
+[FAIL]   213 |     ALLOCATE (PHLI_HCF_OUT (NGPTOT,KLEV,1))
+[FAIL]       |              1
+[FAIL] Error: Allocate-object at (1) is neither a data pointer nor an allocatable variable
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:214:5:
+[FAIL]
+[FAIL]   214 |   ENDIF
+[FAIL]       |     1
+[FAIL] Error: Expecting END MODULE statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:216:30:
+[FAIL]
+[FAIL]   216 |   IF (IOFF+KLON > NGPTOT) THEN
+[FAIL]       |                              1
+[FAIL] Error: Unexpected block IF statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:217:8:
+[FAIL]
+[FAIL]   217 |     EXIT
+[FAIL]       |        1
+[FAIL] Error: EXIT statement at (1) is not within a construct
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:218:5:
+[FAIL]
+[FAIL]   218 |   ENDIF
+[FAIL]       |     1
+[FAIL] Error: Expecting END MODULE statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:220:29:
+[FAIL]
+[FAIL]   220 |   READ (IFILE) PRHODJ       (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:221:29:
+[FAIL]
+[FAIL]   221 |   READ (IFILE) PEXNREF      (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:222:29:
+[FAIL]
+[FAIL]   222 |   READ (IFILE) PRHODREF     (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:223:29:
+[FAIL]
+[FAIL]   223 |   READ (IFILE) PSIGS        (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:224:29:
+[FAIL]
+[FAIL]   224 |   READ (IFILE) PMFCONV      (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:225:29:
+[FAIL]
+[FAIL]   225 |   READ (IFILE) PPABSM       (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:226:29:
+[FAIL]
+[FAIL]   226 |   READ (IFILE) ZZZ          (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:227:29:
+[FAIL]
+[FAIL]   227 |   READ (IFILE) PCF_MF       (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:228:29:
+[FAIL]
+[FAIL]   228 |   READ (IFILE) PRC_MF       (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:229:29:
+[FAIL]
+[FAIL]   229 |   READ (IFILE) PRI_MF       (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:230:29:
+[FAIL]
+[FAIL]   230 |   READ (IFILE) ZRS          (IOFF+1:IOFF+KLON,:,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:231:29:
+[FAIL]
+[FAIL]   231 |   READ (IFILE) PRS          (IOFF+1:IOFF+KLON,:,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:232:29:
+[FAIL]
+[FAIL]   232 |   READ (IFILE) PTHS         (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:233:29:
+[FAIL]
+[FAIL]   233 |   READ (IFILE) PRS_OUT      (IOFF+1:IOFF+KLON,:,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:234:29:
+[FAIL]
+[FAIL]   234 |   READ (IFILE) PSRCS_OUT    (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:235:29:
+[FAIL]
+[FAIL]   235 |   READ (IFILE) PCLDFR_OUT   (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:236:29:
+[FAIL]
+[FAIL]   236 |   READ (IFILE) PHLC_HRC_OUT (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:237:29:
+[FAIL]
+[FAIL]   237 |   READ (IFILE) PHLC_HCF_OUT (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:238:29:
+[FAIL]
+[FAIL]   238 |   READ (IFILE) PHLI_HRI_OUT (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:239:29:
+[FAIL]
+[FAIL]   239 |   READ (IFILE) PHLI_HCF_OUT (IOFF+1:IOFF+KLON,:,1)
+[FAIL]       |                             1
+[FAIL] Error: Syntax error in READ statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:241:15:
+[FAIL]
+[FAIL]   241 |   CLOSE (IFILE)
+[FAIL]       |               1
+[FAIL] Error: Unexpected CLOSE statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:243:20:
+[FAIL]
+[FAIL]   243 |   IOFF = IOFF + KLON
+[FAIL]       |                    1
+[FAIL] Error: Unexpected assignment statement in CONTAINS section at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:245:3:
+[FAIL]
+[FAIL]   245 | ENDDO
+[FAIL]       |   1
+[FAIL] Error: Expecting END MODULE statement at (1)
+[FAIL] /home/maurinl/maurinl26/dwarf-ice3-gt4py/src/testprogs_data/fortran/io/getdata_ice_adjust_mod.F90:312:3:
+[FAIL]
+[FAIL]   312 | END SUBROUTINE
+[FAIL]       |   1
+[FAIL] Error: Expecting END MODULE statement at (1)
+[FAIL] f951: some warnings being treated as errors
+[FAIL] compile    0.0 ! getdata_ice_adjust_mod.o <- getdata_ice_adjust_mod/.
+[info] compile   targets: modified=0, unchanged=7, failed=2, total-time=0.1s
+[info] compile+  targets: modified=0, unchanged=7, failed=0, total-time=0.0s
+[info] TOTAL     targets: modified=0, unchanged=14, failed=4, elapsed-time=0.1s
+[FAIL] ! getdata_ice_adjust_mod.mod: depends on failed target: getdata_ice_adjust_mod.o
+[FAIL] ! getdata_ice_adjust_mod.o: update task failed
+[FAIL] ! writedata_ice_adjust_mod.mod: depends on failed target: writedata_ice_adjust_mod.o
+[FAIL] ! writedata_ice_adjust_mod.o: update task failed
+[FAIL] make build          # 0.1s
+[FAIL] make                # 0.2s
