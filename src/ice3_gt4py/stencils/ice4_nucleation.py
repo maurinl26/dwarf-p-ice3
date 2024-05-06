@@ -19,9 +19,6 @@ def ice4_nucleation(
     rv_t: Field["float"],
     ci_t: Field["float"],
     rvheni_mr: Field["float"],
-    usw: Field["float"],  # PBUF(USW) in Fortran
-    w2: Field["float"],
-    w1: Field["float"],
     ssi: Field["float"],
 ):
     """Compute nucleation
@@ -65,6 +62,7 @@ def ice4_nucleation(
             usw = 0
             w2 = 0
 
+        else:
             w2 = log(t)
             usw = exp(ALPW - BETAW / t - GAMW * w2)
             w2 = exp(ALPI - BETAI / t - GAMI * w2)
@@ -116,8 +114,8 @@ def ice4_nucleation(
                     rvheni_mr, 1e-20
                 )
 
-            rvheni_mr *= w1
             w2 *= w1
+            rvheni_mr *= w1
 
     # l134
     with computation(PARALLEL), interval(...):

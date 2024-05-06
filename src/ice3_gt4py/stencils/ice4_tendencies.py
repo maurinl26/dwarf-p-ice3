@@ -1,7 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log, sqrt, computation, PARALLEL, interval
+from gt4py.cartesian.gtscript import (
+    Field,
+    exp,
+    log,
+    sqrt,
+    computation,
+    PARALLEL,
+    interval,
+)
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -201,7 +209,6 @@ def ice4_derived_fields(
     dv: Field["float"],
     ai: Field["float"],
     cj: Field["float"],
-    zw: Field["float"],
     rv_t: Field["float"],
 ):
 
@@ -280,7 +287,7 @@ def ice4_slope_parameters(
     )
 
     with computation(PARALLEL), interval(...):
-        
+
         lbdar = LBR * (rhodref * max(rr_t, R_RTMIN)) ** LBEXR if rr_t > 0 else 0
         # Translation note : l293 to l298 omitted LLRFR = True (not used in AROME)
         # Translation note : l299 to l301 kept (used in AROME)
@@ -300,7 +307,14 @@ def ice4_slope_parameters(
             else:
                 lbdas = 0
         else:
-            lbdas = min(LBDAS_MAX, LBS * (rhodref * max(rs_t, S_RTMIN)) ** LBEXS) if rs_t > 0 else 0
-                
-        lbdag = min(LBDAG_MAX, LBS * (rhodref * max(rg_t, G_RTMIN)) ** LBEXS) if rg_t > 0 else 0
-        
+            lbdas = (
+                min(LBDAS_MAX, LBS * (rhodref * max(rs_t, S_RTMIN)) ** LBEXS)
+                if rs_t > 0
+                else 0
+            )
+
+        lbdag = (
+            min(LBDAG_MAX, LBS * (rhodref * max(rg_t, G_RTMIN)) ** LBEXS)
+            if rg_t > 0
+            else 0
+        )

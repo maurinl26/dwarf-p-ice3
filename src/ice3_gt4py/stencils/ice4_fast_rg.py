@@ -23,6 +23,7 @@ from ice3_gt4py.functions.interp_micro import (
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rg.F90")
 @stencil_collection("ice4_fast_rg")
 def ice4_fast_rg(
+    ldsoft: "bool",  # bool to update tendencies
     ldcompute: Field["bool"],
     t: Field["float"],
     rhodref: Field["float"],
@@ -52,21 +53,8 @@ def ice4_fast_rg(
     rg_freez1_tnd: Field["float"],
     rg_freez2_tnd: Field["float"],
     rgmltr: Field["float"],
-    gdry: Field["bool"],
-    ldwetg: Field["int"],  # bool, true if graupel grows in wet mode (out)
-    lldryg: Field["int"],  # linked to gdry + temporary
-    rdryg_init_tmp: Field["float"],
-    rwetg_init_tmp: Field["float"],
-    zw_tmp: Field["float"],  # ZZW in Fortran
-    index_floor_s: Field["int"],
-    index_floor_g: Field["int"],
-    index_floor_r: Field["int"],
-    index_float_s: Field["float"],
-    index_float_g: Field["float"],
-    index_float_r: Field["float"],
     ker_sdryg: GlobalTable[float, (40, 40)],
     ker_rdryg: GlobalTable[float, (40, 40)],
-    ldsoft: "bool",  # bool to update tendencies
 ):
     """Compute fast graupel sources
 
