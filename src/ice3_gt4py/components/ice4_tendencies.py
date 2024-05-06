@@ -113,7 +113,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ri_tnd": {"grid": (I, J, K), "units": ""},
             "rs_tnd": {"grid": (I, J, K), "units": ""},
             "rg_tnd": {"grid": (I, J, K), "units": ""},
-            # B in f90
+            # B in f90 TODO : in diagnostics
             "theta_increment": {"grid": (I, J, K), "units": ""},
             "rv_increment": {"grid": (I, J, K), "units": ""},
             "rc_increment": {"grid": (I, J, K), "units": ""},
@@ -121,74 +121,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ri_increment": {"grid": (I, J, K), "units": ""},
             "rs_increment": {"grid": (I, J, K), "units": ""},
             "rg_increment": {"grid": (I, J, K), "units": ""},
-            # Slopes
-            "lbdar": {"grid": (I, J, K), "units": ""},
-            "lbdar_rf": {"grid": (I, J, K), "units": ""},
-            "lbdas": {"grid": (I, J, K), "units": ""},
-            "lbdag": {"grid": (I, J, K), "units": ""},
-            # mr - diagnostics
-            "rvheni_mr": {"grid": (I, J, K), "units": ""},
-            "rrhong_mr": {"grid": (I, J, K), "units": ""},
-            "rimltc_mr": {"grid": (I, J, K), "units": ""},
-            "rgsi_mr": {"grid": (I, J, K), "units": ""},
-            "rsrimcg_mr": {"grid": (I, J, K), "units": ""},
-            # tnd
-            "rc_honi_tnd": {"grid": (I, J, K), "units": ""},
-            "rv_deps_tnd": {"grid": (I, J, K), "units": ""},
-            "ri_aggs_tnd": {"grid": (I, J, K), "units": ""},
-            "ri_auts_tnd": {"grid": (I, J, K), "units": ""},
-            "rv_depg_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_mltg_tnd": {"grid": (I, J, K), "units": ""},
-            "rc_mltsr_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_rcrims_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_rcrimss_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_rsrimcg_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_rraccs_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_rraccss_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_rsaccrg_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_freez1_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_freez2_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_rcdry_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_ridry_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_rsdry_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_rrdry_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_riwet_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_rswet_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_freez1_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_freez2_tnd": {"grid": (I, J, K), "units": ""},
-            "rc_beri_tnd": {"grid": (I, J, K), "units": ""},
-            # transformations
-            "rgsi": {"grid": (I, J, K), "units": ""},
-            "rchoni": {"grid": (I, J, K), "units": ""},
-            "rvdeps": {"grid": (I, J, K), "units": ""},
-            "riaggs": {"grid": (I, J, K), "units": ""},
-            "riauts": {"grid": (I, J, K), "units": ""},
-            "rvdepg": {"grid": (I, J, K), "units": ""},
-            "rcautr": {"grid": (I, J, K), "units": ""},
-            "rcaccr": {"grid": (I, J, K), "units": ""},
-            "rrevav": {"grid": (I, J, K), "units": ""},
-            "rcberi": {"grid": (I, J, K), "units": ""},
-            "rsmltg": {"grid": (I, J, K), "units": ""},
-            "rcmltsr": {"grid": (I, J, K), "units": ""},
-            "rraccss": {"grid": (I, J, K), "units": ""},  # 13
-            "rraccsg": {"grid": (I, J, K), "units": ""},  # 14
-            "rsaccrg": {"grid": (I, J, K), "units": ""},  # 15
-            "rcrimss": {"grid": (I, J, K), "units": ""},  # 16
-            "rcrimsg": {"grid": (I, J, K), "units": ""},  # 17
-            "rsrimcg": {"grid": (I, J, K), "units": ""},  # 18
-            "ricfrrg": {"grid": (I, J, K), "units": ""},  # 19
-            "rrcfrig": {"grid": (I, J, K), "units": ""},  # 20
-            "ricfrr": {"grid": (I, J, K), "units": ""},  # 21
-            "rcwetg": {"grid": (I, J, K), "units": ""},  # 22
-            "riwetg": {"grid": (I, J, K), "units": ""},  # 23
-            "rrwetg": {"grid": (I, J, K), "units": ""},  # 24
-            "rswetg": {"grid": (I, J, K), "units": ""},  # 25
-            "rcdryg": {"grid": (I, J, K), "units": ""},  # 26
-            "ridryg": {"grid": (I, J, K), "units": ""},  # 27
-            "rrdryg": {"grid": (I, J, K), "units": ""},  # 28
-            "rsdryg": {"grid": (I, J, K), "units": ""},  # 29
-            "rgmltr": {"grid": (I, J, K), "units": ""},  # 31
-            # tnd_update
+            # tnd_update : TODO : in tendencies
             "theta_tnd": {"grid": (I, J, K), "units": ""},
             "rv_tnd": {"grid": (I, J, K), "units": ""},
             "rc_tnd": {"grid": (I, J, K), "units": ""},
@@ -237,7 +170,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             usw,
             w1,
             w2,
-            ssi,
             grim_tmp,
             gacc_tmp,
             zw_tmp,
@@ -257,10 +189,77 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             rwetg_init_tmp,
             index_floor_g,
             index_float_g,
+            # mr
+            rvheni_mr,
+            rrhong_mr,
+            rimltc_mr,
+            rgsi_mr,
+            rsrimcg_mr,
+            # slopes
+            lbdar,
+            lbdar_rf,
+            lbdas,
+            lbdag,
+            # tnd
+            rc_honi_tnd,
+            rv_deps_tnd,
+            ri_aggs_tnd,
+            ri_auts_tnd,
+            rv_depg_tnd,
+            rs_mltg_tnd,
+            rc_mltsr_tnd,
+            rs_rcrims_tnd,
+            rs_rcrimss_tnd,
+            rs_rsrimcg_tnd,
+            rs_rraccs_tnd,
+            rs_rraccss_tnd,
+            rs_rsaccrg_tnd,
+            rs_freez1_tnd,
+            rs_freez2_tnd,
+            rg_rcdry_tnd,
+            rg_ridry_tnd,
+            rg_rsdry_tnd,
+            rg_rrdry_tnd,
+            rg_riwet_tnd,
+            rg_rswet_tnd,
+            rg_freez1_tnd,
+            rg_freez2_tnd,
+            rc_beri_tnd,
+            # transfos
+            rgsi,
+            rchoni,
+            rvdeps,
+            riaggs,
+            riauts,
+            rvdepg,
+            rcautr,
+            rcaccr,
+            rrevav,
+            rcberi,
+            rsmltg,
+            rcmltsr,
+            rraccss,  # 13
+            rraccsg,  # 14
+            rsaccrg,  # 15
+            rcrimss,  # 16
+            rcrimsg,  # 17
+            rsrimcg,  # 18
+            ricfrrg,  # 19
+            rrcfrig,  # 20
+            ricfrr,  # 21
+            rcwetg,  # 22
+            riwetg,  # 23
+            rrwetg,  # 24
+            rswetg,  # 25
+            rcdryg,  # 26
+            ridryg,  # 27
+            rrdryg,  # 28
+            rsdryg,  # 29
+            rgmltr,  # 31
         ):
 
             ############## ice4_nucleation ################
-            self.state_nucleation = {
+            state_nucleation = {
                 "ldcompute": state["ldcompute"],
                 **{
                     key: state[key]
@@ -273,16 +272,16 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "t",
                         "rv_t",
                         "ci_t",
+                        "ssi",
                     ]
                 },
-                "rvheni_mr": state["rvheni_mr"],
             }
 
             temporaries_nucleation = {
-                "usw": {"grid": (I, J, K), "units": ""},
-                "w1": {"grid": (I, J, K), "units": ""},
-                "w2": {"grid": (I, J, K), "units": ""},
-                "ssi": {"grid": (I, J, K), "units": ""},
+                "rvheni_mr": rvheni_mr,
+                "usw": usw,
+                "w1": w1,
+                "w2": w2,
             }
 
             # timestep
@@ -295,11 +294,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                     key: state[key]
                     for key in ["t", "exn", "ls_fact", "lv_fact", "tht", "rv_t", "ri_t"]
                 },
-                "rvheni_mr": state["rvheni_mr"],
             }
 
+            tmps_nucleation_pp = {"rvheni_mr": rvheni_mr}
+
             # Timestep
-            self.ice4_nucleation_post_processing(**state_nucleation_pp)
+            self.ice4_nucleation_post_processing(
+                **state_nucleation_pp, **tmps_nucleation_pp
+            )
 
             ########################### ice4_rrhong #################################
             state_rrhong = {
@@ -308,10 +310,11 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                     key: state[key]
                     for key in ["t", "exn", "lv_fact", "ls_fact", "tht", "rr_t"]
                 },
-                "rrhong_mr": state["rrhong_mr"],
             }
 
-            self.ice4_rrhong(**state_rrhong)
+            tmps_rrhong = {"rrhong_mr": rrhong_mr}
+
+            self.ice4_rrhong(**state_rrhong, **rrhong_mr)
 
             ########################### ice4_rrhong_post_processing #################
             state_rrhong_pp = {
@@ -327,10 +330,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rr_t",
                     ]
                 },
-                "rrhong_mr": state["rrhong_mr"],
             }
 
-            self.ice4_rrhong_post_processing(**state_rrhong_pp)
+            self.ice4_rrhong_post_processing(**state_rrhong_pp, **tmps_rrhong)
 
             ########################## ice4_rimltc ##################################
             state_rimltc = {
@@ -346,10 +348,11 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "ri_t",
                     ]
                 },
-                "rimltc_mr": state["rimltc_mr"],
             }
 
-            self.ice4_rimltc(**state_rimltc)
+            tmps_rimltc = {"rimltc_mr": rimltc_mr}
+
+            self.ice4_rimltc(**state_rimltc, **tmps_rimltc)
 
             ####################### ice4_rimltc_post_processing #####################
 
@@ -358,10 +361,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                     key: state[key]
                     for key in ["t", "exn", "lv_fact", "ls_fact", "tht", "rc_t", "ri_t"]
                 },
-                "rimltc_mr": state["rimltc_mr"],
             }
 
-            self.ice4_rimltc_post_processing(**state_rimltc_pp)
+            self.ice4_rimltc_post_processing(**state_rimltc_pp, **tmps_rimltc)
 
             ######################## ice4_increment_update ##########################
             state_increment_update = {
@@ -378,13 +380,18 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rg_increment",
                     ]
                 },  # PB in F90
-                **{
-                    key: state[key]
-                    for key in ["rvheni_mr", "rimltc_mr", "rrhong_mr", "rsrimcg_mr"]
-                },
             }
 
-            self.ice4_increment_update(**state_increment_update)
+            tmps_increment_update = {
+                "rvheni_mr": rvheni_mr,
+                "rimltc_mr": rimltc_mr,
+                "rrhong_mr": rrhong_mr,
+                "rsrimcg_mr": rsrimcg_mr,
+            }
+
+            self.ice4_increment_update(
+                **state_increment_update, **tmps_increment_update
+            )
 
             ######################## ice4_derived_fields ############################
             state_derived_fields = {
@@ -413,10 +420,16 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             ######################## ice4_slope_parameters ##########################
             state_slope_parameters = {
                 **{key: state[key] for key in ["rhodref", "t", "rr_t", "rs_t", "rg_t"]},
-                **{key: state[key] for key in ["lbdar", "lbdar_rf", "lbdas", "lbdag"]},
             }
 
-            self.ice4_slope_parameters(**state_slope_parameters)
+            tmps_slopes = {
+                "lbdar": lbdar,
+                "lbdar_rf": lbdar_rf,
+                "lbdas": lbdas,
+                "lbdag": lbdag,
+            }
+
+            self.ice4_slope_parameters(**state_slope_parameters, **tmps_slopes)
 
             ######################## ice4_slow ######################################
             state_slow = {
@@ -440,20 +453,19 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "hli_hri",
                     ]
                 },
-                **{key: state[key] for key in ["lbdas", "lbdag"]},
-                **{
-                    key: tnd[key]
-                    for key in [
-                        "rc_honi_tnd",
-                        "rv_deps_tnd",
-                        "ri_aggs_tnd",
-                        "ri_auts_tnd",
-                        "rv_depg_tnd",
-                    ]
-                },
             }
 
-            self.ice4_slow(ldsoft=ldsoft, **state_slow)
+            tmps_slow = {
+                "lbdas": lbdas,
+                "lbdag": lbdag,
+                "rc_honi_tnd": rc_honi_tnd,
+                "rv_deps_tnd": rv_deps_tnd,
+                "ri_aggs_tnd": ri_aggs_tnd,
+                "ri_auts_tnd": ri_auts_tnd,
+                "rv_depg_tnd": rv_depg_tnd,
+            }
+
+            self.ice4_slow(ldsoft=ldsoft, **state_slow, **tmps_slow)
 
             ######################## ice4_warm ######################################
             state_warm = {
@@ -480,11 +492,17 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rf",
                     ]
                 },
-                **{key: state[key] for key in ["lbdar", "lbdar_rf"]},
-                **{key: state[key] for key in ["rcautr", "rcaccr", "rrevav"]},
             }
 
-            self.ice4_warm(ldsoft=ldsoft, **state_warm)
+            tmps_warm = {
+                "lbdar": lbdar,
+                "lbdar_rf": lbdar_rf,
+                "rcautr": rcautr,
+                "rcaccr": rcaccr,
+                "rrevav": rrevav,
+            }
+
+            self.ice4_warm(ldsoft=ldsoft, **state_warm, **tmps_warm)
 
             ######################## ice4_fast_rs ###################################
             state_fast_rs = {
@@ -506,37 +524,29 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rs_t",
                     ]
                 },
-                **{key: state[key] for key in ["lbdar", "lbdas"]},
-                **{
-                    key: state[key]
-                    for key in [
-                        "riaggs",
-                        "rcrimss",
-                        "rcrimsg",
-                        "rsrimcg",
-                        "rraccss",
-                        "rraccsg",
-                        "rsaccrg",
-                    ]
-                },
-                **{
-                    key: state[key]
-                    for key in [
-                        "rs_mltg_tnd",
-                        "rc_mltsr_tnd",  # cloud droplet collection onto aggregates
-                        "rs_rcrims_tnd",  # extra dimension 8 in Fortran PRS_TEND
-                        "rs_rcrimss_tnd",
-                        "rs_rsrimcg_tnd",
-                        "rs_rraccs_tnd",
-                        "rs_rraccss_tnd",
-                        "rs_rsaccrg_tnd",
-                        "rs_freez1_tnd",
-                        "rs_freez2_tnd",
-                    ]
-                },
             }
 
             temporaries_fast_rs = {
+                "lbdar": lbdar,
+                "lbdar_rf": lbdar_rf,
+                "rs_mltg_tnd": rs_mltg_tnd,
+                "rc_mltsr_tnd": rc_mltsr_tnd,
+                "rs_rcrims_tnd": rs_rcrims_tnd,  # extra dimension 8 in Fortran PRS_TEND
+                "rs_rcrimss_tnd": rs_rcrimss_tnd,
+                "rs_rsrimcg_tnd": rs_rsrimcg_tnd,
+                "rs_rraccs_tnd": rs_rraccs_tnd,
+                "rs_rraccss_tnd": rs_rraccss_tnd,
+                "rs_rsaccrg_tnd": rs_rsaccrg_tnd,
+                "rs_freez1_tnd": rs_freez1_tnd,
+                "rs_freez2_tnd": rs_freez2_tnd,
+                "riaggs": riaggs,
+                "rcrimss": rcrimss,
+                "rcrimsg": rcrimsg,
+                "rsrimcg": rsrimcg,
+                "rraccss": rraccss,
+                "rraccsg": rraccsg,
+                "rsaccrg": rsaccrg,
+                # TODO : remove following temps from signature
                 "grim_tmp": grim_tmp,
                 "gacc_tmp": gacc_tmp,
                 "zw_tmp": zw_tmp,
@@ -575,7 +585,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             ######################## ice4_fast_rg_pre_processing ####################
             state_fast_rg_pp = {
                 **{
-                    key: transformations[key]
+                    key: state[key]
                     for key in [
                         "rgsi",
                         "rvdepg",
@@ -586,10 +596,15 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rsrimcg",
                     ]
                 },
-                **{key: state[key] for key in ["rgsi_mr", "rrhong_mr", "rsrimcg_mr"]},
             }
 
-            self.ice4_fast_rg_pre_processing(**state_fast_rg_pp)
+            tmps_fast_rg_pp = {
+                "rgsi_mr": rgsi_mr,
+                "rrhong_mr": rrhong_mr,
+                "rsrimcg_mr": rsrimcg_mr,
+            }
+
+            self.ice4_fast_rg_pre_processing(**state_fast_rg_pp, **tmps_fast_rg_pp)
 
             ######################## ice4_fast_rg ###################################
             state_fast_rg = {
@@ -612,27 +627,25 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "cj",
                     ]
                 },
-                **{key: state[key] for key in ["lbdar", "lbdas", "lbdag"]},
-                **{
-                    key: state[key]
-                    for key in [
-                        "rg_rcdry_tnd",
-                        "rg_ridry_tnd",
-                        "rg_rsdry_tnd",
-                        "rg_rrdry_tnd",
-                        "rg_riwet_tnd",
-                        "rg_rswet_tnd",
-                        "rg_freez1_tnd",
-                        "rg_freez2_tnd",
-                    ]
-                },
-                **{
-                    key: state[key]
-                    for key in ["ricfrrg", "rrcfrig", "ricfrr", "rgmltr"]
-                },
             }
 
             temporaries_fast_rg = {
+                "lbdar": lbdar,
+                "lbdas": lbdas,
+                "lbdag": lbdag,
+                "rg_rcdry_tnd": rg_rcdry_tnd,
+                "rg_ridry_tnd": rg_ridry_tnd,
+                "rg_rsdry_tnd": rg_rsdry_tnd,
+                "rg_rrdry_tnd": rg_rrdry_tnd,
+                "rg_riwet_tnd": rg_riwet_tnd,
+                "rg_rswet_tnd": rg_rswet_tnd,
+                "rg_freez1_tnd": rg_freez1_tnd,
+                "rg_freez2_tnd": rg_freez2_tnd,
+                "ricfrrg": ricfrrg,
+                "rrcfrig": rrcfrig,
+                "ricfrr": ricfrr,
+                "rgmltr": rgmltr,
+                # TODO : remove following temporaries
                 "gdry": gdry,
                 "ldwetg": ldwetg,  # bool, true if graupel grows in wet mode (out)
                 "lldryg": lldryg,  # linked to gdry + temporary
@@ -675,10 +688,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "ri_t",
                     ]
                 },
-                "rc_beri_tnd": state["rc_beri_tnd"],
             }
 
-            self.ice4_fast_ri(ldsoft=ldsoft, **state_fast_ri)
+            tmps_fast_ri = {
+                "rc_beri_tnd": rc_beri_tnd,
+            }
+
+            self.ice4_fast_ri(ldsoft=ldsoft, **state_fast_ri, **tmps_fast_ri)
 
             ######################## ice4_tendencies_update #########################
 
@@ -696,44 +712,42 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rg_tnd",
                     ]
                 },
-                **{
-                    key: state[key]
-                    for key in [
-                        "rchoni",
-                        "rvdeps",
-                        "riaggs",
-                        "riauts",
-                        "rvdepg",
-                        "rcautr",
-                        "rcaccr",
-                        "rrevav",
-                        "rcberi",
-                        "rsmltg",
-                        "rcmltsr",
-                        "rraccss",  # 13
-                        "rraccsg",  # 14
-                        "rsaccrg",  # 15  # Rain accretion onto the aggregates
-                        "rcrimss",  # 16
-                        "rcrimsg",  # 17
-                        "rsrimcg",  # 18  # Cloud droplet riming of the aggregates
-                        "ricfrrg",  # 19
-                        "rrcfrig",  # 20
-                        "ricfrr",  # 21  # Rain contact freezing
-                        "rcwetg",  # 22
-                        "riwetg",  # 23
-                        "rrwetg",  # 24
-                        "rswetg",  # 25  # Graupel wet growth
-                        "rcdryg",  # 26
-                        "ridryg",  # 27
-                        "rrdryg",  # 28
-                        "rsdryg",  # 29  # Graupel dry growth
-                        "rgmltr",
-                    ]  # 31  # Melting of the graupel
-                },
-                **{
-                    key: state[key]
-                    for key in ["rvheni_mr", "rrhong_mr", "rimltc_mr", "rsrimcg_mr"]
-                },
             }
 
-            self.ice4_tendencies_update(**state_tendencies_update)
+            tmps_tnd_update = {
+                "rvheni_mr": rvheni_mr,
+                "rrhong_mr": rrhong_mr,
+                "rimltc_mr": rimltc_mr,
+                "rsrimcg_mr": rsrimcg_mr,
+                "rchoni": rchoni,
+                "rvdeps": rvdeps,
+                "riaggs": riaggs,
+                "riauts": riauts,
+                "rvdepg": rvdepg,
+                "rcautr": rcautr,
+                "rcaccr": rcaccr,
+                "rrevav": rrevav,
+                "rcberi": rcberi,
+                "rsmltg": rsmltg,
+                "rcmltsr": rcmltsr,
+                "rraccss": rraccss,  # 13
+                "rraccsg": rraccsg,  # 14
+                "rsaccrg": rsaccrg,  # 15  # Rain accretion onto the aggregates
+                "rcrimss": rcrimss,  # 16
+                "rcrimsg": rcrimsg,  # 17
+                "rsrimcg": rsrimcg,  # 18  # Cloud droplet riming of the aggregates
+                "ricfrrg": ricfrrg,  # 19
+                "rrcfrig": rrcfrig,  # 20
+                "ricfrr": ricfrr,  # 21  # Rain contact freezing
+                "rcwetg": rcwetg,  # 22
+                "riwetg": riwetg,  # 23
+                "rrwetg": rrwetg,  # 24
+                "rswetg": rswetg,  # 25  # Graupel wet growth
+                "rcdryg": rcdryg,  # 26
+                "ridryg": ridryg,  # 27
+                "rrdryg": rrdryg,  # 28
+                "rsdryg": rsdryg,  # 29  # Graupel dry growth
+                "rgmltr": rgmltr,
+            }
+
+            self.ice4_tendencies_update(**state_tendencies_update, **tmps_tnd_update)

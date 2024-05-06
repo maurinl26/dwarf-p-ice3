@@ -91,13 +91,6 @@ def allocate_state_ice4_tendencies(
         "hli_hri": allocate_f(),
     }
 
-    slopes = {
-        "lbdar": allocate_f(),
-        "lbdar_rf": allocate_f(),
-        "lbdas": allocate_f(),
-        "lbdag": allocate_f(),
-    }
-
     increments = {
         "theta_increment": allocate_f(),
         "rv_increment": allocate_f(),
@@ -106,74 +99,6 @@ def allocate_state_ice4_tendencies(
         "ri_increment": allocate_f(),
         "rs_increment": allocate_f(),
         "rg_increment": allocate_f(),
-    }
-
-    transformations = {
-        "rgsi": allocate_f(),
-        "rchoni": allocate_f(),
-        "rvdeps": allocate_f(),
-        "riaggs": allocate_f(),
-        "riauts": allocate_f(),
-        "rvdepg": allocate_f(),
-        "rcautr": allocate_f(),
-        "rcaccr": allocate_f(),
-        "rrevav": allocate_f(),
-        "rcberi": allocate_f(),
-        "rsmltg": allocate_f(),
-        "rcmltsr": allocate_f(),
-        "rraccss": allocate_f(),  # 13
-        "rraccsg": allocate_f(),  # 14
-        "rsaccrg": allocate_f(),  # 15  # Rain accretion onto the aggregates
-        "rcrimss": allocate_f(),  # 16
-        "rcrimsg": allocate_f(),  # 17
-        "rsrimcg": allocate_f(),  # 18  # Cloud droplet riming of the aggregates
-        "ricfrrg": allocate_f(),  # 19
-        "rrcfrig": allocate_f(),  # 20
-        "ricfrr": allocate_f(),  # 21  # Rain contact freezing
-        "rcwetg": allocate_f(),  # 22
-        "riwetg": allocate_f(),  # 23
-        "rrwetg": allocate_f(),  # 24
-        "rswetg": allocate_f(),  # 25  # Graupel wet growth
-        "rcdryg": allocate_f(),  # 26
-        "ridryg": allocate_f(),  # 27
-        "rrdryg": allocate_f(),  # 28
-        "rsdryg": allocate_f(),  # 29  # Graupel dry growth
-        "rgmltr": allocate_f(),  # 31
-    }
-
-    diags = {
-        "rvheni_mr": allocate_f(),
-        "rrhong_mr": allocate_f(),
-        "rimltc_mr": allocate_f(),
-        "rgsi_mr": allocate_f(),
-        "rsrimcg_mr": allocate_f(),
-    }
-
-    tnd = {
-        "rc_honi_tnd": allocate_f(),
-        "rv_deps_tnd": allocate_f(),
-        "ri_aggs_tnd": allocate_f(),
-        "ri_auts_tnd": allocate_f(),
-        "rv_depg_tnd": allocate_f(),
-        "rs_mltg_tnd": allocate_f(),  # conversion-melting of the aggregates
-        "rc_mltsr_tnd": allocate_f(),  # cloud droplet collection onto aggregates
-        "rs_rcrims_tnd": allocate_f(),  # extra dimension 8 in Fortran PRS_TEND
-        "rs_rcrimss_tnd": allocate_f(),
-        "rs_rsrimcg_tnd": allocate_f(),
-        "rs_rraccs_tnd": allocate_f(),
-        "rs_rraccss_tnd": allocate_f(),
-        "rs_rsaccrg_tnd": allocate_f(),
-        "rs_freez1_tnd": allocate_f(),
-        "rs_freez2_tnd": allocate_f(),
-        "rg_rcdry_tnd": allocate_f(),
-        "rg_ridry_tnd": allocate_f(),
-        "rg_rsdry_tnd": allocate_f(),
-        "rg_rrdry_tnd": allocate_f(),
-        "rg_riwet_tnd": allocate_f(),
-        "rg_rswet_tnd": allocate_f(),
-        "rg_freez1_tnd": allocate_f(),
-        "rg_freez2_tnd": allocate_f(),
-        "rc_beri_tnd": allocate_f(),
     }
 
     # Used in state tendencies update
@@ -191,13 +116,8 @@ def allocate_state_ice4_tendencies(
         **time_state,
         **masks,
         **state,
-        # TODO set following as temporaries
-        **slopes,
-        **increments,
-        **transformations,
-        **diags,
-        **tnd,
         **tnd_update,
+        **increments,
     }
 
 
