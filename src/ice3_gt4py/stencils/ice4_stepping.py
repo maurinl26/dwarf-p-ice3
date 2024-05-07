@@ -94,3 +94,22 @@ def ice4_stepping_heat(
         t = theta2temperature(th_t, exn)
         ls_fact = sublimation_latent_heat(t) / specific_heat
         lv_fact = vaporisation_latent_heat(t) / specific_heat
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+    from_line=230,
+    to_line=237,
+)
+@stencil_collection("ice4_stepping_ldcompute_init")
+def ice4_stepping_ldcompute_init(
+    ldcompute: Field["bool"], t_micro: Field["float"], dt: "float"
+):
+    """Initialize ldcompute mask
+
+    Args:
+        ldcompute (Field[bool]): temperature
+    """
+
+    with computation(PARALLEL), interval(...):
+        ldcompute = True if t_micro < dt else False

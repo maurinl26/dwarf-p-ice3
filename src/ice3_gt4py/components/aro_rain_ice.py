@@ -42,6 +42,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         # Stencil collections
         self.tmicro_init = compile_stencil("ice4_stepping_tmicro_init", externals)
         self.tsoft_init = compile_stencil("ice4_stepping_tsoft_init", externals)
+        self.ldcompute_init = compile_stencil("ice4_stepping_ldcompute_init", externals)
         self.ice4_stepping_heat = compile_stencil("ice4_stepping_heat", externals)
         self.ice4_step_limiter = compile_stencil("step_limiter", externals)
         self.ice4_mixing_ratio_step_limiter = compile_stencil(
@@ -103,6 +104,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
         with managed_temporary_storage(
             self.computational_grid,
+            *repeat(((I, J, K), "bool"), 1),
             *repeat(((I, J, K), "float"), 17),
             gt4py_config=self.gt4py_config,
         ) as (
@@ -147,27 +149,27 @@ class Ice4Stepping(ImplicitTendencyComponent):
             outerloop_counter = 0
             max_outerloop_iterations = 10
 
-            innerloop_counter = 0
-            max_innerloop_iterations = 10
+            # l223 in f90
+            while np.any(t_micro[...] < timestep):
 
-            while np.any(t_micro[...] < TSTEP):
+                # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
+                innerloop_counter = 0
+                max_innerloop_iterations = 10
+
+                # Translation note : l230 to l 237 in Fortran
+                self.ldcompute_init(ldcompute, t_micro)
 
                 # Iterations limiter
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                # TODO : set ldcompute as a temporary for this component
                 while np.any(ldcompute[...]):
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
                         break
 
-                    # 244
-
-                    # 249
                     ####### ice4_stepping_heat #############
-
                     state_stepping_heat = {
                         key: state[key]
                         for key in [
@@ -188,7 +190,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     self.ice4_stepping_heat(**state_stepping_heat)
 
                     ####### tendencies #######
-                    #### TODO : tendencies state + components #####
                     state_ice4_tendencies = {
                         **{
                             key: state[key]
@@ -244,11 +245,11 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         "rg_increment": rg_b,
                     }
 
-                    # others
-
                     self.ice4_tendencies(
                         ldsoft=lsoft, **state_ice4_tendencies, **tmps_ice4_tendencies
                     )
+
+                    # Translation note : l277 to l283 omitted, no external tendencies in AROME
 
                     ######### ice4_step_limiter ############################
                     state_step_limiter = {
@@ -311,7 +312,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         "rs_0r_t": rs_0r_t,
                         "rg_0r_t": rg_0r_t,
                         "delta_t_micro": delta_t_micro,
-                        "time_threshold_tmp": time_threshold_tmp,
                     }
 
                     self.ice4_mixing_ratio_step_limiter(
