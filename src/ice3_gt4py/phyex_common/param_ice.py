@@ -6,7 +6,7 @@ from typing import Literal
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class
 
-from ice3_gt4py.drivers.namel2config import Namparar
+from drivers.namel2config import Namparar
 
 
 # Stands for CSUBG_MF_PDF in modd_param_icen.F90
