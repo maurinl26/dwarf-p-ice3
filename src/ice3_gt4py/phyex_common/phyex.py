@@ -5,7 +5,7 @@ from enum import Enum
 
 from ifs_physics_common.utils.f2py import ported_class
 
-from drivers.namel2config import Namparar
+from ice3_gt4py.phyex_common.namel2config import Namparar
 from ice3_gt4py.phyex_common.constants import Constants
 from ice3_gt4py.phyex_common.nebn import Neb
 from ice3_gt4py.phyex_common.rain_ice_param import ParamIce, RainIceDescr, RainIceParam
