@@ -82,6 +82,8 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ice4_tendencies_update", externals
         )
 
+        self.ice4_compute_pdf = compile_stencil("ice4_compute_pdf", externals)
+
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
@@ -362,6 +364,33 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             self.ice4_increment_update(
                 **state_increment_update, **tmps_increment_update
             )
+
+            ######################## ice4_compute_pdf ###############################
+            state_compute_pdf = {
+                key: state[key]
+                for key in [
+                    "ldcompute",
+                    "rhodref",
+                    "rc_t",
+                    "ri_t",
+                    "cf",
+                    "t",
+                    "sigma_rc",
+                    "hlc_hcf",
+                    "hlc_lcf",
+                    "hlc_hrc",
+                    "hlc_lrc",
+                    "hli_hcf",
+                    "hli_lcf",
+                    "hli_hri",
+                    "hli_lri",
+                    "fr",
+                ]
+            }
+
+            self.ice4_compute_pdf(**state_compute_pdf)
+
+            # l263 to l278 omitted because LLRFR is False in AROME
 
             ######################## ice4_derived_fields ############################
             state_derived_fields = {
