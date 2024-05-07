@@ -1,6 +1,6 @@
 # Compilation
 $FCOMPILER     =     gfortran
-$BASE_FFLAGS   =     -c -fPIC -fdefault-real-8 -fdefault-double-8 -ffree-line-length-none -fopenmp -fconvert=swap -fallow-argument-mismatch
+$BASE_FFLAGS   =     -c -fPIC -fdefault-real-8 -fdefault-double-8 -ffree-line-length-none -fopenmp -fconvert=swap -fallow-argument-mismatch -I/home/maurinl/var/task/netcdf/
 $PROD_FFLAGS   =     -O3
 $DEV_FFLAGS    =     -O1
 $DEBUG_FFLAGS  =     -O0 -g -fbounds-check -finit-real=snan -ffpe-trap=invalid,zero,overflow
@@ -17,7 +17,7 @@ $CPP_FLAGS     =     LINUX LITTLE_ENDIAN LITTLE
 
 # Linker
 $LINK          =     gfortran
-$BASE_LD       =     -fPIC  -fdefault-real-8 -fdefault-double-8 -fopenmp -L/home/maurinl/netcdf-fortran-4.4.4 -lnetcdff -lnetcdf
+$BASE_LD       =     -fPIC  -fdefault-real-8 -fdefault-double-8 -fopenmp -lnetcdff -L/home/maurinl/netcdf-fortran-4.4.4 -lnetcdf
 $OMP_LD        =
 $LD_EXE_TO_SHARED = -shared
 
