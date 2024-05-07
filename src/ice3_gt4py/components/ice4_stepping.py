@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import logging
-from dataclasses import asdict
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
-from typing import Dict
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -385,6 +382,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
             self.external_tendencies_update(**state_external_tendencies_update)
 
-            # TODO : add following stencils
-            # ice4_correct_negativities
-            # ice4_sedimentation
+            ################## RAIN_ICE ############################
+            # Translation note : this is part of rain_ice.F90 in fortran
+
+            ############### ice4_correct_negativities ##############
+
+            ############### ice4_sedimentation #####################
