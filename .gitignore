@@ -2,6 +2,8 @@
 .venv
 data
 sandbox
+namelists
+src/testprogs_data/fortran/.fcm-make/
 
 .dacecache/
 .venv-prod/
@@ -14,3 +16,4 @@ src/phyex_gt4py/stencils/ice4*
 
 *.log
 *.sh
+*.mod
