@@ -2,9 +2,11 @@
 from dataclasses import dataclass, field
 from math import gamma, log
 from typing import Tuple
+from numpy.typing import NDArray
+
 
 import numpy as np
-from ifs_physics_common.utils.f2py import ported_class
+from ifs_physics_common.utils.f2py import ported_class, ported_method
 
 from ice3_gt4py.phyex_common.constants import Constants
 from ice3_gt4py.phyex_common.param_ice import ParamIce
@@ -207,6 +209,10 @@ class RainIceParam:
 
     NGAMINC: int = field(init=False)  # Number of tab. Lbda_s
 
+    GAMINC_RIM1: NDArray = field(init=False)
+    GAMINC_RIM2: NDArray = field(init=False)
+    GAMINC_RIM4: NDArray = field(init=False)
+
     # TODO : tabulations for incomplete gamma
 
     # Constants for the accretion
@@ -275,9 +281,6 @@ class RainIceParam:
     NDRYLBDAR: int = field(default=40)
     NDRYLBDAS: int = field(default=80)
     NDRYLBDAG: int = field(default=40)
-
-    # growth kernel tabulations
-    # TODO: xker_sdryg, xker_rdryg
 
     def __post_init__(self):
         # 4. CONSTANTS FOR THE SEDIMENTATION
@@ -720,6 +723,30 @@ class RainIceParam:
 
         # Tranlsation note : 9. Constants for hailstones not implemented
         #                    l1162 to l1481 removed
+
+    @ported_method(from_file="PHYEX/src/common/micro/mode_ini_rain_ice.F90")
+    def init_gaminc(self):
+
+        zrate = np.exp(
+            log(self.GAMINC_BOUND_MAX / self.GAMINC_BOUND_MIN) / (self.NGAMINC - 1)
+        )
+
+        self.GAMINC_RIM1 = np.empty(self.NGAMINC)
+        self.GAMINC_RIM2 = np.empty(self.NGAMINC)
+        self.GAMINC_RIM4 = np.empty(self.NGAMINC)
+
+        # in F90 J1 = 1, NGAMINC
+        for j1 in range(self.NGAMINC):
+            zbound = self.GAMINC_BOUND_MIN * zrate * j1
+            self.GAMINC_RIM1 = gamma_inc(
+                self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS, zbound
+            )
+            self.GAMINC_RIM2 = gamma_inc(
+                self.rid.NUS + self.rid.BS / self.rid.ALPHAS, zbound
+            )
+            self.GAMINC_RIM4 = gamma_inc(
+                self.rid.NUS + self.rid.BG / self.rid.ALPHAS, zbound
+            )
 
 
 @dataclass
