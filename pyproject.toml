@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "dwarf-phyex-gt4py"
+name = "dwarf-p-ice3"
 version = "0.1.0"
 description = "Externalized App for ICE3 Microphysics in GT4Py"
 authors = ["Loïc Maurin <loic.maurin@meteo.fr>"]
@@ -9,7 +9,6 @@ packages = [
     { include = "ice3_gt4py", from = "src" },
     { include = "drivers", from= "src"},
     { include = "testprogs_data", from = "src"},
-    { include = "test_util"     , from = "src" },
 ]
 
 [tool.poetry.dependencies]
