@@ -1,13 +1,15 @@
-COMPIL = gfortran
+# COMPIL = gfortran
+COMPIL = mpif90
 FLAGS  = -ffree-line-length-none	\
-	-fno-protect-parens	\
-	-g3 -fcheck=bounds	\
-	-funroll-loops	\
-	-march=native	\
-	-fbackslash	\
-	-ffast-math -O3	\
-	-flto	\
-        -fno-strict-aliasing
+		-fno-protect-parens	\
+		-g3 -fcheck=bounds	\
+		-funroll-loops	\
+		-march=native	\
+		-fbackslash	\
+		-ffast-math -O3	\
+		-flto	\
+        -fno-strict-aliasing \
+		-mcmodel=large
 EXEDIR = ..
 OBJS   = modd_io.o     \
         modd_parameters.o	\
@@ -15,6 +17,7 @@ OBJS   = modd_io.o     \
 	 	writedata_ice_adjust_mod.o	\
 	 	xrd_getoptions.o      \
 	 	xrd_unix_env.o	\
+		arrays_manip.o
 
 EXE    = main_ice_adjust
 #---------------------------------------------------------------------#
@@ -36,9 +39,14 @@ main_ice_adjust.o: main_ice_adjust.F90 $(OBJS)
 	@$(COMPIL) $(FLAGS) -c main_ice_adjust.F90
 	@echo "    ok"
 
-writedata_ice_adjust_mod.o: writedata_ice_adjust_mod.F90 parkind1.o
+writedata_ice_adjust_mod.o: writedata_ice_adjust_mod.F90 parkind1.o arrays_manip.o
 	@echo -n "writedata_ice_adjust_mod.o      : "
 	@$(COMPIL) $(FLAGS) -c writedata_ice_adjust_mod.F90 -lnetcdff -I/usr/include
+	@echo "    ok"
+
+arrays_manip.o: arrays_manip.F90 parkind1.o
+	@echo -n "arrays_manip.o      : "
+	@$(COMPIL) $(FLAGS) -c arrays_manip.F90
 	@echo "    ok"
 
 modd_io.o : modd_io.F90 modd_parameters.o
