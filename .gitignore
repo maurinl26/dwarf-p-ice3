@@ -3,12 +3,15 @@
 data
 sandbox
 namelists
+src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
+src/testprogs_data/main_ice_adjust
 
 .dacecache/
 .venv-prod/
 .gt_cache/
 src/ice3_gt4py/__pycache__/
+src/PHYEX/
 
 *.pyc
 src/ice3_gt4py/drivers/tests.py
@@ -17,3 +20,5 @@ src/ice3_gt4py/stencils/ice4*
 *.log
 *.sh
 *.mod
+*.o
+*.cfg
