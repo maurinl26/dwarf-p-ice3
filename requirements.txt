@@ -2,7 +2,7 @@ aenum==3.1.15
 asttokens==2.4.1
 astunparse==1.6.3
 attrs==23.2.0
-black==24.3.0
+black==24.4.2
 blinker==1.7.0
 boltons==23.1.1
 build==1.2.1
@@ -72,7 +72,7 @@ packaging==24.0
 pandas==2.2.1
 pathspec==0.12.1
 pexpect==4.9.0
-pillow==10.2.0
+pillow==10.3.0
 Pint==0.23
 pkginfo==1.10.0
 platformdirs==4.2.0
@@ -113,7 +113,7 @@ tzdata==2024.1
 urllib3==2.2.1
 virtualenv==20.25.1
 websockets==12.0
-Werkzeug==3.0.1
+Werkzeug==3.0.3
 xarray==2024.2.0
 xxhash==3.0.0
 zipp==3.18.1
