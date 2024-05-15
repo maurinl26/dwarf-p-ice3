@@ -9,9 +9,9 @@ from itertools import repeat
 from typing import Dict
 from gt4py.storage import from_array
 import numpy as np
-from phyex_common.xker_raccs import ker_raccs, ker_raccss, ker_saccrg
-from phyex_common.xker_sdryg import ker_sdryg
-from phyex_common.xker_rdryg import ker_rdryg
+from ice3_gt4py.phyex_common.xker_raccs import ker_raccs, ker_raccss, ker_saccrg
+from ice3_gt4py.phyex_common.xker_sdryg import ker_sdryg
+from ice3_gt4py.phyex_common.xker_rdryg import ker_rdryg
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
