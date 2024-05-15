@@ -4,6 +4,7 @@ from ifs_physics_common.utils.f2py import ported_method
 import logging
 
 from numpy import exp, log, finfo
+import numpy as np
 
 
 @ported_method(from_file="PHYEX/src/common/aux/gamma_inc.F90")
@@ -56,7 +57,7 @@ def gamma_inc(a: float, x: float):
 
     else:
         b = x + 1 - a
-        c = 1 / finfo.tiny
+        c = 1 / finfo(np.float64).tiny
         d = 1 / b
         h = d
         jn = 1
@@ -67,9 +68,9 @@ def gamma_inc(a: float, x: float):
             b += 2
             d = an * d + b
 
-            if abs(d) < finfo.tiny:
+            if abs(d) < finfo(np.float64).tiny:
                 d = zfpmin
-            if abs(c) < finfo.tiny:
+            if abs(c) < finfo(np.float64).tiny:
                 c = zfpmin
 
             d = 1 / d
