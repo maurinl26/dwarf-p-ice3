@@ -204,7 +204,7 @@ class RainIceParam:
 
     GAMINC_BOUND_MIN: float = field(init=False)
     GAMINC_BOUND_MAX: float = field(init=False)
-    # TODO : look at kernel computations
+
     RIMINTP1: float = field(init=False)
     RIMINTP2: float = field(init=False)
 
@@ -213,8 +213,6 @@ class RainIceParam:
     GAMINC_RIM1: NDArray = field(init=False)
     GAMINC_RIM2: NDArray = field(init=False)
     GAMINC_RIM4: NDArray = field(init=False)
-
-    # TODO : tabulations for incomplete gamma
 
     # Constants for the accretion
     FRACCSS: float = field(init=False)
@@ -238,7 +236,6 @@ class RainIceParam:
     NACCLBDAS: int = field(default=40)
     NACCLBDAR: int = field(default=40)
 
-    # TODO : reference vers global tables
     # 7.3 Constant for the conversion-melting rate
     FSCVMG: float = field(default=2)
 
@@ -618,7 +615,6 @@ class RainIceParam:
         self.ACCINTP2R = 1 - log(self.ACCLBDAR_MIN) / zrate
 
         # Translation note : l800 to 902 -> computation of the kernels
-        # TODO : compute kernels in another method
 
         # 8 Constants for the fast cold processes for the graupel
 
@@ -721,12 +717,18 @@ class RainIceParam:
         self.DRYINTP2G = 1 - log(self.DRYLBDAG_MIN) / zrate
 
         # Translation note : l1018 to l1152 -> computation of the kernels
-        # TODO : compute kernels in another method
 
         # Tranlsation note : l1154 to l1160 skipped
 
         # Tranlsation note : 9. Constants for hailstones not implemented
         #                    l1162 to l1481 removed
+
+        # kernels
+        self.ker_saccrg = self.get_kernel("saccrg")
+        self.ker_raccs = self.get_kernel("raccs")
+        self.ker_raccss = self.get_kernel("raccss")
+        self.ker_rdryg = self.get_kernel("rdryg")
+        self.ker_sdryg = self.get_kernel("sdryg")
 
     @ported_method(from_file="PHYEX/src/common/micro/mode_ini_rain_ice.F90")
     def init_gaminc_rim_tables(self):
@@ -762,6 +764,37 @@ class RainIceParam:
                 for j1 in range(self.NGAMINC)
             ]
         )
+
+    def get_kernel(self, kernel):
+
+        if kernel == "saccrg":
+            from ice3_gt4py.phyex_common.xker_raccs import ker_saccrg
+
+            return ker_saccrg[1:, 1:]
+
+        elif kernel == "raccs":
+            from ice3_gt4py.phyex_common.xker_raccs import ker_raccs
+
+            return ker_raccs[1:, 1:]
+
+        elif kernel == "raccss":
+            from ice3_gt4py.phyex_common.xker_raccs import ker_raccss
+
+            return ker_raccss[1:, 1:]
+
+        elif kernel == "rdryg":
+
+            from ice3_gt4py.phyex_common.xker_rdryg import ker_rdryg
+
+            return ker_rdryg[1:, 1:]
+
+        elif kernel == "sdryg":
+            from ice3_gt4py.phyex_common.xker_sdryg import ker_sdryg
+
+            return ker_sdryg[1:, 1:]
+
+        else:
+            raise KeyError(f"{kernel} not found in GlobalTables")
 
 
 @dataclass

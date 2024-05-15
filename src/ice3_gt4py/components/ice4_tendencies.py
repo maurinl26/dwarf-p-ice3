@@ -53,6 +53,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         self.gaminc_rim2 = phyex.rain_ice_param.GAMINC_RIM2
         self.gaminc_rim4 = phyex.rain_ice_param.GAMINC_RIM4
 
+        self.ker_raccs = phyex.rain_ice_param.ker_raccs
+        self.ker_raccss = phyex.rain_ice_param.ker_raccss
+        self.ker_saccrg = phyex.rain_ice_param.ker_saccrg
+        self.ker_sdryg = phyex.rain_ice_param.ker_sdryg
+        self.ker_rdryg = phyex.rain_ice_param.ker_rdryg
+
         # Tendencies
         self.ice4_nucleation = compile_stencil("ice4_nucleation", externals)
         self.ice4_nucleation_post_processing = compile_stencil(
@@ -558,9 +564,11 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 self.gaminc_rim4, backend=self.gt4py_config.backend
             )
 
-            ker_raccs = from_array(ker_raccs, backend=self.gt4py_config.backend)
-            ker_raccss = from_array(ker_raccss, backend=self.gt4py_config.backendEND)
-            ker_saccrg = from_array(ker_saccrg, backend=self.gt4py_config.backend)
+            ker_raccs = from_array(self.ker_raccs, backend=self.gt4py_config.backend)
+            ker_raccss = from_array(
+                self.ker_raccss, backend=self.gt4py_config.backendEND
+            )
+            ker_saccrg = from_array(self.ker_saccrg, backend=self.gt4py_config.backend)
 
             self.ice4_fast_rs(
                 ldsoft=ldsoft,
@@ -639,8 +647,8 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rgmltr": rgmltr,
             }
 
-            ker_sdryg = from_array(ker_sdryg, backend=self.gt4py_config.backend)
-            ker_rdryg = from_array(ker_rdryg, backend=self.gt4py_config.backend)
+            ker_sdryg = from_array(self.ker_sdryg, backend=self.gt4py_config.backend)
+            ker_rdryg = from_array(self.ker_rdryg, backend=self.gt4py_config.backend)
 
             self.ice4_fast_rg(
                 ldsoft=ldsoft,

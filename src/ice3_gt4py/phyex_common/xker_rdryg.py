@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-ker_rdryg = np.empty((40, 40))
+ker_rdryg = np.empty((41, 41))
 
 ker_rdryg[1, 1] = 0.113429e02
 ker_rdryg[1, 2] = 0.888532e01
