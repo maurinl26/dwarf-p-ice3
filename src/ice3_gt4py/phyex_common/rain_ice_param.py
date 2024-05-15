@@ -9,6 +9,7 @@ import numpy as np
 from ifs_physics_common.utils.f2py import ported_class, ported_method
 
 from ice3_gt4py.phyex_common.constants import Constants
+from ice3_gt4py.phyex_common.gamma_inc import gamma_inc
 from ice3_gt4py.phyex_common.param_ice import ParamIce
 from ice3_gt4py.phyex_common.rain_ice_descr import RainIceDescr
 
@@ -563,6 +564,9 @@ class RainIceParam:
             self.DCSLIM / (self.GAMINC_BOUND_MIN) ** (1 / self.rid.ALPHAS)
         )
 
+        # init GAMINC_RIM1, GAMINC_RIM2, GAMINC_RIM4
+        self.init_gaminc_rim_tables()
+
         # 7.2 Constants for the accretion of raindrops
 
         # Translation note: #ifdef REPRO48 l763 kept
@@ -725,28 +729,39 @@ class RainIceParam:
         #                    l1162 to l1481 removed
 
     @ported_method(from_file="PHYEX/src/common/micro/mode_ini_rain_ice.F90")
-    def init_gaminc(self):
+    def init_gaminc_rim_tables(self):
 
         zrate = np.exp(
             log(self.GAMINC_BOUND_MAX / self.GAMINC_BOUND_MIN) / (self.NGAMINC - 1)
         )
 
-        self.GAMINC_RIM1 = np.empty(self.NGAMINC)
-        self.GAMINC_RIM2 = np.empty(self.NGAMINC)
-        self.GAMINC_RIM4 = np.empty(self.NGAMINC)
-
-        # in F90 J1 = 1, NGAMINC
-        for j1 in range(self.NGAMINC):
-            zbound = self.GAMINC_BOUND_MIN * zrate * j1
-            self.GAMINC_RIM1 = gamma_inc(
-                self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS, zbound
-            )
-            self.GAMINC_RIM2 = gamma_inc(
-                self.rid.NUS + self.rid.BS / self.rid.ALPHAS, zbound
-            )
-            self.GAMINC_RIM4 = gamma_inc(
-                self.rid.NUS + self.rid.BG / self.rid.ALPHAS, zbound
-            )
+        self.GAMINC_RIM1 = np.array(
+            [
+                gamma_inc(
+                    self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS,
+                    self.GAMINC_BOUND_MIN * zrate * j1,
+                )
+                for j1 in range(self.NGAMINC)
+            ]
+        )
+        self.GAMINC_RIM2 = np.array(
+            [
+                gamma_inc(
+                    self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
+                    self.GAMINC_BOUND_MIN * zrate * j1,
+                )
+                for j1 in range(self.NGAMINC)
+            ]
+        )
+        self.GAMINC_RIM4 = np.array(
+            [
+                gamma_inc(
+                    self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
+                    self.GAMINC_BOUND_MIN * zrate * j1,
+                )
+                for j1 in range(self.NGAMINC)
+            ]
+        )
 
 
 @dataclass
