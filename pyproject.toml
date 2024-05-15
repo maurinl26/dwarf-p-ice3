@@ -5,6 +5,7 @@ description = "Externalized App for ICE3 Microphysics in GT4Py"
 authors = ["Loïc Maurin <loic.maurin@meteo.fr>"]
 license = "Apache-2.0"
 readme = "README.md"
+package-mode = false
 packages = [
     { include = "ice3_gt4py", from = "src" },
     { include = "drivers", from= "src"},
