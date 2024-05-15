@@ -6,7 +6,7 @@ import typer
 from pathlib import Path
 import yaml
 
-from testprogs_data.utils import (
+from utils import (
     get_array_double,
     get_array_double,
     get_array_simple,
