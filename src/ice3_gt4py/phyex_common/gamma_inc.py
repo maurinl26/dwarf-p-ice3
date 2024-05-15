@@ -56,6 +56,7 @@ def gamma_inc(a: float, x: float):
         return zsum * exp(-x + a * log(x) - log(gamma(a)))
 
     else:
+        zdel = 0
         b = x + 1 - a
         c = 1 / finfo(np.float64).tiny
         d = 1 / b
