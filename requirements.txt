@@ -1,119 +1,88 @@
-aenum==3.1.15
-asttokens==2.4.1
-astunparse==1.6.3
-attrs==23.2.0
-black==24.4.2
-blinker==1.7.0
-boltons==23.1.1
-build==1.2.1
-CacheControl==0.14.0
-cached-property==1.5.2
-certifi==2024.2.2
-cffi==1.16.0
-cfgv==3.4.0
-cftime==1.6.3
-charset-normalizer==3.3.2
-cleo==2.1.0
-click==8.1.7
-cmake==3.29.0.1
-contourpy==1.2.0
-crashtest==0.4.1
-cryptography==42.0.5
-cycler==0.12.1
-cytoolz==0.12.3
-dace==0.15.1
-deepdiff==6.7.1
-devtools==0.12.2
-dill==0.3.8
-distlib==0.3.8
-dulwich==0.21.7
-executing==2.0.1
-f90nml==1.4.4
-factory-boy==3.3.0
-Faker==24.4.0
-fastjsonschema==2.19.1
-filelock==3.13.3
-Flask==3.0.2
-fonttools==4.50.0
-fparser==0.1.4
-frozendict==2.4.0
-gridtools-cpp==2.3.2
-gt4py @ git+https://github.com/GridTools/gt4py.git@375878c4cdf166477eede37df52f1c023f3e9a5b
-identify==2.5.35
-idna==3.6
-ifs_physics_common @ git+https://github.com/maurinl26/ifs-physics-common@1c9dd75fd0a9683bc78b786661865e8402add688
-importlib_metadata==7.1.0
-installer==0.7.0
-isort==5.13.2
-itsdangerous==2.1.2
-jaraco.classes==3.4.0
-jeepney==0.8.0
-Jinja2==3.1.3
-keyring==24.3.1
-kiwisolver==1.4.5
-lark==1.1.9
-Mako==1.3.2
-markdown-it-py==3.0.0
-MarkupSafe==2.1.5
-matplotlib==3.8.3
-mdurl==0.1.2
-more-itertools==10.2.0
-mpmath==1.3.0
-msgpack==1.0.8
-mypy-extensions==1.0.0
-nanobind==1.9.2
-netCDF4==1.6.5
-networkx==3.2.1
-ninja==1.11.1.1
-nodeenv==1.8.0
-numpy==1.26.4
-ordered-set==4.1.0
-packaging==24.0
-pandas==2.2.1
-pathspec==0.12.1
-pexpect==4.9.0
-pillow==10.3.0
-Pint==0.23
-pkginfo==1.10.0
-platformdirs==4.2.0
-ply==3.11
-poetry==1.8.2
-poetry-core==1.9.0
-poetry-plugin-export==1.7.1
-pre-commit==3.7.0
-ptyprocess==0.7.0
-pybind11==2.12.0
-pycparser==2.22
-pydantic==1.10.14
-Pygments==2.17.2
-pyparsing==3.1.2
-pyproject_hooks==1.1.0
-python-dateutil==2.9.0.post0
-pytz==2024.1
-PyYAML==6.0.1
-rapidfuzz==3.9.0
-requests==2.31.0
-requests-toolbelt==1.0.0
-rich==13.7.1
-scipy==1.12.0
-SecretStorage==3.3.3
-setuptools-scm==8.0.4
-shellingham==1.5.4
-six==1.16.0
-sympl @ git+https://github.com/stubbiali/sympl.git@ed910243fabfe82b88d7bc234e07771741f94b45
-sympy==1.9
-tabulate==0.9.0
-tomli==2.0.1
-tomlkit==0.12.4
-toolz==0.12.1
-trove-classifiers==2024.4.10
-typer==0.12.1
-typing_extensions==4.5.0
-tzdata==2024.1
-urllib3==2.2.1
-virtualenv==20.25.1
-websockets==12.0
-Werkzeug==3.0.3
-xarray==2024.2.0
-xxhash==3.0.0
-zipp==3.18.1
+Package            Version
+------------------ --------------------
+aenum              3.1.15
+annotated-types    0.6.0
+asttokens          2.4.1
+astunparse         1.6.3
+attrs              23.2.0
+black              24.4.2
+blinker            1.8.2
+boltons            24.0.0
+cached-property    1.5.2
+certifi            2024.2.2
+cftime             1.6.3
+charset-normalizer 3.3.2
+click              8.1.7
+cmake              3.29.3
+contourpy          1.2.1
+cycler             0.12.1
+cytoolz            0.12.3
+dace               0.15.1
+deepdiff           7.0.1
+devtools           0.12.2
+dill               0.3.8
+executing          2.0.1
+factory-boy        3.3.0
+Faker              25.2.0
+Flask              3.0.3
+fonttools          4.51.0
+fparser            0.1.4
+frozendict         2.4.4
+gridtools-cpp      2.3.2
+gt4py              1.0.3
+idna               3.7
+ifs_physics_common 0.0
+itsdangerous       2.2.0
+Jinja2             3.1.4
+kiwisolver         1.4.5
+lark               1.1.9
+Mako               1.3.5
+markdown-it-py     3.0.0
+MarkupSafe         2.1.5
+matplotlib         3.8.4
+mdurl              0.1.2
+mpmath             1.3.0
+mypy-extensions    1.0.0
+nanobind           1.9.2
+netCDF4            1.6.5
+networkx           3.3
+ninja              1.11.1.1
+numpy              1.26.4
+ordered-set        4.1.0
+packaging          24.0
+pandas             2.2.2
+pathspec           0.12.1
+pillow             10.3.0
+Pint               0.23
+pip                22.0.2
+platformdirs       4.2.2
+ply                3.11
+pybind11           2.12.0
+pydantic           2.7.1
+pydantic_core      2.18.2
+Pygments           2.18.0
+pyparsing          3.1.2
+python-dateutil    2.9.0.post0
+pytz               2024.1
+PyYAML             6.0.1
+requests           2.31.0
+rich               13.7.1
+scipy              1.13.0
+setuptools         69.5.1
+setuptools-scm     8.1.0
+shellingham        1.5.4
+six                1.16.0
+sympl              0.4.1.dev63+ged91024
+sympy              1.9
+tabulate           0.9.0
+tomli              2.0.1
+toolz              0.12.1
+typer              0.12.3
+typing_extensions  4.11.0
+tzdata             2024.1
+urllib3            2.2.1
+websockets         12.0
+Werkzeug           3.0.3
+wheel              0.43.0
+xarray             2024.5.0
+xxhash             3.0.0
