@@ -53,6 +53,13 @@ ice_adjust_fields_keys = [
     "hli_hri",
     "hli_hcf",
     "sigrc",
+    "ths",
+    "rvs",
+    "rcs",
+    "rrs",
+    "ris",
+    "rss",
+    "rgs",
 ]
 
 
@@ -112,13 +119,13 @@ def allocate_state_ice_adjust(
         "hli_hcf": allocate_f(),
         "sigrc": allocate_f(),
         # tendencies
-        "f_ths": allocate_f(),
-        "f_rvs": allocate_f(),
-        "f_rcs": allocate_f(),
-        "f_rrs": allocate_f(),
-        "f_ris": allocate_f(),
-        "f_rss": allocate_f(),
-        "f_rgs": allocate_f(),
+        "ths": allocate_f(),
+        "rvs": allocate_f(),
+        "rcs": allocate_f(),
+        "rrs": allocate_f(),
+        "ris": allocate_f(),
+        "rss": allocate_f(),
+        "rgs": allocate_f(),
     }
 
 

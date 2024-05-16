@@ -16,6 +16,7 @@ src/PHYEX/
 *.pyc
 src/ice3_gt4py/drivers/tests.py
 src/ice3_gt4py/stencils/ice4*
+src/testprogs_data/fortran/
 
 *.log
 *.sh
