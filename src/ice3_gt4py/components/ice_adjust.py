@@ -213,7 +213,6 @@ class IceAdjust(ImplicitTendencyComponent):
             logging.info("Launching ice_adjust")
             self.ice_adjust(
                 **state_ice_adjust,
-                **tnds_ice_adjust,
                 **temporaries_ice_adjust,
                 src_1d=src_1D,
                 dt=timestep.total_seconds(),
