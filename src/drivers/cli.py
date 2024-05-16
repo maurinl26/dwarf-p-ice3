@@ -71,7 +71,7 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
 
     ##### Grid #####
     logging.info("Initializing grid ...")
-    nx = 50
+    nx = 10000
     ny = 1
     nz = 15
     grid = ComputationalGrid(nx, ny, nz)
@@ -95,6 +95,9 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
+
+    logging.info(f"Launching core run")
+    core(ice_adjust, gt4py_config, grid, state, output_path, dt, tracking_file)
 
     ####### Create state for AroAdjust #######
     reader = NetCDFReader(Path(dataset))
