@@ -96,15 +96,16 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
     elapsed_time = stop - start
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
 
-    logging.info(f"Launching core run")
-    core(ice_adjust, gt4py_config, grid, state, output_path, dt, tracking_file)
-
     ####### Create state for AroAdjust #######
     reader = NetCDFReader(Path(dataset))
 
     logging.info("Getting state for IceAdjust")
     state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
     logging.info(f"Keys : {list(state.keys())}")
+
+    #### Launching with core
+    logging.info("Launching core")
+    core(ice_adjust, gt4py_config, grid, state, output_path, dt, tracking_file)
 
     ###### Launching AroAdjust ###############
     logging.info("Launching IceAdjust")
