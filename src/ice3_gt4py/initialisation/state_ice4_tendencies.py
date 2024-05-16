@@ -5,7 +5,7 @@ from datetime import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Dict
 
-from gt4py.storage import ones
+from ifs_physics_common.framework.storage import ones
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 
