@@ -204,13 +204,13 @@ def initialize_state(
         "hli_hri": "PHLI_HRI_OUT",
         "hli_hcf": "PHLI_HCF_OUT",
         "sigrc": None,
-        "f_ths": "PRS",
-        "f_rcs": "PRS",
-        "f_rrs": "PRS",
-        "f_ris": "PRS",
-        "f_rss": "PRS",
-        "f_rvs": "PRS",
-        "f_rgs": "PRS",
+        "ths": "PRS",
+        "rcs": "PRS",
+        "rrs": "PRS",
+        "ris": "PRS",
+        "rss": "PRS",
+        "rvs": "PRS",
+        "rgs": "PRS",
     }
 
     krr_mapping = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
@@ -231,12 +231,8 @@ def initialize_state(
                 ]
                 logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
                 initialize_field(state[name], buffer)
+
             elif FORTRAN_NAME not in ["ZRS", "PRS"]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)
                 logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
                 initialize_field(state[name], buffer)
-
-        # elif FORTRAN_NAME is None:
-        #     buffer = np.zeros(state[name].shape)
-        #     logging.info(f"name = {name}, buffer.shape = {state[name].shape}")
-        #     initialize_field(state[name], buffer)
