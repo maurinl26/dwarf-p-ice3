@@ -5,7 +5,7 @@ from datetime import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Dict
 
-from ifs_physics_common.framework.storage import ones
+from gt4py.storage import ones
 
 
 if TYPE_CHECKING:
