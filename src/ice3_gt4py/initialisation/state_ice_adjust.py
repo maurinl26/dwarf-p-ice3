@@ -241,7 +241,8 @@ def initialize_state(
         else:
             # if FORTRAN_NAME is None
             dims = netcdreader.get_dims()
+            n_IJ, n_K = dims["IJ"], dims["K"]
             logging.info(f"dataset dims : {dims}")
-            buffer = np.zeros(dims)
+            buffer = np.zeros((n_IJ, n_K))
             logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
             initialize_field(state[name], buffer)
