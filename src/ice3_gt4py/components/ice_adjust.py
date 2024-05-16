@@ -69,19 +69,18 @@ class IceAdjust(ImplicitTendencyComponent):
             "hli_hri": {"grid": (I, J, K), "units": ""},
             "hli_hcf": {"grid": (I, J, K), "units": ""},
             "sigrc": {"grid": (I, J, K), "units": ""},
+            "ths": {"grid": (I, J, K), "units": ""},
+            "rcs": {"grid": (I, J, K), "units": ""},
+            "rrs": {"grid": (I, J, K), "units": ""},
+            "ris": {"grid": (I, J, K), "units": ""},
+            "rss": {"grid": (I, J, K), "units": ""},
+            "rvs": {"grid": (I, J, K), "units": ""},
+            "rgs": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
-        return {
-            "f_ths": {"grid": (I, J, K), "units": ""},
-            "f_rcs": {"grid": (I, J, K), "units": ""},
-            "f_rrs": {"grid": (I, J, K), "units": ""},
-            "f_ris": {"grid": (I, J, K), "units": ""},
-            "f_rss": {"grid": (I, J, K), "units": ""},
-            "f_rvs": {"grid": (I, J, K), "units": ""},
-            "f_rgs": {"grid": (I, J, K), "units": ""},
-        }
+        return {}
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
