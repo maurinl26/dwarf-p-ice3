@@ -26,6 +26,41 @@ if TYPE_CHECKING:
         NDArrayLikeDict,
     )
 
+KEYS = {
+    "exn": "PEXNREF",
+    "exnref": "PEXNREF",
+    "rhodref": "PRHODREF",
+    "pabs": "PPABSM",
+    "sigs": "PSIGS",
+    "cf_mf": "PCF_MF",
+    "rc_mf": "PRC_MF",
+    "ri_mf": "PRI_MF",
+    "th": "ZRS",
+    "rv": "ZRS",
+    "rc": "ZRS",
+    "rr": "ZRS",
+    "ri": "ZRS",
+    "rs": "ZRS",
+    "rg": "ZRS",
+    "cldfr": "PCLDFR_OUT",
+    "sigqsat": None,
+    "ifr": None,
+    "hlc_hrc": "PHLC_HRC_OUT",
+    "hlc_hcf": "PHLC_HCF_OUT",
+    "hli_hri": "PHLI_HRI_OUT",
+    "hli_hcf": "PHLI_HCF_OUT",
+    "sigrc": None,
+    "ths": "PRS",
+    "rcs": "PRS",
+    "rrs": "PRS",
+    "ris": "PRS",
+    "rss": "PRS",
+    "rvs": "PRS",
+    "rgs": "PRS",
+}
+
+KRR_MAPPING = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
+
 
 ######################### Ice Adjust ###########################
 ice_adjust_fields_keys = [
@@ -181,59 +216,24 @@ def initialize_state(
         state (DataArrayDict): dictionnary of state
         gt4py_config (GT4PyConfig): configuration of gt4py
     """
-    keys = {
-        "exn": "PEXNREF",
-        "exnref": "PEXNREF",
-        "rhodref": "PRHODREF",
-        "pabs": "PPABSM",
-        "sigs": "PSIGS",
-        "cf_mf": "PCF_MF",
-        "rc_mf": "PRC_MF",
-        "ri_mf": "PRI_MF",
-        "th": "ZRS",
-        "rv": "ZRS",
-        "rc": "ZRS",
-        "rr": "ZRS",
-        "ri": "ZRS",
-        "rs": "ZRS",
-        "rg": "ZRS",
-        "cldfr": "PCLDFR_OUT",
-        "sigqsat": None,
-        "ifr": None,
-        "hlc_hrc": "PHLC_HRC_OUT",
-        "hlc_hcf": "PHLC_HCF_OUT",
-        "hli_hri": "PHLI_HRI_OUT",
-        "hli_hcf": "PHLI_HCF_OUT",
-        "sigrc": None,
-        "ths": "PRS",
-        "rcs": "PRS",
-        "rrs": "PRS",
-        "ris": "PRS",
-        "rss": "PRS",
-        "rvs": "PRS",
-        "rgs": "PRS",
-    }
 
-    krr_mapping = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
-
-    for name, FORTRAN_NAME in keys.items():
+    for name, FORTRAN_NAME in KEYS.items():
         logging.info(f"name={name}, FORTRAN_NAME={FORTRAN_NAME}")
         if FORTRAN_NAME is not None:
             if FORTRAN_NAME == "ZRS":
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
-                    :, :, krr_mapping[name[-1]]
+                    :, :, KRR_MAPPING[name[-1]]
                 ]
 
             if FORTRAN_NAME == "PRS":
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
-                    :, :, krr_mapping[name[-2]]
+                    :, :, KRR_MAPPING[name[-2]]
                 ]
 
             elif FORTRAN_NAME not in ["ZRS", "PRS"]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)
 
         else:
-            # if FORTRAN_NAME is None
             dims = netcdreader.get_dims()
             n_IJ, n_K = dims["IJ"], dims["K"]
             buffer = np.zeros((n_IJ, n_K))
