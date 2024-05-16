@@ -5,6 +5,7 @@ from datetime import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Dict
 
+from ifs_physics_common.framework.storage import zeros
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 import numpy as np
@@ -236,3 +237,11 @@ def initialize_state(
                 buffer = netcdreader.get_field(FORTRAN_NAME)
                 logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
                 initialize_field(state[name], buffer)
+
+        else:
+            # if FORTRAN_NAME is None
+            dims = netcdreader.get_dims()
+            logging.info(f"dataset dims : {dims}")
+            buffer = np.zeros(dims)
+            logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
+            initialize_field(state[name], buffer)

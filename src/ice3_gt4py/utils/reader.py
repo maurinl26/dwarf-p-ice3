@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 import xarray as xr
 
 
@@ -10,3 +9,7 @@ class NetCDFReader:
     def get_field(self, name: str):
         with xr.open_dataset(self.filename) as ds:
             return ds[name].data
+
+    def get_dims(self):
+        with xr.open_dataset(self.filename) as ds:
+            return ds.dims
