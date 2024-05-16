@@ -175,16 +175,10 @@ class IceAdjust(ImplicitTendencyComponent):
                     "hli_hri",
                     "hli_hcf",
                     "sigrc",
-                ]
-            }
-
-            tnds_ice_adjust = {
-                key.split("_")[1]: out_tendencies[key]
-                for key in [
-                    "f_ths",
-                    "f_rvs",
-                    "f_rcs",
-                    "f_ris",
+                    "ths",
+                    "rvs",
+                    "rcs",
+                    "ris",
                 ]
             }
 
