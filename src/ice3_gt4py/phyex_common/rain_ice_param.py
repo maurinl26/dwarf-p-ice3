@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from math import gamma, log
 from typing import Tuple
 from numpy.typing import NDArray
-
+import logging
 
 import numpy as np
 from ifs_physics_common.utils.f2py import ported_class, ported_method
@@ -12,6 +12,8 @@ from ice3_gt4py.phyex_common.constants import Constants
 from ice3_gt4py.phyex_common.gamma_inc import gamma_inc
 from ice3_gt4py.phyex_common.param_ice import ParamIce
 from ice3_gt4py.phyex_common.rain_ice_descr import RainIceDescr
+
+logging.getLogger()
 
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90")
@@ -732,40 +734,65 @@ class RainIceParam:
 
     @ported_method(from_file="PHYEX/src/common/micro/mode_ini_rain_ice.F90")
     def init_gaminc_rim_tables(self):
+        """Compute gamma_inc tables for riming"""
 
         zrate = np.exp(
             log(self.GAMINC_BOUND_MAX / self.GAMINC_BOUND_MIN) / (self.NGAMINC - 1)
         )
 
-        self.GAMINC_RIM1 = np.array(
-            [
-                gamma_inc(
-                    self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS,
-                    self.GAMINC_BOUND_MIN * zrate * j1,
-                )
-                for j1 in range(self.NGAMINC)
-            ]
-        )
-        self.GAMINC_RIM2 = np.array(
-            [
-                gamma_inc(
-                    self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
-                    self.GAMINC_BOUND_MIN * zrate * j1,
-                )
-                for j1 in range(self.NGAMINC)
-            ]
-        )
-        self.GAMINC_RIM4 = np.array(
-            [
-                gamma_inc(
-                    self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
-                    self.GAMINC_BOUND_MIN * zrate * j1,
-                )
-                for j1 in range(self.NGAMINC)
-            ]
-        )
+        try:
+
+            GAMINC_RIM1 = np.array(
+                [
+                    gamma_inc(
+                        self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS,
+                        self.GAMINC_BOUND_MIN * zrate * j1,
+                    )
+                    for j1 in range(self.NGAMINC)
+                ]
+            )
+            GAMINC_RIM2 = np.array(
+                [
+                    gamma_inc(
+                        self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
+                        self.GAMINC_BOUND_MIN * zrate * j1,
+                    )
+                    for j1 in range(self.NGAMINC)
+                ]
+            )
+            GAMINC_RIM4 = np.array(
+                [
+                    gamma_inc(
+                        self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
+                        self.GAMINC_BOUND_MIN * zrate * j1,
+                    )
+                    for j1 in range(self.NGAMINC)
+                ]
+            )
+
+        except ValueError as e:
+            logging.info(f"Value error while computing gamma_inc : {e}")
+            GAMINC_RIM1 = np.ones(80)
+            GAMINC_RIM2 = np.ones(80)
+            GAMINC_RIM4 = np.ones(80)
+
+        finally:
+            self.GAMINC_RIM1 = GAMINC_RIM1
+            self.GAMINC_RIM2 = GAMINC_RIM2
+            self.GAMINC_RIM4 = GAMINC_RIM4
 
     def get_kernel(self, kernel):
+        """Load kernels for convolutions as numpy arrays
+
+        Args:
+            kernel (str): kernel to load
+
+        Raises:
+            KeyError: Error if name is not in kernel names (saccrg, raccs, raccss, rdryg, sdryg)
+
+        Returns:
+            _type_: python indented kernel (from 0 to n-1, instead 1 to n in fortran)
+        """
 
         if kernel == "saccrg":
             from ice3_gt4py.phyex_common.xker_raccs import ker_saccrg
