@@ -73,7 +73,7 @@ def core(
     for key, field in state.items():
         if key not in ["time"]:
             array = xr.DataArray(
-                data=field.data,
+                data=field.data[:, :, 1:],
                 dims=["I", "J", "K"],
                 coords={
                     "I": range(nx),

@@ -117,7 +117,7 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
     for key, field in state.items():
         if key not in ["time"]:
             array = xr.DataArray(
-                data=field.data,
+                data=field.data[:, :, 1:],
                 dims=["I", "J", "K"],
                 coords={
                     "I": range(nx),
