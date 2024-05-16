@@ -223,26 +223,20 @@ def initialize_state(
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
                     :, :, krr_mapping[name[-1]]
                 ]
-                logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
-                initialize_field(state[name], buffer)
 
             if FORTRAN_NAME == "PRS":
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
                     :, :, krr_mapping[name[-2]]
                 ]
-                logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
-                initialize_field(state[name], buffer)
 
             elif FORTRAN_NAME not in ["ZRS", "PRS"]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)
-                logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
-                initialize_field(state[name], buffer)
 
         else:
             # if FORTRAN_NAME is None
             dims = netcdreader.get_dims()
             n_IJ, n_K = dims["IJ"], dims["K"]
-            logging.info(f"dataset dims : {dims}")
             buffer = np.zeros((n_IJ, n_K))
-            logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
-            initialize_field(state[name], buffer)
+
+        logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
+        initialize_field(state[name], buffer)
