@@ -3,6 +3,11 @@ from ice3_gt4py.utils.reader import NetCDFReader
 from ice3_gt4py.initialisation.state_ice_adjust import KRR_MAPPING
 
 import typer
+import logging
+import sys
+
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
 
 app = typer.Typer()
 
@@ -65,7 +70,10 @@ def compare(ref_path: str, run_path: str, output_path: str):
                 elif fortran_name not in ["ZRS", "PRS"]:
                     ref_field = ref.get_field(fortran_name)
 
+            logging.info(f"Ref field, name : {name}, shape : {ref_field.shape}")
+
             run_field = run.get_field(name)
+            logging.info(f"Run field, name : {name}, shape : {run_field.shape}")
 
             for lev in range(14):
                 f.write(
