@@ -170,9 +170,6 @@ def ice_adjust(
     with computation(PARALLEL), interval(...):
         cldfr = 0
         sigrc = 0
-        rv_tmp = 0
-        rc_tmp = 0
-        ri_tmp = 0
 
         # local fields
         # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
@@ -187,7 +184,7 @@ def ice_adjust(
         hli_hcf = 0
         hli_hri = 0
 
-        # Translation note : 252 -> 263 if(present(PLV)) skipped (ls/lv are assumed to be present present)
+        # Translation note : 252 -> 263 if(present(PLV)) skipped (ls/lv are assumed to be present)
         # Translation note : 264 -> 274 if(present(PCPH)) skipped (files are assumed to be present)
 
         # store total water mixing ratio (244 -> 248)
@@ -259,7 +256,7 @@ def ice_adjust(
         # # Translation notes : 506 -> 514 (not ocnd2)
         rc_tmp = (1 - frac_tmp) * cond_tmp  # liquid condensate
         ri_tmp = frac_tmp * cond_tmp  # solid condensate
-        t_tmp = update_temperature(t_tmp, rc_tmp, rc_tmp, ri_tmp, ri_tmp, lv, ls)
+        t_tmp = update_temperature(t_tmp, rc_tmp, rc_tmp, rc, ri, lv, ls)
         rv_tmp = rt - rc_tmp - ri_tmp * prifact
 
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB

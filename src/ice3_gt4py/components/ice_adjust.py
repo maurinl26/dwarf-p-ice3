@@ -43,6 +43,12 @@ class IceAdjust(ImplicitTendencyComponent):
         externals = phyex.to_externals()
         self.ice_adjust = self.compile_stencil("ice_adjust", externals)
 
+        logging.info(f"Keys")
+        logging.info(f"SUBG_COND : {phyex.nebn.SUBG_COND}")
+        logging.info(f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}")
+        logging.info(f"SIGMAS : {phyex.nebn.SIGMAS}")
+        logging.info(f"LMFCONV : {phyex.LMFCONV}")
+
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
