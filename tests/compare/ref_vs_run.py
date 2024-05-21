@@ -1,10 +1,44 @@
 # -*- coding: utf-8 -*-
 from ice3_gt4py.utils.reader import NetCDFReader
-from ice3_gt4py.initialisation.state_ice_adjust import KEYS, KRR_MAPPING
+from ice3_gt4py.initialisation.state_ice_adjust import KRR_MAPPING
 
 import typer
 
 app = typer.Typer()
+
+
+OUTPUT_KEYS = {
+    # "exn": "PEXNREF",
+    # "exnref": "PEXNREF",
+    # "rhodref": "PRHODREF",
+    # "pabs": "PPABSM",
+    # "sigs": "PSIGS",
+    # "cf_mf": "PCF_MF",
+    # "rc_mf": "PRC_MF",
+    # "ri_mf": "PRI_MF",
+    # "th": "ZRS",
+    # "rv": "ZRS",
+    # "rc": "ZRS",
+    # "rr": "ZRS",
+    # "ri": "ZRS",
+    # "rs": "ZRS",
+    # "rg": "ZRS",
+    "cldfr": "PCLDFR_OUT",
+    # "sigqsat": None,
+    # "ifr": None,
+    "hlc_hrc": "PHLC_HRC_OUT",
+    "hlc_hcf": "PHLC_HCF_OUT",
+    "hli_hri": "PHLI_HRI_OUT",
+    "hli_hcf": "PHLI_HCF_OUT",
+    # "sigrc": None,
+    "ths": "PRS_OUT",
+    "rcs": "PRS_OUT",
+    # "rrs": "PRS",
+    "ris": "PRS_OUT",
+    # "rss": "PRS",
+    "rvs": "PRS_OUT",
+    # "rgs": "PRS",
+}
 
 
 @app.command()
@@ -16,13 +50,16 @@ def compare(ref_path: str, run_path: str, output_path: str):
     with open(output_path, "w") as f:
         f.write("Set, var, lev, min, mean, max \n")
 
-        for name, fortran_name in KEYS.items():
+        for name, fortran_name in OUTPUT_KEYS.items():
 
             if fortran_name is not None:
                 if fortran_name == "ZRS":
                     ref_field = ref.get_field(fortran_name)[:, :, KRR_MAPPING[name[-1]]]
 
                 if fortran_name == "PRS":
+                    ref_field = ref.get_field(fortran_name)[:, :, KRR_MAPPING[name[-2]]]
+
+                if fortran_name == "PRS_OUT":
                     ref_field = ref.get_field(fortran_name)[:, :, KRR_MAPPING[name[-2]]]
 
                 elif fortran_name not in ["ZRS", "PRS"]:
@@ -41,6 +78,3 @@ def compare(ref_path: str, run_path: str, output_path: str):
 
 if __name__ == "__main__":
     app()
-
-    ref_path = "/home/maurinl/install/dwarf-p-ice3/data/ice_adjust/reference.nc"
-    run_path = "/home/maurinl/install/dwarf-p-ice3/output/run.nc"
