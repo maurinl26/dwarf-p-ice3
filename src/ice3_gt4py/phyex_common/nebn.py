@@ -29,6 +29,26 @@ class FracIceShallow(Enum):
     S = 1
 
 
+class Condens(Enum):
+    """Enumeration for condensation variance
+
+    HCONDENS in .F90
+    CB02 for AROME
+    """
+
+    CB02 = 0
+    GAUS = 1
+
+
+class Lambda3(Enum):
+    """LAMBDA3 in AROME
+
+    CB by default in AROME
+    """
+
+    CB = 0
+
+
 @ported_class(from_file="PHYEX/src/common/aux/modd_nebn.F90")
 @dataclass
 class Neb:
@@ -54,11 +74,11 @@ class Neb:
     TMINMIX: float = field(default=273.16)
     TMAXMIX: float = field(default=253.16)
     HGT_QS: float = field(default=False)
-    FRAC_ICE_ADJUST: FracIceAdjust = field(default="S")
-    FRAC_ICE_SHALLOW: str = field(default="S")
+    FRAC_ICE_ADJUST: int = field(default=FracIceAdjust.S.value)
+    FRAC_ICE_SHALLOW: int = field(default=FracIceShallow.S.value)
     VSIGQSAT: float = field(default=0.02)
-    CONDENS: str = field(default="CB02")
-    LAMBDA3: str = field(default="CB")
+    CONDENS: int = field(default=Condens.CB02.value)
+    LAMBDA3: int = field(default=Lambda3.CB.value)
     STATNW: bool = field(default=False)
     SIGMAS: bool = field(default=True)
     SUBG_COND: bool = field(default=False)
