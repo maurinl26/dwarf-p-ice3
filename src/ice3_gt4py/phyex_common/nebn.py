@@ -69,6 +69,7 @@ class Neb:
             self.FRAC_ICE_SHALLOW = FracIceShallow.T.value
             self.VSIGQSAT = 0
             self.SIGMAS = False
+            self.SUBG_COND = True
 
         elif self.HPROGRAM == "LMDZ":
             self.SUBG_COND = True

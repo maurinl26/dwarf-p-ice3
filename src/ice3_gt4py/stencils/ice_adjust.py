@@ -282,8 +282,8 @@ def ice_adjust(
         ths += w2 * ls / (cph * exnref)
 
         # 5.2  compute the cloud fraction cldfr
-        if SUBG_COND == 0:
-            cldfr = 1 if rcs + ris > 1e-12 / dt else 0
+        if not SUBG_COND:
+            cldfr = 1 if (rcs + ris > 1e-12 / dt) else 0
 
         # Translation note : LSUBG_COND = TRUE for Arome
         else:
