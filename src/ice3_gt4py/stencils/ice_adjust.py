@@ -166,7 +166,7 @@ def ice_adjust(
             cph = CPD + CPV * rv_tmp + CL * rc_tmp + CI * ri_tmp
 
     # 3. subgrid condensation scheme
-    # Translation : only the case with subg_cond = True retained
+    # Translation note : only the case with subg_cond = True retained
     with computation(PARALLEL), interval(...):
         cldfr = 0
         sigrc = 0
@@ -177,12 +177,6 @@ def ice_adjust(
         prifact = 1  # ocnd2 == False for AROME
         ifr = 10
         frac_tmp = 0  # l340 in Condensation .f90
-
-        # Translation note : 493 -> 503 : hlx_hcf and hlx_hrx are assumed to be present
-        hlc_hcf = 0
-        hlc_hrc = 0
-        hli_hcf = 0
-        hli_hri = 0
 
         # Translation note : 252 -> 263 if(present(PLV)) skipped (ls/lv are assumed to be present)
         # Translation note : 264 -> 274 if(present(PCPH)) skipped (files are assumed to be present)
@@ -222,12 +216,18 @@ def ice_adjust(
         # # b = ah * a
         sbar = a * (rt - qsl + ah * lvs * (rc_tmp + ri_tmp * prifact) / CPD)
 
+        # Translation note : l381 retained for sigmas formulation
         sigma = sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2)
-        sigma = max(1e-10, sigma)
 
-        # Translation notes : 469 -> 504 (hcondens = "CB02")
-        # 9.2.3 Fractional cloudiness and cloud condensate
+        # Translation note : l407 - l411
+        sigma = max(1e-10, sigma)
         q1 = sbar / sigma
+
+        # Translation notes : l413 to l468 skipped (HCONDENS=="GAUS")
+        # Translation notes : l469 to l504 kept (HCONDENS = "CB02")
+        # 9.2.3 Fractional cloudiness and cloud condensate
+
+        # Translation note : l470 to l479
         if q1 > 0:
             if q1 <= 2:
                 cond_tmp = min(
@@ -240,18 +240,25 @@ def ice_adjust(
 
         cond_tmp *= sigma
 
+        # Translation note : l482 to l489
         # cloud fraction
         cldfr = max(0, min(1, 0.5 + 0.36 * atan(1.55 * q1))) if cond_tmp > 1e-12 else 0
 
+        # Translation note : l487 to l489
         cond_tmp = 0 if cldfr == 0 else cond_tmp
 
         inq1 = floor(
             min(10, max(-22, min(-100, 2 * floor(q1))))
         )  # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-
         inc = 2 * q1 - inq1
 
         sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
+
+        # Translation note : l496 to l503
+        hlc_hcf = 0
+        hlc_hrc = 0
+        hli_hcf = 0
+        hli_hri = 0
 
         # # Translation notes : 506 -> 514 (not ocnd2)
         rc_tmp = (1 - frac_tmp) * cond_tmp  # liquid condensate
