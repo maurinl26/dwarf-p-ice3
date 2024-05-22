@@ -6,6 +6,22 @@ import logging
 from numpy import exp, log, finfo
 import numpy as np
 
+import numpy as np
+from scipy.integrate import quad
+
+def gamma_function(x):
+    # Define the integrand t^(x-1) * e^(-t)
+    integrand = lambda t: t**(x-1) * np.exp(-t)
+    # Compute the integral from 0 to infinity
+    result, error = quad(integrand, 0, np.inf)
+    return result
+
+
+def generalized_incomplete_gamma(a,x):
+    integrand = lambda t: t**(a-1) * np.exp(-t)
+    result, _ = quad(integrand, 0, x) / quad(integrand, 0, np.inf)
+    return result
+
 
 @ported_method(from_file="PHYEX/src/common/aux/gamma_inc.F90")
 def gamma_inc(a: float, x: float):

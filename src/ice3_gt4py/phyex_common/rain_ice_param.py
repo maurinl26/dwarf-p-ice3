@@ -9,7 +9,7 @@ import numpy as np
 from ifs_physics_common.utils.f2py import ported_class, ported_method
 
 from ice3_gt4py.phyex_common.constants import Constants
-from ice3_gt4py.phyex_common.gamma_inc import gamma_inc
+from ice3_gt4py.phyex_common.gamma_inc import gamma_inc, generalized_incomplete_gamma
 from ice3_gt4py.phyex_common.param_ice import ParamIce
 from ice3_gt4py.phyex_common.rain_ice_descr import RainIceDescr
 
@@ -734,7 +734,7 @@ class RainIceParam:
 
     @ported_method(from_file="PHYEX/src/common/micro/mode_ini_rain_ice.F90")
     def init_gaminc_rim_tables(self):
-        """Compute gamma_inc tables for riming"""
+        """Compute generalized incomplete gamma tables for riming"""
 
         zrate = np.exp(
             log(self.GAMINC_BOUND_MAX / self.GAMINC_BOUND_MIN) / (self.NGAMINC - 1)
@@ -742,9 +742,11 @@ class RainIceParam:
 
         try:
 
+            logging.info(f"a factor {self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS}, GAMINC * zrate = {self.GAMINC_BOUND_MIN * zrate}")
+
             GAMINC_RIM1 = np.array(
                 [
-                    gamma_inc(
+                    generalized_incomplete_gamma(
                         self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS,
                         self.GAMINC_BOUND_MIN * zrate * j1,
                     )
@@ -753,7 +755,7 @@ class RainIceParam:
             )
             GAMINC_RIM2 = np.array(
                 [
-                    gamma_inc(
+                    generalized_incomplete_gamma(
                         self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
                         self.GAMINC_BOUND_MIN * zrate * j1,
                     )
@@ -762,7 +764,7 @@ class RainIceParam:
             )
             GAMINC_RIM4 = np.array(
                 [
-                    gamma_inc(
+                    generalized_incomplete_gamma(
                         self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
                         self.GAMINC_BOUND_MIN * zrate * j1,
                     )
