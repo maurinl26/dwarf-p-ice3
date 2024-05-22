@@ -17,17 +17,35 @@ def gamma_function(x):
     return result
 
 
-def generalized_incomplete_gamma(a,x):
+def generalized_incomplete_gamma(a,x) -> float:
+    """Compute the generalized incomplete gamma function using quadrature from scipy (quad)
+    
+    The purpose of this function is to compute the generalized
+    incomplete Gamma function of its argument.
+
+                              /X
+                        1     |
+     GAMMA_INC(A,X)= -------- | Z**(A-1) EXP(-Z) dZ
+                     GAMMA(A) |
+                              /0
+
+    Args:
+        a (float): factor for gamma function
+        x (float): upper bound for the incomplete gamma function
+
+    Returns:
+        float: incomplete gamma function
+    """
     integrand = lambda t: t**(a-1) * np.exp(-t)
-    result, _ = quad(integrand, 0, x) / quad(integrand, 0, np.inf)
+    result = quad(integrand, 0, x)[0] / quad(integrand, 0, np.inf)[0]
     return result
 
 
 @ported_method(from_file="PHYEX/src/common/aux/gamma_inc.F90")
-def gamma_inc(a: float, x: float):
-    """Compute the genrnalized gamma function
+def gamma_inc(a: float, x: float) -> float:
+    """Compute the genernalized gamma function 
 
-     The purpose of this function is to compute the generalized
+    The purpose of this function is to compute the generalized
     incomplete Gamma function of its argument.
 
                               /X

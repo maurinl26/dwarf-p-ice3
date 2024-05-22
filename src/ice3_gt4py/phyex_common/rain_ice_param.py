@@ -9,7 +9,7 @@ import numpy as np
 from ifs_physics_common.utils.f2py import ported_class, ported_method
 
 from ice3_gt4py.phyex_common.constants import Constants
-from ice3_gt4py.phyex_common.gamma_inc import gamma_inc, generalized_incomplete_gamma
+from ice3_gt4py.phyex_common.gamma_inc import generalized_incomplete_gamma
 from ice3_gt4py.phyex_common.param_ice import ParamIce
 from ice3_gt4py.phyex_common.rain_ice_descr import RainIceDescr
 
@@ -750,7 +750,7 @@ class RainIceParam:
                         self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS,
                         self.GAMINC_BOUND_MIN * zrate * j1,
                     )
-                    for j1 in range(self.NGAMINC)
+                    for j1 in range(1, self.NGAMINC + 1)
                 ]
             )
             GAMINC_RIM2 = np.array(
@@ -759,7 +759,7 @@ class RainIceParam:
                         self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
                         self.GAMINC_BOUND_MIN * zrate * j1,
                     )
-                    for j1 in range(self.NGAMINC)
+                    for j1 in range(1, self.NGAMINC + 1)
                 ]
             )
             GAMINC_RIM4 = np.array(
@@ -768,12 +768,12 @@ class RainIceParam:
                         self.rid.NUS + self.rid.BS / self.rid.ALPHAS,
                         self.GAMINC_BOUND_MIN * zrate * j1,
                     )
-                    for j1 in range(self.NGAMINC)
+                    for j1 in range(1, self.NGAMINC + 1)
                 ]
             )
 
         except ValueError as e:
-            logging.info(f"Value error while computing gamma_inc : {e}")
+            logging.info(f"Value error while computing generalized_incomplete_gamma : {e}")
             GAMINC_RIM1 = np.ones(80)
             GAMINC_RIM2 = np.ones(80)
             GAMINC_RIM4 = np.ones(80)
