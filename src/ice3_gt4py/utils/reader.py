@@ -12,4 +12,4 @@ class NetCDFReader:
 
     def get_dims(self):
         with xr.open_dataset(self.filename) as ds:
-            return ds.dims
+            return ds.sizes
