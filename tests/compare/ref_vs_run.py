@@ -80,7 +80,7 @@ def compare(ref_path: str, run_path: str, output_path: str):
                     f"Ref, {name}, {lev}, {ref_field[:, lev].min()}, {ref_field[:, lev].mean()}, {ref_field[:, lev].max()} \n"
                 )
                 f.write(
-                    f"Run, {name}, {lev}, {run_field[:,:,lev].min()}, {run_field[:,:,lev].mean()}, {run_field[:,:,lev].max()} \n"
+                    f"Run, {name}, {lev}, {run_field[:,:,lev].min()}, {run_field[:,:,lev + 1].mean()}, {run_field[:,:,lev + 1].max()} \n"
                 )
 
 
