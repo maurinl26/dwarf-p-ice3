@@ -54,7 +54,7 @@ def rain_ice_init(
         ldmicro = (
             rc_t > C_RTMIN
             or rr_t > R_RTMIN
-            or ri_t > R_RTMIN
+            or ri_t > I_RTMIN
             or rs_t > S_RTMIN
             or rg_t > G_RTMIN
         )
