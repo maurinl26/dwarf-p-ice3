@@ -136,7 +136,9 @@ class ParamIce:
 
     LWARM: bool = field(default=True)  # Formation of rain by warm processes
     LSEDIC: bool = field(default=True)  # Enable the droplets sedimentation
-    LDEPOSC: bool = field(default=False)  # Enable cloud droplets deposition
+    LDEPOSC: bool = field(
+        default=False
+    )  # Enable cloud droplets deposition on vegetation
 
     VDEPOSC: float = field(default=0.02)  # Droplet deposition velocity
 
