@@ -64,7 +64,7 @@ def rain_ice_init(
     from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=424, to_line=444
 )
 @stencil_collection("initial_values_saving")
-def rain_ice_init(
+def initial_values_saving(
     wr_th: Field["float"],
     wr_v: Field["float"],
     wr_c: Field["float"],

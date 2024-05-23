@@ -6,8 +6,8 @@ from ifs_physics_common.framework.stencil import stencil_collection
 
 
 #
-@stencil_collection("upstream_sedimentation")
-def upstream_sedimentation(
+@stencil_collection("upwind_sedimentation")
+def upwind_sedimentation(
     dt: "float",
     rhodref: Field["float"],
     oorhodz: Field["float"],  # 1 / (rho * dz)
