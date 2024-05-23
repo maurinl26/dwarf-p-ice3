@@ -64,6 +64,11 @@ class SnowRiming(Enum):
     OLD = 1
 
 
+class Sedim(Enum):
+    SPLI = 0
+    STAT = 1
+
+
 @ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
 @dataclass
 class ParamIce:
@@ -145,9 +150,7 @@ class ParamIce:
     PRISTINE_ICE: Literal["PLAT", "COLU", "BURO"] = field(
         default="PLAT"
     )  # Pristine ice type PLAT, COLU, or BURO
-    SEDIM: Literal["SPLI", "STAT", "NONE"] = field(
-        default="SPLI"
-    )  # Sedimentation calculation mode
+    SEDIM: int = field(default=Sedim.SPLI.value)  # Sedimentation calculation mode
 
     # To use modified ice3/ice4 - to reduce time step dependency
     LRED: bool = field(default=True)
@@ -228,13 +231,13 @@ class ParamIce:
             self.LADJ_BEFORE = True
             self.LADJ_AFTER = False
             self.LRED = False
-            self.SEDIM = "STAT"
+            self.SEDIM = Sedim.STAT.value
             self.MRSTEP = 0
-            self.SUBG_AUCV_RC = "PDF"
+            self.SUBG_AUCV_RC = SubgAucvRc.PDF.value
 
         elif self.HPROGRAM == "LMDZ":
-            self.SUBG_AUCV_RC = "PDF"
-            self.SEDIM = "STAT"
+            self.SUBG_AUCV_RC = SubgAucvRc.PDF.value
+            self.SEDIM = Sedim.STAT.value
             self.NMAXITER_MICRO = 1
             self.CRIAUTC_NAM = 0.001
             self.CRIAUTI_NAM = 0.0002
