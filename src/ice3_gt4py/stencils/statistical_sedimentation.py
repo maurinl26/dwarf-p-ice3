@@ -124,11 +124,11 @@ def sedimentation_stat(
 
     # Initialize vertical loop
     with computation(PARALLEL), interval(...):
-        c_sed = 0
-        r_sed = 0
-        i_sed = 0
-        s_sed = 0
-        g_sed = 0
+        fpr_c = 0
+        fpr_r = 0
+        fpr_i = 0
+        fpr_s = 0
+        fpr_g = 0
 
     # l253 to l258
     with computation(PARALLEL), interval(...):
@@ -151,7 +151,7 @@ def sedimentation_stat(
     with computation(PARALLEL), interval(...):
 
         # 2.1 cloud
-        qp = c_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        qp = fpr_c[0, 0, 1] * dt__rho_dz[0, 0, 0]
         wsedw1 = (
             terminal_velocity(rc_t, tht, pabst, rhodref, lbc, ray, conc3d)
             if rc_t > C_RTMIN
@@ -163,73 +163,67 @@ def sedimentation_stat(
             else 0
         )
 
-        c_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
-        c_sed += (
-            weighted_sedimentation_flux_2(wsedw2, dt, dzz, c_sed) if wsedw2 != 0 else 0
+        fpr_c = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        fpr_c += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, fpr_c) if wsedw2 != 0 else 0
         )
 
         # 2.2 rain
         # Other species
-        qp[0, 0, 0] = r_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        qp[0, 0, 0] = fpr_r[0, 0, 1] * dt__rho_dz[0, 0, 0]
         wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
         wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
 
-        r_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rr_t, dt)
-        r_sed += (
-            weighted_sedimentation_flux_2(wsedw2, dt, dzz, r_sed) if wsedw2 != 0 else 0
+        fpr_r = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rr_t, dt)
+        fpr_r += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, fpr_r) if wsedw2 != 0 else 0
         )
 
         # 2.3 ice
-        qp[0, 0, 0] = i_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        qp[0, 0, 0] = fpr_i[0, 0, 1] * dt__rho_dz[0, 0, 0]
         wsedw1 = pristine_ice(ri_t, rhodref)
         wsedw2 = pristine_ice(qp, rhodref)
 
-        i_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, ri_t, dt)
-        i_sed += weighted_sedimentation_flux_2(wsedw2, dt, dzz, i_sed) if qp != 0 else 0
+        fpr_i = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, ri_t, dt)
+        fpr_i += weighted_sedimentation_flux_2(wsedw2, dt, dzz, fpr_i) if qp != 0 else 0
 
         # 2.4 snow
         # Translation note : REPRO48 set to True
-        qp[0, 0, 0] = s_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        qp[0, 0, 0] = fpr_s[0, 0, 1] * dt__rho_dz[0, 0, 0]
         wsedw1 = other_species(FSEDS, EXSEDS, rs_t, rhodref) if rs_t > S_RTMIN else 0
         wsedw2 = other_species(FSEDS, EXSEDS, qp, rhodref) if qp > S_RTMIN else 0
 
-        s_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rs_t, dt)
-        s_sed += (
-            weighted_sedimentation_flux_2(wsedw2, dt, dzz, s_sed) if wsedw2 != 0 else 0
+        fpr_s = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rs_t, dt)
+        fpr_s += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, fpr_s) if wsedw2 != 0 else 0
         )
 
         # 2.5 graupel
-        qp[0, 0, 0] = g_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        qp[0, 0, 0] = fpr_g[0, 0, 1] * dt__rho_dz[0, 0, 0]
         wsedw1 = other_species(FSEDG, EXSEDG, rg_t, rhodref) if rg_t > G_RTMIN else 0
         wsedw2 = other_species(FSEDG, EXSEDG, qp, rhodref) if qp > G_RTMIN else 0
 
-        g_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
-        g_sed += (
-            weighted_sedimentation_flux_2(wsedw2, dt, dzz, g_sed) if wsedw2 != 0 else 0
+        fpr_g = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        fpr_g += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, fpr_g) if wsedw2 != 0 else 0
         )
-
-        fpr_c = c_sed
-        fpr_r = r_sed
-        fpr_i = i_sed
-        fpr_s = s_sed
-        fpr_g = g_sed
 
     # 3. Sources
     # Calcul des tendances
     with computation(PARALLEL), interval(...):
-        rcs = rcs + dt__rho_dz * (c_sed[0, 0, 1] - c_sed[0, 0, 0]) / dt
-        ris = ris + dt__rho_dz * (i_sed[0, 0, 1] - i_sed[0, 0, 0]) / dt
-        rss = rss + dt__rho_dz * (s_sed[0, 0, 1] - s_sed[0, 0, 0]) / dt
-        rgs = rgs + dt__rho_dz * (g_sed[0, 0, 1] - g_sed[0, 0, 0]) / dt
-        rrs = rrs + dt__rho_dz * (r_sed[0, 0, 1] - r_sed[0, 0, 0]) / dt
+        rcs = rcs + dt__rho_dz * (fpr_c[0, 0, 1] - fpr_c[0, 0, 0]) / dt
+        ris = ris + dt__rho_dz * (fpr_i[0, 0, 1] - fpr_i[0, 0, 0]) / dt
+        rss = rss + dt__rho_dz * (fpr_s[0, 0, 1] - fpr_s[0, 0, 0]) / dt
+        rgs = rgs + dt__rho_dz * (fpr_g[0, 0, 1] - fpr_g[0, 0, 0]) / dt
+        rrs = rrs + dt__rho_dz * (fpr_r[0, 0, 1] - fpr_r[0, 0, 0]) / dt
 
     # Instantaneous fluxes
     with computation(PARALLEL), interval(0, 1):
-        inst_rc = c_sed / RHOLW
-        inst_rr = r_sed / RHOLW
-        inst_ri = i_sed / RHOLW
-        inst_rs = s_sed / RHOLW
-        inst_rg = g_sed / RHOLW
+        inst_rc = fpr_c / RHOLW
+        inst_rr = fpr_r / RHOLW
+        inst_ri = fpr_i / RHOLW
+        inst_rs = fpr_s / RHOLW
+        inst_rg = fpr_g / RHOLW
 
 
 @function
