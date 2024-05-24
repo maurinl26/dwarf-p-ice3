@@ -1,8 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, function
+from gt4py.cartesian.gtscript import (
+    Field,
+    function,
+    computation,
+    PARALLEL,
+    BACKWARD,
+    interval,
+    IJ,
+)
 from ifs_physics_common.framework.stencil import stencil_collection
+from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.sedimentation_flux import (
     other_species,
@@ -11,53 +20,63 @@ from ice3_gt4py.functions.sedimentation_flux import (
 )
 
 
+@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90")
 @stencil_collection("statistical_sedimentation")
 def sedimentation_stat(
     dt: "float",
-    rhodref: Field["float"],  # reference density
-    dz: Field["float"],
-    pabst: Field["float"],  # absolute pressure at t
-    tht: Field["float"],  # potential temperature at t
-    rc_in: Field["float"],  # droplet content at t
-    rr_in: Field["float"],  # rain content at t
-    ri_in: Field["float"],  # ice content at t
-    rs_in: Field["float"],  # snow content at t
-    rg_in: Field["float"],  # graupel content at t
-    rcs_tnd: Field["float"],  # droplet content tendency PRCS
-    rrs_tnd: Field["float"],  # rain content tendency PRRS
-    ris_tnd: Field["float"],  # ice content tendency PRIS
-    rss_tnd: Field["float"],  # snow content tendency PRSS
-    rgs_tnd: Field["float"],  # graupel conntent tendency PRGS
-    dt__rho_dz_tmp: Field["float"],  # ZTSORHODZ delta t over rho x delta z
-    sea_mask: Field["int"],  # Mask for sea PSEA
-    town_fraction: Field["float"],  # Fraction of map which is town PTOWN
-    wgt_lbc_tmp: Field["float"],  # LBC weighted by sea fraction
-    c_sed_tmp: Field["float"],  # sedimentation source for cloud droplets ZSED
-    r_sed_tmp: Field["float"],  # sedimentation source for rain
-    g_sed_tmp: Field["float"],  # sedimentation source for graupel
-    i_sed_tmp: Field["float"],  # sedimentation source for ice
-    s_sed_tmp: Field["float"],  # sedimentation source for snow
-    qp_tmp: Field["float"],  ## cloud subroutine
-    wlbda_tmp: Field["float"],  #
-    wlbdc_tmp: Field["float"],  #
-    cc_tmp: Field["float"],  # sedimentation fall speed
-    wsedw1: Field["float"],  #
-    wsedw2: Field["float"],  #
-    lbc_tmp: Field["float"],  #
-    ray_tmp: Field["float"],  # Cloud mean radius ZRAY
-    conc3d_tmp: Field["float"],  # sea and urban modifications
-    fpr_out: Field[
-        "float"
-    ],  ## diagnostics # precipitation flux through upper face of the cell
-    inst_rr_out: Field["float"],  # instant rain precipitation PINPRR
-    inst_rc_out: Field["float"],  # instant droplet precipitation PINPRC
-    inst_ri_out: Field["float"],  # instant ice precipitation PINPRI
-    inst_rs_out: Field["float"],  # instant snow precipitation PINPRS
-    inst_rg_out: Field["float"],  # instant graupel precipitation PINPRG
+    rhodref: Field["float"],
+    dzz: Field["float"],
+    pabst: Field["float"],
+    tht: Field["float"],
+    rc_t: Field["float"],
+    rr_t: Field["float"],
+    ri_t: Field["float"],
+    rs_t: Field["float"],
+    rg_t: Field["float"],
+    rcs: Field["float"],
+    rrs: Field["float"],
+    ris: Field["float"],
+    rss: Field["float"],
+    rgs: Field["float"],
+    sea: Field["bool"],
+    town: Field["float"],
+    fpr: Field["float"],
+    inst_rr: Field[IJ, "float"],
+    inst_rc: Field[IJ, "float"],
+    inst_ri: Field[IJ, "float"],
+    inst_rs: Field[IJ, "float"],
+    inst_rg: Field[IJ, "float"],
 ):
-    from __externals__ import C_RTMIN  # CLOUD DROPLET RC MIN
-    from __externals__ import RHOLW  # VOLUMIC LASS OF LIQUID WATER
+    """Compute sedimentation sources for statistical sedimentation
+
+    Args:
+        dt (float): _description_
+        rhodref (Field[float]): _description_
+        dzz (Field[float]): _description_
+        pabst (Field[float]): _description_
+        tht (Field[float]): _description_
+        rc_t (Field[float]): _description_
+        rr_t (Field[float]): _description_
+        ri_t (Field[float]): _description_
+        rs_t (Field[float]): _description_
+        rg_t (Field[float]): _description_
+        rcs (Field[float]): _description_
+        rrs (Field[float]): _description_
+        ris (Field[float]): _description_
+        rss (Field[float]): _description_
+        rgs (Field[float]): _description_
+        sea (Field[bool]): _description_
+        town (Field[float]): _description_
+        fpr (Field[float]): _description_
+        inst_rr (Field[float]): _description_
+        inst_rc (Field[float]): _description_
+        inst_ri (Field[float]): _description_
+        inst_rs (Field[float]): _description_
+        inst_rg (Field[float]): _description_
+    """
     from __externals__ import (
+        C_RTMIN,
+        RHOLW,
         CC,
         CEXVT,
         DC,
@@ -67,153 +86,132 @@ def sedimentation_stat(
         LBEXC,
         LSEDIC,
         R_RTMIN,
+        LBC,
+        CONC_SEA,
+        CONC_LAND,
+        CONC_URBAN,
+        GAC,
+        GAC2,
+        GC,
+        GC2,
+        RAYDEF0,
+        TSTEP,
     )
 
     # Note Hail is omitted
     # Note : lsedic = True in Arome
-    # Note : frp is sed_tmp
+    # Note : frp is sed
+
+    # "PHYEX/src/common/micro/mode_ice4_sedimentation.F90", from_line=169, to_line=178
+    with computation(PARALLEL), interval(...):
+        rc_t = rcs * TSTEP
+        rr_t = rrs * TSTEP
+        ri_t = ris * TSTEP
+        rs_t = rss * TSTEP
+        rg_t = rgs * TSTEP
+
     # FRPR present for AROME config
     # 1. Compute the fluxes
     # Gamma computations shifted in RainIceDescr
     # Warning : call shift
+
     # 2. Fluxes
+
+    # Initialize vertical loop
     with computation(PARALLEL), interval(...):
-        dt__rho_dz_tmp = dt / (rhodref * dz)
+        c_sed = 0
+        r_sed = 0
+        i_sed = 0
+        s_sed = 0
+        g_sed = 0
+
+    # l253 to l258
+    with computation(PARALLEL), interval(...):
+        ray = max(1, 0.5 * ((1 - sea) * GAC / GC + sea * GAC2 / GC2))
+        lbc = max(min(LBC[0], LBC[1]), sea * LBC[0] + (1 - sea * LBC[1]))
+        fsedc = max(min(FSEDC[0], FSEDC[1]), sea * FSEDC[0] + (1 - sea) * FSEDC[1])
+        conc3d = (1 - town) * (
+            sea * CONC_SEA + (1 - sea) * CONC_LAND
+        ) + town * CONC_URBAN
+
+    # Compute the sedimentation fluxes
+    with computation(BACKWARD), interval(...):
+        dt__rho_dz = dt / (rhodref * dzz)
 
         # 2.1 cloud
-        if LSEDIC:
-            # subroutine cloud in fortran
-            # 1. ray, lbc, fsedc, conc3d
+        # Translation note : LSEDIC is assumed to be True
+        # Translation note : PSEA and PTOWN are assumed to be present as in AROME
 
-            qp_tmp = c_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-            if rc_in > C_RTMIN or qp_tmp > C_RTMIN:
-                if rc_in > C_RTMIN:
-                    wsedw1_tmp = terminal_velocity(
-                        rc_in, tht, pabst, rhodref, lbc_tmp, ray_tmp, conc3d_tmp
-                    )
-                else:
-                    wsedw1_tmp = 0
+    # TODO  compute ray, lbc, fsedc, conc3d
+    with computation(PARALLEL), interval(...):
 
-                if qp_tmp > C_RTMIN:
-                    wsedw2_tmp = terminal_velocity(
-                        qp_tmp, tht, pabst, rhodref, lbc_tmp, ray_tmp, conc3d_tmp
-                    )
-                else:
-                    wsedw2_tmp = 0
-            else:
-                wsedw1_tmp = 0
-                wsedw2_tmp = 0
+        # 2.1 cloud
+        qp = c_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = (
+            terminal_velocity(rc_t, tht, pabst, rhodref, lbc, ray, conc3d)
+            if rc_t > C_RTMIN
+            else 0
+        )
+        wsedw2 = (
+            terminal_velocity(qp, tht, pabst, rhodref, lbc, ray, conc3d)
+            if qp > C_RTMIN
+            else 0
+        )
 
-            sed_tmp = weighted_sedimentation_flux_1(wsedw1_tmp, dz, rhodref, rc_in, dt)
-
-            if wsedw2_tmp != 0:
-                sed_tmp = sed_tmp + weighted_sedimentation_flux_2(
-                    wsedw2_tmp, dt, dz, sed_tmp
-                )
-        # end lsedic
-        # END SUBROUTINE
+        c_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        c_sed += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, c_sed) if wsedw2 != 0 else 0
+        )
 
         # 2.2 rain
         # Other species
-        qp_tmp[0, 0, 0] = r_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-        if rr_in > R_RTMIN or qp_tmp > R_RTMIN:
-            if rr_in > R_RTMIN:
-                wsedw1_tmp = other_species(FSEDR, EXSEDR, rr_in, rhodref)
-            else:
-                wsedw1_tmp = 0
+        qp[0, 0, 0] = r_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
+        wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
 
-            if qp_tmp > R_RTMIN:
-                wsedw2_tmp = other_species(FSEDR, EXSEDR, qp_tmp, rhodref)
-            else:
-                wsedw2_tmp = 0
-
-        else:
-            wsedw1_tmp = 0
-            wsedw2_tmp = 0
-
-        sed_tmp = weighted_sedimentation_flux_1(wsedw1_tmp, dz, rhodref, rc_in, dt)
-
-        if wsedw2_tmp != 0:
-            sed_tmp = sed_tmp + weighted_sedimentation_flux_2(
-                wsedw2_tmp, dt, dz, sed_tmp
-            )
+        r_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        r_sed += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, r_sed) if wsedw2 != 0 else 0
+        )
 
         # 2.3 ice
 
         # 2.4 snow
-        qp_tmp[0, 0, 0] = r_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-        if rr_in > R_RTMIN or qp_tmp > R_RTMIN:
-            if rr_in > R_RTMIN:
-                wsedw1_tmp = other_species(FSEDR, EXSEDR, rr_in, rhodref)
-            else:
-                wsedw1_tmp = 0
+        qp[0, 0, 0] = r_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
+        wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
 
-            if qp_tmp > R_RTMIN:
-                wsedw2_tmp = other_species(FSEDR, EXSEDR, qp_tmp, rhodref)
-            else:
-                wsedw2_tmp = 0
-
-        else:
-            wsedw1_tmp = 0
-            wsedw2_tmp = 0
-
-        sed_tmp = weighted_sedimentation_flux_1(wsedw1_tmp, dz, rhodref, rc_in, dt)
-
-        if wsedw2_tmp != 0:
-            sed_tmp = sed_tmp + weighted_sedimentation_flux_2(
-                wsedw2_tmp, dt, dz, sed_tmp
-            )
+        s_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        s_sed += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, s_sed) if wsedw2 != 0 else 0
+        )
 
         # 2.5 graupel
-        qp_tmp[0, 0, 0] = r_sed_tmp[0, 0, 1] * dt__rho_dz_tmp[0, 0, 0]
-        if rr_in > R_RTMIN or qp_tmp > R_RTMIN:
-            if rr_in > R_RTMIN:
-                wsedw1_tmp = other_species(FSEDR, EXSEDR, rr_in, rhodref)
-            else:
-                wsedw1_tmp = 0
+        qp[0, 0, 0] = r_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
+        wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
 
-            if qp_tmp > R_RTMIN:
-                wsedw2_tmp = other_species(FSEDR, EXSEDR, qp_tmp, rhodref)
-            else:
-                wsedw2_tmp = 0
-
-        else:
-            wsedw1_tmp = 0
-            wsedw2_tmp = 0
-
-        sed_tmp = weighted_sedimentation_flux_1(wsedw1_tmp, dz, rhodref, rc_in, dt)
-
-        if wsedw2_tmp != 0:
-            sed_tmp = sed_tmp + weighted_sedimentation_flux_2(
-                wsedw2_tmp, dt, dz, sed_tmp
-            )
+        g_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        g_sed += (
+            weighted_sedimentation_flux_2(wsedw2, dt, dzz, g_sed) if wsedw2 != 0 else 0
+        )
 
     # 3. Sources
     # Calcul des tendances
     with computation(PARALLEL), interval(...):
-        rcs_tnd = (
-            rcs_tnd + dt__rho_dz_tmp * (c_sed_tmp[0, 0, 1] - c_sed_tmp[0, 0, 0]) / dt
-        )
-        ris_tnd = (
-            ris_tnd + dt__rho_dz_tmp * (i_sed_tmp[0, 0, 1] - i_sed_tmp[0, 0, 0]) / dt
-        )
-        rss_tnd = (
-            rss_tnd + dt__rho_dz_tmp * (s_sed_tmp[0, 0, 1] - s_sed_tmp[0, 0, 0]) / dt
-        )
-        rgs_tnd = (
-            rgs_tnd + dt__rho_dz_tmp * (g_sed_tmp[0, 0, 1] - g_sed_tmp[0, 0, 0]) / dt
-        )
-        rrs_tnd = (
-            rrs_tnd + dt__rho_dz_tmp * (r_sed_tmp[0, 0, 1] - r_sed_tmp[0, 0, 0]) / dt
-        )
+        rcs = rcs + dt__rho_dz * (c_sed[0, 0, 1] - c_sed[0, 0, 0]) / dt
+        ris = ris + dt__rho_dz * (i_sed[0, 0, 1] - i_sed[0, 0, 0]) / dt
+        rss = rss + dt__rho_dz * (s_sed[0, 0, 1] - s_sed[0, 0, 0]) / dt
+        rgs = rgs + dt__rho_dz * (g_sed[0, 0, 1] - g_sed[0, 0, 0]) / dt
+        rrs = rrs + dt__rho_dz * (r_sed[0, 0, 1] - r_sed[0, 0, 0]) / dt
 
     # Instantaneous fluxes
     with computation(PARALLEL), interval(0, 1):
-        inst_rc_out = c_sed_tmp / RHOLW
-        inst_rr_out = r_sed_tmp / RHOLW
-        inst_ri_out = i_sed_tmp / RHOLW
-        inst_rs_out = s_sed_tmp / RHOLW
-        inst_rg_out = g_sed_tmp / RHOLW
+        inst_rc = c_sed / RHOLW
+        inst_rr = r_sed / RHOLW
+        inst_ri = i_sed / RHOLW
+        inst_rs = s_sed / RHOLW
+        inst_rg = g_sed / RHOLW
 
 
 @function
@@ -228,9 +226,9 @@ def terminal_velocity(
 ):
     from __externals__ import CC, CEXVT, DC, FSEDC, LBEXC
 
-    wlbda_tmp = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
-    wlbdc_tmp = (lbc * conc3d / (rhodref * content)) ** LBEXC
-    cc_tmp = CC * (1 + 1.26 * wlbda_tmp * wlbdc_tmp / ray)
-    wsedw1 = rhodref ** (-CEXVT) * wlbdc_tmp * (-DC) * cc_tmp * FSEDC
+    wlbda = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
+    wlbdc = (lbc * conc3d / (rhodref * content)) ** LBEXC
+    cc = CC * (1 + 1.26 * wlbda * wlbdc / ray)
+    wsedw1 = rhodref ** (-CEXVT) * wlbdc * (-DC) * cc * FSEDC
 
     return wsedw1
