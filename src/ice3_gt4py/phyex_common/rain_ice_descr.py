@@ -155,6 +155,14 @@ class RainIceDescr:
     CONC_LAND: float = 3e8  # Diagnostic concentration of droplets over land
     CONC_URBAN: float = 5e8  # Diagnostic concentration of droplets over urban area
 
+    # Statistical sedimentation
+    GAC: float = field(init=False)
+    GC: float = field(init=False)
+    GAC2: float = field(init=False)
+    GC2: float = field(init=False)
+
+    RAYDEF0: float = field(init=False)
+
     def __post_init__(self):
         # 2.2    Ice crystal characteristics
         if self.parami.PRISTINE_ICE == "PLAT":
@@ -223,6 +231,12 @@ class RainIceDescr:
         )
 
         self.NS = 1.0 / (self.A_S * momg(self.ALPHAS, self.NUS, self.BS))
+
+        self.GAC = gamma(self.NUC + 1 / self.ALPHAC)
+        self.GC = gamma(self.NUC)
+        self.GAC2 = gamma(self.NUC2 + 1 / self.ALPHAC2)
+        self.GC2 = gamma(self.NUC2)
+        self.RAYDEF0 = max(1, 0.5 * (self.GAC / self.GC))
 
 
 @dataclass
