@@ -37,7 +37,11 @@ def sedimentation_stat(
     rgs: Field["float"],
     sea: Field["bool"],
     town: Field["float"],
-    fpr: Field["float"],
+    fpr_c: Field["float"],
+    fpr_r: Field["float"],
+    fpr_i: Field["float"],
+    fpr_s: Field["float"],
+    fpr_g: Field["float"],
     inst_rr: Field[IJ, "float"],
     inst_rc: Field[IJ, "float"],
     inst_ri: Field[IJ, "float"],
@@ -203,6 +207,12 @@ def sedimentation_stat(
         g_sed += (
             weighted_sedimentation_flux_2(wsedw2, dt, dzz, g_sed) if wsedw2 != 0 else 0
         )
+
+        fpr_c = c_sed
+        fpr_r = r_sed
+        fpr_i = i_sed
+        fpr_s = s_sed
+        fpr_g = g_sed
 
     # 3. Sources
     # Calcul des tendances
