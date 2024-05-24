@@ -20,6 +20,7 @@ from ice3_gt4py.functions.sedimentation_flux import (
     weighted_sedimentation_flux_1,
     weighted_sedimentation_flux_2,
 )
+from ice3_gt4py.functions.sea_town_masks import lbc, conc3d, ray, fsedc
 
 
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90")
@@ -131,12 +132,10 @@ def sedimentation_stat(
 
     # l253 to l258
     with computation(PARALLEL), interval(...):
-        ray = max(1, 0.5 * ((1 - sea) * GAC / GC + sea * GAC2 / GC2))
-        lbc = max(min(LBC[0], LBC[1]), sea * LBC[0] + (1 - sea * LBC[1]))
-        fsedc = max(min(FSEDC[0], FSEDC[1]), sea * FSEDC[0] + (1 - sea) * FSEDC[1])
-        conc3d = (1 - town) * (
-            sea * CONC_SEA + (1 - sea) * CONC_LAND
-        ) + town * CONC_URBAN
+        _ray = ray(sea)
+        _lbc = lbc(sea)
+        _fsedc = fsedc(sea)
+        _conc3d = conc3d(town, sea)
 
     # Compute the sedimentation fluxes
     with computation(BACKWARD), interval(...):
@@ -152,12 +151,12 @@ def sedimentation_stat(
         # 2.1 cloud
         qp = fpr_c[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
         wsedw1 = (
-            terminal_velocity(rc_t, tht, pabst, rhodref, lbc, ray, conc3d)
+            terminal_velocity(rc_t, tht, pabst, rhodref, _lbc, _ray, _conc3d)
             if rc_t > C_RTMIN
             else 0
         )
         wsedw2 = (
-            terminal_velocity(qp, tht, pabst, rhodref, lbc, ray, conc3d)
+            terminal_velocity(qp, tht, pabst, rhodref, _lbc, _ray, _conc3d)
             if qp > C_RTMIN
             else 0
         )
