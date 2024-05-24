@@ -9,12 +9,14 @@ from gt4py.cartesian.gtscript import (
     BACKWARD,
     interval,
     IJ,
+    log,
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.sedimentation_flux import (
     other_species,
+    pristine_ice,
     weighted_sedimentation_flux_1,
     weighted_sedimentation_flux_2,
 )
@@ -28,11 +30,6 @@ def sedimentation_stat(
     dzz: Field["float"],
     pabst: Field["float"],
     tht: Field["float"],
-    rc_t: Field["float"],
-    rr_t: Field["float"],
-    ri_t: Field["float"],
-    rs_t: Field["float"],
-    rg_t: Field["float"],
     rcs: Field["float"],
     rrs: Field["float"],
     ris: Field["float"],
@@ -50,29 +47,24 @@ def sedimentation_stat(
     """Compute sedimentation sources for statistical sedimentation
 
     Args:
-        dt (float): _description_
-        rhodref (Field[float]): _description_
-        dzz (Field[float]): _description_
-        pabst (Field[float]): _description_
-        tht (Field[float]): _description_
-        rc_t (Field[float]): _description_
-        rr_t (Field[float]): _description_
-        ri_t (Field[float]): _description_
-        rs_t (Field[float]): _description_
-        rg_t (Field[float]): _description_
-        rcs (Field[float]): _description_
-        rrs (Field[float]): _description_
-        ris (Field[float]): _description_
-        rss (Field[float]): _description_
-        rgs (Field[float]): _description_
-        sea (Field[bool]): _description_
-        town (Field[float]): _description_
-        fpr (Field[float]): _description_
-        inst_rr (Field[float]): _description_
-        inst_rc (Field[float]): _description_
-        inst_ri (Field[float]): _description_
-        inst_rs (Field[float]): _description_
-        inst_rg (Field[float]): _description_
+        dt (float): physical time step
+        rhodref (Field[float]): density of dry air
+        dzz (Field[float]): vertical spacing of cells
+        pabst (Field[float]): absolute pressure at t
+        tht (Field[float]): potential temperature at t
+        rcs (Field[float]): cloud droplets m.r. tendency
+        rrs (Field[float]): rain m.r. tendency
+        ris (Field[float]): ice m.r. tendency
+        rss (Field[float]): snow m.r. tendency
+        rgs (Field[float]): graupel m.r. tendency
+        sea (Field[itn]): mask for sea
+        town (Field[float]): mask for town
+        fpr (Field[float]): upper-air precipitation fluxes
+        inst_rr (Field[float]): instant prepicipitations of rain
+        inst_rc (Field[float]): instant prepicipitations of cloud droplets
+        inst_ri (Field[float]): instant prepicipitations of ice
+        inst_rs (Field[float]): instant prepicipitations of snow
+        inst_rg (Field[float]): instant prepicipitations of graupel
     """
     from __externals__ import (
         C_RTMIN,
@@ -96,6 +88,15 @@ def sedimentation_stat(
         GC2,
         RAYDEF0,
         TSTEP,
+        I_RTMIN,
+        FSEDI,
+        EXCSEDI,
+        FSEDS,
+        EXSEDS,
+        S_RTMIN,
+        FSEDG,
+        G_RTMIN,
+        EXSEDG,
     )
 
     # Note Hail is omitted
@@ -169,27 +170,34 @@ def sedimentation_stat(
         wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
         wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
 
-        r_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        r_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rr_t, dt)
         r_sed += (
             weighted_sedimentation_flux_2(wsedw2, dt, dzz, r_sed) if wsedw2 != 0 else 0
         )
 
         # 2.3 ice
+        qp[0, 0, 0] = i_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = pristine_ice(ri_t, rhodref)
+        wsedw2 = pristine_ice(qp, rhodref)
+
+        i_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, ri_t, dt)
+        i_sed += weighted_sedimentation_flux_2(wsedw2, dt, dzz, i_sed) if qp != 0 else 0
 
         # 2.4 snow
-        qp[0, 0, 0] = r_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
-        wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
-        wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
+        # Translation note : REPRO48 set to True
+        qp[0, 0, 0] = s_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = other_species(FSEDS, EXSEDS, rs_t, rhodref) if rs_t > S_RTMIN else 0
+        wsedw2 = other_species(FSEDS, EXSEDS, qp, rhodref) if qp > S_RTMIN else 0
 
-        s_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
+        s_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rs_t, dt)
         s_sed += (
             weighted_sedimentation_flux_2(wsedw2, dt, dzz, s_sed) if wsedw2 != 0 else 0
         )
 
         # 2.5 graupel
-        qp[0, 0, 0] = r_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
-        wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
-        wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
+        qp[0, 0, 0] = g_sed[0, 0, 1] * dt__rho_dz[0, 0, 0]
+        wsedw1 = other_species(FSEDG, EXSEDG, rg_t, rhodref) if rg_t > G_RTMIN else 0
+        wsedw2 = other_species(FSEDG, EXSEDG, qp, rhodref) if qp > G_RTMIN else 0
 
         g_sed = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, dt)
         g_sed += (
