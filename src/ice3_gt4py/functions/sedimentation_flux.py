@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from gt4py.cartesian.gtscript import Field, function
+from gt4py.cartesian.gtscript import Field, function, log
 
 
 # FWSED1
@@ -30,6 +30,17 @@ def other_species(
 ):
     from __externals__ import CEXVT
 
-    wsedw = fsed * content_in * (exsed - 1) * rhodref ** (exsed - CEXVT - 1)
+    return fsed * content_in * (exsed - 1) * rhodref ** (exsed - CEXVT - 1)
 
-    return wsedw
+
+@function
+def pristine_ice(content: Field["float"], rhodref: Field["float"]):
+    from __externals__ import CEXVT, FSEDI, EXCSEDI, I_RTMIN
+
+    return (
+        FSEDI
+        * rhodref ** (-CEXVT)
+        * max(5e-8, -1.5319e5 - 2.1454e5 * log(rhodref * content)) ** EXCSEDI
+        if ri_t > max(I_RTMIN, 1e-7)
+        else 0
+    )
