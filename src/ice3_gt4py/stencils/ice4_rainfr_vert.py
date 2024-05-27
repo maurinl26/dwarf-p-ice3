@@ -30,7 +30,7 @@ def rain_fraction_sedimentation(
 @ported_method(
     from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=792, to_line=801
 )
-@stencil_collection("rain_fraction_sedimentation")
+@stencil_collection("ice4_rainfr_vert")
 def ice4_rainfr_vert(
     prfr: Field["float"], rr: Field["float"], rs: Field["float"], rg: Field["float"]
 ):

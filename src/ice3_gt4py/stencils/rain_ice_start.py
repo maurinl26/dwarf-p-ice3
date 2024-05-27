@@ -38,18 +38,18 @@ def rain_ice_init(
         G_RTMIN,
         CPD,
         CPV,
-        Ci,
-        Cl,
+        CI,
+        CL,
         TT,
         LSTT,
         LVTT,
     )
 
     with computation(PARALLEL), interval(...):
-        divider = CPD + CPV * rv_t + Cl * (rc_t + rr_t) + Ci * (ri_t + rs_t + rg_t)
+        divider = CPD + CPV * rv_t + CL * (rc_t + rr_t) + CI * (ri_t + rs_t + rg_t)
         t = th_t * exn
-        ls_fact = (LSTT + (CPV - Ci) * (t - TT)) / divider
-        lv_fact = (LVTT + (CPV - Cl) * (t - TT)) / divider
+        ls_fact = (LSTT + (CPV - CI) * (t - TT)) / divider
+        lv_fact = (LVTT + (CPV - CL) * (t - TT)) / divider
 
         ldmicro = (
             rc_t > C_RTMIN

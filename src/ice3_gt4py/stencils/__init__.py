@@ -15,3 +15,11 @@ import ice3_gt4py.stencils.step_limiter
 import ice3_gt4py.stencils.mixing_ratio_limiter
 import ice3_gt4py.stencils.ice4_tendencies
 import ice3_gt4py.stencils.ice4_stepping
+import ice3_gt4py.stencils.fog_deposition
+import ice3_gt4py.stencils.ice4_correct_negativities
+import ice3_gt4py.stencils.ice4_rainfr_vert
+import ice3_gt4py.stencils.ice4_stepping
+import ice3_gt4py.stencils.rain_ice_nucleation
+import ice3_gt4py.stencils.rain_ice_start
+import ice3_gt4py.stencils.rain_ice_total_tendencies
+import ice3_gt4py.stencils.ice4_compute_pdf
