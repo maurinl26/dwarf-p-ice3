@@ -104,7 +104,8 @@ class RainIceDescr:
     NUC2: float = 1.0
 
     LBEXC: float = field(init=False)
-    LBC: Tuple[float] = field(init=False)
+    LBC_1: float = field(init=False)
+    LBC_2: float = field(init=False)
 
     # Rain drop distribution parameters
     ALPHAR: float = (
@@ -215,7 +216,7 @@ class RainIceDescr:
 
         gamc = momg(self.ALPHAC, self.NUC, 3)
         gamc2 = momg(self.ALPHAC2, self.NUC2, 3)
-        self.LBC = (self.AR * gamc, self.AR * gamc2)
+        self.LBC_1, self.LBC_2 = (self.AR * gamc, self.AR * gamc2)
 
         self.LBR = (self.AR * self.CCR * momg(self.ALPHAR, self.NUR, self.BR)) ** (
             -self.LBEXR

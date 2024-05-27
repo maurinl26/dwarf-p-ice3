@@ -122,13 +122,14 @@ class RainIceParam:
     parami: ParamIce
 
     # Parameters for microphysical sources and transformations
-    FSEDC: Tuple[float] = field(init=False)  # Constants for sedimentation fluxes of C
+    FSEDC_1: float = field(init=False) # Constants for sedimentation fluxes of C
+    FSEDC_2: float = field(init=False)
     FSEDR: float = field(init=False)  # Constants for sedimentation
     EXSEDR: float = field(init=False)
     FSEDI: float = field(init=False)
     EXCSEDI: float = field(init=False)
     EXRSEDI: float = field(init=False)
-    # fseDS: float = field(init=False)
+    FSEDS: float = field(init=False)
     EXSEDS: float = field(init=False)
     FSEDG: float = field(init=False)
     EXSEDG: float = field(init=False)
@@ -293,7 +294,7 @@ class RainIceParam:
         rho00 = 101325 * (1 + rv) / (self.cst.RD + rv * self.cst.RV) / 293.15
 
         # 4.2    Constants for sedimentation
-        self.FSEDC = (
+        self.FSEDC_1, self.FSEDC_2 = (
             (
                 gamma(self.rid.NUC + (self.rid.DC + 3) / self.rid.ALPHAC)
                 / gamma(self.rid.NUC + 3 / self.rid.ALPHAC)
@@ -353,10 +354,10 @@ class RainIceParam:
             * rho00**self.rid.CEXVT
         )
 
-        if self.parami.LRED:
-            self.exseDS = self.rid.DS - self.rid.BS
-            self.fseDS = (
-                self.CS
+        # if self.parami.LRED:
+        self.EXSEDS = self.rid.DS - self.rid.BS
+        self.FSEDS = (
+                self.rid.CS
                 * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + self.rid.DS)
                 / momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
                 * rho00**self.rid.CEXVT

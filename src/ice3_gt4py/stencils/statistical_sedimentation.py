@@ -7,6 +7,7 @@ from gt4py.cartesian.gtscript import (
     computation,
     PARALLEL,
     BACKWARD,
+    FORWARD,
     interval,
     IJ,
     log,
@@ -35,7 +36,7 @@ def sedimentation_stat(
     ris: Field["float"],
     rss: Field["float"],
     rgs: Field["float"],
-    sea: Field["bool"],
+    sea: Field["float"],
     town: Field["float"],
     fpr_c: Field["float"],
     fpr_r: Field["float"],
@@ -61,7 +62,7 @@ def sedimentation_stat(
         ris (Field[float]): ice m.r. tendency
         rss (Field[float]): snow m.r. tendency
         rgs (Field[float]): graupel m.r. tendency
-        sea (Field[itn]): mask for sea
+        sea (Field[float]): mask for sea
         town (Field[float]): mask for town
         fpr (Field[float]): upper-air precipitation fluxes
         inst_rr (Field[float]): instant prepicipitations of rain
@@ -73,28 +74,10 @@ def sedimentation_stat(
     from __externals__ import (
         C_RTMIN,
         RHOLW,
-        CC,
-        CEXVT,
-        DC,
         EXSEDR,
-        FSEDC,
         FSEDR,
-        LBEXC,
-        LSEDIC,
         R_RTMIN,
-        LBC,
-        CONC_SEA,
-        CONC_LAND,
-        CONC_URBAN,
-        GAC,
-        GAC2,
-        GC,
-        GC2,
-        RAYDEF0,
         TSTEP,
-        I_RTMIN,
-        FSEDI,
-        EXCSEDI,
         FSEDS,
         EXSEDS,
         S_RTMIN,
@@ -134,7 +117,7 @@ def sedimentation_stat(
     with computation(PARALLEL), interval(...):
         _ray = ray(sea)
         _lbc = lbc(sea)
-        _fsedc = fsedc(sea)
+        # _fsedc = fsedc(sea)
         _conc3d = conc3d(town, sea)
 
     # Compute the sedimentation fluxes
@@ -163,7 +146,7 @@ def sedimentation_stat(
 
         fpr_c = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, TSTEP)
         fpr_c += (
-            weighted_sedimentation_flux_2(wsedw2, TSTEP, dzz, fpr_c)
+            weighted_sedimentation_flux_2(wsedw2, fpr_c, dzz, TSTEP)
             if wsedw2 != 0
             else 0
         )
@@ -176,7 +159,7 @@ def sedimentation_stat(
 
         fpr_r = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rr_t, TSTEP)
         fpr_r += (
-            weighted_sedimentation_flux_2(wsedw2, TSTEP, dzz, fpr_r)
+            weighted_sedimentation_flux_2(wsedw2, fpr_r, dzz, TSTEP)
             if wsedw2 != 0
             else 0
         )
@@ -188,7 +171,7 @@ def sedimentation_stat(
 
         fpr_i = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, ri_t, TSTEP)
         fpr_i += (
-            weighted_sedimentation_flux_2(wsedw2, TSTEP, dzz, fpr_i) if qp != 0 else 0
+            weighted_sedimentation_flux_2(wsedw2, fpr_i, dzz, TSTEP) if qp != 0 else 0
         )
 
         # 2.4 snow
@@ -199,7 +182,7 @@ def sedimentation_stat(
 
         fpr_s = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rs_t, TSTEP)
         fpr_s += (
-            weighted_sedimentation_flux_2(wsedw2, TSTEP, dzz, fpr_s)
+            weighted_sedimentation_flux_2(wsedw2, fpr_s, dzz, TSTEP)
             if wsedw2 != 0
             else 0
         )
@@ -211,12 +194,12 @@ def sedimentation_stat(
 
         fpr_g = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, TSTEP)
         fpr_g += (
-            weighted_sedimentation_flux_2(wsedw2, TSTEP, dzz, fpr_g)
+            weighted_sedimentation_flux_2(wsedw2, fpr_g, dzz, TSTEP)
             if wsedw2 != 0
             else 0
         )
 
-    # 3. Sources
+    # 3. Source
     # Calcul des tendances
     with computation(PARALLEL), interval(...):
         rcs = rcs + TSTEP__rho_dz * (fpr_c[0, 0, 1] - fpr_c[0, 0, 0]) / TSTEP
@@ -226,7 +209,7 @@ def sedimentation_stat(
         rrs = rrs + TSTEP__rho_dz * (fpr_r[0, 0, 1] - fpr_r[0, 0, 0]) / TSTEP
 
     # Instantaneous fluxes
-    with computation(PARALLEL), interval(0, 1):
+    with computation(FORWARD), interval(0, 1):
         inst_rc = fpr_c / RHOLW
         inst_rr = fpr_r / RHOLW
         inst_ri = fpr_i / RHOLW
@@ -244,11 +227,11 @@ def terminal_velocity(
     ray: Field["float"],
     conc3d: Field["float"],
 ):
-    from __externals__ import CC, CEXVT, DC, FSEDC, LBEXC
+    from __externals__ import CC, CEXVT, DC, FSEDC_1, LBEXC
 
     wlbda = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
     wlbdc = (lbc * conc3d / (rhodref * content)) ** LBEXC
     cc = CC * (1 + 1.26 * wlbda * wlbdc / ray)
-    wsedw1 = rhodref ** (-CEXVT) * wlbdc * (-DC) * cc * FSEDC
+    wsedw1 = rhodref ** (-CEXVT) * wlbdc * (-DC) * cc * FSEDC_1
 
     return wsedw1

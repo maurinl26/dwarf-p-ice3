@@ -60,6 +60,7 @@ class Phyex:
 
     ITERMAX: int = field(default=1)
     TSTEP: float = field(default=45)
+    INV_TSTEP: float = field(init=False)
     NRR: float = field(default=6)
 
     # Miscellaneous terms
@@ -91,6 +92,8 @@ class Phyex:
         self.rain_ice_param = RainIceParam(
             self.cst, self.rain_ice_descrn, self.param_icen
         )
+        
+        self.INV_TSTEP = 1 / self.TSTEP
 
     def to_externals(self):
         externals = {}
@@ -99,6 +102,6 @@ class Phyex:
         externals.update(asdict(self.rain_ice_descrn))
         externals.update(asdict(self.rain_ice_param))
         externals.update(asdict(self.nebn))
-        externals.update({"TSTEP": self.TSTEP, "NRR": self.NRR})
+        externals.update({"TSTEP": self.TSTEP, "NRR": self.NRR, "INV_TSTEP": self.INV_TSTEP})
 
         return externals

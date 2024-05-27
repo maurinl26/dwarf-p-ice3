@@ -51,7 +51,7 @@ def upwind_sedimentation(
 
     from __externals__ import (
         C_RTMIN,
-        T00,
+        TT,
         CC,
         CEXVT,
         CPD,
@@ -102,7 +102,7 @@ def upwind_sedimentation(
         wlbdc = (_lbc * _conc3d / (rhodref * rc_t)) ** LBEXC
         _ray /= wlbdc
         t = tht * (pabst / P00) ** (RD / CPD)
-        wlbda = 6.6e-8 * (P00 / pabst) * (t / T00)
+        wlbda = 6.6e-8 * (P00 / pabst) * (t / TT)
         cc = CC * (1 + 1.26 * wlbda / _ray)
         wsed = rhodref ** (-CEXVT + 1) * wlbdc * cc * _fsedc
 

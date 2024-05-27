@@ -40,8 +40,8 @@ def ice4_correct_negativities(
     """
 
     from __externals__ import (
-        s_rtmin,
-        g_rtmin,
+        S_RTMIN,
+        G_RTMIN,
     )
 
     with computation(PARALLEL), interval(...):
@@ -73,12 +73,12 @@ def ice4_correct_negativities(
         rg_t -= w
 
         # 2. negative vapor mr
-        w = min(max(rs_t, 0), max(s_rtmin - rv_t, 0))  # rs -> rv
+        w = min(max(rs_t, 0), max(S_RTMIN - rv_t, 0))  # rs -> rv
         rv_t += w
         rs_t -= w
         th_t -= w * ls_fact
 
-        w = min(max(rg_t, 0), max(g_rtmin - rv_t, 0))  # rg -> rv
+        w = min(max(rg_t, 0), max(G_RTMIN - rv_t, 0))  # rg -> rv
         rv_t += w
         rg_t -= w
         th_t -= w * ls_fact

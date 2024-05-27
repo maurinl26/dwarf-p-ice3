@@ -20,7 +20,7 @@ from ice3_gt4py.functions.temperature import theta2temperature
     to_line=221,
 )
 @stencil_collection("ice4_stepping_tmicro_init")
-def ice4_stepping_init_tmicro(t_micro: Field["float"], ldmicro: Field["bool"]):
+def ice4_stepping_tmicro_init(t_micro: Field["float"], ldmicro: Field["bool"]):
     """Initialise t_soft with value of t_micro after each loop
     on LSOFT condition.
 

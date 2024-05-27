@@ -9,10 +9,10 @@ def weighted_sedimentation_flux_1(
     wsedw: Field["float"],
     dz: Field["float"],
     rhodref: Field["float"],
-    content_in: Field["float"],
+    rx_t: Field["float"],
     dt: "float",
 ):
-    return min(rhodref * dz * content_in / dt, wsedw * rhodref, content_in)
+    return min(rhodref * dz * rx_t / dt, wsedw * rhodref * rx_t)
 
 
 # FWSED2

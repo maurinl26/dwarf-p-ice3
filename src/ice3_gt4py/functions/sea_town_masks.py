@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from gt4py.cartesian.gtscript import Field, function, log
+from gt4py.cartesian.gtscript import Field, function, min, max
 
 
 @function
-def ray(sea: Field["int"]):
+def ray(sea: Field["float"]):
 
     from __externals__ import GAC, GC, GAC2, GC2
 
@@ -11,21 +11,21 @@ def ray(sea: Field["int"]):
 
 
 @function
-def lbc(sea: Field["int"]):
-    from __externals__ import LBC
+def lbc(sea: Field["float"]):
+    from __externals__ import LBC_1, LBC_2
 
-    return max(min(LBC[0], LBC[1]), sea * LBC[0] + (1 - sea * LBC[1]))
-
-
-@function
-def fsedc(sea: Field["int"]):
-    from __externals__ import FSEDC
-
-    return max(min(FSEDC[0], FSEDC[1]), sea * FSEDC[0] + (1 - sea) * FSEDC[1])
+    return max(min(LBC_1, LBC_2), sea * LBC_1 + (1 - sea * LBC_2))
 
 
 @function
-def conc3d(town: Field["float"], sea: Field["int"]):
+def fsedc(sea: Field["float"]):
+    from __externals__ import FSEDC_1, FSEDC_2
+
+    return max(min(FSEDC_1, FSEDC_2), sea * FSEDC_1 + (1 - sea) * FSEDC_2)
+
+
+@function
+def conc3d(town: Field["float"], sea: Field["float"]):
     from __externals__ import CONC_LAND, CONC_SEA, CONC_URBAN
 
     return (1 - town) * (sea * CONC_SEA + (1 - sea) * CONC_LAND) + town * CONC_URBAN
