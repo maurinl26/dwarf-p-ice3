@@ -41,6 +41,6 @@ def pristine_ice(content: Field["float"], rhodref: Field["float"]):
         FSEDI
         * rhodref ** (-CEXVT)
         * max(5e-8, -1.5319e5 - 2.1454e5 * log(rhodref * content)) ** EXCSEDI
-        if ri_t > max(I_RTMIN, 1e-7)
+        if content > max(I_RTMIN, 1e-7)
         else 0
     )
