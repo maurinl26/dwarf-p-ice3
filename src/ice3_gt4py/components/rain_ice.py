@@ -65,7 +65,7 @@ class RainIce(ImplicitTendencyComponent):
             "ice4_precipitation_fraction_sigma", externals
         )
         self.ice4_precipitation_fraction_liquid_content = self.compile_stencil(
-            "ice4_precipitation_liquid_content", externals
+            "ice4_precipitation_fraction_liquid_content", externals
         )
         self.ice4_compute_pdf = self.compile_stencil("ice4_compute_pdf", externals)
         self.ice4_rainfr_vert = self.compile_stencil("ice4_rainfr_vert", externals)
@@ -467,20 +467,20 @@ class RainIce(ImplicitTendencyComponent):
             self.ice4_correct_negativities(**state_neg, **tmps_neg)
 
             # 9. Compute the sedimentation source
-            if LSEDIM_AFTER:
-                if SEDIM == Sedim.STAT.value:
-                    self.statistical_sedimentation()
-                elif SEDIM == Sedim.SPLI.value:
-                    self.upwind_sedimentation()
+            # if LSEDIM_AFTER:
+            #     if SEDIM == Sedim.STAT.value:
+            #         self.statistical_sedimentation()
+            #     elif SEDIM == Sedim.SPLI.value:
+            #         self.upwind_sedimentation()
 
-                state_frac_sed = {
-                    **{key: state[key] for key in ["rrs", "rss", "rgs"]},
-                    **{"wr_r": wr_r, "wr_s": wr_s, "wr_g": wr_g},
-                }
-                self.rain_fraction_sedimentation(**state_frac_sed)
+            #     state_frac_sed = {
+            #         **{key: state[key] for key in ["rrs", "rss", "rgs"]},
+            #         **{"wr_r": wr_r, "wr_s": wr_s, "wr_g": wr_g},
+            #     }
+            #     self.rain_fraction_sedimentation(**state_frac_sed)
 
-                state_rainfr = {**{key: state[key] for key in ["prfr", "rr_t", "rs_t"]}}
-                self.ice4_rainfr_vert(**state_rainfr)
+            #     state_rainfr = {**{key: state[key] for key in ["prfr", "rr_t", "rs_t"]}}
+            #     self.ice4_rainfr_vert(**state_rainfr)
 
             # 10 Compute the fog deposition
             if LDEPOSC:
