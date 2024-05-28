@@ -114,7 +114,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "cj": {"grid": (I, J, K), "units": ""},
             "ssi": {"grid": (I, J, K), "units": ""},
             "t": {"grid": (I, J, K), "units": ""},
-            "tht": {"grid": (I, J, K), "units": ""},
+            "th_t": {"grid": (I, J, K), "units": ""},
             # PVART in f90
             "rv_t": {"grid": (I, J, K), "units": ""},
             "rc_t": {"grid": (I, J, K), "units": ""},
@@ -252,7 +252,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **{
                     key: state[key]
                     for key in [
-                        "tht",
+                        "th_t",
                         "pabs",
                         "rhodref",
                         "exn",
@@ -277,7 +277,15 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             state_nucleation_pp = {
                 **{
                     key: state[key]
-                    for key in ["t", "exn", "ls_fact", "lv_fact", "tht", "rv_t", "ri_t"]
+                    for key in [
+                        "t",
+                        "exn",
+                        "ls_fact",
+                        "lv_fact",
+                        "th_t",
+                        "rv_t",
+                        "ri_t",
+                    ]
                 },
             }
 
@@ -293,7 +301,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "ldcompute": state["ldcompute"],
                 **{
                     key: state[key]
-                    for key in ["t", "exn", "lv_fact", "ls_fact", "tht", "rr_t"]
+                    for key in ["t", "exn", "lv_fact", "ls_fact", "th_t", "rr_t"]
                 },
             }
 
@@ -310,7 +318,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "exn",
                         "lv_fact",
                         "ls_fact",
-                        "tht",
+                        "th_t",
                         "rg_t",
                         "rr_t",
                     ]
@@ -329,7 +337,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "exn",
                         "lv_fact",
                         "ls_fact",
-                        "tht",
+                        "th_t",
                         "ri_t",
                     ]
                 },
@@ -344,7 +352,15 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             state_rimltc_pp = {
                 **{
                     key: state[key]
-                    for key in ["t", "exn", "lv_fact", "ls_fact", "tht", "rc_t", "ri_t"]
+                    for key in [
+                        "t",
+                        "exn",
+                        "lv_fact",
+                        "ls_fact",
+                        "th_t",
+                        "rc_t",
+                        "ri_t",
+                    ]
                 },
             }
 
@@ -482,7 +498,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                         "rhodref",
                         "lv_fact",
                         "t",  # temperature
-                        "tht",
+                        "th_t",
                         "pres",
                         "ka",  # thermal conductivity of the air
                         "dv",  # diffusivity of water vapour

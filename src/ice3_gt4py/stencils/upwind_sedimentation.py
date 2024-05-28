@@ -23,8 +23,8 @@ from ice3_gt4py.functions.upwind_sedimentation import (
 def upwind_sedimentation(
     rhodref: Field["float"],
     dzz: Field["float"],
-    pabst: Field["float"],
-    tht: Field["float"],
+    pabs_t: Field["float"],
+    th_t: Field["float"],
     rc_t: Field["float"],
     rr_t: Field["float"],
     ri_t: Field["float"],
@@ -45,8 +45,9 @@ def upwind_sedimentation(
     fpr_s: Field["float"],
     fpr_i: Field["float"],
     fpr_g: Field["float"],
-    sea: Field["int"],
+    sea: Field["float"],
     town: Field["float"],
+    remaining_time: Field[IJ, "float"],
 ):
 
     from __externals__ import (
@@ -101,8 +102,8 @@ def upwind_sedimentation(
     with computation(PARALLEL), interval(...):
         wlbdc = (_lbc * _conc3d / (rhodref * rc_t)) ** LBEXC
         _ray /= wlbdc
-        t = tht * (pabst / P00) ** (RD / CPD)
-        wlbda = 6.6e-8 * (P00 / pabst) * (t / TT)
+        t = th_t * (pabs_t / P00) ** (RD / CPD)
+        wlbda = 6.6e-8 * (P00 / pabs_t) * (t / TT)
         cc = CC * (1 + 1.26 * wlbda / _ray)
         wsed = rhodref ** (-CEXVT + 1) * wlbdc * cc * _fsedc
 

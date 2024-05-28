@@ -29,8 +29,8 @@ from ice3_gt4py.functions.sea_town_masks import lbc, conc3d, ray, fsedc
 def sedimentation_stat(
     rhodref: Field["float"],
     dzz: Field["float"],
-    pabst: Field["float"],
-    tht: Field["float"],
+    pabs_t: Field["float"],
+    th_t: Field["float"],
     rcs: Field["float"],
     rrs: Field["float"],
     ris: Field["float"],
@@ -55,8 +55,8 @@ def sedimentation_stat(
         TSTEP (float): physical time step
         rhodref (Field[float]): density of dry air
         dzz (Field[float]): vertical spacing of cells
-        pabst (Field[float]): absolute pressure at t
-        tht (Field[float]): potential temperature at t
+        pabs_t (Field[float]): absolute pressure at t
+        th_t (Field[float]): potential temperature at t
         rcs (Field[float]): cloud droplets m.r. tendency
         rrs (Field[float]): rain m.r. tendency
         ris (Field[float]): ice m.r. tendency
@@ -134,12 +134,12 @@ def sedimentation_stat(
         # 2.1 cloud
         qp = fpr_c[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
         wsedw1 = (
-            terminal_velocity(rc_t, tht, pabst, rhodref, _lbc, _ray, _conc3d)
+            terminal_velocity(rc_t, th_t, pabs_t, rhodref, _lbc, _ray, _conc3d)
             if rc_t > C_RTMIN
             else 0
         )
         wsedw2 = (
-            terminal_velocity(qp, tht, pabst, rhodref, _lbc, _ray, _conc3d)
+            terminal_velocity(qp, th_t, pabs_t, rhodref, _lbc, _ray, _conc3d)
             if qp > C_RTMIN
             else 0
         )
@@ -220,8 +220,8 @@ def sedimentation_stat(
 @function
 def terminal_velocity(
     content: Field["float"],
-    tht: Field["float"],
-    pabst: Field["float"],
+    th_t: Field["float"],
+    pabs_t: Field["float"],
     rhodref: Field["float"],
     lbc: Field["float"],
     ray: Field["float"],
@@ -229,7 +229,7 @@ def terminal_velocity(
 ):
     from __externals__ import CC, CEXVT, DC, FSEDC_1, LBEXC
 
-    wlbda = 6.6e-8 * (101325 / pabst[0, 0, 0]) * (tht[0, 0, 0] / 293.15)
+    wlbda = 6.6e-8 * (101325 / pabs_t[0, 0, 0]) * (th_t[0, 0, 0] / 293.15)
     wlbdc = (lbc * conc3d / (rhodref * content)) ** LBEXC
     cc = CC * (1 + 1.26 * wlbda * wlbdc / ray)
     wsedw1 = rhodref ** (-CEXVT) * wlbdc * (-DC) * cc * FSEDC_1

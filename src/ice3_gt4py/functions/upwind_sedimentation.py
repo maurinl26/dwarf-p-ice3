@@ -55,7 +55,7 @@ def maximum_time_step(
     r: Field["float"],
     dz: Field["float"],
     wsed: Field["float"],
-    remaining_time: Field["float"],
+    remaining_time: Field[IJ, "float"],
 ):
     from __externals__ import SPLIT_MAXCFL
 

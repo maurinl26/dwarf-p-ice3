@@ -144,7 +144,7 @@ class AroAdjust(ImplicitTendencyComponent):
         ):
 
             ############## AroFilter - State ####################
-            state_filter = {"exnref": state["exnref"], "tht": state["th"]}
+            state_filter = {"exnref": state["exnref"], "th_t": state["th"]}
 
             diags_filter = {
                 key.split("_")[1]: out_diagnostics[key]

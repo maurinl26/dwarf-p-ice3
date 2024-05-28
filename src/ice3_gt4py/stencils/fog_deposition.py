@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log, computation, interval, PARALLEL
+from gt4py.cartesian.gtscript import (
+    Field,
+    computation,
+    interval,
+    FORWARD,
+    IJ,
+)
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -31,6 +37,6 @@ def fog_deposition(
     from __externals__ import VDEPOSC, RHOLW
 
     # Note : activated if LDEPOSC is True in rain_ice.F90
-    with computation(PARALLEL), interval(0, 1):
+    with computation(FORWARD), interval(0, 1):
         rcs -= VDEPOSC * rc_t / dzz
-        inprc += VDEPOSC * rc_t * rhodref / RHOLW
+        inprc[0, 0] += VDEPOSC * rc_t[0, 0, 0] * rhodref[0, 0, 0] / RHOLW

@@ -4,6 +4,7 @@ from __future__ import annotations
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
+from typing import Dict
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -72,9 +73,9 @@ class RainIce(ImplicitTendencyComponent):
 
         # 5. Tendencies computation
         # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
-        self.ice4_stepping = Ice4Stepping(
-            self.computational_grid, self.gt4py_config, phyex
-        )
+        # self.ice4_stepping = Ice4Stepping(
+        #     self.computational_grid, self.gt4py_config, phyex
+        # )
 
         # 8. Total tendencies
         # 8.1 Total tendencies limited by available species
@@ -90,9 +91,7 @@ class RainIce(ImplicitTendencyComponent):
         self.statistical_sedimentation = self.compile_stencil(
             "statistical_sedimentation", externals
         )
-        self.upwind_sedimentation = self.compile_stencil(
-            "upwind_sedimentation", externals
-        )
+
         self.rain_fraction_sedimentation = self.compile_stencil(
             "rain_fraction_sedimentation", externals
         )
@@ -144,8 +143,8 @@ class RainIce(ImplicitTendencyComponent):
             "hli_lri": {"grid": (I, J, K), "units": ""},
             # Optional
             "fpr": {"grid": (I, J, K), "units": ""},
-            "sea": {"grid": (I, J, K), "units": ""},
-            "town": {"grid": (I, J, K), "units": ""},
+            "sea": {"grid": (I, J), "units": ""},
+            "town": {"grid": (I, J), "units": ""},
         }
 
     @cached_property
@@ -165,12 +164,20 @@ class RainIce(ImplicitTendencyComponent):
         from_line=214,
         to_line=438,
     )
-    def array_call(self, state: NDArrayLikeDict, timestep: timedelta):
+    def array_call(
+        self,
+        state: NDArrayLikeDict,
+        timestep: timedelta,
+        out_tendencies: NDArrayLikeDict,
+        out_diagnostics: NDArrayLikeDict,
+        overwrite_tendencies: Dict[str, bool],
+    ):
 
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "bool"), 2),
-            *repeat(((I, J, K), "float"), 15),
+            *repeat(((I, J, K), "float"), 16),
+            *repeat(((I, J), "float"), 1),
             gt4py_config=self.gt4py_config,
         ) as (
             ldmicro,
@@ -191,6 +198,7 @@ class RainIce(ImplicitTendencyComponent):
             wr_s,
             wr_g,
             w3d,
+            remaining_time,
         ):
 
             # KEYS
@@ -199,7 +207,7 @@ class RainIce(ImplicitTendencyComponent):
             SUBG_PR_PDF = self.phyex.param_icen.SUBG_PR_PDF
             SUBG_AUCV_RC = self.phyex.param_icen.SUBG_AUCV_RC
             SUBG_AUCV_RI = self.phyex.param_icen.SUBG_AUCV_RI
-            LSEDIM_AFTER = self.phyex.param_icen.SEDIM_AFTER
+            LSEDIM_AFTER = self.phyex.param_icen.LSEDIM_AFTER
             LDEPOSC = self.phyex.param_icen.LDEPOSC
             SEDIM = self.phyex.param_icen.SEDIM
 
@@ -230,8 +238,8 @@ class RainIce(ImplicitTendencyComponent):
                 for key in [
                     "rhodref",
                     "dzz",
-                    "pabst",
-                    "tht",
+                    "pabs_t",
+                    "th_t",
                     "rcs",
                     "rrs",
                     "ris",
@@ -254,8 +262,9 @@ class RainIce(ImplicitTendencyComponent):
             if not LSEDIM_AFTER:
                 if SEDIM == Sedim.STAT.value:
                     self.statistical_sedimentation(**state_sed)
-                elif SEDIM == Sedim.SPLI.value:
-                    self.upwind_sedimentation(**state_sed)
+                # TODO : add split sedimentation
+                else:
+                    raise KeyError(f"Key not in {[option.name for option in Sedim]}")
 
             # 3. Initial values saving
             state_initial_values_saving = {
@@ -410,7 +419,7 @@ class RainIce(ImplicitTendencyComponent):
                 ]
             }
 
-            self.ice4_stepping(**state_stepping)
+            # self.ice4_stepping(**state_stepping)
 
             # 8. Total tendencies
             # 8.1 Total tendencies limited by available species

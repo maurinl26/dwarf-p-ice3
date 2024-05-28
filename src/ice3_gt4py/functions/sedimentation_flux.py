@@ -26,11 +26,11 @@ def weighted_sedimentation_flux_2(
 
 @function
 def other_species(
-    fsed: "float", exsed: "float", content_in: Field["float"], rhodref: Field["float"]
+    fsed: "float", exsed: "float", rx_t: Field["float"], rhodref: Field["float"]
 ):
     from __externals__ import CEXVT
 
-    return fsed * content_in * (exsed - 1) * rhodref ** (exsed - CEXVT - 1)
+    return fsed * rx_t * (exsed - 1) * rhodref ** (exsed - CEXVT - 1)
 
 
 @function

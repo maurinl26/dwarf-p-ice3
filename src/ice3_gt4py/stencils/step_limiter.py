@@ -128,7 +128,7 @@ def step_limiter(
 )
 @stencil_collection("state_update")
 def state_update(
-    tht: Field["float"],
+    th_t: Field["float"],
     theta_b: Field["float"],
     theta_tnd_a: Field["float"],
     rc_t: Field["float"],
@@ -154,7 +154,7 @@ def state_update(
     """Update values of guess of potential temperature and mixing ratios after each step
 
     Args:
-        tht (Field[float]): potential temperature at t
+        th_t (Field[float]): potential temperature at t
         theta_b (Field[float]): _description_
         theta_tnd_a (Field[float]): _description_
         rc_t (Field[float]): _description_
@@ -179,7 +179,7 @@ def state_update(
 
     # 4.7 New values of variables for next iteration
     with computation(PARALLEL), interval(...):
-        tht += theta_tnd_a * delta_t_micro + theta_b
+        th_t += theta_tnd_a * delta_t_micro + theta_b
         rc_t += rc_tnd_a * delta_t_micro + rc_b
         rr_t += rr_tnd_a * delta_t_micro + rr_b
         ri_t += ri_tnd_a * delta_t_micro + ri_b
@@ -202,7 +202,7 @@ def state_update(
 )
 @stencil_collection("external_tendencies_update")
 def external_tendencies_update(
-    tht: Field["float"],
+    th_t: Field["float"],
     theta_tnd_ext: Field["float"],
     rc_t: Field["float"],
     rr_t: Field["float"],
@@ -220,7 +220,7 @@ def external_tendencies_update(
 
     with computation(PARALLEL), interval(...):
         if ldmicro:
-            tht -= theta_tnd_ext * TSTEP
+            th_t -= theta_tnd_ext * TSTEP
             rc_t -= rc_tnd_ext * TSTEP
             rr_t -= rr_tnd_ext * TSTEP
             ri_t -= ri_tnd_ext * TSTEP

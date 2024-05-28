@@ -141,7 +141,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
             ############## t_micro_init ################
 
-            self.tmicro_init(t_micro, state["ldmicro"])
+            self.tmicro_init(t_micro=t_micro, ldmicro=state["ldmicro"])
 
             outerloop_counter = 0
             max_outerloop_iterations = 10
@@ -204,7 +204,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                                 "cj",
                                 "ssi",
                                 "t",
-                                "tht",
+                                "th_t",
                                 "rv_t",
                                 "rc_t",
                                 "rr_t",
@@ -258,7 +258,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                             "ri_t",
                             "rs_t",
                             "rg_t",
-                            "tht",
+                            "th_t",
                         ]
                     }
 
@@ -322,7 +322,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     state_state_update = {
                         key: state[key]
                         for key in [
-                            "tht",
+                            "th_t",
                             "rc_t",
                             "rr_t",
                             "ri_t",
@@ -364,7 +364,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             state_external_tendencies_update = {
                 key: state[key]
                 for key in [
-                    "tht",
+                    "th_t",
                     "rc_t",
                     "rr_t",
                     "ri_t",

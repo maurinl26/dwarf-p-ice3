@@ -14,7 +14,7 @@ from ice3_gt4py.functions.ice_adjust import (
 @stencil_collection("aro_filter")
 def aro_filter(
     exnref: Field["float"],
-    tht: Field["float"],
+    th_t: Field["float"],
     ths: Field["float"],
     rcs: Field["float"],
     rrs: Field["float"],
@@ -33,7 +33,7 @@ def aro_filter(
 
     Args:
         exnref (Field[float]): reference exner pressure
-        tht (Field[float]): potential temperature at time t
+        th_t (Field[float]): potential temperature at time t
         ths (Field[float]): potential temperature source
         rcs (Field[float]): cloud droplets source
         rrs (Field[float]): rain source
@@ -57,7 +57,7 @@ def aro_filter(
 
     # 3.2. Adjustment for solid and liquid cloud
     with computation(PARALLEL), interval(...):
-        t_tmp[0, 0, 0] = tht[0, 0, 0] * exnref[0, 0, 0]
+        t_tmp[0, 0, 0] = th_t[0, 0, 0] * exnref[0, 0, 0]
         ls_tmp[0, 0, 0] = sublimation_latent_heat(t_tmp)
         lv_tmp[0, 0, 0] = vaporisation_latent_heat(t_tmp)
         cph_tmp[0, 0, 0] = cph(rvs, rcs, ris, rrs, rss, rgs)
