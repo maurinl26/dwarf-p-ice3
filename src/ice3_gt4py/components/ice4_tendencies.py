@@ -177,6 +177,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             self.computational_grid,
             *repeat(((I, J, K), "float"), 22),  # TODO : local temporaries
             *repeat(((I, J, K), "float"), 64),
+            *repeat(((I, J, K), "int"), 4),
             gt4py_config=self.gt4py_config,
         ) as (
             # mr
@@ -246,6 +247,10 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             rrdryg,  # 28
             rsdryg,  # 29
             rgmltr,  # 31
+            index_floor,
+            index_floor_r,
+            index_floor_s,
+            index_floor_g,
         ):
 
             ############## ice4_nucleation ################
@@ -570,6 +575,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rraccss": rraccss,
                 "rraccsg": rraccsg,
                 "rsaccrg": rsaccrg,
+                "index_floor": index_floor,
+                "index_floor_r": index_floor_r,
+                "index_floor_s": index_floor_s,
             }
 
             gaminc_rim1 = from_array(
@@ -663,6 +671,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rrcfrig": rrcfrig,
                 "ricfrr": ricfrr,
                 "rgmltr": rgmltr,
+                "index_floor_s": index_floor_s,
+                "index_floor_g": index_floor_g,
+                "index_floor_r": index_floor_r,
             }
 
             ker_sdryg = from_array(self.ker_sdryg, backend=self.gt4py_config.backend)
