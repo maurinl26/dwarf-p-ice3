@@ -16,15 +16,9 @@ from ice3_gt4py.phyex_common.xker_rdryg import ker_rdryg
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from ifs_physics_common.framework.stencil import compile_stencil
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
-from ifs_physics_common.utils.f2py import ported_method
 
-
-from ice3_gt4py.initialisation.state_ice4_tendencies import (
-    get_constant_state_ice4_tendencies,
-)
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
@@ -60,42 +54,50 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         self.ker_rdryg = phyex.rain_ice_param.ker_rdryg
 
         # Tendencies
-        self.ice4_nucleation = compile_stencil("ice4_nucleation", externals)
-        self.ice4_nucleation_post_processing = compile_stencil(
+        self.ice4_nucleation = self.compile_stencil("ice4_nucleation", externals)
+        self.ice4_nucleation_post_processing = self.compile_stencil(
             "ice4_nucleation_post_processing", externals
         )
 
-        self.ice4_rrhong = compile_stencil("ice4_rrhong", externals)
-        self.ice4_rrhong_post_processing = compile_stencil(
+        self.ice4_rrhong = self.compile_stencil("ice4_rrhong", externals)
+        self.ice4_rrhong_post_processing = self.compile_stencil(
             "ice4_rrhong_post_processing", externals
         )
 
-        self.ice4_rimltc = compile_stencil("ice4_rimltc", externals)
-        self.ice4_rimltc_post_processing = compile_stencil("rimltc_post_processing")
+        self.ice4_rimltc = self.compile_stencil("ice4_rimltc", externals)
+        self.ice4_rimltc_post_processing = self.compile_stencil(
+            "ice4_rimltc_post_processing"
+        )
 
-        self.ice4_increment_update = compile_stencil("ice4_increment_update", externals)
-        self.ice4_derived_fields = compile_stencil("ice4_derived_fields", externals)
+        self.ice4_increment_update = self.compile_stencil(
+            "ice4_increment_update", externals
+        )
+        self.ice4_derived_fields = self.compile_stencil(
+            "ice4_derived_fields", externals
+        )
 
         # TODO: add ice4_compute_pdf
-        self.ice4_slope_parameters = compile_stencil("ice4_slope_parameters", externals)
+        self.ice4_slope_parameters = self.compile_stencil(
+            "ice4_slope_parameters", externals
+        )
 
-        self.ice4_slow = compile_stencil("ice4_slow", externals)
-        self.ice4_warm = compile_stencil("ice4_warm", externals)
+        self.ice4_slow = self.compile_stencil("ice4_slow", externals)
+        self.ice4_warm = self.compile_stencil("ice4_warm", externals)
 
-        self.ice4_fast_rs = compile_stencil("ice4_fast_rs", externals)
+        self.ice4_fast_rs = self.compile_stencil("ice4_fast_rs", externals)
 
-        self.ice4_fast_rg_pre_processing = compile_stencil(
+        self.ice4_fast_rg_pre_processing = self.compile_stencil(
             "ice4_fast_rg_pre_processing", externals
         )
-        self.ice4_fast_rg = compile_stencil("ice4_fast_rg", externals)
+        self.ice4_fast_rg = self.compile_stencil("ice4_fast_rg", externals)
 
-        self.ice4_fast_ri = compile_stencil("ice4_fast_ri", externals)
+        self.ice4_fast_ri = self.compile_stencil("ice4_fast_ri", externals)
 
-        self.ice4_tendencies_update = compile_stencil(
+        self.ice4_tendencies_update = self.compile_stencil(
             "ice4_tendencies_update", externals
         )
 
-        self.ice4_compute_pdf = compile_stencil("ice4_compute_pdf", externals)
+        self.ice4_compute_pdf = self.compile_stencil("ice4_compute_pdf", externals)
 
     @cached_property
     def _input_properties(self) -> PropertyDict:

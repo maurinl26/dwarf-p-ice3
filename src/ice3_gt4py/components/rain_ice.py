@@ -73,9 +73,9 @@ class RainIce(ImplicitTendencyComponent):
 
         # 5. Tendencies computation
         # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
-        # self.ice4_stepping = Ice4Stepping(
-        #     self.computational_grid, self.gt4py_config, phyex
-        # )
+        self.ice4_stepping = Ice4Stepping(
+            self.computational_grid, self.gt4py_config, phyex
+        )
 
         # 8. Total tendencies
         # 8.1 Total tendencies limited by available species

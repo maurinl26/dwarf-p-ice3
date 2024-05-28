@@ -8,7 +8,6 @@ from itertools import repeat
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from ifs_physics_common.framework.stencil import compile_stencil
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
@@ -37,17 +36,20 @@ class Ice4Stepping(ImplicitTendencyComponent):
         externals = phyex.to_externals()
 
         # Stencil collections
-        self.tmicro_init = compile_stencil("ice4_stepping_tmicro_init", externals)
-        self.tsoft_init = compile_stencil("ice4_stepping_tsoft_init", externals)
-        self.ldcompute_init = compile_stencil("ice4_stepping_ldcompute_init", externals)
-        self.ice4_stepping_heat = compile_stencil("ice4_stepping_heat", externals)
-        self.ice4_step_limiter = compile_stencil("step_limiter", externals)
-        self.ice4_mixing_ratio_step_limiter = compile_stencil(
+
+        self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
+        self.ice4_step_limiter = self.compile_stencil("step_limiter", externals)
+        self.ice4_mixing_ratio_step_limiter = self.compile_stencil(
             "mixing_ratio_step_limiter", externals
         )
-        self.ice4_state_update = compile_stencil("state_update", externals)
-        self.external_tendencies_update = compile_stencil(
+        self.ice4_state_update = self.compile_stencil("state_update", externals)
+        self.external_tendencies_update = self.compile_stencil(
             "external_tendencies_update", externals
+        )
+        self.tmicro_init = self.compile_stencil("ice4_stepping_tmicro_init", externals)
+        self.tsoft_init = self.compile_stencil("ice4_stepping_tsoft_init", externals)
+        self.ldcompute_init = self.compile_stencil(
+            "ice4_stepping_ldcompute_init", externals
         )
 
         # Component for tendency update
@@ -141,7 +143,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
             ############## t_micro_init ################
 
-            self.tmicro_init(t_micro=t_micro, ldmicro=state["ldmicro"])
+            state_tmicro_init = {"ldmicro": state["ldmicro"], "t_micro": t_micro}
+
+            self.tmicro_init(**state_tmicro_init)
 
             outerloop_counter = 0
             max_outerloop_iterations = 10
