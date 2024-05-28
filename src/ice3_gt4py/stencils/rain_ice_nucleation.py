@@ -18,7 +18,6 @@ from ifs_physics_common.utils.f2py import ported_method
 @stencil_collection("rain_ice_nucleation_pre_processing")
 def rain_ice_nucleation_pre_processing(
     ldmicro: Field["bool"],
-    lw3d: Field["bool"],
     ci_t: Field["float"],
     w3d: Field["float"],
     ls_fact: Field["float"],
@@ -26,8 +25,9 @@ def rain_ice_nucleation_pre_processing(
 ):
 
     with computation(PARALLEL), interval(...):
-        lw3d = not ldmicro
-        if lw3d:
+        # Translation note : lw3d is (not ldmicro)
+        # therefore, lw3d is removed from parameters
+        if not ldmicro:
             w3d = ls_fact / exn
             ci_t = 0
 
@@ -36,7 +36,7 @@ def rain_ice_nucleation_pre_processing(
     from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=473, to_line=477
 )
 @stencil_collection("rain_ice_nucleation_post_processing")
-def rain_ice_nucleation_pre_processing(
+def rain_ice_nucleation_post_processing(
     rvs: Field["float"],
     rvheni: Field["float"],
 ):
