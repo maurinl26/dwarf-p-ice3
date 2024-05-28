@@ -58,7 +58,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "t_micro": {"grid": (I, J, K), "units": ""},
             "ldmicro": {"grid": (I, J, K), "units": ""},
             "exn": {"grid": (I, J, K), "units": ""},
             "th_t": {"grid": (I, J, K), "units": ""},
@@ -72,12 +71,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
             "rs_t": {"grid": (I, J, K), "units": ""},
             "rg_t": {"grid": (I, J, K), "units": ""},
             # external tendencies
-            "theta_ext_tnd": {"grid": (I, J, K), "units": ""},
-            "rc_ext_tnd": {"grid": (I, J, K), "units": ""},
-            "rr_ext_tnd": {"grid": (I, J, K), "units": ""},
-            "ri_ext_tnd": {"grid": (I, J, K), "units": ""},
-            "rs_ext_tnd": {"grid": (I, J, K), "units": ""},
-            "rg_ext_tnd": {"grid": (I, J, K), "units": ""},
         }
 
     @cached_property
@@ -102,7 +95,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "bool"), 1),
-            *repeat(((I, J, K), "float"), 17),
+            *repeat(((I, J, K), "float"), 23),
             gt4py_config=self.gt4py_config,
         ) as (
             # masks
@@ -129,6 +122,13 @@ class Ice4Stepping(ImplicitTendencyComponent):
             ri_a_tnd,
             rs_a_tnd,
             rg_a_tnd,
+            # tendances externes
+            theta_ext_tnd,
+            rc_ext_tnd,
+            rr_ext_tnd,
+            ri_ext_tnd,
+            rs_ext_tnd,
+            rg_ext_tnd,
             # timing
             t_micro,
             delta_t_micro,
@@ -371,16 +371,21 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     "rs_t",
                     "rg_t",
                     "ldmicro",
-                    "theta_ext_tnd",
-                    "rc_ext_tnd",
-                    "rr_ext_tnd",
-                    "ri_ext_tnd",
-                    "rs_ext_tnd",
-                    "rg_ext_tnd",
                 ]
             }
 
-            self.external_tendencies_update(**state_external_tendencies_update)
+            tmps_external_tendencies_update = {
+                "theta_ext_tnd": theta_ext_tnd,
+                "rc_ext_tnd": rc_ext_tnd,
+                "rr_ext_tnd": rr_ext_tnd,
+                "ri_ext_tnd": ri_ext_tnd,
+                "rs_ext_tnd": rs_ext_tnd,
+                "rg_ext_tnd": rg_ext_tnd,
+            }
+
+            self.external_tendencies_update(
+                **state_external_tendencies_update, **tmps_external_tendencies_update
+            )
 
             ################## RAIN_ICE ############################
             # Translation note : this is part of rain_ice.F90 in fortran
