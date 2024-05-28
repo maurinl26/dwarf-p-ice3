@@ -63,6 +63,9 @@ def ice4_fast_rs(
     ker_raccs: GlobalTable[float, (40, 40)],
     ker_raccss: GlobalTable[float, (40, 40)],
     ker_saccrg: GlobalTable[float, (40, 40)],
+    index_floor: Field["int"],
+    index_floor_r: Field["int"],
+    index_floor_s: Field["int"],
 ):
     from __externals__ import (
         ALPI,

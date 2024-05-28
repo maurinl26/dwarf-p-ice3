@@ -55,6 +55,9 @@ def ice4_fast_rg(
     rgmltr: Field["float"],
     ker_sdryg: GlobalTable[float, (40, 40)],
     ker_rdryg: GlobalTable[float, (40, 40)],
+    index_floor_s: Field["int"],
+    index_floor_g: Field["int"],
+    index_floor_r: Field["int"],
 ):
     """Compute fast graupel sources
 
