@@ -43,11 +43,11 @@ def sedimentation_stat(
     fpr_i: Field["float"],
     fpr_s: Field["float"],
     fpr_g: Field["float"],
-    inst_rr: Field[IJ, "float"],
-    inst_rc: Field[IJ, "float"],
-    inst_ri: Field[IJ, "float"],
-    inst_rs: Field[IJ, "float"],
-    inst_rg: Field[IJ, "float"],
+    inprr: Field[IJ, "float"],
+    inprc: Field[IJ, "float"],
+    inpri: Field[IJ, "float"],
+    inprs: Field[IJ, "float"],
+    inprg: Field[IJ, "float"],
 ):
     """Compute sedimentation sources for statistical sedimentation
 
@@ -210,11 +210,11 @@ def sedimentation_stat(
 
     # Instantaneous fluxes
     with computation(FORWARD), interval(0, 1):
-        inst_rc = fpr_c / RHOLW
-        inst_rr = fpr_r / RHOLW
-        inst_ri = fpr_i / RHOLW
-        inst_rs = fpr_s / RHOLW
-        inst_rg = fpr_g / RHOLW
+        inprc = fpr_c / RHOLW
+        inprr = fpr_r / RHOLW
+        inpri = fpr_i / RHOLW
+        inprs = fpr_s / RHOLW
+        inprg = fpr_g / RHOLW
 
 
 @function

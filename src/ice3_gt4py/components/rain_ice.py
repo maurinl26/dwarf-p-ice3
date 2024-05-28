@@ -124,10 +124,15 @@ class RainIce(ImplicitTendencyComponent):
             "ris": {"grid": (I, J, K), "units": ""},
             "rss": {"grid": (I, J, K), "units": ""},
             "rgs": {"grid": (I, J, K), "units": ""},
-            "inprc": {"grid": (I, J, K), "units": ""},
-            "inprr": {"grid": (I, J, K), "units": ""},
-            "inprs": {"grid": (I, J, K), "units": ""},
-            "inprg": {"grid": (I, J, K), "units": ""},
+            "fpr_c": {"grid": (I, J, K), "units": ""},
+            "fpr_r": {"grid": (I, J, K), "units": ""},
+            "fpr_i": {"grid": (I, J, K), "units": ""},
+            "fpr_s": {"grid": (I, J, K), "units": ""},
+            "fpr_g": {"grid": (I, J, K), "units": ""},
+            "inprc": {"grid": (I, J), "units": ""},
+            "inprr": {"grid": (I, J), "units": ""},
+            "inprs": {"grid": (I, J), "units": ""},
+            "inprg": {"grid": (I, J), "units": ""},
             "evap3d": {"grid": (I, J, K), "units": ""},
             "indep": {"grid": (I, J, K), "units": ""},
             "rainfr": {"grid": (I, J, K), "units": ""},
@@ -177,7 +182,7 @@ class RainIce(ImplicitTendencyComponent):
             self.computational_grid,
             *repeat(((I, J, K), "bool"), 2),
             *repeat(((I, J, K), "float"), 16),
-            *repeat(((I, J), "float"), 1),
+            *repeat(((I, J), "float"), 2),
             gt4py_config=self.gt4py_config,
         ) as (
             ldmicro,
@@ -198,6 +203,7 @@ class RainIce(ImplicitTendencyComponent):
             wr_s,
             wr_g,
             w3d,
+            inpri,
             remaining_time,
         ):
 
@@ -252,16 +258,20 @@ class RainIce(ImplicitTendencyComponent):
                     "fpr_i",
                     "fpr_s",
                     "fpr_g",
-                    "inst_rr",
-                    "inst_rc",
-                    "inst_ri",
-                    "inst_rs",
-                    "inst_rg",
+                    "inprr",
+                    "inprc",
+                    "inprs",
+                    "inprg",
                 ]
             }
             if not LSEDIM_AFTER:
                 if SEDIM == Sedim.STAT.value:
-                    self.statistical_sedimentation(**state_sed)
+                    self.statistical_sedimentation(
+                        {
+                            **state_sed,
+                            "inpri": inpri,
+                        }
+                    )
                 # TODO : add split sedimentation
                 else:
                     raise KeyError(f"Key not in {[option.name for option in Sedim]}")
