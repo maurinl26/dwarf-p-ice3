@@ -18,8 +18,8 @@ def rain_ice_total_tendencies(
     wr_i: Field["float"],
     wr_s: Field["float"],
     wr_g: Field["float"],
-    ls: Field["float"],
-    lv: Field["float"],
+    ls_fact: Field["float"],
+    lv_fact: Field["float"],
     exnref: Field["float"],
     ths: Field["float"],
     rvs: Field["float"],
@@ -41,8 +41,7 @@ def rain_ice_total_tendencies(
 
     with computation(PARALLEL), interval(...):
 
-        lv_fact = lv / exnref
-        ls_fact = ls / exnref
+        # Translation note ls, lv replaced by ls_fact, lv_fact
 
         # Hydrometeor tendency
         wr_v = (wr_v - rv_t) * INV_TSTEP
