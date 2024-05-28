@@ -104,6 +104,8 @@ class RainIce(ImplicitTendencyComponent):
         return {
             "exn": {"grid": (I, J, K), "units": ""},
             "dzz": {"grid": (I, J, K), "units": ""},
+            "t": {"grid": (I, J, K), "units": ""},
+            "ssi": {"grid": (I, J, K), "units": ""},
             "rhodj": {"grid": (I, J, K), "units": ""},
             "rhodref": {"grid": (I, J, K), "units": ""},
             "pabs_t": {"grid": (I, J, K), "units": ""},
@@ -264,17 +266,17 @@ class RainIce(ImplicitTendencyComponent):
                     "inprg",
                 ]
             }
-            if not LSEDIM_AFTER:
-                if SEDIM == Sedim.STAT.value:
-                    self.statistical_sedimentation(
-                        {
-                            **state_sed,
-                            "inpri": inpri,
-                        }
-                    )
-                # TODO : add split sedimentation
-                else:
-                    raise KeyError(f"Key not in {[option.name for option in Sedim]}")
+            # if not LSEDIM_AFTER:
+            #     if SEDIM == Sedim.STAT.value:
+            #         self.statistical_sedimentation(
+            #             {
+            #                 **state_sed,
+            #                 "inpri": inpri,
+            #             }
+            #         )
+            #     # TODO : add split sedimentation
+            #     else:
+            #         raise KeyError(f"Key not in {[option.name for option in Sedim]}")
 
             # 3. Initial values saving
             state_initial_values_saving = {
@@ -290,20 +292,20 @@ class RainIce(ImplicitTendencyComponent):
                 "wr_s": wr_s,
                 "wr_g": wr_g,
             }
-            self.initial_values_saving(
-                **state_initial_values_saving, **tmps_initial_values_saving
-            )
+            # self.initial_values_saving(
+            #     **state_initial_values_saving, **tmps_initial_values_saving
+            # )
 
             # 4.1 Slow cold processes outside of ldmicro
             state_nuc_pre = {key: state[key] for key in ["exn", "ci_t"]}
-            tmps_nuc_pre = {"ldmicro": ldmicro, "lw3d": w3d, "ls_fact": ls_fact}
+            tmps_nuc_pre = {"ldmicro": ldmicro, "w3d": w3d, "ls_fact": ls_fact}
             self.rain_ice_nucleation_pre_processing(**state_nuc_pre, **tmps_nuc_pre)
 
             state_nuc = {
-                key: state["key"]
+                key: state[key]
                 for key in [
                     "th_t",
-                    "pabs",
+                    "pabs_t",
                     "rhodref",
                     "exn",
                     "t",
@@ -314,7 +316,7 @@ class RainIce(ImplicitTendencyComponent):
             }
             # TODO verification with Fortran signature
             tmps_nuc = {
-                "ldcompute": lw3d,
+                "ldcompute": (),
                 "ls_fact": ls_fact,
                 "rvheni_mr": rvheni,
             }

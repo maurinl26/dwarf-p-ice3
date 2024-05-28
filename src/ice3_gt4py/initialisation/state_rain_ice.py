@@ -63,6 +63,8 @@ def allocate_state_rain_ice(
         "time": datetime(year=2024, month=1, day=1),
         "exn": allocate_f(),
         "dzz": allocate_f(),
+        "ssi": allocate_f(),
+        "t": allocate_f(),
         "rhodj": allocate_f(),
         "rhodref": allocate_f(),
         "pabs_t": allocate_f(),
