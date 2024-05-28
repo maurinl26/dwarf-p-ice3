@@ -24,7 +24,7 @@ def index_interp_micro_1d(
     """
 
     from __externals__ import NGAMINC, RIMINTP1, RIMINTP2
-    
+
     index = max(1, min(NGAMINC - 1e-5, RIMINTP1 * log(zw) + RIMINTP2))
     # Real index for interpolation
     return floor(index), index - floor(index)
@@ -35,7 +35,7 @@ def index_interp_micro_1d(
     from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
 )
 @function
-def index_micro2d_acc_r(lambda_r: Field["float"]) -> Field["float"]:
+def index_micro2d_acc_r(lambda_r: Field["float"]) -> Field["int"]:
     """Compute index in logspace for table
 
     Args:
@@ -60,7 +60,7 @@ def index_micro2d_acc_r(lambda_r: Field["float"]) -> Field["float"]:
     from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
 )
 @function
-def index_micro2d_acc_s(lambda_s: Field["float"]) -> Field["float"]:
+def index_micro2d_acc_s(lambda_s: Field["float"]) -> Field["int"]:
     """Compute index in logspace for table
 
     Args:
@@ -76,14 +76,14 @@ def index_micro2d_acc_s(lambda_s: Field["float"]) -> Field["float"]:
         NACCLBDAS,
     )
 
-    index =  max(1 + 1e-5, min(NACCLBDAS - 1e-5, ACCINTP1S * log(lambda_s) + ACCINTP2S))
+    index = max(1 + 1e-5, min(NACCLBDAS - 1e-5, ACCINTP1S * log(lambda_s) + ACCINTP2S))
     return floor(index), index - floor(index)
 
 
 ################ DRY COLLECTION #####################
 # (s) -> (g)
 @function
-def index_micro2d_dry_g(lambda_g: Field["float"]) -> Field["float"]:
+def index_micro2d_dry_g(lambda_g: Field["float"]) -> Field["int"]:
     """Compute index in logspace for table
 
     Args:
@@ -146,4 +146,3 @@ def index_micro2d_dry_r(lambda_r: Field["float"]) -> Field["float"]:
     # Real index for interpolation
     index = max(1 + 1e-5, min(NDRYLBDAR - 1e-5, DRYINTP1R * log(lambda_r) + DRYINTP2R))
     return floor(index), index - floor(index)
-
