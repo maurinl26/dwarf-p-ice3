@@ -5,12 +5,10 @@ import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Dict, List
 
-from gt4py.storage import ones
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 
 from ice3_gt4py.initialisation.state import initialize_state_with_constant
-from ice3_gt4py.initialisation.utils import initialize_field
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple
@@ -56,7 +54,7 @@ def allocate_state_aro_adjust(
 
     state = {
         "time": datetime.datetime(year=2024, month=1, day=1),
-        "tht": allocate_f(),
+        "th_t": allocate_f(),
         "exn": allocate_f(),
         "exnref": allocate_f(),
         "rhodref": allocate_f(),
@@ -97,7 +95,7 @@ def allocate_state_aro_adjust(
 
 aro_adjust_fields_keys = [
     "exnref",
-    "tht",
+    "th_t",
     "exn",
     "exnref",
     "rhodref",

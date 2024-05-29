@@ -60,7 +60,7 @@ def allocate_state_ice4_tendencies(
     masks = {"ldcompute": allocate_b(), "ldmicro": allocate_b()}
 
     state = {
-        "tht": allocate_f(),
+        "th_t": allocate_f(),
         "pabs": allocate_f(),
         "rhodref": allocate_f(),
         "exn": allocate_f(),

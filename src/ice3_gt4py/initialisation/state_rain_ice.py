@@ -26,7 +26,41 @@ if TYPE_CHECKING:
         NDArrayLikeDict,
     )
 
-KEYS = {}
+KEYS = {
+    # "ldmicro": "LLMICRO",
+    "exnref": "PEXNREF",
+    "dzz": "PDZZ",
+    "rhodj": "PRHODJ",
+    "rhodref": "PRHODREF",
+    "pabs_t": "PPABSM",
+    "ci_t": "PCIT",
+    "cldfr": "PCLDFR",
+    "hlc_hrc": "PHLC_HRC",
+    "hlc_hcf": "PHLC_HCF",
+    "hli_hri": "PHLI_HRI",
+    "hli_hcf": "PHLI_HCF",
+    "th_t": "PTHT",
+    # "r_t": "PRT",  # Expand
+    "ths": "PTHS",
+    "rcs": "PRS",  # Expand
+    "rrs": "PRS",
+    "ris": "PRS",
+    "rgs": "PRS",
+    "sigs": "PSIGS",
+    "sea": "PSEA",
+    "town": "PTOWN",
+    "inprr": "PINPRR_OUT",
+    "evap3d": "PEVAP_OUT",
+    "inprs": "PINPRS_OUT",
+    "inprg": "PINPRG_OUT",
+    "fpr_c": "PFPR_OUT",
+    "fpr_r": "PFPR_OUT",
+    "fpr_i": "PFRP_OUT",
+    "fpr_s": "PFPR_OUT",
+    "fpr_g": "PFPR_OUT",
+    "rainfr": "ZRAINFR_OUT",
+    "indep": "ZINDEP_OUT",
+}
 
 KRR_MAPPING = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
 
@@ -149,17 +183,43 @@ def initialize_state(
     for name, FORTRAN_NAME in KEYS.items():
         logging.info(f"name={name}, FORTRAN_NAME={FORTRAN_NAME}")
         if FORTRAN_NAME is not None:
-            if FORTRAN_NAME == "ZRS":
+            if FORTRAN_NAME in ["ZRS", "PFPR_OUT"]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
                     :, :, KRR_MAPPING[name[-1]]
                 ]
 
-            if FORTRAN_NAME == "PRS":
+            elif FORTRAN_NAME == "PRS":
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
                     :, :, KRR_MAPPING[name[-2]]
                 ]
 
-            elif FORTRAN_NAME not in ["ZRS", "PRS"]:
+            elif FORTRAN_NAME == "LLMICRO":
+                buffer = netcdreader.get_field(FORTRAN_NAME).astype(bool)
+                logging.info(f"{buffer}")
+
+            elif FORTRAN_NAME in [
+                "PSEA, PTOWN, PINPRR_OUT, PINPRS_OUT, PINPRG_OUT, ZINPRC_OUT"
+            ]:
+                logging.info(f"{buffer.ndim}")
+                buffer = netcdreader.get_field(FORTRAN_NAME)
+
+            elif FORTRAN_NAME in ["PRT"]:
+                buffer = netcdreader.get_field(FORTRAN_NAME)[
+                    :, :, KRR_MAPPING[name[-2]]
+                ]
+
+            elif FORTRAN_NAME not in [
+                "ZRS",
+                "PRS",
+                "PRT",
+                "LLMICRO",
+                "PSEA",
+                "PTOWN",
+                "PINPRR_OUT",
+                "PINPRS_OUT",
+                "PINPRG_OUT",
+                "ZINPRC_OUT",
+            ]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)
 
         else:
