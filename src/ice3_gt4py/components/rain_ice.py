@@ -316,7 +316,7 @@ class RainIce(ImplicitTendencyComponent):
             }
             # TODO verification with Fortran signature
             tmps_nuc = {
-                "ldcompute": (),
+                "ldcompute": lw3d,
                 "ls_fact": ls_fact,
                 "rvheni_mr": rvheni,
             }
@@ -404,16 +404,11 @@ class RainIce(ImplicitTendencyComponent):
 
             # 5. Tendencies computation
             # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
-
             state_stepping = {
                 key: state[key]
                 for key in [
-                    "t_micro",
-                    "ldmicro",
                     "exn",
                     "th_t",
-                    "ls_fact",
-                    "lv_fact",
                     "t",
                     "rv_t",
                     "rc_t",
@@ -421,17 +416,16 @@ class RainIce(ImplicitTendencyComponent):
                     "ri_t",
                     "rs_t",
                     "rg_t",
-                    # external tendencies
-                    "theta_ext_tnd",
-                    "rc_ext_tnd",
-                    "rr_ext_tnd",
-                    "ri_ext_tnd",
-                    "rs_ext_tnd",
-                    "rg_ext_tnd",
                 ]
             }
 
-            # self.ice4_stepping(**state_stepping)
+            tmps_stepping = {
+                "ldmicro": ldmicro,
+                "ls_fact": ls_fact,
+                "lv_fact": lv_fact,
+            }
+
+            self.ice4_stepping(**state_stepping, **tmps_stepping)
 
             # 8. Total tendencies
             # 8.1 Total tendencies limited by available species

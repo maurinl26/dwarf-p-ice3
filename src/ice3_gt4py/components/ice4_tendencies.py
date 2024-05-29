@@ -255,21 +255,19 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             ############## ice4_nucleation ################
             state_nucleation = {
-                "ldcompute": state["ldcompute"],
-                **{
-                    key: state[key]
-                    for key in [
-                        "th_t",
-                        "pabs",
-                        "rhodref",
-                        "exn",
-                        "ls_fact",
-                        "t",
-                        "rv_t",
-                        "ci_t",
-                        "ssi",
-                    ]
-                },
+                key: state[key]
+                for key in [
+                    "ldcompute",
+                    "th_t",
+                    "pabs",
+                    "rhodref",
+                    "exn",
+                    "ls_fact",
+                    "t",
+                    "rv_t",
+                    "ci_t",
+                    "ssi",
+                ]
             }
 
             temporaries_nucleation = {
