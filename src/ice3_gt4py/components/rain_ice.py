@@ -44,6 +44,9 @@ class RainIce(ImplicitTendencyComponent):
         self.phyex = phyex
         externals = self.phyex.to_externals()
 
+        # Keys
+        SEDIM = self.phyex.param_icen.SEDIM
+
         # 1. Generalites
         self.rain_ice_init = self.compile_stencil("rain_ice_init", externals)
 
@@ -88,9 +91,16 @@ class RainIce(ImplicitTendencyComponent):
         )
 
         # 9. Compute the sedimentation source
-        self.statistical_sedimentation = self.compile_stencil(
-            "statistical_sedimentation", externals
-        )
+        if SEDIM == Sedim.STAT.value:
+            self.sedimentation = self.compile_stencil(
+                "statistical_sedimentation", externals
+            )
+        elif SEDIM == Sedim.SPLI.value:
+            self.sedimentation = self.compile_stencil("upwind_sedimentation", externals)
+        else:
+            raise KeyError(
+                f"Key not in {[option.name for option in Sedim]} for sedimentation"
+            )
 
         self.rain_fraction_sedimentation = self.compile_stencil(
             "rain_fraction_sedimentation", externals
@@ -102,8 +112,8 @@ class RainIce(ImplicitTendencyComponent):
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "exn": {"grid": (I, J, K), "units": ""},
-            "dzz": {"grid": (I, J, K), "units": ""},
+            "exn": {"grid": (I, J, K), "units": "", "fortran_name": "PEXN"},
+            "dzz": {"grid": (I, J, K), "units": "", "fortran_name": "PDZZ"},
             "t": {"grid": (I, J, K), "units": ""},
             "ssi": {"grid": (I, J, K), "units": ""},
             "rhodj": {"grid": (I, J, K), "units": ""},
@@ -149,9 +159,9 @@ class RainIce(ImplicitTendencyComponent):
             "hli_hri": {"grid": (I, J, K), "units": ""},
             "hli_lri": {"grid": (I, J, K), "units": ""},
             # Optional
-            "fpr": {"grid": (I, J, K), "units": ""},
-            "sea": {"grid": (I, J), "units": ""},
-            "town": {"grid": (I, J), "units": ""},
+            "fpr": {"grid": (I, J, K), "units": "", "fortran_name": "PFPR"},
+            "sea": {"grid": (I, J), "units": "", "fortran_name": "PSEA"},
+            "town": {"grid": (I, J), "units": "", "fortran_name": "PTOWN"},
         }
 
     @cached_property
@@ -217,7 +227,6 @@ class RainIce(ImplicitTendencyComponent):
             SUBG_AUCV_RI = self.phyex.param_icen.SUBG_AUCV_RI
             LSEDIM_AFTER = self.phyex.param_icen.LSEDIM_AFTER
             LDEPOSC = self.phyex.param_icen.LDEPOSC
-            SEDIM = self.phyex.param_icen.SEDIM
 
             # 1. Generalites
             state_rain_ice_init = {
@@ -266,19 +275,10 @@ class RainIce(ImplicitTendencyComponent):
                     "inprg",
                 ]
             }
-            # if not LSEDIM_AFTER:
-            #     if SEDIM == Sedim.STAT.value:
-            #         self.statistical_sedimentation(
-            #             {
-            #                 **state_sed,
-            #                 "inpri": inpri,
-            #             }
-            #         )
-            #     # TODO : add split sedimentation
-            #     else:
-            #         raise KeyError(f"Key not in {[option.name for option in Sedim]}")
 
-            # 3. Initial values saving
+            if not LSEDIM_AFTER:
+                self.sedimentation({**state_sed, "inpri": inpri})
+
             state_initial_values_saving = {
                 key: state[key]
                 for key in ["th_t", "rv_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]
@@ -485,20 +485,17 @@ class RainIce(ImplicitTendencyComponent):
             self.ice4_correct_negativities(**state_neg, **tmps_neg)
 
             # 9. Compute the sedimentation source
-            # if LSEDIM_AFTER:
-            #     if SEDIM == Sedim.STAT.value:
-            #         self.statistical_sedimentation()
-            #     elif SEDIM == Sedim.SPLI.value:
-            #         self.upwind_sedimentation()
+            if LSEDIM_AFTER:
+                self.sedimentation({**state_sed, "inpri": inpri})
 
-            #     state_frac_sed = {
-            #         **{key: state[key] for key in ["rrs", "rss", "rgs"]},
-            #         **{"wr_r": wr_r, "wr_s": wr_s, "wr_g": wr_g},
-            #     }
-            #     self.rain_fraction_sedimentation(**state_frac_sed)
+                state_frac_sed = {
+                    **{key: state[key] for key in ["rrs", "rss", "rgs"]},
+                    **{"wr_r": wr_r, "wr_s": wr_s, "wr_g": wr_g},
+                }
+                self.rain_fraction_sedimentation(**state_frac_sed)
 
-            #     state_rainfr = {**{key: state[key] for key in ["prfr", "rr_t", "rs_t"]}}
-            #     self.ice4_rainfr_vert(**state_rainfr)
+                state_rainfr = {**{key: state[key] for key in ["prfr", "rr_t", "rs_t"]}}
+                self.ice4_rainfr_vert(**state_rainfr)
 
             # 10 Compute the fog deposition
             if LDEPOSC:
