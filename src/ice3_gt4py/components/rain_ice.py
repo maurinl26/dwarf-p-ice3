@@ -407,7 +407,6 @@ class RainIce(ImplicitTendencyComponent):
             state_stepping = {
                 key: state[key]
                 for key in [
-                    "exn",
                     "th_t",
                     "t",
                     "rv_t",
@@ -416,6 +415,7 @@ class RainIce(ImplicitTendencyComponent):
                     "ri_t",
                     "rs_t",
                     "rg_t",
+                    "exn",
                 ]
             }
 
@@ -425,7 +425,10 @@ class RainIce(ImplicitTendencyComponent):
                 "lv_fact": lv_fact,
             }
 
-            self.ice4_stepping(**state_stepping, **tmps_stepping)
+            # _, _ = self.ice4_stepping({
+            #     **state_stepping,
+            #     **tmps_stepping
+            #     }, timestep)
 
             # 8. Total tendencies
             # 8.1 Total tendencies limited by available species
@@ -433,7 +436,7 @@ class RainIce(ImplicitTendencyComponent):
                 key: state[key]
                 for key in [
                     "exnref",
-                    "th_t" "ths",
+                    "ths",
                     "rvs",
                     "rcs",
                     "rrs",
