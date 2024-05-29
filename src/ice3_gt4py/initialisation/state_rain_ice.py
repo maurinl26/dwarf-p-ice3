@@ -53,16 +53,12 @@ KEYS = {
     "evap3d": "PEVAP_OUT",
     "inprs": "PINPRS_OUT",
     "inprg": "PINPRG_OUT",
-    "fpr_c": "PFPR_OUT",
-    "fpr_r": "PFPR_OUT",
-    "fpr_i": "PFRP_OUT",
-    "fpr_s": "PFPR_OUT",
-    "fpr_g": "PFPR_OUT",
+    "fpr": "PFPR_OUT",
     "rainfr": "ZRAINFR_OUT",
     "indep": "ZINDEP_OUT",
 }
 
-KRR_MAPPING = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
+KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
 
 
 def allocate_state_rain_ice(
@@ -183,7 +179,7 @@ def initialize_state(
     for name, FORTRAN_NAME in KEYS.items():
         logging.info(f"name={name}, FORTRAN_NAME={FORTRAN_NAME}")
         if FORTRAN_NAME is not None:
-            if FORTRAN_NAME in ["ZRS", "PFPR_OUT"]:
+            if FORTRAN_NAME in ["ZRS"]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
                     :, :, KRR_MAPPING[name[-1]]
                 ]
@@ -198,10 +194,16 @@ def initialize_state(
                 logging.info(f"{buffer}")
 
             elif FORTRAN_NAME in [
-                "PSEA, PTOWN, PINPRR_OUT, PINPRS_OUT, PINPRG_OUT, ZINPRC_OUT"
+                "PSEA",
+                "PTOWN",
+                "PINPRR_OUT",
+                "PINPRS_OUT",
+                "PINPRG_OUT",
+                "ZINPRC_OUT",
             ]:
-                logging.info(f"{buffer.ndim}")
+                logging.info(f"Querying 2D field : {FORTRAN_NAME}")
                 buffer = netcdreader.get_field(FORTRAN_NAME)
+                logging.info(f"Buffer shape {buffer.shape}")
 
             elif FORTRAN_NAME in ["PRT"]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)[
@@ -222,10 +224,11 @@ def initialize_state(
             ]:
                 buffer = netcdreader.get_field(FORTRAN_NAME)
 
-        else:
+        elif FORTRAN_NAME is None:
             dims = netcdreader.get_dims()
             n_IJ, n_K = dims["IJ"], dims["K"]
             buffer = np.zeros((n_IJ, n_K))
 
         logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
+        logging.info(f"name = {name}, ndim = {state[name].ndim}")
         initialize_field(state[name], buffer)

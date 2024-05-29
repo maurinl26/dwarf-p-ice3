@@ -276,8 +276,10 @@ class RainIce(ImplicitTendencyComponent):
                 ]
             }
 
+            tmps_sedim = {"inpri": inpri}
+
             if not LSEDIM_AFTER:
-                self.sedimentation({**state_sed, "inpri": inpri})
+                self.sedimentation(**state_sed, **tmps_sedim)
 
             state_initial_values_saving = {
                 key: state[key]
@@ -486,7 +488,7 @@ class RainIce(ImplicitTendencyComponent):
 
             # 9. Compute the sedimentation source
             if LSEDIM_AFTER:
-                self.sedimentation({**state_sed, "inpri": inpri})
+                self.sedimentation(**state_sed, **tmps_sedim)
 
                 state_frac_sed = {
                     **{key: state[key] for key in ["rrs", "rss", "rgs"]},
