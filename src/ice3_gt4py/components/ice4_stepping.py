@@ -72,7 +72,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
             "ri_t": {"grid": (I, J, K), "units": ""},
             "rs_t": {"grid": (I, J, K), "units": ""},
             "rg_t": {"grid": (I, J, K), "units": ""},
-            # external tendencies
         }
 
     @cached_property

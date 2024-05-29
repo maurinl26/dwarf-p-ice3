@@ -292,9 +292,9 @@ class RainIce(ImplicitTendencyComponent):
                 "wr_s": wr_s,
                 "wr_g": wr_g,
             }
-            # self.initial_values_saving(
-            #     **state_initial_values_saving, **tmps_initial_values_saving
-            # )
+            self.initial_values_saving(
+                **state_initial_values_saving, **tmps_initial_values_saving
+            )
 
             # 4.1 Slow cold processes outside of ldmicro
             state_nuc_pre = {key: state[key] for key in ["exn", "ci_t"]}
