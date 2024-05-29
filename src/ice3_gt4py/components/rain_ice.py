@@ -455,8 +455,8 @@ class RainIce(ImplicitTendencyComponent):
             # TODO: replace ls, lv by ls_fact, lv_fact in signature
             tmps_total_tendencies = {
                 "rvheni": rvheni,
-                "ls": ls_fact,
-                "lv": lv_fact,
+                "ls_fact": ls_fact,
+                "lv_fact": lv_fact,
                 "wr_th": wr_th,
                 "wr_v": wr_v,
                 "wr_c": wr_c,
