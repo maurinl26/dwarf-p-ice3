@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
 
+import xarray as xr
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
-from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
-
+from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
 from ice3_gt4py.components.ice4_stepping import Ice4Stepping
 from ice3_gt4py.phyex_common.param_ice import (
@@ -24,6 +25,9 @@ from ice3_gt4py.phyex_common.param_ice import (
     SubgRRRCAccr,
 )
 from ice3_gt4py.phyex_common.phyex import Phyex
+
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
 
 
 class RainIce(ImplicitTendencyComponent):
@@ -230,24 +234,26 @@ class RainIce(ImplicitTendencyComponent):
 
             # 1. Generalites
             state_rain_ice_init = {
-                key: state[key]
-                for key in [
-                    "exn",
-                    "th_t",
-                    "rv_t",
-                    "rc_t",
-                    "rr_t",
-                    "ri_t",
-                    "rs_t",
-                    "rg_t",
-                ]
+                **{
+                    key: state[key]
+                    for key in [
+                        "exn",
+                        "th_t",
+                        "rv_t",
+                        "rc_t",
+                        "rr_t",
+                        "ri_t",
+                        "rs_t",
+                        "rg_t",
+                    ]
+                },
+                **{
+                    "ldmicro": ldmicro,
+                    "ls_fact": ls_fact,
+                    "lv_fact": lv_fact,
+                },
             }
-            tmps_rain_ice_init = {
-                "ldmicro": ldmicro,
-                "ls_fact": ls_fact,
-                "lv_fact": lv_fact,
-            }
-            self.rain_ice_init(**state_rain_ice_init, **tmps_rain_ice_init)
+            self.rain_ice_init(**state_rain_ice_init)
 
             # 2. Compute the sedimentation source
             state_sed = {
@@ -436,10 +442,10 @@ class RainIce(ImplicitTendencyComponent):
                 "lv_fact": lv_fact,
             }
 
-            # _, _ = self.ice4_stepping({
-            #     **state_stepping,
-            #     **tmps_stepping
-            #     }, timestep)
+            # TODO : make an xarray data array from dicts
+            logging.info(f"{type(tmps_stepping), type(state_stepping)}")
+
+            _, _ = self.ice4_stepping({**state_stepping, **tmps_stepping}, timestep)
 
             # 8. Total tendencies
             # 8.1 Total tendencies limited by available species
