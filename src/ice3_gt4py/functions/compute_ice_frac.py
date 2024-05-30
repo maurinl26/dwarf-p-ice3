@@ -12,7 +12,7 @@ def compute_frac_ice(
 ) -> Field["float"]:
     """Compute ice fraction based on temperature
 
-    frac_ice_adjust is the mode of calculation
+    FRAC_ICE_ADJUST is the mode of calculation
 
     Args:
         t (Field[float]): temperatue

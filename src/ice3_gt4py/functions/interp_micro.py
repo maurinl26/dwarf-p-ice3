@@ -35,7 +35,7 @@ def index_interp_micro_1d(
     from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
 )
 @function
-def index_micro2d_acc_r(lambda_r: Field["float"]) -> Field["int"]:
+def index_micro2d_acc_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -60,7 +60,7 @@ def index_micro2d_acc_r(lambda_r: Field["float"]) -> Field["int"]:
     from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
 )
 @function
-def index_micro2d_acc_s(lambda_s: Field["float"]) -> Field["int"]:
+def index_micro2d_acc_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -83,7 +83,7 @@ def index_micro2d_acc_s(lambda_s: Field["float"]) -> Field["int"]:
 ################ DRY COLLECTION #####################
 # (s) -> (g)
 @function
-def index_micro2d_dry_g(lambda_g: Field["float"]) -> Field["int"]:
+def index_micro2d_dry_g(lambda_g: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -105,7 +105,7 @@ def index_micro2d_dry_g(lambda_g: Field["float"]) -> Field["int"]:
 
 
 @function
-def index_micro2d_dry_s(lambda_s: Field["float"]) -> Field["float"]:
+def index_micro2d_dry_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -127,7 +127,7 @@ def index_micro2d_dry_s(lambda_s: Field["float"]) -> Field["float"]:
 
 # (r) -> (g)
 @function
-def index_micro2d_dry_r(lambda_r: Field["float"]) -> Field["float"]:
+def index_micro2d_dry_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:

@@ -29,7 +29,6 @@ def icecloud(
     (Also a function of of humidity itself in the boundary layer)
 
     Args:
-        cst (Constants): _description_
         p (Field[IJ, float]): pressure at model level (Pa)
         z (Field[IJ, float]): model level height (m)
         dz (Field[IJ, float]): model level thickness (m)
@@ -49,10 +48,9 @@ def icecloud(
     Returns:
         Tuple[Field]: sifrc, ssio, ssiu, w2d_out, rsi
     """
-    
+
     from __externals__ import TSTEP, LVTT, GRAVITY0, RD, CPD, EPSILO
-    
-    
+
     sigmax = 3e-4  # assumed rh variation in x axis direction
     sigmay = sigmax  # assumed rh variation in y axis direction
     sigmaz = 1e-2
