@@ -19,7 +19,7 @@ from ice3_gt4py.components.ice4_stepping import Ice4Stepping
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ice3_gt4py.components.ice_adjust import IceAdjust
 from ice3_gt4py.components.rain_ice import RainIce
-from ice3_gt4py.initialisation.state_aro_adjust import (
+from tests.utils.state_aro_adjust import (
     get_constant_state_aro_adjust,
     aro_adjust_fields_keys,
 )
