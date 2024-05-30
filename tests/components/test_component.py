@@ -34,7 +34,7 @@ def initialize_state_with_constant(
         "f_sigqsat",
         "f_exnref",  # ref exner pression
         "f_exn",
-        "f_tht",
+        "f_th_t",
         "f_rhodref",
         "f_pabs",  # absolute pressure at t
         "f_sigs",  # Sigma_s at time t
