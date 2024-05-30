@@ -13,17 +13,12 @@ import xarray as xr
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
-from drivers.core import core
 from ice3_gt4py.components.aro_adjust import AroAdjust
-from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ice3_gt4py.components.ice_adjust import IceAdjust
 from ice3_gt4py.components.rain_ice import RainIce
 from ice3_gt4py.initialisation.state_aro_adjust import (
     get_constant_state_aro_adjust,
     aro_adjust_fields_keys,
-)
-from ice3_gt4py.initialisation.state_ice4_tendencies import (
-    get_constant_state_ice4_tendencies,
 )
 from ice3_gt4py.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
@@ -69,7 +64,14 @@ def run_ice_adjust_fortran(
 
 
 @app.command()
-def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: str):
+def run_ice_adjust(
+    backend: str,
+    dataset: str,
+    output_path: str,
+    tracking_file: str,
+    rebuild: bool = True,
+    validate_args: bool = False,
+):
     """Run ice_adjust component"""
 
     ##### Grid #####
@@ -88,7 +90,7 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
     ######## Backend and gt4py config #######
     logging.info(f"With backend {backend}")
     gt4py_config = GT4PyConfig(
-        backend=backend, rebuild=True, validate_args=False, verbose=True
+        backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=True
     )
 
     ######## Instanciation + compilation #####
@@ -113,7 +115,7 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
     tends, diags = ice_adjust(state, dt)
     stop = time.time()
     elapsed_time = stop - start
-    logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
+    logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
 
     logging.info(f"Extracting state data to {output_path}")
     output_fields = xr.Dataset(state)
@@ -138,35 +140,7 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
 
 
 @app.command()
-def run_tendencies(backend: str, dataset: str, output_path: str, tracking_file: str):
-    """Run ice4_tendencies_component on dummy data (one arrays)"""
-
-    ######## Backend and gt4py config #######
-    logging.info(f"With backend {backend}")
-    gt4py_config = GT4PyConfig(
-        backend=backend, rebuild=True, validate_args=False, verbose=True
-    )
-
-    ############# Grid #####################
-    logging.info("Initializing grid ...")
-    nx = 50
-    ny = 1
-    nz = 15
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = datetime.timedelta(seconds=1)
-
-    ####### Create state for AroAdjust #######
-    logging.info("Getting state for IceAdjust")
-    state = get_constant_state_ice4_tendencies(grid, gt4py_config=gt4py_config)
-
-    ####### Launch execution ##################
-    core(Ice4Tendencies, gt4py_config, state, output_path, dt)
-
-
-@app.command()
-def run_aro_adjust(
-    backend: str,
-):
+def run_aro_adjust(backend: str, rebuild: bool = True, validate_args: bool = False):
     """Run aro_adjust component"""
 
     ##### Grid #####
@@ -197,7 +171,7 @@ def run_aro_adjust(
     logging.info(f"Compilation duration for AroAdjust : {elapsed_time} s")
 
     ####### Create state for AroAdjust #######
-    logging.info("Getting constant state for IceAdjust")
+    logging.info("Getting constant state for AroAdjust")
     state = get_constant_state_aro_adjust(
         grid, gt4py_config=gt4py_config, keys=aro_adjust_fields_keys
     )
@@ -210,7 +184,7 @@ def run_aro_adjust(
     tends, diags = aro_adjust(state, dt)
     stop = time.time()
     elapsed_time = stop - start
-    logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
+    logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
 
     logging.info("Extracting state data to ...")
 
@@ -219,7 +193,14 @@ def run_aro_adjust(
 
 
 @app.command()
-def run_rain_ice(backend: str, dataset: str, output_path: str, tracking_file: str):
+def run_rain_ice(
+    backend: str,
+    dataset: str,
+    output_path: str,
+    tracking_file: str,
+    rebuild: bool = True,
+    validate_args: bool = False,
+):
     """Run aro_rain_ice component"""
 
     ##### Grid #####
@@ -238,7 +219,7 @@ def run_rain_ice(backend: str, dataset: str, output_path: str, tracking_file: st
     ######## Backend and gt4py config #######
     logging.info(f"With backend {backend}")
     gt4py_config = GT4PyConfig(
-        backend=backend, rebuild=True, validate_args=False, verbose=True
+        backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=True
     )
 
     ######## Instanciation + compilation #####
@@ -247,12 +228,12 @@ def run_rain_ice(backend: str, dataset: str, output_path: str, tracking_file: st
     rain_ice = RainIce(grid, gt4py_config, phyex)
     stop = time.time()
     elapsed_time = stop - start
-    logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
+    logging.info(f"Compilation duration for RainIce : {elapsed_time} s")
 
     ####### Create state for AroAdjust #######
     reader = NetCDFReader(Path(dataset))
 
-    logging.info("Getting state for IceAdjust")
+    logging.info("Getting state for RainIce")
     state = get_state_rain_ice(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
     logging.info(f"Keys : {list(state.keys())}")
 
