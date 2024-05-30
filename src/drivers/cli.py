@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import subprocess
+import numpy as np
 import typer
 import logging
 import datetime
@@ -276,17 +277,6 @@ def run_rain_ice(backend: str, dataset: str, output_path: str, tracking_file: st
                         "I": range(nx),
                         "J": range(ny),
                         "K": range(nz),
-                    },
-                    name=f"{key}",
-                )
-                output_fields[key] = array
-            else:
-                array = xr.DataArray(
-                    data=field._to_dataset_whole,
-                    dims=["I", "J"],
-                    coords={
-                        "I": range(nx),
-                        "J": range(ny),
                     },
                     name=f"{key}",
                 )
