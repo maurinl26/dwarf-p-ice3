@@ -283,7 +283,17 @@ class RainIce(ImplicitTendencyComponent):
 
             state_initial_values_saving = {
                 key: state[key]
-                for key in ["th_t", "rv_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]
+                for key in [
+                    "th_t",
+                    "rv_t",
+                    "rc_t",
+                    "rr_t",
+                    "ri_t",
+                    "rs_t",
+                    "rg_t",
+                    "evap3d",
+                    "rainfr",
+                ]
             }
             tmps_initial_values_saving = {
                 "wr_th": wr_th,
@@ -316,7 +326,6 @@ class RainIce(ImplicitTendencyComponent):
                     "ssi",
                 ]
             }
-            # TODO verification with Fortran signature
             tmps_nuc = {
                 "ldcompute": lw3d,
                 "ls_fact": ls_fact,
@@ -454,7 +463,6 @@ class RainIce(ImplicitTendencyComponent):
                 ]
             }
 
-            # TODO: replace ls, lv by ls_fact, lv_fact in signature
             tmps_total_tendencies = {
                 "rvheni": rvheni,
                 "ls_fact": ls_fact,
