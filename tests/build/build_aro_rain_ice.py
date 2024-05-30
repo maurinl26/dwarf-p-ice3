@@ -187,7 +187,7 @@ while np.any(timing["t_micro"][...] < TSTEP):
         state_step_limiter = {
             **{
                 key: state[key]
-                for key in ["exn", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "tht"]
+                for key in ["exn", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "th_t"]
             },
             **internal_tnd,
             **external_tendencies,
@@ -243,7 +243,7 @@ while np.any(timing["t_micro"][...] < TSTEP):
         state_state_update = {
             **{
                 key: state[key]
-                for key in ["tht", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "ci_t"]
+                for key in ["th_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "ci_t"]
             },
             **increments,
             **internal_tnd,
@@ -263,7 +263,7 @@ while np.any(timing["t_micro"][...] < TSTEP):
 # if ldext_tnd
 
 state_external_tendencies_update = {
-    **{key: state[key] for key in ["tht", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]},
+    **{key: state[key] for key in ["th_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]},
     **external_tendencies,
     "ldmicro": masks["ldmicro"],
 }

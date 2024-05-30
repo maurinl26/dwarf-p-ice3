@@ -13,36 +13,15 @@ app = typer.Typer()
 
 
 OUTPUT_KEYS = {
-    # "exn": "PEXNREF",
-    # "exnref": "PEXNREF",
-    # "rhodref": "PRHODREF",
-    # "pabs": "PPABSM",
-    # "sigs": "PSIGS",
-    # "cf_mf": "PCF_MF",
-    # "rc_mf": "PRC_MF",
-    # "ri_mf": "PRI_MF",
-    # "th": "ZRS",
-    # "rv": "ZRS",
-    # "rc": "ZRS",
-    # "rr": "ZRS",
-    # "ri": "ZRS",
-    # "rs": "ZRS",
-    # "rg": "ZRS",
     "cldfr": "PCLDFR_OUT",
-    # "sigqsat": None,
-    # "ifr": None,
     "hlc_hrc": "PHLC_HRC_OUT",
     "hlc_hcf": "PHLC_HCF_OUT",
     "hli_hri": "PHLI_HRI_OUT",
     "hli_hcf": "PHLI_HCF_OUT",
-    # "sigrc": None,
     "ths": "PRS_OUT",
     "rcs": "PRS_OUT",
-    # "rrs": "PRS",
     "ris": "PRS_OUT",
-    # "rss": "PRS",
     "rvs": "PRS_OUT",
-    # "rgs": "PRS",
 }
 
 
@@ -53,7 +32,7 @@ def compare(ref_path: str, run_path: str, output_path: str):
     run = NetCDFReader(run_path)
 
     with open(output_path, "w") as f:
-        f.write("Set, var, lev, min, mean, max \n")
+        f.write("Set, var, lev, min, mean, max\n")
 
         for name, fortran_name in OUTPUT_KEYS.items():
 
@@ -76,11 +55,46 @@ def compare(ref_path: str, run_path: str, output_path: str):
             logging.info(f"Run field, name : {name}, shape : {run_field.shape}")
 
             for lev in range(14):
+                ref_max = (
+                    ref_field[:, lev].max() if ref_field[:, lev].max() > 1e-15 else 0
+                )
+                ref_mean = (
+                    ref_field[:, lev].min() if ref_field[:, lev].min() > 1e-15 else 0
+                )
+                ref_min = (
+                    ref_field[:, lev].mean() if ref_field[:, lev].mean() > 1e-15 else 0
+                )
+
+                run_max = (
+                    run_field[:, :, lev + 1].max()
+                    if run_field[:, :, lev + 1].max() > 1e-15
+                    else 0
+                )
+                run_min = (
+                    run_field[:, :, lev + 1].min()
+                    if run_field[:, :, lev + 1].min() > 1e-15
+                    else 0
+                )
+                run_mean = (
+                    run_field[:, :, lev + 1].mean()
+                    if run_field[:, :, lev + 1].mean() > 1e-15
+                    else 0
+                )
+
+                rel_diff_max = abs(ref_max - run_max) / ref_max if ref_max != 0 else 1
+                rel_diff_mean = (
+                    abs(ref_mean - run_mean) / ref_mean if ref_mean != 0 else 1
+                )
+                rel_diff_min = abs(ref_min - run_min) / ref_min if ref_min != 0 else 1
+
                 f.write(
-                    f"Ref, {name}, {lev}, {ref_field[:, lev].min()}, {ref_field[:, lev].mean()}, {ref_field[:, lev].max()} \n"
+                    f"Ref, {name}, {lev}, {ref_field[:, lev].min()}, {ref_field[:, lev].mean()}, {ref_field[:, lev].max()}\n"
                 )
                 f.write(
-                    f"Run, {name}, {lev}, {run_field[:,:,lev].min()}, {run_field[:,:,lev + 1].mean()}, {run_field[:,:,lev + 1].max()} \n"
+                    f"Run, {name}, {lev}, {run_field[:,:,lev].min()}, {run_field[:,:,lev + 1].mean()}, {run_field[:,:,lev + 1].max()}\n"
+                )
+                f.write(
+                    f"Diff, {name}, {lev}, {rel_diff_min}, {rel_diff_mean}, {rel_diff_max}\n"
                 )
 
 

@@ -125,7 +125,7 @@ time_state = {
 state = {"ldcompute": ones((nx, ny, nz), backend=BACKEND, dtype=bool)}
 
 state = {
-    "tht": {"grid": (I, J, K), "units": ""},
+    "th_t": {"grid": (I, J, K), "units": ""},
     "pabs": {"grid": (I, J, K), "units": ""},
     "rhodref": {"grid": (I, J, K), "units": ""},
     "exn": {"grid": (I, J, K), "units": ""},
@@ -264,7 +264,7 @@ state_nucleation = {
     "ldcompute": state["ldcompute"],
     **{
         key: state[key]
-        for key in ["tht", "pabs", "rhodref", "exn", "ls_fact", "t", "rv_t", "ci_t"]
+        for key in ["th_t", "pabs", "rhodref", "exn", "ls_fact", "t", "rv_t", "ci_t"]
     },
     "rvheni_mr": diags["rvheni_mr"],
 }
@@ -284,7 +284,7 @@ ice4_nucleation(**state_nucleation, **temporaries_nucleation)
 state_nucleation_pp = {
     **{
         key: state[key]
-        for key in ["t", "exn", "ls_fact", "lv_fact", "tht", "rv_t", "ri_t"]
+        for key in ["t", "exn", "ls_fact", "lv_fact", "th_t", "rv_t", "ri_t"]
     },
     "rvheni_mr": diags["rvheni_mr"],
 }
@@ -295,7 +295,7 @@ ice4_nucleation_post_processing(**state_nucleation_pp)
 ########################### ice4_rrhong #################################
 state_rrhong = {
     "ldcompute": state["ldcompute"],
-    **{key: state[key] for key in ["t", "exn", "lv_fact", "ls_fact", "tht", "rr_t"]},
+    **{key: state[key] for key in ["t", "exn", "lv_fact", "ls_fact", "th_t", "rr_t"]},
     "rrhong_mr": diags["rrhong_mr"],
 }
 
@@ -310,7 +310,7 @@ state_rrhong_pp = {
             "exn",
             "lv_fact",
             "ls_fact",
-            "tht",
+            "th_t",
             "rg_t",
             "rr_t",
         ]
@@ -330,7 +330,7 @@ state_rimltc = {
             "exn",
             "lv_fact",
             "ls_fact",
-            "tht",
+            "th_t",
             "ri_t",
         ]
     },
@@ -344,7 +344,7 @@ ice4_rimltc(**state_rimltc)
 state_rimltc_pp = {
     **{
         key: state[key]
-        for key in ["t", "exn", "lv_fact", "ls_fact", "tht", "rc_t", "ri_t"]
+        for key in ["t", "exn", "lv_fact", "ls_fact", "th_t", "rc_t", "ri_t"]
     },
     "rimltc_mr": diags["rimltc_mr"],
 }
@@ -429,7 +429,7 @@ state_warm = {
             "rhodref",
             "lv_fact",
             "t",  # temperature
-            "tht",
+            "th_t",
             "pres",
             "ka",  # thermal conductivity of the air
             "dv",  # diffusivity of water vapour

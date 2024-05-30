@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     state = {
         "exnref": ones((nx, ny, nz), backend=BACKEND),
-        "tht": ones((nx, ny, nz), backend=BACKEND),
+        "th_t": ones((nx, ny, nz), backend=BACKEND),
         "exn": ones((nx, ny, nz), backend=BACKEND),
         "exnref": ones((nx, ny, nz), backend=BACKEND),
         "rhodref": ones((nx, ny, nz), backend=BACKEND),
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     ############## AroFilter - State ####################
     state_filter = {
         "exnref": state["exnref"],
-        "tht": state["tht"],
+        "th_t": state["th_t"],
         "ths": diagnostics["ths"],
         "rcs": diagnostics["rcs"],
         "rrs": diagnostics["rrs"],
