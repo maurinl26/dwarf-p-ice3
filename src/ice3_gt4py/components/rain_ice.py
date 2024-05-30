@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat

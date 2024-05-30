@@ -5,7 +5,8 @@ from datetime import datetime
 from functools import partial
 from typing import TYPE_CHECKING, Dict
 
-from gt4py.storage import ones
+from gt4py.storage import ones, from_array
+import numpy as np
 
 
 if TYPE_CHECKING:
@@ -30,4 +31,9 @@ def initialize_state_with_constant(
     """
 
     for name in keys:
-        state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
+        if name == "ldmicro":
+            buffer = np.zeros(state[name].shape, dtype=bool)
+            state[name][...] = from_array(buffer, dtype=bool)
+
+        else:
+            state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
