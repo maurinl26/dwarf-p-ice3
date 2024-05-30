@@ -32,37 +32,7 @@ logging.getLogger()
 
 app = typer.Typer()
 
-
-@app.command()
-def run_ice_adjust_fortran(
-    testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
-):
-    """Call and run main_ice_adjust (Fortran)"""
-
-    try:
-
-        logging.info("Setting env variables")
-        subprocess.run(
-            ["source", f"{testdir}/{name}/build/with_fcm/arch_{archfile}/arch.env"]
-        )
-
-        logging.info("Job submit")
-        subprocess.run(
-            [
-                "submit",
-                "Output_run",
-                "Stderr_run",
-                f"{testdir}/{name}/build/with_fcm/arch_${archfile}/build/bin/main_ice_adjust.exe",
-                f"{checkOpt}",
-                f"{extrapolation_opts}",
-            ]
-        )
-
-    except RuntimeError as e:
-        logging.error("Fortran ice_adjust execution failed")
-        logging.error(f"{e}")
-
-
+######################## GT4Py drivers #######################
 @app.command()
 def run_ice_adjust(
     backend: str,
@@ -136,59 +106,6 @@ def run_ice_adjust(
 
     logging.info(f"Extracting exec tracking to {tracking_file}")
     with open(tracking_file, "w") as file:
-        json.dump(gt4py_config.exec_info, file)
-
-
-@app.command()
-def run_aro_adjust(backend: str, rebuild: bool = True, validate_args: bool = False):
-    """Run aro_adjust component"""
-
-    ##### Grid #####
-    logging.info("Initializing grid ...")
-    nx = 100
-    ny = 1
-    nz = 90
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = datetime.timedelta(seconds=1)
-
-    ################## Phyex #################
-    logging.info("Initializing Phyex ...")
-    cprogram = "AROME"
-    phyex = Phyex(cprogram)
-
-    ######## Backend and gt4py config #######
-    logging.info(f"With backend {backend}")
-    gt4py_config = GT4PyConfig(
-        backend=backend, rebuild=True, validate_args=False, verbose=True
-    )
-
-    ######## Instanciation + compilation #####
-    logging.info(f"Compilation for AroAdjust stencils")
-    start = time.time()
-    aro_adjust = AroAdjust(grid, gt4py_config, phyex)
-    stop = time.time()
-    elapsed_time = stop - start
-    logging.info(f"Compilation duration for AroAdjust : {elapsed_time} s")
-
-    ####### Create state for AroAdjust #######
-    logging.info("Getting constant state for AroAdjust")
-    state = get_constant_state_aro_adjust(
-        grid, gt4py_config=gt4py_config, keys=aro_adjust_fields_keys
-    )
-    logging.info(f"Keys : {list(state.keys())}")
-
-    ###### Launching AroAdjust ###############
-    logging.info("Launching AroAdjust")
-
-    start = time.time()
-    tends, diags = aro_adjust(state, dt)
-    stop = time.time()
-    elapsed_time = stop - start
-    logging.info(f"Execution duration for AroAdjust : {elapsed_time} s")
-
-    logging.info("Extracting state data to ...")
-
-    with open("run_aro_adjust.json", "w") as file:
         json.dump(gt4py_config.exec_info, file)
 
 
@@ -268,6 +185,45 @@ def run_rain_ice(
     logging.info(f"Extracting exec tracking to {tracking_file}")
     with open(tracking_file, "w") as file:
         json.dump(gt4py_config.exec_info, file)
+
+
+##################### Fortran drivers #########################
+@app.command()
+def run_ice_adjust_fortran(
+    testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
+):
+    """Call and run main_ice_adjust (Fortran)"""
+
+    try:
+
+        logging.info("Setting env variables")
+        subprocess.run(
+            ["source", f"{testdir}/{name}/build/with_fcm/arch_{archfile}/arch.env"]
+        )
+
+        logging.info("Job submit")
+        subprocess.run(
+            [
+                "submit",
+                "Output_run",
+                "Stderr_run",
+                f"{testdir}/{name}/build/with_fcm/arch_${archfile}/build/bin/main_ice_adjust.exe",
+                f"{checkOpt}",
+                f"{extrapolation_opts}",
+            ]
+        )
+
+    except RuntimeError as e:
+        logging.error("Fortran ice_adjust execution failed")
+        logging.error(f"{e}")
+
+
+@app.command()
+def run_rain_ice_fortran(
+    testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
+):
+    """Call and run main_rain_ice (Fortran)"""
+    pass
 
 
 if __name__ == "__main__":
