@@ -31,9 +31,4 @@ def initialize_state_with_constant(
     """
 
     for name in keys:
-        if name == "ldmicro":
-            buffer = np.zeros(state[name].shape, dtype=bool)
-            state[name][...] = from_array(buffer, dtype=bool)
-
-        else:
-            state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
+        state[name][...] = C * ones(state[name].shape, backend=gt4py_config.backend)
