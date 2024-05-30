@@ -3,14 +3,12 @@ from __future__ import annotations
 
 from datetime import datetime
 from functools import partial
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
-from ifs_physics_common.framework.storage import zeros
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 import numpy as np
 
-from ice3_gt4py.initialisation.state import initialize_state_with_constant
 from ice3_gt4py.initialisation.utils import initialize_field
 from ice3_gt4py.utils.reader import NetCDFReader
 import logging
@@ -27,7 +25,6 @@ if TYPE_CHECKING:
     )
 
 KEYS = {
-    # "ldmicro": "LLMICRO",
     "exnref": "PEXNREF",
     "dzz": "PDZZ",
     "rhodj": "PRHODJ",
@@ -40,9 +37,8 @@ KEYS = {
     "hli_hri": "PHLI_HRI",
     "hli_hcf": "PHLI_HCF",
     "th_t": "PTHT",
-    # "r_t": "PRT",  # Expand
     "ths": "PTHS",
-    "rcs": "PRS",  # Expand
+    "rcs": "PRS",
     "rrs": "PRS",
     "ris": "PRS",
     "rgs": "PRS",
