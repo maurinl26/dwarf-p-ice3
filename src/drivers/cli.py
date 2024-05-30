@@ -16,6 +16,7 @@ from drivers.core import core
 from ice3_gt4py.components.aro_adjust import AroAdjust
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ice3_gt4py.components.ice_adjust import IceAdjust
+from ice3_gt4py.components.rain_ice import RainIce
 from ice3_gt4py.initialisation.state_aro_adjust import (
     get_constant_state_aro_adjust,
     aro_adjust_fields_keys,
@@ -26,6 +27,7 @@ from ice3_gt4py.initialisation.state_ice4_tendencies import (
 from ice3_gt4py.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
 )
+from ice3_gt4py.initialisation.state_rain_ice import get_state_rain_ice
 from ice3_gt4py.phyex_common.phyex import Phyex
 from ice3_gt4py.utils.reader import NetCDFReader
 
@@ -103,7 +105,7 @@ def run_ice_adjust(backend: str, dataset: str, output_path: str, tracking_file: 
     state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
     logging.info(f"Keys : {list(state.keys())}")
 
-    ###### Launching AroAdjust ###############
+    ###### Launching IceAdjust ###############
     logging.info("Launching IceAdjust")
 
     start = time.time()
@@ -201,7 +203,7 @@ def run_aro_adjust(
     logging.info(f"Keys : {list(state.keys())}")
 
     ###### Launching AroAdjust ###############
-    logging.info("Launching IceAdjust")
+    logging.info("Launching AroAdjust")
 
     start = time.time()
     tends, diags = aro_adjust(state, dt)
@@ -216,9 +218,85 @@ def run_aro_adjust(
 
 
 @app.command()
-def run_aro_rain_ice():
+def run_rain_ice(backend: str, dataset: str, output_path: str, tracking_file: str):
     """Run aro_rain_ice component"""
-    NotImplemented
+
+    ##### Grid #####
+    logging.info("Initializing grid ...")
+    nx = 10000
+    ny = 1
+    nz = 15
+    grid = ComputationalGrid(nx, ny, nz)
+    dt = datetime.timedelta(seconds=1)
+
+    ################## Phyex #################
+    logging.info("Initializing Phyex ...")
+    cprogram = "AROME"
+    phyex = Phyex(cprogram)
+
+    ######## Backend and gt4py config #######
+    logging.info(f"With backend {backend}")
+    gt4py_config = GT4PyConfig(
+        backend=backend, rebuild=True, validate_args=False, verbose=True
+    )
+
+    ######## Instanciation + compilation #####
+    logging.info(f"Compilation for RainIce stencils")
+    start = time.time()
+    rain_ice = RainIce(grid, gt4py_config, phyex)
+    stop = time.time()
+    elapsed_time = stop - start
+    logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
+
+    ####### Create state for AroAdjust #######
+    reader = NetCDFReader(Path(dataset))
+
+    logging.info("Getting state for IceAdjust")
+    state = get_state_rain_ice(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
+    logging.info(f"Keys : {list(state.keys())}")
+
+    ###### Launching RainIce ###############
+    logging.info("Launching RainIce")
+
+    start = time.time()
+    tends, diags = rain_ice(state, dt)
+    stop = time.time()
+    elapsed_time = stop - start
+    logging.info(f"Execution duration for RainIce : {elapsed_time} s")
+
+    logging.info(f"Extracting state data to {output_path}")
+    output_fields = xr.Dataset(state)
+    for key, field in state.items():
+        if key not in ["time"]:
+            if key not in ["sea", "town", "inprr", "inprc", "inprg", "inprs"]:
+                array = xr.DataArray(
+                    data=field.data[:, :, 1:],
+                    dims=["I", "J", "K"],
+                    coords={
+                        "I": range(nx),
+                        "J": range(ny),
+                        "K": range(nz),
+                    },
+                    name=f"{key}",
+                )
+                output_fields[key] = array
+            else:
+                array = xr.DataArray(
+                    data=field._to_dataset_whole,
+                    dims=["I", "J"],
+                    coords={
+                        "I": range(nx),
+                        "J": range(ny),
+                    },
+                    name=f"{key}",
+                )
+                output_fields[key] = array
+
+    output_fields.to_netcdf(Path(output_path))
+
+    logging.info(f"Extracting exec tracking to {tracking_file}")
+    with open(tracking_file, "w") as file:
+        json.dump(gt4py_config.exec_info, file)
 
 
 if __name__ == "__main__":
