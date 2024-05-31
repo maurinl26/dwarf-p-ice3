@@ -68,18 +68,18 @@ class Ice4Stepping(ImplicitTendencyComponent):
             "cf": {"grid": (I, J, K), "units": ""},
             "sigma_rc": {"grid": (I, J, K), "units": ""},
             "ci_t": {"grid": (I, J, K), "units": ""},
-            "ai": {"grid": (I, J, K), "units": ""},
-            "cj": {"grid": (I, J, K), "units": ""},
-            "ssi": {"grid": (I, J, K), "units": ""},
+            # "ai": {"grid": (I, J, K), "units": ""},
+            # "cj": {"grid": (I, J, K), "units": ""},
+            # "ssi": {"grid": (I, J, K), "units": ""},      zssi (mode_ice4_stepping.F90)
             "hlc_hcf": {"grid": (I, J, K), "units": ""},
-            "hlc_lcf": {"grid": (I, J, K), "units": ""},
+            # "hlc_lcf": {"grid": (I, J, K), "units": ""},  cf = hlc_hcf + hlc_lcf /// hlc_lcf is the proportion of low cloud fraction in the grid
             "hlc_hrc": {"grid": (I, J, K), "units": ""},
-            "hlc_lrc": {"grid": (I, J, K), "units": ""},
+            # "hlc_lrc": {"grid": (I, J, K), "units": ""},  rc = hlc_hrc + hlc_lrc /// Low LWC in the grid
             "hli_hcf": {"grid": (I, J, K), "units": ""},
-            "hli_lcf": {"grid": (I, J, K), "units": ""},
+            # "hli_lcf": {"grid": (I, J, K), "units": ""},  for iceclouds
             "hli_hri": {"grid": (I, J, K), "units": ""},
-            "hli_lri": {"grid": (I, J, K), "units": ""},
-            "fr": {"grid": (I, J, K), "units": ""},
+            # "hli_lri": {"grid": (I, J, K), "units": ""},  for ice content
+            # "fr": {"grid": (I, J, K), "units": ""},
             "th_t": {"grid": (I, J, K), "units": ""},
             "ls_fact": {"grid": (I, J, K), "units": ""},
             "lv_fact": {"grid": (I, J, K), "units": ""},
@@ -409,21 +409,14 @@ class Ice4Stepping(ImplicitTendencyComponent):
             }
 
             tmps_external_tendencies_update = {
-                "theta_ext_tnd": theta_ext_tnd,
-                "rc_ext_tnd": rc_ext_tnd,
-                "rr_ext_tnd": rr_ext_tnd,
-                "ri_ext_tnd": ri_ext_tnd,
-                "rs_ext_tnd": rs_ext_tnd,
-                "rg_ext_tnd": rg_ext_tnd,
+                "theta_tnd_ext": theta_ext_tnd,
+                "rc_tnd_ext": rc_ext_tnd,
+                "rr_tnd_ext": rr_ext_tnd,
+                "ri_tnd_ext": ri_ext_tnd,
+                "rs_tnd_ext": rs_ext_tnd,
+                "rg_tnd_ext": rg_ext_tnd,
             }
 
             self.external_tendencies_update(
                 **state_external_tendencies_update, **tmps_external_tendencies_update
             )
-
-            ################## RAIN_ICE ############################
-            # Translation note : this is part of rain_ice.F90 in fortran
-
-            ############### ice4_correct_negativities ##############
-
-            ############### ice4_sedimentation #####################
