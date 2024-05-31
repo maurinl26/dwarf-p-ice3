@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import datetime
 from functools import partial
 from typing import TYPE_CHECKING
 
@@ -53,6 +54,7 @@ def allocate_state_ice4_stepping(
     allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
 
     return {
+        "time": datetime.datetime(year=2024, month=1, day=1),
         "ldmicro": allocate_b(),
         "exn": allocate_f(),
         "th_t": allocate_f(),
@@ -81,5 +83,7 @@ def get_constant_state_ice4_stepping(
         DataArrayDict: initialized dictionnary of state
     """
     state = allocate_state_ice4_stepping(computational_grid, gt4py_config=gt4py_config)
-    initialize_state_with_constant(state, 0.5, gt4py_config, list(state.keys()))
+    keys = list(state.keys())
+    keys.remove("time")
+    initialize_state_with_constant(state, 0.5, gt4py_config, keys)
     return state

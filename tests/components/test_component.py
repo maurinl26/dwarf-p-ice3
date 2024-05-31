@@ -7,10 +7,8 @@ from datetime import timedelta
 
 from gt4py.storage import ones
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
+from ifs_physics_common.framework.grid import ComputationalGrid
 
-from ice3_gt4py.components.aro_adjust import AroAdjust
-from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ice3_gt4py.initialisation.state import allocate_state
 from ice3_gt4py.phyex_common.phyex import Phyex

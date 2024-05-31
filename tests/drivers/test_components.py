@@ -17,24 +17,18 @@ from drivers.core import core
 from ice3_gt4py.components.aro_adjust import AroAdjust
 from ice3_gt4py.components.ice4_stepping import Ice4Stepping
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
-from ice3_gt4py.components.ice_adjust import IceAdjust
-from ice3_gt4py.components.rain_ice import RainIce
-from tests.utils.state_aro_adjust import (
+from utils.state_aro_adjust import (
     get_constant_state_aro_adjust,
     aro_adjust_fields_keys,
 )
-from ice3_gt4py.initialisation.state_ice4_tendencies import (
+from utils.state_ice4_tendencies import (
     get_constant_state_ice4_tendencies,
 )
-from ice3_gt4py.initialisation.state_ice4_stepping import (
+from utils.state_ice4_stepping import (
     get_constant_state_ice4_stepping,
 )
-from ice3_gt4py.initialisation.state_ice_adjust import (
-    get_state_ice_adjust,
-)
-from ice3_gt4py.initialisation.state_rain_ice import get_state_rain_ice
+
 from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.utils.reader import NetCDFReader
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -76,7 +70,9 @@ def run_tendencies(
     ######## Instanciation + compilation #####
     logging.info(f"Compilation for RainIce stencils")
     start = time.time()
-    stepping = Ice4Stepping(grid, gt4py_config, phyex)
+    stepping = Ice4Stepping(
+        computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex
+    )
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Compilation duration for RainIce : {elapsed_time} s")
