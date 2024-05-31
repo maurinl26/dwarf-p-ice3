@@ -4,6 +4,7 @@ from __future__ import annotations
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
+from typing import Dict
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -61,7 +62,24 @@ class Ice4Stepping(ImplicitTendencyComponent):
     def _input_properties(self) -> PropertyDict:
         return {
             "ldmicro": {"grid": (I, J, K), "units": ""},
+            "rhodref": {"grid": (I, J, K), "units": ""},
+            "pabs_t": {"grid": (I, J, K), "units": ""},
             "exn": {"grid": (I, J, K), "units": ""},
+            "cf": {"grid": (I, J, K), "units": ""},
+            "sigma_rc": {"grid": (I, J, K), "units": ""},
+            "ci_t": {"grid": (I, J, K), "units": ""},
+            "ai": {"grid": (I, J, K), "units": ""},
+            "cj": {"grid": (I, J, K), "units": ""},
+            "ssi": {"grid": (I, J, K), "units": ""},
+            "hlc_hcf": {"grid": (I, J, K), "units": ""},
+            "hlc_lcf": {"grid": (I, J, K), "units": ""},
+            "hlc_hrc": {"grid": (I, J, K), "units": ""},
+            "hlc_lrc": {"grid": (I, J, K), "units": ""},
+            "hli_hcf": {"grid": (I, J, K), "units": ""},
+            "hli_lcf": {"grid": (I, J, K), "units": ""},
+            "hli_hri": {"grid": (I, J, K), "units": ""},
+            "hli_lri": {"grid": (I, J, K), "units": ""},
+            "fr": {"grid": (I, J, K), "units": ""},
             "th_t": {"grid": (I, J, K), "units": ""},
             "ls_fact": {"grid": (I, J, K), "units": ""},
             "lv_fact": {"grid": (I, J, K), "units": ""},
@@ -91,12 +109,19 @@ class Ice4Stepping(ImplicitTendencyComponent):
         from_line=214,
         to_line=438,
     )
-    def array_call(self, state: NDArrayLikeDict, timestep: timedelta):
+    def array_call(
+        self,
+        state: NDArrayLikeDict,
+        timestep: timedelta,
+        out_tendencies: NDArrayLikeDict,
+        out_diagnostics: NDArrayLikeDict,
+        overwrite_tendencies: Dict[str, bool],
+    ):
 
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "bool"), 1),
-            *repeat(((I, J, K), "float"), 23),
+            *repeat(((I, J, K), "float"), 28),
             gt4py_config=self.gt4py_config,
         ) as (
             # masks
@@ -141,6 +166,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             #                   l174 to l178 omitted
 
             ############## t_micro_init ################
+            dt = timestep.total_seconds()
 
             state_tmicro_init = {"ldmicro": state["ldmicro"], "t_micro": t_micro}
 
@@ -148,9 +174,10 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
             outerloop_counter = 0
             max_outerloop_iterations = 10
+            lsoft = False
 
             # l223 in f90
-            while np.any(t_micro[...] < timestep):
+            while np.any(t_micro[...] < dt):
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
@@ -194,7 +221,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         **{
                             key: state[key]
                             for key in [
-                                "pres",
                                 "rhodref",
                                 "exn",
                                 "ls_fact",
@@ -224,29 +250,34 @@ class Ice4Stepping(ImplicitTendencyComponent):
                                 "hli_lri",
                                 "fr",
                             ]
-                        }
+                        },
+                        **{"pres": state["pabs_t"]},
+                        **{
+                            "ldcompute": ldcompute,
+                            "theta_tnd": theta_a_tnd,
+                            "rv_tnd": rv_a_tnd,
+                            "rc_tnd": rc_a_tnd,
+                            "rr_tnd": rr_a_tnd,
+                            "ri_tnd": ri_a_tnd,
+                            "rs_tnd": rs_a_tnd,
+                            "rg_tnd": rg_a_tnd,
+                            "theta_increment": theta_b,
+                            "rv_increment": rv_b,
+                            "rc_increment": rc_b,
+                            "rr_increment": rr_b,
+                            "ri_increment": ri_b,
+                            "rs_increment": rs_b,
+                            "rg_increment": rg_b,
+                        },
                     }
 
-                    tmps_ice4_tendencies = {
-                        "ldcompute": ldcompute,
-                        "theta_tnd": theta_a_tnd,
-                        "rv_tnd": rv_a_tnd,
-                        "rc_tnd": rc_a_tnd,
-                        "rr_tnd": rr_a_tnd,
-                        "ri_tnd": ri_a_tnd,
-                        "rs_tnd": rs_a_tnd,
-                        "rg_tnd": rg_a_tnd,
-                        "theta_increment": theta_b,
-                        "rv_increment": rv_b,
-                        "rc_increment": rc_b,
-                        "rr_increment": rr_b,
-                        "ri_increment": ri_b,
-                        "rs_increment": rs_b,
-                        "rg_increment": rg_b,
-                    }
-
-                    self.ice4_tendencies(
-                        ldsoft=lsoft, **state_ice4_tendencies, **tmps_ice4_tendencies
+                    self.ice4_tendencies.array_call(
+                        ldsoft=lsoft,
+                        state=state_ice4_tendencies,
+                        timestep=dt,
+                        out_diagnostics={},
+                        out_tendencies={},
+                        overwrite_tendencies={},
                     )
 
                     # Translation note : l277 to l283 omitted, no external tendencies in AROME
