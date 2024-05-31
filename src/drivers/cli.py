@@ -2,7 +2,6 @@
 import json
 from pathlib import Path
 import subprocess
-import numpy as np
 import typer
 import logging
 import datetime
@@ -13,13 +12,8 @@ import xarray as xr
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
-from ice3_gt4py.components.aro_adjust import AroAdjust
 from ice3_gt4py.components.ice_adjust import IceAdjust
 from ice3_gt4py.components.rain_ice import RainIce
-from tests.utils.state_aro_adjust import (
-    get_constant_state_aro_adjust,
-    aro_adjust_fields_keys,
-)
 from ice3_gt4py.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
 )
