@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import datetime
 import logging
 import sys
 from datetime import timedelta
@@ -423,30 +424,55 @@ class RainIce(ImplicitTendencyComponent):
             # 5. Tendencies computation
             # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
             state_stepping = {
-                key: state[key]
-                for key in [
-                    "th_t",
-                    "t",
-                    "rv_t",
-                    "rc_t",
-                    "rr_t",
-                    "ri_t",
-                    "rs_t",
-                    "rg_t",
-                    "exn",
-                ]
+                **{
+                    key: state[key]
+                    for key in [
+                        "rhodref",
+                        "pabs_t",
+                        "th_t",
+                        "ci_t",
+                        "t",
+                        "rv_t",
+                        "rc_t",
+                        "rr_t",
+                        "ri_t",
+                        "rs_t",
+                        "rg_t",
+                        "exn",
+                        "hlc_hcf",
+                        "hlc_hrc",
+                        "hli_hcf",
+                        "hli_hri",
+                    ]
+                },
+                # Translation note : variables follow naming from mode_ice4_pack.F90
+                **{"cf": state["cldfr"], "sigma_rc": state["sigs"]},
+                **{
+                    "ldmicro": ldmicro,
+                    "ls_fact": ls_fact,
+                    "lv_fact": lv_fact,
+                },
             }
 
-            tmps_stepping = {
-                "ldmicro": ldmicro,
-                "ls_fact": ls_fact,
-                "lv_fact": lv_fact,
+            state_stepping_dataarrays = {
+                **{
+                    key: xr.DataArray(
+                        data=field,
+                        dims=["x", "y", "z"],
+                        coords={
+                            "x": range(field.shape[0]),
+                            "y": range(field.shape[1]),
+                            "z": range(field.shape[2]),
+                        },
+                        name=f"{key}",
+                    )
+                    for key, field in state_stepping.items()
+                },
+                "time": datetime.datetime(year=2024, month=1, day=1),
             }
 
-            # TODO : make an xarray data array from dicts
-            logging.info(f"{type(tmps_stepping), type(state_stepping)}")
-
-            _, _ = self.ice4_stepping({**state_stepping, **tmps_stepping}, timestep)
+            # TODO : transform state to pass as a DataArray
+            _, _ = self.ice4_stepping(state_stepping_dataarrays, timestep)
 
             # 8. Total tendencies
             # 8.1 Total tendencies limited by available species
