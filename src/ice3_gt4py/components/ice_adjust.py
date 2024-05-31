@@ -75,13 +75,13 @@ class IceAdjust(ImplicitTendencyComponent):
             "hli_hri": {"grid": (I, J, K), "units": "", "fortran_name": "PHLI_HRI_OUT"},
             "hli_hcf": {"grid": (I, J, K), "units": "", "fortran_name": "PHLI_HCF_OUT"},
             "sigrc": {"grid": (I, J, K), "units": "", "fortran_name": None},
-            "ths": {"grid": (I, J, K), "units": "PRS", "irr": 0},
-            "rcs": {"grid": (I, J, K), "units": "PRS", "irr": 1},
-            "rrs": {"grid": (I, J, K), "units": "PRS", "irr": 2},
-            "ris": {"grid": (I, J, K), "units": "PRS", "irr": 3},
-            "rss": {"grid": (I, J, K), "units": "PRS", "irr": 4},
-            "rvs": {"grid": (I, J, K), "units": "PRS", "irr": 5},
-            "rgs": {"grid": (I, J, K), "units": "PRS", "irr": 6},
+            "ths": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 0},
+            "rcs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 1},
+            "rrs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 2},
+            "ris": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 3},
+            "rss": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 4},
+            "rvs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 5},
+            "rgs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 6},
         }
 
     @cached_property
