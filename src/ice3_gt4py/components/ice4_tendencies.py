@@ -175,8 +175,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
     ) -> None:
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 22),  # TODO : local temporaries
-            *repeat(((I, J, K), "float"), 64),
+            *repeat(((I, J, K), "float"), 63),
             *repeat(((I, J, K), "int"), 4),
             gt4py_config=self.gt4py_config,
         ) as (
@@ -255,19 +254,21 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             ############## ice4_nucleation ################
             state_nucleation = {
-                key: state[key]
-                for key in [
-                    "ldcompute",
-                    "th_t",
-                    "pabs",
-                    "rhodref",
-                    "exn",
-                    "ls_fact",
-                    "t",
-                    "rv_t",
-                    "ci_t",
-                    "ssi",
-                ]
+                **{
+                    key: state[key]
+                    for key in [
+                        "ldcompute",
+                        "th_t",
+                        "rhodref",
+                        "exn",
+                        "ls_fact",
+                        "t",
+                        "rv_t",
+                        "ci_t",
+                        "ssi",
+                    ]
+                },
+                **{"pabs_t": state["pres"]},
             }
 
             temporaries_nucleation = {
