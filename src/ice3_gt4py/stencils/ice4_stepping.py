@@ -102,14 +102,14 @@ def ice4_stepping_heat(
     to_line=237,
 )
 @stencil_collection("ice4_stepping_ldcompute_init")
-def ice4_stepping_ldcompute_init(
-    ldcompute: Field["bool"], t_micro: Field["float"], dt: "float"
-):
+def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float"]):
     """Initialize ldcompute mask
 
     Args:
         ldcompute (Field[bool]): temperature
     """
 
+    from __externals__ import TSTEP
+
     with computation(PARALLEL), interval(...):
-        ldcompute = True if t_micro < dt else False
+        ldcompute = True if t_micro < TSTEP else False
