@@ -1,18 +1,24 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
-from dataclasses import asdict
+
+import logging
 from datetime import timedelta
+import sys
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
-
-from ifs_physics_common.framework.grid import ComputationalGrid
-from ifs_physics_common.framework.config import GT4PyConfig
+from gt4py.storage import from_array
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
-from ifs_physics_common.utils.typingx import PropertyDict, NDArrayLikeDict
-from ifs_physics_common.framework.grid import I, J, K
+from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
+from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+
 from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3_gt4py.phyex_common.tables import src_1d
+
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
 
 
 class IceAdjust(ImplicitTendencyComponent):
@@ -34,71 +40,57 @@ class IceAdjust(ImplicitTendencyComponent):
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
         )
 
-        externals = {}
-        externals.update(asdict(phyex.nebn))
-        externals.update(asdict(phyex.cst))
-        externals.update(asdict(phyex.param_icen))
-        externals.update(
-            {
-                "nrr": 6,
-                "criautc": 0,
-                "acriauti": 0,
-                "bcriauti": 0,
-                "criauti": 0,
-            }
-        )
-
+        externals = phyex.to_externals()
         self.ice_adjust = self.compile_stencil("ice_adjust", externals)
+
+        logging.info(f"Keys")
+        logging.info(f"SUBG_COND : {phyex.nebn.SUBG_COND}")
+        logging.info(f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}")
+        logging.info(f"SIGMAS : {phyex.nebn.SIGMAS}")
+        logging.info(f"LMFCONV : {phyex.LMFCONV}")
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "f_sigqsat": {
-                "grid": (I, J, K),
-                "units": "",
-            },  # coeff applied to qsat variance
-            "f_exnref": {"grid": (I, J, K), "units": ""},  # ref exner pression
-            "f_exn": {"grid": (I, J, K), "units": ""},
-            "f_rhodref": {"grid": (I, J, K), "units": ""},  #
-            "f_pabs": {"grid": (I, J, K), "units": ""},  # absolute pressure at t
-            "f_sigs": {"grid": (I, J, K), "units": ""},  # Sigma_s at time t
-            "f_cf_mf": {
-                "grid": (I, J, K),
-                "units": "",
-            },  # convective mass flux fraction
-            "f_rc_mf": {
-                "grid": (I, J, K),
-                "units": "",
-            },  # convective mass flux liquid mixing ratio
-            "f_ri_mf": {"grid": (I, J, K), "units": ""},
-            "f_th": {"grid": (I, J, K), "units": ""},  # ZRS(0)
-            "f_rv": {"grid": (I, J, K), "units": ""},  # ZRS(1)
-            "f_rc": {"grid": (I, J, K), "units": ""},  # ZRS(2)
-            "f_rr": {"grid": (I, J, K), "units": ""},  # ZRS(3)
-            "f_ri": {"grid": (I, J, K), "units": ""},  # ZRS(4)
-            "f_rs": {"grid": (I, J, K), "units": ""},  # ZRS(5)
-            "f_rg": {"grid": (I, J, K), "units": ""},  # ZRS(6)
+            "sigqsat": {"grid": (I, J, K), "units": "", "fortran_name": None},
+            "exn": {"grid": (I, J, K), "units": "", "fortran_name": "PEXNREF"},
+            "exnref": {"grid": (I, J, K), "units": "", "fortran_name": "PEXNREF"},
+            "rhodref": {"grid": (I, J, K), "units": "", "fortran_name": "PRHODREF"},
+            "pabs": {"grid": (I, J, K), "units": "", "fortran_name": "PPABSM"},
+            "sigs": {"grid": (I, J, K), "units": "", "fortran_name": "PSIGS"},
+            "cf_mf": {"grid": (I, J, K), "units": "", "fortran_name": "PCF_MF"},
+            "rc_mf": {"grid": (I, J, K), "units": "", "fortran_name": "PRC_MF"},
+            "ri_mf": {"grid": (I, J, K), "units": "", "fortran_name": "PRI_MF"},
+            "th": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 0},
+            "rv": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 1},
+            "rc": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 2},
+            "rr": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 3},
+            "ri": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 4},
+            "rs": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 5},
+            "rg": {"grid": (I, J, K), "units": "", "fortran_name": "ZRS", "irr": 6},
+            "cldfr": {"grid": (I, J, K), "units": "", "fortran_name": "PCLDFR"},
+            "ifr": {"grid": (I, J, K), "units": "", "fortran_name": None},
+            "hlc_hrc": {"grid": (I, J, K), "units": "", "fortran_name": "PHLC_HRC_OUT"},
+            "hlc_hcf": {"grid": (I, J, K), "units": "", "fortran_name": "PHLC_HCF_OUT"},
+            "hli_hri": {"grid": (I, J, K), "units": "", "fortran_name": "PHLI_HRI_OUT"},
+            "hli_hcf": {"grid": (I, J, K), "units": "", "fortran_name": "PHLI_HCF_OUT"},
+            "sigrc": {"grid": (I, J, K), "units": "", "fortran_name": None},
+            "ths": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 0},
+            "rcs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 1},
+            "rrs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 2},
+            "ris": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 3},
+            "rss": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 4},
+            "rvs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 5},
+            "rgs": {"grid": (I, J, K), "units": "", "fortran_name": "PRS", "irr": 6},
         }
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
-        return {
-            "f_ths": {"grid": (I, J, K), "units": ""},
-            "f_rvs": {"grid": (I, J, K), "units": ""},  # PRS(1)
-            "f_rcs": {"grid": (I, J, K), "units": ""},  # PRS(2)
-            "f_ris": {"grid": (I, J, K), "units": ""},  # PRS(4)
-        }
+        return {}
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
-        return {
-            "f_cldfr": {"grid": (I, J, K), "units": ""},
-            "f_ifr": {"grid": (I, J, K), "units": ""},
-            "f_hlc_hrc": {"grid": (I, J, K), "units": ""},
-            "f_hlc_hcf": {"grid": (I, J, K), "units": ""},
-            "f_hli_hri": {"grid": (I, J, K), "units": ""},
-            "f_hli_hcf": {"grid": (I, J, K), "units": ""},
-        }
+        return {}
 
     @cached_property
     def _temporaries(self) -> PropertyDict:
@@ -136,10 +128,10 @@ class IceAdjust(ImplicitTendencyComponent):
         out_diagnostics: NDArrayLikeDict,
         overwrite_tendencies: Dict[str, bool],
     ) -> None:
-
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 20),
+            *repeat(((I, J, K), "float"), 19),
+            ((I, J, K), "int"),
             gt4py_config=self.gt4py_config,
         ) as (
             rt,
@@ -157,25 +149,54 @@ class IceAdjust(ImplicitTendencyComponent):
             ls,
             cph,
             criaut,
-            sigrc,
             rv_tmp,
             ri_tmp,
             rc_tmp,
             t_tmp,
+            inq1,
         ):
-            inputs = {
-                name.split("_", maxsplit=1)[1]: state[name]
-                for name in self.input_properties
+            state_ice_adjust = {
+                key: state[key]
+                for key in [
+                    "sigqsat",
+                    "exn",
+                    "exnref",
+                    "rhodref",
+                    "pabs",
+                    "sigs",
+                    "cf_mf",
+                    "rc_mf",
+                    "ri_mf",
+                    "th",
+                    "rv",
+                    "rc",
+                    "rr",
+                    "ri",
+                    "rs",
+                    "rg",
+                    "cldfr",
+                    "ifr",
+                    "hlc_hrc",
+                    "hlc_hcf",
+                    "hli_hri",
+                    "hli_hcf",
+                    "sigrc",
+                    "ths",
+                    "rvs",
+                    "rcs",
+                    "ris",
+                ]
             }
-            tendencies = {
-                name.split("_", maxsplit=1)[1]: out_tendencies[name]
-                for name in self.tendency_properties
-            }
-            diagnostics = {
-                name.split("_", maxsplit=1)[1]: out_diagnostics[name]
-                for name in self.diagnostic_properties
-            }
-            temporaries = {
+
+            temporaries_ice_adjust = {
+                "rv_tmp": rv_tmp,
+                "ri_tmp": ri_tmp,
+                "rc_tmp": rc_tmp,
+                "t_tmp": t_tmp,
+                "cph": cph,
+                "lv": lv,
+                "ls": ls,
+                "criaut": criaut,
                 "rt": rt,
                 "pv": pv,
                 "piv": piv,
@@ -187,22 +208,19 @@ class IceAdjust(ImplicitTendencyComponent):
                 "sbar": sbar,
                 "sigma": sigma,
                 "q1": q1,
-                "lv": lv,
-                "ls": ls,
-                "cph": cph,
-                "criaut": criaut,
-                "sigrc": sigrc,
-                "rv_tmp": rv_tmp,
-                "ri_tmp": ri_tmp,
-                "rc_tmp": rc_tmp,
-                "t_tmp": t_tmp,
+                "inq1": inq1,
             }
 
+            # Global Table
+            logging.info("Loading src_1d GlobalTable")
+            src_1D = from_array(src_1d, backend=self.gt4py_config.backend)
+
+            # Timestep
+            logging.info("Launching ice_adjust")
             self.ice_adjust(
-                **inputs,
-                **tendencies,
-                **diagnostics,
-                **temporaries,
+                **state_ice_adjust,
+                **temporaries_ice_adjust,
+                src_1d=src_1D,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,

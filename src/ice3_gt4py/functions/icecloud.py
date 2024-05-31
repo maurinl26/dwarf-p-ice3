@@ -13,22 +13,14 @@ def icecloud(
     dz: Field[IJ, float],
     t: Field[IJ, float],
     r: Field[IJ, float],
-    tstep: float,
     pblh: float,
     wcld: Field[IJ, float],
     w2d: float,
-    # Outputs
     sifrc: Field[IJ, float],
     ssio: Field[IJ, float],
     ssiu: Field[IJ, float],
     w2d_out: Field[IJ, float],
     rsi: Field[IJ, float],
-    # Constants
-    epsilo: float,
-    gravity0: float,
-    Rd: float,
-    lvtt: float,
-    cpd: float,
 ):
     """
     Calculate subgridscale fraction of supersaturation with respect to ice.
@@ -37,7 +29,6 @@ def icecloud(
     (Also a function of of humidity itself in the boundary layer)
 
     Args:
-        cst (Constants): _description_
         p (Field[IJ, float]): pressure at model level (Pa)
         z (Field[IJ, float]): model level height (m)
         dz (Field[IJ, float]): model level thickness (m)
@@ -57,6 +48,9 @@ def icecloud(
     Returns:
         Tuple[Field]: sifrc, ssio, ssiu, w2d_out, rsi
     """
+
+    from __externals__ import TSTEP, LVTT, GRAVITY0, RD, CPD, EPSILO
+
     sigmax = 3e-4  # assumed rh variation in x axis direction
     sigmay = sigmax  # assumed rh variation in y axis direction
     sigmaz = 1e-2
@@ -64,9 +58,9 @@ def icecloud(
     xdist = 2500  # gridsize in  x axis (m)
     ydist = xdist  # gridsize in  y axis (m)
 
-    zr = max(0, r[0, 0, 0] * tstep)
+    zr = max(0, r[0, 0, 0] * TSTEP)
     sifrc = 0
-    a = zr[0, 0, 0] * p[0, 0, 0] / (epsilo + zr)
+    a = zr[0, 0, 0] * p[0, 0, 0] / (EPSILO + zr)
 
     # TODO : implementer esatw, esati
     rhw = a / esatw(t[0, 0, 0])
@@ -85,7 +79,7 @@ def icecloud(
 
     rhin = max(0.05, min(1, rhw))
     drhdz = (
-        rhin * gravity0 / (t[0, 0, 0] * Rd) * (epsilo * lvtt / (cpd * t[0, 0, 0]) - 1)
+        rhin * GRAVITY0 / (t[0, 0, 0] * RD) * (EPSILO * LVTT / (CPD * t[0, 0, 0]) - 1)
     )
 
     zz = 0

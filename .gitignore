@@ -2,10 +2,27 @@
 .venv
 data
 sandbox
+namelists
+src/testprogs_data/fortran/build
+src/testprogs_data/fortran/.fcm-make
+src/testprogs_data/main_ice_adjust
 
+.dacecache/
+.venv-prod/
 .gt_cache/
-src/phyex_gt4py/__pycache__/
+src/ice3_gt4py/__pycache__/
+src/PHYEX/
 
 *.pyc
-src/phyex_gt4py/drivers/tests.py
-src/phyex_gt4py/stencils/ice4*
+src/ice3_gt4py/drivers/tests.py
+src/ice3_gt4py/stencils/ice4*
+src/testprogs_data/fortran/
+output/
+dist/
+
+*.log
+*.sh
+*.mod
+*.o
+*.cfg
+*.json

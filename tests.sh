@@ -4,14 +4,8 @@ export PYTHONPATH=$HOME/maurinl26/dwarf-ice3-gt4py/src:$PYTHONPATH
 echo $PYTHONPATH
 
 echo "Test compile stencils"
-python tests/stencils/test_compile_stencils.py
+python tests/main.py test-compile-stencils gt:cpu_kfirst | grep Compilation >> compilation.log
 echo "Stencil compilation completed"
 
 echo "Test components"
-echo "Test ice adjust"
-python tests/components/test_ice_adjust.py
-echo "Ice Adjust passed"
-echo "Test aro adjust"
-python tests/components/test_aro_adjust.py
-echo "Aro Adjust passed"
-echo "Components tests completed"
+python tests/main.py test-components gt:cpu_kfirst

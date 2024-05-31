@@ -1,0 +1,21 @@
+fields:
+    - PRHODJ
+    - PEXNREF
+    - PRHODREF
+    - PSIGS
+    - PMFCONV
+    - PPABSM
+    - ZZZ
+    - PCF_MF
+    - PRC_MF
+    - PRI_MF
+    - ZRS
+    - PRS
+    - PTHS
+    - PRS_OUT
+    - PSRCS_OUT
+    - PCLDFR_OUT
+    - PHLC_HRC_OUT
+    - PHLC_HCF_OUT
+    - PHLI_HRI_OUT
+    - PHLI_HCF_OUT

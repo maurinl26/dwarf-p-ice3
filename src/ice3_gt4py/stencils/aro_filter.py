@@ -2,19 +2,19 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field
+from ifs_physics_common.framework.stencil import stencil_collection
 
 from ice3_gt4py.functions.ice_adjust import (
     cph,
-    vaporisation_latent_heat,
     sublimation_latent_heat,
+    vaporisation_latent_heat,
 )
-from ifs_physics_common.framework.stencil import stencil_collection
 
 
 @stencil_collection("aro_filter")
 def aro_filter(
     exnref: Field["float"],
-    tht: Field["float"],
+    th_t: Field["float"],
     ths: Field["float"],
     rcs: Field["float"],
     rrs: Field["float"],
@@ -33,7 +33,7 @@ def aro_filter(
 
     Args:
         exnref (Field[float]): reference exner pressure
-        tht (Field[float]): potential temperature at time t
+        th_t (Field[float]): potential temperature at time t
         ths (Field[float]): potential temperature source
         rcs (Field[float]): cloud droplets source
         rrs (Field[float]): rain source
@@ -51,14 +51,13 @@ def aro_filter(
 
     # 3.1. Remove negative values
     with computation(PARALLEL), interval(...):
-
         rrs[0, 0, 0] = max(0, rrs[0, 0, 0])
         rss[0, 0, 0] = max(0, rss[0, 0, 0])
         rgs[0, 0, 0] = max(0, rgs[0, 0, 0])
 
     # 3.2. Adjustment for solid and liquid cloud
     with computation(PARALLEL), interval(...):
-        t_tmp[0, 0, 0] = tht[0, 0, 0] * exnref[0, 0, 0]
+        t_tmp[0, 0, 0] = th_t[0, 0, 0] * exnref[0, 0, 0]
         ls_tmp[0, 0, 0] = sublimation_latent_heat(t_tmp)
         lv_tmp[0, 0, 0] = vaporisation_latent_heat(t_tmp)
         cph_tmp[0, 0, 0] = cph(rvs, rcs, ris, rrs, rss, rgs)
@@ -109,9 +108,8 @@ def aro_filter(
         )
         ris[0, 0, 0] = ris[0, 0, 0] - cor_tmp[0, 0, 0]
 
-    # 9. Transform sources (*= 2 dt)
+    # 9. Transform sources to tendencies (*= 2 dt)
     with computation(PARALLEL), interval(...):
-
         rvs[0, 0, 0] = rvs[0, 0, 0] * 2 * dt
         rcs[0, 0, 0] = rcs[0, 0, 0] * 2 * dt
         rrs[0, 0, 0] = rrs[0, 0, 0] * 2 * dt

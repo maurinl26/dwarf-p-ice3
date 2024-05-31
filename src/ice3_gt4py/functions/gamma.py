@@ -11,7 +11,7 @@ zcoef[5] = -0.5395239384953e-5
 zstp = 2.5066282746310005
 ZPI = 3.141592654
 
-
+# TODO replace with built in gamma
 def gamma(x: float) -> float:
     """Return value of gamma law given x
 

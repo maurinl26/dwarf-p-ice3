@@ -2,6 +2,7 @@
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Literal
+
 from ifs_physics_common.utils.f2py import ported_class
 
 
@@ -28,6 +29,26 @@ class FracIceShallow(Enum):
     S = 1
 
 
+class Condens(Enum):
+    """Enumeration for condensation variance
+
+    HCONDENS in .F90
+    CB02 for AROME
+    """
+
+    CB02 = 0
+    GAUS = 1
+
+
+class Lambda3(Enum):
+    """LAMBDA3 in AROME
+
+    CB by default in AROME
+    """
+
+    CB = 0
+
+
 @ported_class(from_file="PHYEX/src/common/aux/modd_nebn.F90")
 @dataclass
 class Neb:
@@ -48,26 +69,27 @@ class Neb:
 
     """
 
-    hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
+    HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    tminmix: float = field(default=273.16)
-    tmaxmix: float = field(default=253.16)
-    hgt_qs: float = field(default=False)
-    frac_ice_adjust: FracIceAdjust = field(default="S")
-    frac_ice_shallow: str = field(default="S")
-    vsigqsat: float = field(default=0.02)
-    condens: str = field(default="CB02")
-    lambda3: str = field(default="CB")
-    statnw: bool = field(default=False)
-    sigmas: bool = field(default=True)
-    subg_cond: bool = field(default=False)
+    TMINMIX: float = field(default=273.16)
+    TMAXMIX: float = field(default=253.16)
+    HGT_QS: float = field(default=False)
+    FRAC_ICE_ADJUST: int = field(default=FracIceAdjust.S.value)
+    FRAC_ICE_SHALLOW: int = field(default=FracIceShallow.S.value)
+    VSIGQSAT: float = field(default=0.02)
+    CONDENS: int = field(default=Condens.CB02.value)
+    LAMBDA3: int = field(default=Lambda3.CB.value)
+    STATNW: bool = field(default=False)
+    SIGMAS: bool = field(default=True)
+    SUBG_COND: bool = field(default=False)
 
     def __post_init__(self):
-        if self.hprogram == "AROME":
-            self.frac_ice_adjust = FracIceAdjust.S.value
-            self.frac_ice_shallow = FracIceShallow.T.value
-            self.vsigqsat = 0
-            self.sigmas = False
+        if self.HPROGRAM == "AROME":
+            self.FRAC_ICE_ADJUST = FracIceAdjust.S.value
+            self.FRAC_ICE_SHALLOW = FracIceShallow.T.value
+            self.VSIGQSAT = 0
+            self.SIGMAS = False
+            self.SUBG_COND = True
 
-        elif self.hprogram == "LMDZ":
-            self.subg_cond = True
+        elif self.HPROGRAM == "LMDZ":
+            self.SUBG_COND = True

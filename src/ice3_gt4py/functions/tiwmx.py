@@ -7,36 +7,41 @@ from ice3_gt4py.functions.sign import sign
 
 
 @function
-def esatw(alpw: float, betaw: float, tt: Field["float"]) -> Field["float"]:
-    """Saturation function over liquid water
+def e_sat_w(t: Field["float"]) -> Field["float"]:
+    """Saturation vapor pressure over liquid water
 
     Args:
-        alpw (float): alpha parameter for exponential - liquid water
-        betaw (float): beta parameter for exponential - liquid water
-        tt (Field[float]): temperature
+        t (Field[float]): temperature
 
     Returns:
-        Field["float"]: vapour content at saturation
+        Field[float]: saturation vapor pressure
     """
-    esatw = exp(alpw - betaw / tt[0, 0, 0] - log(tt[0, 0, 0]))
-    return esatw
+
+    from __externals__ import ALPW, BETAW, GAMW
+
+    return exp(ALPW - BETAW / t - GAMW * log(t))
 
 
 @function
-def esati(cst_tt: float, alpw: float, betaw: float, tt: Field["float"]):
-    """Saturation function over ice
+def e_sat_i(t: Field["float"]):
+    """Saturation vapor pressure over ice
 
     Args:
-        cst_tt (float): Temperature at triple point for water
-        alpw (float): alpha coefficient for ice
-        betaw (float): beta coefficient for ice
-        tt (Field[float]): temperature
+        t (Field[float]): temperature
 
     Returns:
-        _type_: _description_
+        Field[float]: saturation vapor pressure
     """
-    esati = (0.5 + sign(0.5, tt - cst_tt)) * esatw(alpw, betaw, tt) - (
-        sign(0.5, tt - cst_tt) - 0.5
-    ) * esatw(alpw, betaw, tt)
+    from __externals__ import ALPI, BETAI, GAMI
 
-    return esati
+    return exp(ALPI - BETAI / t - GAMI * log(t))
+
+
+# @function
+# def esati(cst_tt: float, alpw: float, betaw: float, tt: Field["float"]):
+
+#     from __externals__ import ALPW, BETAW, GAMW
+
+#     return (0.5 + sign(0.5, tt - cst_tt)) * esatw(tt) - (
+#         sign(0.5, tt - cst_tt) - 0.5
+#     ) * esatw(tt)
