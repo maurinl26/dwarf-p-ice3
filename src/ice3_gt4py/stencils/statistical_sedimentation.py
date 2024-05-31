@@ -62,8 +62,8 @@ def sedimentation_stat(
         ris (Field[float]): ice m.r. tendency
         rss (Field[float]): snow m.r. tendency
         rgs (Field[float]): graupel m.r. tendency
-        sea (Field[float]): mask for sea
-        town (Field[float]): mask for town
+        sea (Field[IJ, float]): mask for sea
+        town (Field[IJ, float]): mask for town
         fpr (Field[float]): upper-air precipitation fluxes
         inst_rr (Field[float]): instant prepicipitations of rain
         inst_rc (Field[float]): instant prepicipitations of cloud droplets

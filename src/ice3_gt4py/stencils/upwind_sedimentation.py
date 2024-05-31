@@ -45,10 +45,42 @@ def upwind_sedimentation(
     fpr_s: Field["float"],
     fpr_i: Field["float"],
     fpr_g: Field["float"],
-    sea: Field["float"],
-    town: Field["float"],
+    sea: Field[IJ, "float"],
+    town: Field[IJ, "float"],
     remaining_time: Field[IJ, "float"],
 ):
+    """Compute sedimentation of contents (rx_t) with piecewise
+    constant method.
+
+    Args:
+        rhodref (Field[float]): dry density of air
+        dzz (Field[float]): spacing between cell centers
+        pabs_t (Field[float]): absolute pressure at t
+        th_t (Field[float]): potential temperature at t
+        rc_t (Field[float]): cloud droplets m.r. at t
+        rr_t (Field[float]): rain m.r. at t
+        ri_t (Field[float]): ice m.r. at t
+        rs_t (Field[float]): snow m.r. at t
+        rg_t (Field[float]): graupel m.r. at t
+        rcs (Field[float]): cloud droplets m.r. tendency
+        rrs (Field[float]): rain m.r. tendency
+        ris (Field[float]): ice m.r. tendency
+        rss (Field[float]): snow m.r. tendency
+        rgs (Field[float]): graupel m.r. tendency
+        inst_rr (Field[IJ, float]): instant precip
+        inst_rc (Field[IJ, float]): _description_
+        inst_ri (Field[IJ, float]): _description_
+        inst_rs (Field[IJ, float]): _description_
+        inst_rg (Field[IJ, float]): _description_
+        fpr_c (Field[float]): _description_
+        fpr_r (Field[float]): _description_
+        fpr_s (Field[float]): _description_
+        fpr_i (Field[float]): _description_
+        fpr_g (Field[float]): _description_
+        sea (Field[float]): mask for presence of sea
+        town (Field[float]): mask for presence of town
+        remaining_time (Field[IJ, float]): _description_
+    """
 
     from __externals__ import (
         C_RTMIN,
