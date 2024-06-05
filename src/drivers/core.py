@@ -25,6 +25,30 @@ from ifs_physics_common.utils.typingx import (
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
+def write_dataset(state, keys, output_path):
+    """Write output state to netCDF
+
+    Args:
+        state (_type_): xr.Dataset
+        keys (_type_): keys to write in netCDF
+        output_path (_type_): path to write field
+    """
+    # TODO : implement function
+    pass
+
+def initialize_state(component, reader, grid, config):
+    """_summary_
+
+    Args:
+        component (_type_): _description_
+        reader (_type_): _description_
+        grid (_type_): _description_
+        config (_type_): _description_
+    """
+    # TODO : function to implement
+    pass
+    
+
 
 def core(
     component: ImplicitTendencyComponent,
@@ -50,7 +74,7 @@ def core(
     logging.info("Initializing Phyex ...")
     cprogram = "AROME"
     phyex = Phyex(cprogram)
-
+    
     ######## Instanciation + compilation #####
     logging.info(f"Compilation for AroAdjust stencils")
     start = time.time()
@@ -68,6 +92,7 @@ def core(
     elapsed_time = stop - start
     logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
 
+    # TODO : replace with write output
     logging.info(f"Extracting state data to {output_path}")
     output_fields = xr.Dataset(state)
     for key, field in state.items():

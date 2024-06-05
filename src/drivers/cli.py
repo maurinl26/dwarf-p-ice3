@@ -98,9 +98,13 @@ def run_ice_adjust(
             output_fields[key] = array
     output_fields.to_netcdf(Path(output_path))
 
+    ####################### Tracking ########################
     logging.info(f"Extracting exec tracking to {tracking_file}")
     with open(tracking_file, "w") as file:
         json.dump(gt4py_config.exec_info, file)
+        
+        
+    ##################### Compare ###########################
 
 
 @app.command()
