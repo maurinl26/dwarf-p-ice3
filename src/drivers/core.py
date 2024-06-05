@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import subprocess
+from typing import Tuple
 import typer
 import logging
 import datetime
@@ -25,7 +26,18 @@ from ifs_physics_common.utils.typingx import (
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
-def write_dataset(state, keys, output_path):
+def write_performance_tracking(gt4py_config: GT4PyConfig, tracking_file: str):
+    """Write performance tracking in a log file
+
+    Args:
+        gt4py_config (GT4PyConfig): gt4py_config to retrieve exec info
+        tracking_file (str): tracking file to write in
+    """
+    logging.info(f"Extracting exec tracking to {tracking_file}")
+    with open(tracking_file, "w") as file:
+        json.dump(gt4py_config.exec_info, file)
+
+def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
     """Write output state to netCDF
 
     Args:
@@ -33,8 +45,24 @@ def write_dataset(state, keys, output_path):
         keys (_type_): keys to write in netCDF
         output_path (_type_): path to write field
     """
-    # TODO : implement function
-    pass
+    nx, ny, nz = shape
+    
+    logging.info(f"Extracting state data to {output_path}")
+    output_fields = xr.Dataset(state)
+    for key, field in state.items():
+        if key not in ["time"]:
+            array = xr.DataArray(
+                data=field.data[:, :, 1:],
+                dims=["I", "J", "K"],
+                coords={
+                    "I": range(nx),
+                    "J": range(ny),
+                    "K": range(nz),
+                },
+                name=f"{key}",
+            )
+            output_fields[key] = array
+    output_fields.to_netcdf(Path(output_path))
 
 def initialize_state(component, reader, grid, config):
     """_summary_

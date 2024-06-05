@@ -12,6 +12,7 @@ import xarray as xr
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
+from drivers.core import write_dataset, write_performance_tracking
 from ice3_gt4py.components.ice_adjust import IceAdjust
 from ice3_gt4py.components.rain_ice import RainIce
 from ice3_gt4py.initialisation.state_ice_adjust import (
@@ -80,31 +81,18 @@ def run_ice_adjust(
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
-
-    logging.info(f"Extracting state data to {output_path}")
-    output_fields = xr.Dataset(state)
-    for key, field in state.items():
-        if key not in ["time"]:
-            array = xr.DataArray(
-                data=field.data[:, :, 1:],
-                dims=["I", "J", "K"],
-                coords={
-                    "I": range(nx),
-                    "J": range(ny),
-                    "K": range(nz),
-                },
-                name=f"{key}",
-            )
-            output_fields[key] = array
-    output_fields.to_netcdf(Path(output_path))
+    
+    
+    #################### Write dataset ###################### 
+    write_dataset(state, (nx, ny, nz), output_path)
 
     ####################### Tracking ########################
-    logging.info(f"Extracting exec tracking to {tracking_file}")
-    with open(tracking_file, "w") as file:
-        json.dump(gt4py_config.exec_info, file)
-        
+    write_performance_tracking(gt4py_config, tracking_file)   
         
     ##################### Compare ###########################
+    
+    
+    
 
 
 @app.command()
