@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
+    __INLINED,
     PARALLEL,
     Field,
     GlobalTable,
@@ -87,7 +88,7 @@ def ice_adjust(
         exn (Field[float]): true exner pressure
         rhodref (Field[float]): reference density
         pabs (Field[float]): absolute pressure at time t
-        sigs (Field[float]): standard dev for sub-grid saturation -- from turbulence scheme
+        sigs (Field[float]): standard dev for sub-grid saturation       (from turbulence scheme)
         cf_mf (Field[float]): convective mass flux cloud fraction       (from shallow convection)
         rc_mf (Field[float]): convective mass flux liquid mixing ratio  (from shallow convection)
         ri_mf (Field[float]): convective mass flux ice mixing ratio     (from shallow convection)
@@ -104,10 +105,10 @@ def ice_adjust(
         ris (Field[float]): ice source
         cldfr (Field[float]): cloud fraction
         ifr (Field[float]): ratio cloud ice moist part to dry part
-        hlc_hrc (Field[float]): _description_
-        hlc_hcf (Field[float]): _description_
-        hli_hri (Field[float]): _description_
-        hli_hcf (Field[float]): _description_
+        hlc_hrc (Field[float]): high liquid content droplet m.r.
+        hlc_hcf (Field[float]): high liquid content cloud fraction
+        hli_hri (Field[float]): high liquid content ice m.r.
+        hli_hcf (Field[float]): high liquid content cloud fraction
         sigrc (Field[float]): _description_
         rv_tmp (Field[float]): temp. array for vapour m.r.
         ri_tmp (Field[float]): temp. array for ice m.r.
@@ -156,13 +157,14 @@ def ice_adjust(
     # numer of moist variables fixed to 6 (without hail)
     # 2.4 specific heat for moist air at t+1
     with computation(PARALLEL), interval(...):
-        if NRR == 6:
+        # TODO: (refactoring) inline this choice
+        if __INLINED(NRR == 6):
             cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs + rg)
-        if NRR == 5:
+        if __INLINED(NRR == 5):
             cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs)
-        if NRR == 4:
+        if __INLINED(NRR == 4):
             cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr)
-        if NRR == 2:
+        if __INLINED(NRR == 2):
             cph = CPD + CPV * rv_tmp + CL * rc_tmp + CI * ri_tmp
 
     # 3. subgrid condensation scheme
@@ -289,7 +291,8 @@ def ice_adjust(
         ths += w2 * ls / (cph * exnref)
 
         # 5.2  compute the cloud fraction cldfr
-        if not SUBG_COND:
+        # TODO : inline this choice
+        if __INLINED(not SUBG_COND):
             cldfr = 1 if (rcs + ris > 1e-12 / dt) else 0
 
         # Translation note : LSUBG_COND = TRUE for Arome
@@ -311,12 +314,12 @@ def ice_adjust(
     with computation(PARALLEL), interval(...):
         criaut = CRIAUTC / rhodref
 
-        if SUBG_MF_PDF == 0:
+        if __INLINED(SUBG_MF_PDF == 0):
             if w1 * dt > cf_mf * criaut:
                 hlc_hrc += w1 * dt
                 hlc_hcf = min(1, hlc_hcf + cf_mf)
 
-        elif SUBG_MF_PDF == 1:
+        elif __INLINED(SUBG_MF_PDF == 1):
             if w1 * dt > cf_mf * criaut:
                 hcf = 1 - 0.5 * (criaut * cf_mf) / max(1e-20, w1 * dt)
                 hr = w1 * dt - (criaut * cf_mf) ** 3 / (3 * max(1e-20, w1 * dt) ** 2)
@@ -346,23 +349,23 @@ def ice_adjust(
             10 ** (ACRIAUTI * (t_tmp - TT) + BCRIAUTI),
         )
 
-        if SUBG_MF_PDF == 0:
+        if __INLINED(SUBG_MF_PDF == 0):
             if w2 * dt > cf_mf * criaut:
                 hli_hri += w2 * dt
                 hli_hcf = min(1, hli_hcf + cf_mf)
 
-        elif SUBG_MF_PDF == 1:
+        elif __INLINED(SUBG_MF_PDF == 1):
             if w2 * dt > cf_mf * criaut:
                 hli_hcf = 1 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
                 hli_hri = w2 * dt - (criaut * cf_mf) ** 3 / (3 * (w2 * dt) ** 2)
 
-        elif 2 * w2 * dt <= cf_mf * criaut:
-            hli_hcf = 0
-            hli_hri = 0
+            elif 2 * w2 * dt <= cf_mf * criaut:
+                hli_hcf = 0
+                hli_hri = 0
 
-        else:
-            hli_hcf = (2 * w2 * dt - criaut * cf_mf) ** 2 / (2.0 * (w2 * dt) ** 2)
-            hli_hri = (
+            else:
+                hli_hcf = (2 * w2 * dt - criaut * cf_mf) ** 2 / (2.0 * (w2 * dt) ** 2)
+                hli_hri = (
                 4.0 * (w2 * dt) ** 3
                 - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
                 + (criaut * cf_mf) ** 3
