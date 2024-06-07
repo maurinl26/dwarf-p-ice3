@@ -14,6 +14,16 @@ def upper_air_flux(
     max_tstep: Field[IJ, "float"],
     TSTEP: "float",
 ):
+    """_summary_
+
+    Args:
+        wsed (Field[float]): _description_
+        max_tstep (Field[IJ, float]): _description_
+        TSTEP (float): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return wsed * (max_tstep / TSTEP)
 
 
@@ -56,7 +66,21 @@ def maximum_time_step(
     dz: Field["float"],
     wsed: Field["float"],
     remaining_time: Field[IJ, "float"],
-):
+) -> Field["float"]:
+    """_summary_
+
+    Args:
+        rtmin (float): _description_
+        rhodref (Field[float]): _description_
+        max_tstep (Field[IJ, float]): _description_
+        r (Field[float]): _description_
+        dz (Field[float]): _description_
+        wsed (Field[float]): _description_
+        remaining_time (Field[IJ, float]): _description_
+
+    Returns:
+        _type_: _description_
+    """
     from __externals__ import SPLIT_MAXCFL
 
     tstep = max_tstep
@@ -73,6 +97,11 @@ def maximum_time_step(
 def instant_precipitation(
     wsed: Field["float"], max_tstep: Field["float"], TSTEP: "float"
 ) -> Field["float"]:
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     from __externals__ import RHOLW
 
     return wsed[0, 0, 0] / RHOLW * (max_tstep / TSTEP)

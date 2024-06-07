@@ -11,7 +11,19 @@ def weighted_sedimentation_flux_1(
     rhodref: Field["float"],
     rx_t: Field["float"],
     dt: "float",
-):
+) -> Field["float"]:
+    """_summary_
+
+    Args:
+        wsedw (Field[float]): _description_
+        dz (Field[float]): _description_
+        rhodref (Field[float]): _description_
+        rx_t (Field[float]): _description_
+        dt (float): _description_
+
+    Returns:
+        _type_: _description_
+    """
     return min(rhodref * dz * rx_t / dt, wsedw * rhodref * rx_t)
 
 

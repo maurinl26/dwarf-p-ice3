@@ -69,9 +69,9 @@ def update_temperature(
     Returns:
         Field[float]: updated temperature
     """
-    
+
     from __externals__ import CPD
-    
+
     t = (
         t[0, 0, 0]
         + (
