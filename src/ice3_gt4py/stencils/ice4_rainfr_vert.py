@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log, computation, interval, BACKWARD
+from gt4py.cartesian.gtscript import Field, exp, log, computation, interval, BACKWARD, PARALLEL
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -18,6 +18,16 @@ def rain_fraction_sedimentation(
     rss: Field["float"],
     rgs: Field["float"],
 ):
+    """Computes vertical rain fraction
+
+    Args:
+        wr_r (Field[float]): initial value for rain m.r.
+        wr_s (Field[float]): initial value for snow m.r.
+        wr_g (Field[float]): initial value for graupel m.r.
+        rrs (Field[float]): tendency (source) for rain
+        rss (Field[float]): tendency (source) for snow
+        rgs (Field[float]): tendency (source) for graupel
+    """
 
     from __externals__ import TSTEP
 

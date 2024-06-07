@@ -26,6 +26,7 @@ from ice3_gt4py.functions.ice_adjust import (
 from ice3_gt4py.functions.temperature import update_temperature
 from ice3_gt4py.functions.tiwmx import e_sat_i, e_sat_w
 
+
 # TODO: remove POUT (not used in aro_adjust)
 # TODO: add SSIO, SSIU, IFR, SRCS
 @stencil_collection("ice_adjust")
@@ -366,10 +367,10 @@ def ice_adjust(
             else:
                 hli_hcf = (2 * w2 * dt - criaut * cf_mf) ** 2 / (2.0 * (w2 * dt) ** 2)
                 hli_hri = (
-                4.0 * (w2 * dt) ** 3
-                - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
-                + (criaut * cf_mf) ** 3
-            ) / (3 * (w2 * dt) ** 2)
+                    4.0 * (w2 * dt) ** 3
+                    - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
+                    + (criaut * cf_mf) ** 3
+                ) / (3 * (w2 * dt) ** 2)
 
         hli_hcf *= cf_mf
         hli_hcf = min(1, hli_hcf + hli_hcf)

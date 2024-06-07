@@ -45,7 +45,7 @@ def mixing_ratio_step_limiter(
     delta_t_micro: Field["float"],
     ldcompute: Field["bool"],
 ):
-    """_summary_
+    """Step limiter for processes, based on tendencies thresholds.
 
     Args:
         rc_0r_t (Field[float]): _description_

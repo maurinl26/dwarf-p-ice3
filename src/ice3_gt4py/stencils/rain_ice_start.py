@@ -29,6 +29,21 @@ def rain_ice_init(
     rs_t: Field["float"],
     rg_t: Field["float"],
 ):
+    """_summary_
+
+    Args:
+        ldmicro (Field[bool]): mask for microphysical computations
+        exn (Field[float]): exner pressure
+        ls_fact (Field[float]): sublimation latent heat over capacity
+        lv_fact (Field[float]): vaporisation latent heat over capacity
+        th_t (Field[float]): potential temperature at t
+        rv_t (Field[float]): vapour m.r. at t
+        rc_t (Field[float]): cloud droplet m.r. at t
+        rr_t (Field[float]): rain m.r. at t
+        ri_t (Field[float]): ice m.r. at t
+        rs_t (Field[float]): snow m.r.
+        rg_t (Field[float]): graupel m.r.
+    """
 
     from __externals__ import (
         C_RTMIN,

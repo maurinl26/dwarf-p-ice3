@@ -66,6 +66,20 @@ def ice4_tendencies_update(
     rimltc_mr: Field["float"],  # 45  # Cloud ce melting mixing ratio change
     rsrimcg_mr: Field["float"],  # 46  # Cloud droplet riming of the aggregates
 ):
+    """Update tendencies for each specy following sources from each process.
+
+    Args:
+        ls_fact (Field[float]): _description_
+        lv_fact (Field[float]): _description_
+        theta_tnd (Field[float]): potential temp
+        rv_tnd (Field[float]): _description_
+        rc_tnd (Field[float]): _description_
+        rr_tnd (Field[float]): _description_
+        ri_tnd (Field[float]): _description_
+        rs_tnd (Field[float]): _description_
+        rg_tnd (Field[float]): _description_
+        rchoni (Field[float]): _description_
+    """
 
     with computation(PARALLEL), interval(...):
 
@@ -176,6 +190,23 @@ def ice4_increment_update(
     rrhong_mr: Field["float"],
     rsrimcg_mr: Field["float"],
 ):
+    """Update tendencies with fixed increment.
+
+    Args:
+        ls_fact (Field[&quot;float&quot;]): _description_
+        lv_fact (Field[&quot;float&quot;]): _description_
+        theta_increment (Field[&quot;float&quot;]): _description_
+        rv_increment (Field[&quot;float&quot;]): _description_
+        rc_increment (Field[&quot;float&quot;]): _description_
+        rr_increment (Field[&quot;float&quot;]): _description_
+        ri_increment (Field[&quot;float&quot;]): _description_
+        rs_increment (Field[&quot;float&quot;]): _description_
+        rg_increment (Field[&quot;float&quot;]): _description_
+        rvheni_mr (Field[&quot;float&quot;]): _description_
+        rimltc_mr (Field[&quot;float&quot;]): _description_
+        rrhong_mr (Field[&quot;float&quot;]): _description_
+        rsrimcg_mr (Field[&quot;float&quot;]): _description_
+    """
 
     # 5.1.6 riming-conversion of the large sized aggregates into graupel
     # Translation note : l189 to l215 omitted (since CSNOWRIMING = M90 in AROME)

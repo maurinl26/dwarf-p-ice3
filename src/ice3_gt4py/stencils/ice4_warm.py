@@ -40,6 +40,15 @@ def ice4_slow(
     rrevav: Field["float"],  # evaporation of rr
     ldsoft: "bool",
 ):
+    """Computes slow processes.
+
+    Args:
+        ldcompute (Field[bool]): _description_
+        lv_fact (Field[float]): _description_
+        t (Field[float]): _description_
+        tht (Field[float]): _description_
+        lbdar (Field[float]): _description_
+    """
     from __externals__ import (
         ALPW,
         BETAW,

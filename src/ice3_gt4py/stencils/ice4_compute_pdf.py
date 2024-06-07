@@ -132,7 +132,8 @@ def ice4_compute_pdf(
 
     # HSUBG_AUCV_RC = NONE (0)
     with computation(PARALLEL), interval(...):
-
+        
+        # TODO: inline this choice
         if SUBG_AUCV_RC == 0:
             if rc_t > rcrautc_tmp and ldmicro:
                 hlc_hcf = 1
@@ -228,6 +229,7 @@ def ice4_compute_pdf(
             min(CRIAUTI, 10 ** (ACRIAUTI * (t - TT) + BCRIAUTI)) if ldmicro else 0
         )
 
+        # TODO: inline this code 
         # HSUBG_AUCV_RI = NONE (0)
         if SUBG_AUCV_RI == 0:
             if ri_t > criauti_tmp and ldmicro:

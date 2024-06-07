@@ -32,7 +32,7 @@ def ice4_fast_ri(
         ls_fact (Field[float]): latent heat of sublimation
         ai (Field[float]): thermodynamical function
         cj (Field[float]): function to compute ventilation factor
-        ci_t (Field[float]): _description_
+        ci_t (Field[float]): concentration of ice at t
         ssi (Field[float]): supersaturation over ice
         rc_t (Field[float]): cloud droplets mixing ratio at t
         ri_t (Field[float]): pristine ice mixing ratio at t

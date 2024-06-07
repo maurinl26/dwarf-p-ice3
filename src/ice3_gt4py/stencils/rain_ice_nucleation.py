@@ -23,6 +23,15 @@ def rain_ice_nucleation_pre_processing(
     ls_fact: Field["float"],
     exn: Field["float"],
 ):
+    """Preprocessing for nucleation step
+
+    Args:
+        ldmicro (Field[bool]): mask for microphysics computation
+        ci_t (Field[float]): concentration of ice
+        w3d (Field[float]): _description_
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        exn (Field[float]): _description_
+    """
 
     with computation(PARALLEL), interval(...):
         # Translation note : lw3d is (not ldmicro)

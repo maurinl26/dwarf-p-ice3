@@ -36,6 +36,34 @@ def rain_ice_total_tendencies(
     rs_t: Field["float"],
     rg_t: Field["float"],
 ):
+    """Update tendencies
+
+    Args:
+        wr_th (Field[float]): potential temperature initial value
+        wr_v (Field[float]): vapour initial value
+        wr_c (Field[float]): cloud droplets initial value
+        wr_r (Field[float]): rain initial value
+        wr_i (Field[float]): ice initial value
+        wr_s (Field[float]): snow initial value
+        wr_g (Field[float]): graupel initial value
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        lv_fact (Field[float]): vapourisation latent heat over heat capacity
+        exnref (Field[float]): reference exner pressure
+        ths (Field[float]): source (tendency) of potential temperature
+        rvs (Field[float]): source (tendency) of vapour
+        rcs (Field[float]): source (tendency) of cloud droplets
+        rrs (Field[float]): source (tendency) of rain
+        ris (Field[float]): source (tendency) of ice
+        rss (Field[float]): source (tendency) of snow
+        rgs (Field[float]): source (tendency) of graupel
+        rvheni (Field[float]): _description_
+        rv_t (Field[float]): vapour m.r. at t
+        rc_t (Field[float]): droplets m.r. at t
+        rr_t (Field[float]): rain m.r. at t
+        ri_t (Field[float]): ice m.r. at t
+        rs_t (Field[float]): snow m.r. at t
+        rg_t (Field[float]): graupel m.r. at t
+    """
 
     from __externals__ import INV_TSTEP
 

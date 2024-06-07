@@ -85,7 +85,7 @@ def ice4_fast_rg(
         rg_riwet_tnd (Field[float]): Graupel wet growth
         rg_rsdry_tnd (Field[float]): Graupel wet growth
         rg_rswet_tnd (Field[float]): Graupel wet growth
-        gdry (Field[int]): _description_
+        gdry (Field[int]): boolean field
     """
 
     from __externals__ import (

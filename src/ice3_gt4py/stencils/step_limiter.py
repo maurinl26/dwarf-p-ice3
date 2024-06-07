@@ -155,26 +155,26 @@ def state_update(
 
     Args:
         th_t (Field[float]): potential temperature at t
-        theta_b (Field[float]): _description_
-        theta_tnd_a (Field[float]): _description_
-        rc_t (Field[float]): _description_
-        rr_t (Field[float]): _description_
-        ri_t (Field[float]): _description_
-        rs_t (Field[float]): _description_
-        rg_t (Field[float]): _description_
-        rc_b (Field[float]): _description_
-        rr_b (Field[float]): _description_
-        ri_b (Field[float]): _description_
-        rs_b (Field[float]): _description_
-        rg_b (Field[float]): _description_
-        rc_tnd_a (Field[float]): _description_
-        rr_tnd_a (Field[float]): _description_
-        ri_tnd_a (Field[float]): _description_
-        rs_tnd_a (Field[float]): _description_
-        rg_tnd_a (Field[float]): _description_
-        delta_t_micro (Field[float]): _description_
-        ldmicro (Field[float]): _description_
-        ci_t (Field[float]): _description_
+        theta_b (Field[float]): increase of potential temperature
+        theta_tnd_a (Field[float]): potential temperature source (tendency update)
+        rc_t (Field[float]): cloud droplets m.r. at t
+        rr_t (Field[float]): rain m.r. at t
+        ri_t (Field[float]): ice m.r. at t
+        rs_t (Field[float]): snow m.r. at t
+        rg_t (Field[float]): graupel m.r. at t
+        rc_b (Field[float]): increase of cloud droplets m.r.
+        rr_b (Field[float]): increase of rain m.r.
+        ri_b (Field[float]): increase of ice m.r.
+        rs_b (Field[float]): increase of snow m.r.
+        rg_b (Field[float]): increase of graupel m.r.
+        rc_tnd_a (Field[float]): cloud droplets source (tendency update)
+        rr_tnd_a (Field[float]): rain source (tendency update)
+        ri_tnd_a (Field[float]): ice (tendency update)
+        rs_tnd_a (Field[float]): snow (tendency update)
+        rg_tnd_a (Field[float]): graupel (tendency update)
+        delta_t_micro (Field[float]): timestep for explicit microphysics
+        ldmicro (Field[float]): boolean mask for microphsyics computations
+        ci_t (Field[float]): concentration of ice at t
     """
 
     # 4.7 New values of variables for next iteration

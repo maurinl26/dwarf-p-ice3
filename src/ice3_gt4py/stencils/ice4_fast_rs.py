@@ -4,6 +4,7 @@ from __future__ import annotations
 from gt4py.cartesian.gtscript import (
     Field,
     GlobalTable,
+    __externals__,
     exp,
     log,
     computation,
@@ -67,6 +68,38 @@ def ice4_fast_rs(
     index_floor_r: Field["int"],
     index_floor_s: Field["int"],
 ):
+    """_summary_
+
+    Args:
+        ldsoft (bool): _description_
+        ldcompute (Field[bool]): _description_
+        rhodref (Field[float]): _description_
+        lv_fact (Field[float]): _description_
+        ls_fact (Field[float]): _description_
+        pres (Field[float]): _description_
+        rr_t (Field[float]): _description_
+        rs_t (Field[float]): _description_
+        riaggs (Field[float]): _description_
+        rsrimcg (Field[float]): _description_
+        rraccss (Field[float]): _description_
+        rsaccrg (Field[float]): _description_
+        rs_mltg_tnd (Field[float]): _description_
+        rs_rsrimcg_tnd (Field[float]): _description_
+        rs_rraccs_tnd (Field[float]): _description_
+        rs_rraccss_tnd (Field[float]): _description_
+        rs_rsaccrg_tnd (Field[float]): _description_
+        rs_freez1_tnd (Field[float]): _description_
+        rs_freez2_tnd (Field[float]): _description_
+        gaminc_rim1 (GlobalTable[float,): _description_
+        gaminc_rim2 (GlobalTable[float,): _description_
+        gaminc_rim4 (GlobalTable[float,): _description_
+        ker_raccs (GlobalTable[float,): _description_
+        ker_raccss (GlobalTable[float,): _description_
+        ker_saccrg (GlobalTable[float,): _description_
+        index_floor (Field[int]): _description_
+        index_floor_r (Field[int]): _description_
+        index_floor_s (Field[int]): _description_
+    """
     from __externals__ import (
         ALPI,
         ALPW,
