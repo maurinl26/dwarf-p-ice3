@@ -4,6 +4,7 @@ from __future__ import annotations
 from gt4py.cartesian.gtscript import (
     Field,
     computation,
+    __INLINED,
     PARALLEL,
     interval,
     __externals__,
@@ -110,5 +111,5 @@ def initial_values_saving(
         wr_g = rg_t
 
         # LWARM is True for AROME
-        evap3d = 0 if LWARM else evap3d
+        evap3d = 0 if __INLINED(LWARM) else evap3d
         rainfr = 0
