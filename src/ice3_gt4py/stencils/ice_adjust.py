@@ -11,9 +11,7 @@ from gt4py.cartesian.gtscript import (
     exp,
     floor,
     interval,
-    log,
     sqrt,
-    IJ,
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 import numpy as np
@@ -25,7 +23,6 @@ from ice3_gt4py.functions.ice_adjust import (
 )
 from ice3_gt4py.functions.temperature import update_temperature
 from ice3_gt4py.functions.tiwmx import e_sat_i, e_sat_w
-
 
 # TODO: remove POUT (not used in aro_adjust)
 # TODO: add SSIO, SSIU, IFR, SRCS
@@ -58,25 +55,10 @@ def ice_adjust(
     hli_hri: Field["float"],
     hli_hcf: Field["float"],
     sigrc: Field["float"],
-    rv_tmp: Field["float"],
-    ri_tmp: Field["float"],
-    rc_tmp: Field["float"],
-    t_tmp: Field["float"],
     cph: Field["float"],
     lv: Field["float"],
     ls: Field["float"],
     criaut: Field["float"],
-    rt: Field["float"],
-    pv: Field["float"],
-    piv: Field["float"],
-    qsl: Field["float"],
-    qsi: Field["float"],
-    frac_tmp: Field["float"],
-    cond_tmp: Field["float"],
-    a: Field["float"],
-    sbar: Field["float"],
-    sigma: Field["float"],
-    q1: Field["float"],
     inq1: Field[np.int64],
     src_1d: GlobalTable[("float", (34))],
     dt: "float",
@@ -156,9 +138,12 @@ def ice_adjust(
     # jiter > 0
 
     # numer of moist variables fixed to 6 (without hail)
+
+    # Translation note :
     # 2.4 specific heat for moist air at t+1
     with computation(PARALLEL), interval(...):
-        # TODO: (refactoring) inline this choice
+        # Translation note : case(7) removed because hail is not taken into account
+        # Translation note : l453 to l456 removed
         if __INLINED(NRR == 6):
             cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs + rg)
         if __INLINED(NRR == 5):
@@ -169,7 +154,8 @@ def ice_adjust(
             cph = CPD + CPV * rv_tmp + CL * rc_tmp + CI * ri_tmp
 
     # 3. subgrid condensation scheme
-    # Translation note : only the case with subg_cond = True retained
+    # Translation note : only the case with LSUBG_COND = True retained (l475 in ice_adjust.F90)
+    # sigqsat and sigs must be provided by the user
     with computation(PARALLEL), interval(...):
         cldfr = 0
         sigrc = 0
@@ -274,6 +260,7 @@ def ice_adjust(
 
     # Translation note : end jiter
 
+    # l274 in ice_adjust.F90
     ##### 5.     COMPUTE THE SOURCES AND STORES THE CLOUD FRACTION #####
     with computation(PARALLEL), interval(...):
         # 5.0 compute the variation of mixing ratio
@@ -281,20 +268,21 @@ def ice_adjust(
         w2 = (ri_tmp - ri) / dt
 
         # 5.1 compute the sources
-        w1 = max(w1, -rcs) if w1 > 0 else min(w1, rvs)
+        w1 = max(w1, -rcs) if w1 < 0 else min(w1, rvs)
         rvs -= w1
         rcs += w1
         ths += w1 * lv / (cph * exnref)
 
-        w2 = max(w2, -ris) if w2 > 0 else min(w2, rvs)
+        w2 = max(w2, -ris) if w2 < 0 else min(w2, rvs)
         rvs -= w2
         rcs += w2
         ths += w2 * ls / (cph * exnref)
 
         # 5.2  compute the cloud fraction cldfr
-        # TODO : inline this choice
         if __INLINED(not SUBG_COND):
             cldfr = 1 if (rcs + ris > 1e-12 / dt) else 0
+        # Translation note : OCOMPUTE_SRC is taken False
+        # Translation note : l320 to l322 removed
 
         # Translation note : LSUBG_COND = TRUE for Arome
         else:
@@ -311,69 +299,77 @@ def ice_adjust(
             rvs -= w1 + w2
             ths += (w1 * lv + w2 * ls) / cph / exnref
 
-    # Droplets subgrid autoconversion
-    with computation(PARALLEL), interval(...):
-        criaut = CRIAUTC / rhodref
+            # Droplets subgrid autoconversion
+            # with computation(PARALLEL), interval(...):
+            # LLHLC_H is True (AROME like)
+            #
+            criaut = CRIAUTC / rhodref
 
-        if __INLINED(SUBG_MF_PDF == 0):
-            if w1 * dt > cf_mf * criaut:
-                hlc_hrc += w1 * dt
-                hlc_hcf = min(1, hlc_hcf + cf_mf)
+            # ice_adjust.F90 IF LLNONE; IF CSUBG_MF_PDF is None
+            if __INLINED(SUBG_MF_PDF == 0):
+                if w1 * dt > cf_mf * criaut:
+                    hlc_hrc += w1 * dt
+                    hlc_hcf = min(1, hlc_hcf + cf_mf)
 
-        elif __INLINED(SUBG_MF_PDF == 1):
-            if w1 * dt > cf_mf * criaut:
-                hcf = 1 - 0.5 * (criaut * cf_mf) / max(1e-20, w1 * dt)
-                hr = w1 * dt - (criaut * cf_mf) ** 3 / (3 * max(1e-20, w1 * dt) ** 2)
+            # Translation note : if LLTRIANGLE in .F90
+            elif __INLINED(SUBG_MF_PDF == 1):
+                if w1 * dt > cf_mf * criaut:
+                    hcf = 1 - 0.5 * (criaut * cf_mf) / max(1e-20, w1 * dt)
+                    hr = w1 * dt - (criaut * cf_mf) ** 3 / (
+                        3 * max(1e-20, w1 * dt) ** 2
+                    )
 
-            elif 2 * w1 * dt <= cf_mf * criaut:
-                hcf = 0
-                hr = 0
+                elif 2 * w1 * dt <= cf_mf * criaut:
+                    hcf = 0
+                    hr = 0
 
-            else:
-                hcf = (2 * w1 * dt - criaut * cf_mf) ** 2 / (
-                    2.0 * max(1.0e-20, w1 * dt) ** 2
-                )
-                hr = (
-                    4.0 * (w1 * dt) ** 3
-                    - 3.0 * w1 * dt * (criaut * cf_mf) ** 2
-                    + (criaut * cf_mf) ** 3
-                ) / (3 * max(1.0e-20, w1 * dt) ** 2)
+                else:
+                    hcf = (2 * w1 * dt - criaut * cf_mf) ** 2 / (
+                        2.0 * max(1.0e-20, w1 * dt) ** 2
+                    )
+                    hr = (
+                        4.0 * (w1 * dt) ** 3
+                        - 3.0 * w1 * dt * (criaut * cf_mf) ** 2
+                        + (criaut * cf_mf) ** 3
+                    ) / (3 * max(1.0e-20, w1 * dt) ** 2)
 
-            hcf *= cf_mf
-            hlc_hcf = min(1, hlc_hcf + hcf)
-            hlc_hrc += hr
+                hcf *= cf_mf
+                hlc_hcf = min(1, hlc_hcf + hcf)
+                hlc_hrc += hr
 
-    # Ice subgrid autoconversion
-    with computation(PARALLEL), interval(...):
-        criaut = min(
-            CRIAUTI,
-            10 ** (ACRIAUTI * (t_tmp - TT) + BCRIAUTI),
-        )
+            # Ice subgrid autoconversion
+            # with computation(PARALLEL), interval(...):
+            criaut = min(
+                CRIAUTI,
+                10 ** (ACRIAUTI * (t_tmp - TT) + BCRIAUTI),
+            )
 
-        if __INLINED(SUBG_MF_PDF == 0):
-            if w2 * dt > cf_mf * criaut:
-                hli_hri += w2 * dt
-                hli_hcf = min(1, hli_hcf + cf_mf)
+            if __INLINED(SUBG_MF_PDF == 0):
+                if w2 * dt > cf_mf * criaut:
+                    hli_hri += w2 * dt
+                    hli_hcf = min(1, hli_hcf + cf_mf)
 
-        elif __INLINED(SUBG_MF_PDF == 1):
-            if w2 * dt > cf_mf * criaut:
-                hli_hcf = 1 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
-                hli_hri = w2 * dt - (criaut * cf_mf) ** 3 / (3 * (w2 * dt) ** 2)
+            elif __INLINED(SUBG_MF_PDF == 1):
+                if w2 * dt > cf_mf * criaut:
+                    hli_hcf = 1 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
+                    hli_hri = w2 * dt - (criaut * cf_mf) ** 3 / (3 * (w2 * dt) ** 2)
 
-            elif 2 * w2 * dt <= cf_mf * criaut:
-                hli_hcf = 0
-                hli_hri = 0
+                elif 2 * w2 * dt <= cf_mf * criaut:
+                    hli_hcf = 0
+                    hli_hri = 0
 
-            else:
-                hli_hcf = (2 * w2 * dt - criaut * cf_mf) ** 2 / (2.0 * (w2 * dt) ** 2)
-                hli_hri = (
-                    4.0 * (w2 * dt) ** 3
-                    - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
-                    + (criaut * cf_mf) ** 3
-                ) / (3 * (w2 * dt) ** 2)
+                else:
+                    hli_hcf = (2 * w2 * dt - criaut * cf_mf) ** 2 / (
+                        2.0 * (w2 * dt) ** 2
+                    )
+                    hli_hri = (
+                        4.0 * (w2 * dt) ** 3
+                        - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
+                        + (criaut * cf_mf) ** 3
+                    ) / (3 * (w2 * dt) ** 2)
 
-        hli_hcf *= cf_mf
-        hli_hcf = min(1, hli_hcf + hli_hcf)
-        hli_hri += hli_hri
+                hli_hcf *= cf_mf
+                hli_hcf = min(1, hli_hcf + hli_hcf)
+                hli_hri += hli_hri
 
     # Translation note : 402 -> 427 (removed pout_x not present )

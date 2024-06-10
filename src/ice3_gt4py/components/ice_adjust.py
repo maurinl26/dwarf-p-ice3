@@ -95,29 +95,10 @@ class IceAdjust(ImplicitTendencyComponent):
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {
-            "rt": {
-                "grid": (I, J, K),
-                "units": "",
-            },  # work array for total water mixing ratio
-            "pv": {"grid": (I, J, K), "units": ""},  # thermodynamics
-            "piv": {"grid": (I, J, K), "units": ""},  # thermodynamics
-            "qsl": {"grid": (I, J, K), "units": ""},  # thermodynamics
-            "qsi": {"grid": (I, J, K), "units": ""},
-            "frac_tmp": {"grid": (I, J, K), "units": ""},  # ice fraction
-            "cond_tmp": {"grid": (I, J, K), "units": ""},  # condensate
-            "a": {"grid": (I, J, K), "units": ""},  # related to computation of Sig_s
-            "sbar": {"grid": (I, J, K), "units": ""},
-            "sigma": {"grid": (I, J, K), "units": ""},
-            "q1": {"grid": (I, J, K), "units": ""},
             "lv": {"grid": (I, J, K), "units": ""},
             "ls": {"grid": (I, J, K), "units": ""},
             "cph": {"grid": (I, J, K), "units": ""},
             "criaut": {"grid": (I, J, K), "units": ""},
-            "sigrc": {"grid": (I, J, K), "units": ""},
-            "rv_tmp": {"grid": (I, J, K), "units": ""},
-            "ri_tmp": {"grid": (I, J, K), "units": ""},
-            "rc_tmp": {"grid": (I, J, K), "units": ""},
-            "t_tmp": {"grid": (I, J, K), "units": ""},
         }
 
     def array_call(
@@ -130,29 +111,14 @@ class IceAdjust(ImplicitTendencyComponent):
     ) -> None:
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 19),
-            ((I, J, K), "int"),
+            *repeat(((I, J, K), "float"), 4),
+            *repeat(((I, J, K), "int"), 1),
             gt4py_config=self.gt4py_config,
         ) as (
-            rt,
-            pv,
-            piv,
-            qsl,
-            qsi,
-            frac_tmp,
-            cond_tmp,
-            a,
-            sbar,
-            sigma,
-            q1,
             lv,
             ls,
             cph,
             criaut,
-            rv_tmp,
-            ri_tmp,
-            rc_tmp,
-            t_tmp,
             inq1,
         ):
             state_ice_adjust = {
@@ -189,25 +155,10 @@ class IceAdjust(ImplicitTendencyComponent):
             }
 
             temporaries_ice_adjust = {
-                "rv_tmp": rv_tmp,
-                "ri_tmp": ri_tmp,
-                "rc_tmp": rc_tmp,
-                "t_tmp": t_tmp,
+                "criaut": criaut,
                 "cph": cph,
                 "lv": lv,
                 "ls": ls,
-                "criaut": criaut,
-                "rt": rt,
-                "pv": pv,
-                "piv": piv,
-                "qsl": qsl,
-                "qsi": qsi,
-                "frac_tmp": frac_tmp,
-                "cond_tmp": cond_tmp,
-                "a": a,
-                "sbar": sbar,
-                "sigma": sigma,
-                "q1": q1,
                 "inq1": inq1,
             }
 
