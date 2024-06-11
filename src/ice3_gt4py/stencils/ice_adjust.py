@@ -93,14 +93,6 @@ def ice_adjust(
         hli_hri (Field[float]): high liquid content ice m.r.
         hli_hcf (Field[float]): high liquid content cloud fraction
         sigrc (Field[float]): _description_
-        rv_tmp (Field[float]): temp. array for vapour m.r.
-        ri_tmp (Field[float]): temp. array for ice m.r.
-        rc_tmp (Field[float]): temp. array for cloud droplets m.r.
-        t_tmp (Field[float]): temp. array for true temperature
-        cph (Field[float]): specific heat
-        frac_tmp (Field[float]): fraction of ice with respect to liquid (given with temperature)
-        sigma (Field[float]): temp. array for sigma
-        q1 (Field[float]): normalized saturation
         dt (float): time step
     """
 
@@ -119,13 +111,14 @@ def ice_adjust(
         SUBG_COND,
         SUBG_MF_PDF,
         TT,
+        LAMBDA3,
     )
 
     # 2.3 Compute the variation of mixing ratio
     with computation(PARALLEL), interval(...):
-        t_tmp = th * exn
-        lv = vaporisation_latent_heat(t_tmp)
-        ls = sublimation_latent_heat(t_tmp)
+        t = th * exn
+        lv = vaporisation_latent_heat(t)
+        ls = sublimation_latent_heat(t)
 
         # Rem
         rv_tmp = rv
@@ -176,37 +169,40 @@ def ice_adjust(
         # Translation note : 276 -> 310 (not osigmas) skipped (osigmas = True) for Arome default version
         # Translation note : 316 -> 331 (ocnd2 == True) skipped
 
-        #
+        # l334 to l337
         pv = min(
-            e_sat_w(t_tmp),
+            e_sat_w(t),
             0.99 * pabs,
         )
         piv = min(
-            e_sat_i(t_tmp),
+            e_sat_i(t),
             0.99 * pabs,
         )
 
-        if rc_tmp > ri_tmp:
-            if ri_tmp > 1e-20:
-                frac_tmp = ri_tmp / (rc_tmp + ri_tmp)
+        # Translation note : OUSERI = True, OCND2 = False
+        frac_tmp = ri_tmp / (rc_tmp + ri_tmp) if rc_tmp + ri_tmp > 1e-20 else 0
+        frac_tmp = compute_frac_ice(t)
 
-        frac_tmp = compute_frac_ice(t_tmp)
-
-        qsl = RD / RV * pv / (pabs - pv)
-        qsi = RD / RV * piv / (pabs - piv)
+        # Supersaturation coefficients
+        qsl = (RD / RV) * pv / (pabs - pv)
+        qsi = (RD / RV) * piv / (pabs - piv)
 
         # # dtype_interpolate bewteen liquid and solid as a function of temperature
         qsl = (1 - frac_tmp) * qsl + frac_tmp * qsi
         lvs = (1 - frac_tmp) * lv + frac_tmp * ls
 
         # # coefficients a et b
-        ah = lvs * qsl / (RV * t_tmp**2) * (1 + RV * qsl / RD)
+        ah = lvs * qsl / (RV * t**2) * (1 + RV * qsl / RD)
         a = 1 / (1 + lvs / cph * ah)
         # # b = ah * a
         sbar = a * (rt - qsl + ah * lvs * (rc_tmp + ri_tmp * prifact) / CPD)
 
+        # l369 - l390
+        # Translation note : LSTATNW = False
         # Translation note : l381 retained for sigmas formulation
-        sigma = sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2)
+        sigma = (
+            sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2) if sigqsat != 0 else sigs
+        )
 
         # Translation note : l407 - l411
         sigma = max(1e-10, sigma)
@@ -218,15 +214,11 @@ def ice_adjust(
 
         # Translation note : l470 to l479
         if q1 > 0:
-            if q1 <= 2:
-                cond_tmp = min(
-                    exp(-1) + 0.66 * q1 + 0.086 * q1**2, 2
-                )  # we use the MIN function for continuity
-        elif q1 > 2:
-            cond_tmp = q1
+            cond_tmp = (
+                min(exp(-1) + 0.66 * q1 + 0.086 * q1**2, 2) if q1 <= 2 else q1
+            )  # we use the MIN function for continuity
         else:
             cond_tmp = exp(1.2 * q1 - 1)
-
         cond_tmp *= sigma
 
         # Translation note : l482 to l489
@@ -252,11 +244,12 @@ def ice_adjust(
         # # Translation notes : 506 -> 514 (not ocnd2)
         rc_tmp = (1 - frac_tmp) * cond_tmp  # liquid condensate
         ri_tmp = frac_tmp * cond_tmp  # solid condensate
-        t_tmp = update_temperature(t_tmp, rc_tmp, rc_tmp, rc, ri, lv, ls)
+        t = update_temperature(t, rc_tmp, rc_tmp, rc, ri, lv, ls)
         rv_tmp = rt - rc_tmp - ri_tmp * prifact
 
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
-        sigrc *= min(3, max(1, 1 - q1))
+        if __INLINED(LAMBDA3 == 0):
+            sigrc *= min(3, max(1, 1 - q1))
 
     # Translation note : end jiter
 
@@ -314,7 +307,7 @@ def ice_adjust(
             # Translation note : if LLTRIANGLE in .F90
             elif __INLINED(SUBG_MF_PDF == 1):
                 if w1 * dt > cf_mf * criaut:
-                    hcf = 1 - 0.5 * (criaut * cf_mf) / max(1e-20, w1 * dt)
+                    hcf = 1 - 0.5 * (criaut * cf_mf / max(1e-20, w1 * dt)) ** 2
                     hr = w1 * dt - (criaut * cf_mf) ** 3 / (
                         3 * max(1e-20, w1 * dt) ** 2
                     )
@@ -338,10 +331,9 @@ def ice_adjust(
                 hlc_hrc += hr
 
             # Ice subgrid autoconversion
-            # with computation(PARALLEL), interval(...):
             criaut = min(
                 CRIAUTI,
-                10 ** (ACRIAUTI * (t_tmp - TT) + BCRIAUTI),
+                10 ** (ACRIAUTI * (t - TT) + BCRIAUTI),
             )
 
             if __INLINED(SUBG_MF_PDF == 0):
