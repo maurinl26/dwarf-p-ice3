@@ -137,9 +137,6 @@ class AroAdjust(ImplicitTendencyComponent):
             rv_tmp,
             ri_tmp,
             rc_tmp,
-            # t_tmp,
-            # cor_tmp,
-            # cph_tmp,
             inq1,
         ):
 
