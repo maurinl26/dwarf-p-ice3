@@ -90,8 +90,6 @@ def ice4_fast_rg(
 
     from __externals__ import (
         LCRFLIMIT,
-    )  # TRUE TO LIMIT RAIN CONTACT FREEZING TO POSSIBLE HEAT EXCHANGE
-    from __externals__ import (
         ALPI,
         ALPW,
         BETAI,

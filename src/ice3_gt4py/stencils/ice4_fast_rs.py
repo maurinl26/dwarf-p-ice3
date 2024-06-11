@@ -30,27 +30,27 @@ def ice4_fast_rs(
     rhodref: Field["float"],
     lv_fact: Field["float"],
     ls_fact: Field["float"],
-    pres: Field["float"],  # absolute pressure at t
-    dv: Field["float"],  # diffusivity of water vapor in the air
-    ka: Field["float"],  # thermal conductivity of the air
-    cj: Field["float"],  # function to compute the ventilation coefficient
-    lbdar: Field["float"],  # Slope parameter for rain distribution
-    lbdas: Field["float"],  # Slope parameter for snow distribution
-    t: Field["float"],  # Temperature
-    rv_t: Field["float"],  # vapour m.r. at t
+    pres: Field["float"],
+    dv: Field["float"],
+    ka: Field["float"],
+    cj: Field["float"],
+    lbdar: Field["float"],
+    lbdas: Field["float"],
+    t: Field["float"],
+    rv_t: Field["float"],
     rc_t: Field["float"],
     rr_t: Field["float"],
     rs_t: Field["float"],
-    riaggs: Field["float"],  # ice aggregation on snow
-    rcrimss: Field["float"],  # cloud droplet riming of the aggregates
+    riaggs: Field["float"],
+    rcrimss: Field["float"],
     rcrimsg: Field["float"],
     rsrimcg: Field["float"],
-    rraccss: Field["float"],  # rain accretion onto the aggregates
+    rraccss: Field["float"],
     rraccsg: Field["float"],
     rsaccrg: Field["float"],
-    rs_mltg_tnd: Field["float"],  # conversion-melting of the aggregates
-    rc_mltsr_tnd: Field["float"],  # cloud droplet collection onto aggregates
-    rs_rcrims_tnd: Field["float"],  # extra dimension 8 in Fortran PRS_TEND
+    rs_mltg_tnd: Field["float"],
+    rc_mltsr_tnd: Field["float"],
+    rs_rcrims_tnd: Field["float"],
     rs_rcrimss_tnd: Field["float"],
     rs_rsrimcg_tnd: Field["float"],
     rs_rraccs_tnd: Field["float"],
@@ -68,37 +68,37 @@ def ice4_fast_rs(
     index_floor_r: Field["int"],
     index_floor_s: Field["int"],
 ):
-    """_summary_
+    """Computes fast processes for snow
 
     Args:
-        ldsoft (bool): _description_
-        ldcompute (Field[bool]): _description_
-        rhodref (Field[float]): _description_
-        lv_fact (Field[float]): _description_
-        ls_fact (Field[float]): _description_
-        pres (Field[float]): _description_
-        rr_t (Field[float]): _description_
-        rs_t (Field[float]): _description_
-        riaggs (Field[float]): _description_
-        rsrimcg (Field[float]): _description_
-        rraccss (Field[float]): _description_
-        rsaccrg (Field[float]): _description_
-        rs_mltg_tnd (Field[float]): _description_
-        rs_rsrimcg_tnd (Field[float]): _description_
-        rs_rraccs_tnd (Field[float]): _description_
-        rs_rraccss_tnd (Field[float]): _description_
-        rs_rsaccrg_tnd (Field[float]): _description_
-        rs_freez1_tnd (Field[float]): _description_
-        rs_freez2_tnd (Field[float]): _description_
-        gaminc_rim1 (GlobalTable[float,): _description_
-        gaminc_rim2 (GlobalTable[float,): _description_
-        gaminc_rim4 (GlobalTable[float,): _description_
-        ker_raccs (GlobalTable[float,): _description_
-        ker_raccss (GlobalTable[float,): _description_
-        ker_saccrg (GlobalTable[float,): _description_
-        index_floor (Field[int]): _description_
-        index_floor_r (Field[int]): _description_
-        index_floor_s (Field[int]): _description_
+        ldsoft (bool): switch to recompute sources or adapt tendencies
+        ldcompute (Field[bool]): mask for sources computations
+        rhodref (Field[float]): dry density of air
+        lv_fact (Field[float]): latent heat of vapourisation over heat capacity
+        ls_fact (Field[float]): latent heat of sublimation over heat capacity
+        pres (Field[float]): absolute pressure
+        rr_t (Field[float]): rain m.r. at t
+        rs_t (Field[float]): snow m.r. at t
+        riaggs (Field[float]): ice aggregation to snow
+        rsrimcg (Field[float]): snow riming over graupel
+        rraccss (Field[float]): accretion of rain and aggregates
+        rsaccrg (Field[float]): accretion of graupel
+        rs_mltg_tnd (Field[float]): melting of snow
+        rs_rsrimcg_tnd (Field[float]): heavy riming of the aggregates
+        rs_rraccs_tnd (Field[float]): accretion of rain and aggregates
+        rs_rraccss_tnd (Field[float]): accretion of rain and aggregates
+        rs_rsaccrg_tnd (Field[float]): accretion of rain and aggregates
+        rs_freez1_tnd (Field[float]): snow freezing source (tendency)
+        rs_freez2_tnd (Field[float]): snow freezing source (tendency)
+        gaminc_rim1 (GlobalTable[float,): look up table for riming
+        gaminc_rim2 (GlobalTable[float,): look up table for riming
+        gaminc_rim4 (GlobalTable[float,): look up table for riming
+        ker_raccs (GlobalTable[float,): look-up table for rain accretion over snow
+        ker_raccss (GlobalTable[float,): look-up table for rain accretion over snow
+        ker_saccrg (GlobalTable[float,): look-up table for snow accretion over graupel
+        index_floor (Field[int]): integer index for riming look up tables
+        index_floor_r (Field[int]): integer index for accretion look up tables
+        index_floor_s (Field[int]): integer index for accretion look up tables
     """
     from __externals__ import (
         ALPI,
