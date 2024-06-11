@@ -137,9 +137,9 @@ class AroAdjust(ImplicitTendencyComponent):
             rv_tmp,
             ri_tmp,
             rc_tmp,
-            t_tmp,
-            cor_tmp,
-            cph_tmp,
+            # t_tmp,
+            # cor_tmp,
+            # cph_tmp,
             inq1,
         ):
 
@@ -159,20 +159,19 @@ class AroAdjust(ImplicitTendencyComponent):
                 ]
             }
 
-            temporaries_filter = {
-                "t_tmp": t_tmp,
-                "ls_tmp": ls,
-                "lv_tmp": lv,
-                "cph_tmp": cph_tmp,
-                "cor_tmp": cor_tmp,
-            }
+            # temporaries_filter = {
+            #     "t_tmp": t_tmp,
+            #     "ls_tmp": ls,
+            #     "lv_tmp": lv,
+            #     "cph_tmp": cph_tmp,
+            #     "cor_tmp": cor_tmp,
+            # }
 
             logging.info("Launching AroFilter")
             # timestep
             self.aro_filter(
                 **state_filter,
                 **diags_filter,
-                **temporaries_filter,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,

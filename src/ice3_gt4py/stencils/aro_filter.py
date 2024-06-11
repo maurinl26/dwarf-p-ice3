@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field
+from gt4py.cartesian.gtscript import Field, computation, PARALLEL, interval
 from ifs_physics_common.framework.stencil import stencil_collection
 
 from ice3_gt4py.functions.ice_adjust import (
@@ -22,11 +22,6 @@ def aro_filter(
     rvs: Field["float"],
     rgs: Field["float"],
     rss: Field["float"],
-    t_tmp: Field["float"],
-    ls_tmp: Field["float"],
-    lv_tmp: Field["float"],
-    cph_tmp: Field["float"],
-    cor_tmp: Field["float"],
     dt: "float",
 ):
     """Negativity filter for sources
@@ -41,11 +36,6 @@ def aro_filter(
         rvs (Field[float]): water vapour source
         rgs (Field[float]): graupel source
         rss (Field[float]): snow source
-        t_tmp (Field[float]): temperature
-        ls_tmp (Field[float]): latent heat of sublimation
-        lv_tmp (Field[float]): latent heat of vapour
-        cph_tmp (Field[float]): specific heat of parcel
-        cor_tmp (Field[float]): temporary array for excess of vapour
         dt (float): time step un seconds
     """
 
@@ -57,17 +47,17 @@ def aro_filter(
 
     # 3.2. Adjustment for solid and liquid cloud
     with computation(PARALLEL), interval(...):
-        t_tmp[0, 0, 0] = th_t[0, 0, 0] * exnref[0, 0, 0]
-        ls_tmp[0, 0, 0] = sublimation_latent_heat(t_tmp)
-        lv_tmp[0, 0, 0] = vaporisation_latent_heat(t_tmp)
-        cph_tmp[0, 0, 0] = cph(rvs, rcs, ris, rrs, rss, rgs)
+        t = th_t[0, 0, 0] * exnref[0, 0, 0]
+        ls = sublimation_latent_heat(t)
+        lv = vaporisation_latent_heat(t)
+        cph_ = cph(rvs, rcs, ris, rrs, rss, rgs)
 
     with computation(PARALLEL), interval(...):
         if ris[0, 0, 0] > 0:
             rvs[0, 0, 0] = rvs[0, 0, 0] + ris[0, 0, 0]
             ths[0, 0, 0] = (
                 ths[0, 0, 0]
-                - ris[0, 0, 0] * ls_tmp[0, 0, 0] / cph_tmp[0, 0, 0] / exnref[0, 0, 0]
+                - ris[0, 0, 0] * ls[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
             )
             ris[0, 0, 0] = 0
 
@@ -76,37 +66,35 @@ def aro_filter(
             rvs[0, 0, 0] = rvs[0, 0, 0] + rcs[0, 0, 0]
             ths[0, 0, 0] = (
                 ths[0, 0, 0]
-                - rcs[0, 0, 0] * lv_tmp[0, 0, 0] / cph_tmp[0, 0, 0] / exnref[0, 0, 0]
+                - rcs[0, 0, 0] * lv[0, 0, 0] / cph_[0, 0, 0] / exnref[0, 0, 0]
             )
             rcs[0, 0, 0] = 0
 
     # cloud droplets
     with computation(PARALLEL), interval(...):
-        if rvs[0, 0, 0] < 0 and rcs[0, 0, 0] > 0:
-            cor_tmp[0, 0, 0] = min(-rvs[0, 0, 0], rcs[0, 0, 0])
-        else:
-            cor_tmp[0, 0, 0] = 0
-
-        rvs[0, 0, 0] = rvs[0, 0, 0] + cor_tmp[0, 0, 0]
-        ths[0, 0, 0] = (
-            ths[0, 0, 0]
-            - cor_tmp[0, 0, 0] * lv_tmp[0, 0, 0] / cph_tmp[0, 0, 0] / exnref[0, 0, 0]
+        cor = (
+            min(-rvs[0, 0, 0], rcs[0, 0, 0])
+            if rvs[0, 0, 0] < 0 and rcs[0, 0, 0] > 0
+            else 0
         )
-        rcs[0, 0, 0] = rcs[0, 0, 0] - cor_tmp[0, 0, 0]
+        rvs[0, 0, 0] = rvs[0, 0, 0] + cor[0, 0, 0]
+        ths[0, 0, 0] = (
+            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph_[0, 0, 0] / exnref[0, 0, 0]
+        )
+        rcs[0, 0, 0] = rcs[0, 0, 0] - cor[0, 0, 0]
 
     # ice
     with computation(PARALLEL), interval(...):
-        if rvs[0, 0, 0] < 0 and ris[0, 0, 0] > 0:
-            cor_tmp[0, 0, 0] = min(-rvs[0, 0, 0], ris[0, 0, 0])
-        else:
-            cor_tmp[0, 0, 0] = 0
-
-        rvs[0, 0, 0] = rvs[0, 0, 0] + cor_tmp[0, 0, 0]
-        ths[0, 0, 0] = (
-            ths[0, 0, 0]
-            - cor_tmp[0, 0, 0] * lv_tmp[0, 0, 0] / cph_tmp[0, 0, 0] / exnref[0, 0, 0]
+        cor = (
+            min(-rvs[0, 0, 0], ris[0, 0, 0])
+            if rvs[0, 0, 0] < 0 and ris[0, 0, 0] > 0
+            else 0
         )
-        ris[0, 0, 0] = ris[0, 0, 0] - cor_tmp[0, 0, 0]
+        rvs[0, 0, 0] = rvs[0, 0, 0] + cor[0, 0, 0]
+        ths[0, 0, 0] = (
+            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph_[0, 0, 0] / exnref[0, 0, 0]
+        )
+        ris[0, 0, 0] = ris[0, 0, 0] - cor[0, 0, 0]
 
     # 9. Transform sources to tendencies (*= 2 dt)
     with computation(PARALLEL), interval(...):
