@@ -3,71 +3,57 @@ from __future__ import annotations
 
 import datetime
 from functools import partial
-from typing import TYPE_CHECKING, Dict, List
-
+import logging
+from pathlib import Path
+import numpy as np
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 
 
-from ice3_gt4py.initialisation.state import initialize_state_with_constant
+from ice3_gt4py.components.ice_adjust import IceAdjust
+from ice3_gt4py.initialisation.state import get_state
+from ice3_gt4py.initialisation.state_ice_adjust import KRR_MAPPING
+from ice3_gt4py.initialisation.utils import initialize_field
+from ice3_gt4py.phyex_common.phyex import Phyex
 
-if TYPE_CHECKING:
-    from typing import Literal, Tuple
+from typing import Literal, Tuple
 
-    from ifs_physics_common.framework.config import GT4PyConfig
-    from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
-    from ifs_physics_common.utils.typingx import (
-        DataArray,
-        DataArrayDict,
-        NDArrayLikeDict,
+from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
+from ifs_physics_common.utils.typingx import (
+    DataArray,
+    DataArrayDict,
+    NDArrayLikeDict,
+)
+
+from ice3_gt4py.utils.reader import NetCDFReader
+
+
+if __name__ == "__main__":
+
+    logging.info(f"With backend gt:cpu_ifirst")
+    gt4py_config = GT4PyConfig(
+        backend="gt:cpu_ifirst", rebuild=False, validate_args=False, verbose=True
     )
 
-############################## AroAdjust #################################
-def allocate_state(
-    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig, component: ImplicitTendencyComponent
-) -> NDArrayLikeDict:
-    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
+    phyex = Phyex("AROME")
 
-    Args:
-        computational_grid (ComputationalGrid): grid indexes
-        gt4py_config (GT4PyConfig): gt4py configuration
+    ############# Grid #####################
+    logging.info("Initializing grid ...")
+    grid = ComputationalGrid(nx=50, ny=1, nz=15)
+    dt = datetime.timedelta(seconds=1)
 
-    Returns:
-        NDArrayLikeDict: dictionnary of field with associated keys for field name
-    """
+    output_path = "./data/tests/"
+    tracking_file = "track.json"
+    dataset = "./data/ice_adjust/reference.nc"
 
-    def _allocate(
-        grid_id: Tuple[DimSymbol, ...],
-        units: str,
-        dtype: Literal["bool", "float", "int"],
-    ) -> DataArray:
-        return allocate_data_array(
-            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
-        )
-    
-    return {
-        "time": datetime.datetime(year=2024, month=1, day=1),
-        **{
-            
-            field_name: partial(_allocate, grid_id=properties["grid"], units=properties["units"], dtype=properties["dtype"])
-            for field_name, properties in component.input_properties.items()
-        }
-    }
+    ice_adjust = IceAdjust(grid, gt4py_config, phyex)
 
+    reader = NetCDFReader(Path(dataset))
 
-def get_constant_state_aro_adjust(
-    computational_grid: ComputationalGrid,*, gt4py_config: GT4PyConfig, keys: List[str], component: ImplicitTendencyComponent
-) -> DataArrayDict:
-    """Create state dictionnary with allocation of tables and setup to a constant value.
-
-    Args:
-        computational_grid (ComputationalGrid): grid indexes
-        gt4py_config (GT4PyConfig): configuration for gt4py
-
-    Returns:
-        DataArrayDict: initialized dictionnary of state
-    """
-    state = allocate_state(computational_grid, gt4py_config=gt4py_config, component=component)
-    initialize_state_with_constant(state, 0.5, gt4py_config, keys)
-    return state
+    ####### Create state for Ice4Tendencies #######
+    logging.info("Getting state for Ice4Tendencies")
+    state = get_state(
+        grid, gt4py_config=gt4py_config, component=ice_adjust, netcdf_reader=reader
+    )
