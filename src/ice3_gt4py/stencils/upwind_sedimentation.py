@@ -67,11 +67,11 @@ def upwind_sedimentation(
         ris (Field[float]): ice m.r. tendency
         rss (Field[float]): snow m.r. tendency
         rgs (Field[float]): graupel m.r. tendency
-        inst_rr (Field[IJ, float]): instant precip
-        inst_rc (Field[IJ, float]): _description_
-        inst_ri (Field[IJ, float]): _description_
-        inst_rs (Field[IJ, float]): _description_
-        inst_rg (Field[IJ, float]): _description_
+        inst_rr (Field[IJ, float]): instant precip of rain
+        inst_rc (Field[IJ, float]): instant precip of cloud droplets
+        inst_ri (Field[IJ, float]): instant precip of ice
+        inst_rs (Field[IJ, float]): instant precip of snow
+        inst_rg (Field[IJ, float]): instant precipe of graupel
         fpr_c (Field[float]): _description_
         fpr_r (Field[float]): _description_
         fpr_s (Field[float]): _description_

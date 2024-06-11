@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from pathlib import Path
-import subprocess
 from typing import Tuple
-import typer
 import logging
 import datetime
 import time
@@ -17,25 +15,30 @@ from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 from ifs_physics_common.utils.typingx import (
-    DataArray,
     DataArrayDict,
-    NDArrayLikeDict,
 )
+
+from ice3_gt4py.utils.reader import NetCDFReader
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
-def write_performance_tracking(gt4py_config: GT4PyConfig, tracking_file: str):
+
+def write_performance_tracking(
+    gt4py_config: GT4PyConfig, metrics: dict, tracking_file: str
+):
     """Write performance tracking in a log file
 
     Args:
         gt4py_config (GT4PyConfig): gt4py_config to retrieve exec info
         tracking_file (str): tracking file to write in
     """
+
     logging.info(f"Extracting exec tracking to {tracking_file}")
     with open(tracking_file, "w") as file:
-        json.dump(gt4py_config.exec_info, file)
+        json.dump({"performances": gt4py_config.exec_info, "metrics": metrics}, file)
+
 
 def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
     """Write output state to netCDF
@@ -46,7 +49,7 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
         output_path (_type_): path to write field
     """
     nx, ny, nz = shape
-    
+
     logging.info(f"Extracting state data to {output_path}")
     output_fields = xr.Dataset(state)
     for key, field in state.items():
@@ -64,7 +67,13 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
             output_fields[key] = array
     output_fields.to_netcdf(Path(output_path))
 
-def initialize_state(component, reader, grid, config):
+
+def initialize_state(
+    component: ImplicitTendencyComponent,
+    reader: NetCDFReader,
+    grid: ComputationalGrid,
+    config: GT4PyConfig,
+):
     """_summary_
 
     Args:
@@ -75,7 +84,6 @@ def initialize_state(component, reader, grid, config):
     """
     # TODO : function to implement
     pass
-    
 
 
 def core(
@@ -102,7 +110,7 @@ def core(
     logging.info("Initializing Phyex ...")
     cprogram = "AROME"
     phyex = Phyex(cprogram)
-    
+
     ######## Instanciation + compilation #####
     logging.info(f"Compilation for AroAdjust stencils")
     start = time.time()

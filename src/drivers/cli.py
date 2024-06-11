@@ -12,6 +12,7 @@ import xarray as xr
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
+from drivers.compare import compare_fields
 from drivers.core import write_dataset, write_performance_tracking
 from ice3_gt4py.components.ice_adjust import IceAdjust
 from ice3_gt4py.components.rain_ice import RainIce
@@ -76,23 +77,21 @@ def run_ice_adjust(
     ###### Launching IceAdjust ###############
     logging.info("Launching IceAdjust")
 
+    # TODO: decorator for tracking
     start = time.time()
     tends, diags = ice_adjust(state, dt)
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
-    
-    
-    #################### Write dataset ###################### 
+
+    #################### Write dataset ######################
     write_dataset(state, (nx, ny, nz), output_path)
 
+    ############### Compute differences per field ###########
+    metrics = compare_fields(dataset, output_path, "ice_adjust")
+
     ####################### Tracking ########################
-    write_performance_tracking(gt4py_config, tracking_file)   
-        
-    ##################### Compare ###########################
-    
-    
-    
+    write_performance_tracking(gt4py_config, metrics, tracking_file)
 
 
 @app.command()
@@ -165,12 +164,24 @@ def run_rain_ice(
                     name=f"{key}",
                 )
                 output_fields[key] = array
-
+            else:
+                array = xr.DataArray(
+                    data=field.data,
+                    dims=["I", "J"],
+                    coords={
+                        "I": range(nx),
+                        "J": range(ny),
+                    },
+                    name=f"{key}",
+                )
+                output_fields[key] = array
     output_fields.to_netcdf(Path(output_path))
 
-    logging.info(f"Extracting exec tracking to {tracking_file}")
-    with open(tracking_file, "w") as file:
-        json.dump(gt4py_config.exec_info, file)
+    ################## Metrics ###################################
+    metrics = compare_fields(dataset, output_path, "rain_ice")
+
+    ################### Performance tracking ######################
+    write_performance_tracking(gt4py_config, metrics, tracking_file)
 
 
 ##################### Fortran drivers #########################

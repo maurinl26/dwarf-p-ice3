@@ -159,14 +159,6 @@ class AroAdjust(ImplicitTendencyComponent):
                 ]
             }
 
-            # temporaries_filter = {
-            #     "t_tmp": t_tmp,
-            #     "ls_tmp": ls,
-            #     "lv_tmp": lv,
-            #     "cph_tmp": cph_tmp,
-            #     "cor_tmp": cor_tmp,
-            # }
-
             logging.info("Launching AroFilter")
             # timestep
             self.aro_filter(

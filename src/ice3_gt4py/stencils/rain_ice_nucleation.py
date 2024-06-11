@@ -30,7 +30,7 @@ def rain_ice_nucleation_pre_processing(
         ci_t (Field[float]): concentration of ice
         w3d (Field[float]): _description_
         ls_fact (Field[float]): sublimation latent heat over heat capacity
-        exn (Field[float]): _description_
+        exn (Field[float]): exner pressure
     """
 
     with computation(PARALLEL), interval(...):

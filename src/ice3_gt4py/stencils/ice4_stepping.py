@@ -106,7 +106,8 @@ def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float
     """Initialize ldcompute mask
 
     Args:
-        ldcompute (Field[bool]): temperature
+        ldcompute (Field[bool]): mask to compute microphysical species
+        t_micro (Field[float]): microphysical time-step
     """
 
     from __externals__ import TSTEP
