@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from datetime import timedelta
+import datetime
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
@@ -13,6 +14,7 @@ from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
 import numpy as np
+import xarray as xr
 
 
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
@@ -121,11 +123,19 @@ class Ice4Stepping(ImplicitTendencyComponent):
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "bool"), 1),
-            *repeat(((I, J, K), "float"), 28),
+            *repeat(((I, J, K), "float"), 36),
             gt4py_config=self.gt4py_config,
         ) as (
             # masks
             ldcompute,
+            ai,
+            cj,
+            ssi,
+            hlc_lcf,
+            hlc_lrc,
+            hli_lcf,
+            hli_lri,
+            fr,
             # intial mixing ratios
             rc_0r_t,
             rr_0r_t,
@@ -229,9 +239,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                                 "cf",
                                 "sigma_rc",
                                 "ci_t",
-                                "ai",
-                                "cj",
-                                "ssi",
                                 "t",
                                 "th_t",
                                 "rv_t",
@@ -241,14 +248,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
                                 "rs_t",
                                 "rg_t",
                                 "hlc_hcf",
-                                "hlc_lcf",
                                 "hlc_hrc",
-                                "hlc_lrc",
                                 "hli_hcf",
-                                "hli_lcf",
                                 "hli_hri",
-                                "hli_lri",
-                                "fr",
                             ]
                         },
                         **{"pres": state["pabs_t"]},
@@ -268,16 +270,36 @@ class Ice4Stepping(ImplicitTendencyComponent):
                             "ri_increment": ri_b,
                             "rs_increment": rs_b,
                             "rg_increment": rg_b,
+                            "ai": ai,
+                            "cj": cj,
+                            "ssi": ssi,
+                            "hlc_lcf": hlc_lcf,
+                            "hlc_lrc": hlc_lrc,
+                            "hli_lcf": hli_lcf,
+                            "hli_lri": hli_lri,
+                            "fr": fr,
                         },
                     }
 
-                    self.ice4_tendencies.array_call(
-                        ldsoft=lsoft,
-                        state=state_ice4_tendencies,
-                        timestep=dt,
-                        out_diagnostics={},
-                        out_tendencies={},
-                        overwrite_tendencies={},
+                    state_tendencies_xr = {
+                        **{
+                            key: xr.DataArray(
+                                data=field,
+                                dims=["x", "y", "z"],
+                                coords={
+                                    "x": range(field.shape[0]),
+                                    "y": range(field.shape[1]),
+                                    "z": range(field.shape[2]),
+                                },
+                                name=f"{key}",
+                            )
+                            for key, field in state_ice4_tendencies.items()
+                        },
+                        "time": datetime.datetime(year=2024, month=1, day=1),
+                    }
+
+                    _, _ = self.ice4_tendencies(
+                        ldsoft=True, state=state_tendencies_xr, timestep=timestep
                     )
 
                     # Translation note : l277 to l283 omitted, no external tendencies in AROME

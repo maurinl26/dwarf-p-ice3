@@ -316,7 +316,7 @@ class RainIce(ImplicitTendencyComponent):
             "fpr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PFPR",
+                "fortran_name": None,
                 "dtype": "float",
             },
             "sea": {
