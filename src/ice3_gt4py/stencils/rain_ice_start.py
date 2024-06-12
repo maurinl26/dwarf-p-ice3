@@ -111,5 +111,6 @@ def initial_values_saving(
         wr_g = rg_t
 
         # LWARM is True for AROME
-        evap3d = 0 if __INLINED(LWARM) else evap3d
+        if __INLINED(LWARM):
+            evap3d = 0
         rainfr = 0
