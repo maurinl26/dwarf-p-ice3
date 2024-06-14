@@ -16,9 +16,7 @@ from ifs_physics_common.utils.f2py import ported_method
     from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=492, to_line=498
 )
 @stencil_collection("ice4_precipitation_fraction_sigma")
-def ice4_precipitation_fraction_sigma(
-    sigs: Field["float"],
-):
+def ice4_precipitation_fraction_sigma(sigs: Field["float"], sigma_rc: Field["float"]):
     """Compute supersaturation variance with supersaturation standard deviation.
 
     In rain_ice.F90
@@ -132,7 +130,7 @@ def ice4_compute_pdf(
 
     # HSUBG_AUCV_RC = NONE (0)
     with computation(PARALLEL), interval(...):
-        
+
         # TODO: inline this choice
         if SUBG_AUCV_RC == 0:
             if rc_t > rcrautc_tmp and ldmicro:
@@ -229,7 +227,7 @@ def ice4_compute_pdf(
             min(CRIAUTI, 10 ** (ACRIAUTI * (t - TT) + BCRIAUTI)) if ldmicro else 0
         )
 
-        # TODO: inline this code 
+        # TODO: inline this code
         # HSUBG_AUCV_RI = NONE (0)
         if SUBG_AUCV_RI == 0:
             if ri_t > criauti_tmp and ldmicro:
