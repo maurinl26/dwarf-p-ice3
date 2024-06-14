@@ -22,6 +22,23 @@ xarray = "^2024.5.0"
 virtualenv = "^20.25.0"
 pre-commit = "^3.5.0"
 black = "^24.4.2"
+flake8 = "^7.0.0"
+mypy = "^1.10.0"
+
+
+[tool.poetry.group.gpu-rocm.dependencies]
+cython = "<3.0"
+
+[tool.poetry.group.gpu.dependencies]
+cupy = "^13.2.0"
+
+
+[tool.poetry.group.gpu-cuda11x.dependencies]
+cupy-cuda11x = "^13.2.0"
+
+
+[tool.poetry.group.gpu-cuda12x.dependencies]
+cupy-cuda12x = "^13.2.0"
 
 [tool.poetry.scripts]
 ice-adjust = "driver.cli:run_ice_adjust"
