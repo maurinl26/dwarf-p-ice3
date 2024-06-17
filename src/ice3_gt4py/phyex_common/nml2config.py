@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-from dataclasses import Field, dataclass, field, fields
-
-import f90nml
+from dataclasses import dataclass, field
+from f90nml import read, Namelist
 
 
 @dataclass
@@ -43,12 +42,12 @@ class Namparar:
         """Read namelist file and allocate attributes values"""
 
         with open(self.nml_file_path) as nml_file:
-            nml = f90nml.read(nml_file)
+            nml = read(nml_file)
             nml_namparar = nml.get("NAMPARAR")
 
             self.allocate_namelist_values(nml_namparar)
 
-    def allocate_namelist_values(self, nml_namparar):
+    def allocate_namelist_values(self, nml_namparar: Namelist):
         """Allocate values of dataclass attributes with namelist fields
         Args:
             nml_namparar (_type_): namelist &NAMPARAR
