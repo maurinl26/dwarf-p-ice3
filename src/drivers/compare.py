@@ -50,7 +50,7 @@ def compare_fields(
         ("indep", "ZINDEP_OUT"),
         ("inprg", "PINPRG_OUT"),
         ("inprs", "PINPRS_OUT"),
-        ("evap", "PEVAP_OUT"),
+        ("evap3d", "PEVAP_OUT"),
         ("inprr", "PINPRR_OUT"),
         ("inprc", "ZINPRC_OUT"),
         ("rvs", "PRS_OUT"),
@@ -70,8 +70,17 @@ def compare_fields(
 
         if run_name in tendencies:
             run_field = run_reader.get_field(run_name)
-            ref_field = ref_reader.get_field(ref_name)[:, :, tendencies.index(run_name)]
 
+            if component == "ice_adjust":
+                # ths is in the tendencies
+                ref_field = ref_reader.get_field(ref_name)[
+                    :, :, tendencies.index(run_name)
+                ]
+            elif component == "rain_ice":
+                # ths is not in the tendencies
+                ref_field = ref_reader.get_field(ref_name)[
+                    :, :, tendencies.index(run_name) - 1
+                ]
         else:
             run_field = run_reader.get_field(run_name)
             ref_field = ref_reader.get_field(ref_name)
