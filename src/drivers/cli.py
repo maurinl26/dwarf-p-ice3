@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 from pathlib import Path
 import subprocess
 import typer
@@ -107,7 +106,7 @@ def run_rain_ice(
 
     ##### Grid #####
     logging.info("Initializing grid ...")
-    nx = 10000
+    nx = 5000
     ny = 1
     nz = 15
     grid = ComputationalGrid(nx, ny, nz)
