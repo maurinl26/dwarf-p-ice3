@@ -5,7 +5,6 @@ from enum import Enum
 
 from ifs_physics_common.utils.f2py import ported_class
 
-from ice3_gt4py.phyex_common.nml2config import Namparar
 from ice3_gt4py.phyex_common.constants import Constants
 from ice3_gt4py.phyex_common.nebn import Neb
 from ice3_gt4py.phyex_common.rain_ice_param import ParamIce, RainIceDescr, RainIceParam
@@ -92,7 +91,7 @@ class Phyex:
         self.rain_ice_param = RainIceParam(
             self.cst, self.rain_ice_descrn, self.param_icen
         )
-
+        
         self.INV_TSTEP = 1 / self.TSTEP
 
     def to_externals(self):
@@ -102,8 +101,6 @@ class Phyex:
         externals.update(asdict(self.rain_ice_descrn))
         externals.update(asdict(self.rain_ice_param))
         externals.update(asdict(self.nebn))
-        externals.update(
-            {"TSTEP": self.TSTEP, "NRR": self.NRR, "INV_TSTEP": self.INV_TSTEP}
-        )
+        externals.update({"TSTEP": self.TSTEP, "NRR": self.NRR, "INV_TSTEP": self.INV_TSTEP})
 
         return externals
