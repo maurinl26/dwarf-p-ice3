@@ -1,34 +1,28 @@
-[tool.poetry]
-name = "dwarf-p-ice3"
-version = "0.1.0"
-description = "Externalized App for ICE3 Microphysics in GT4Py"
-authors = ["Loïc Maurin <loic.maurin@meteo.fr>"]
-license = "Apache-2.0"
-readme = "README.md"
-packages = [
-    { include = "ice3_gt4py", from = "src" },
-    { include = "drivers", from= "src"},
-    { include = "testprogs_data", from = "src"},
-]
-
-[tool.poetry.dependencies]
-python = ">=3.10,<3.12"
-ifs-physics-common = {git = "https://github.com/maurinl26/ifs-physics-common.git"}
-typer = "^0.12.3"
-xarray = "^2024.5.0"
-
-
-[tool.poetry.group.dev.dependencies]
-virtualenv = "^20.25.0"
-pre-commit = "^3.5.0"
-black = "^24.4.2"
-
-[tool.poetry.scripts]
-ice-adjust = "driver.cli:run_ice_adjust"
-rain-ice = "driver.cli:run_rain_ice"
-extract-ice-adjust-data = "testprogs_data.main:extract_data_ice_adjust"
-extract-rain-ice-data = "testprogs_data.main:extract_data_rain_ice"
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ['setuptools>=42', 'wheel']
+
+[tool.setuptools_scm]
+
+[tool.black]
+line-length = 100
+target-version = ['py37', 'py38', 'py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+
+  # The following are specific to Black, you probably don't want those.
+  | blib2to3
+  | tests/data
+  | profiling
+)/
+'''
