@@ -2,8 +2,20 @@
 import fmodpy
 import numpy as np
 from ifs_physics_common.framework.stencil import compile_stencil
+from ifs_physics_common.framework.config import GT4PyConfig
 
-mode_ice4_rrhong = fmodpy.fimport("mode_ice4_rrhong.F90")
+backend = "gt:cpu_ifirst"
+rebuild = True
+validate_args = True
+
+gt4py_config = GT4PyConfig(
+    backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=True
+)
+
+############### Fortran call ###############
+mode_ice4_rrhong = fmodpy.fimport(
+    "./src/ice3_gt4py/stencil_fortran/mode_ice4_rrhong.F90"
+)
 
 XTT = 0
 XRTMIN = 10e-5
@@ -45,4 +57,18 @@ externals = {
 }
 
 
+############### GT4Py call ###############
+
+
 ice4_rrhong = compile_stencil("ice4_rrhong", gt4py_config, externals)
+
+ice4_rrhong(
+    LDCOMPUTE,
+    PEXN,
+    PLVFACT,
+    PLSFACT,
+    PT,
+    PRRT,
+    PTHT,
+    PRRHONG_MR,
+)
