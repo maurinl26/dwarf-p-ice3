@@ -41,7 +41,8 @@ class IceAdjust(ImplicitTendencyComponent):
         )
 
         externals = phyex.to_externals()
-        self.ice_adjust = self.compile_stencil("ice_adjust", externals)
+        self.condensation = self.compile_stencil("condensation", externals)
+        self.cloud_fraction = self.compile_stencil("cloud_fraction", externals)
 
         logging.info(f"Keys")
         logging.info(f"SUBG_COND : {phyex.nebn.SUBG_COND}")
@@ -285,41 +286,34 @@ class IceAdjust(ImplicitTendencyComponent):
             criaut,
             inq1,
         ):
-            state_ice_adjust = {
+
+            state_condensation = {
                 key: state[key]
                 for key in [
                     "sigqsat",
                     "exn",
-                    "exnref",
-                    "rhodref",
                     "pabs",
                     "sigs",
-                    "cf_mf",
-                    "rc_mf",
-                    "ri_mf",
                     "th",
                     "rv",
                     "rc",
-                    "rr",
                     "ri",
+                    "rr",
                     "rs",
                     "rg",
-                    "cldfr",
-                    "ifr",
-                    "hlc_hrc",
-                    "hlc_hcf",
-                    "hli_hri",
-                    "hli_hcf",
-                    "sigrc",
                     "ths",
                     "rvs",
                     "rcs",
                     "ris",
+                    "rv_tmp",
+                    "ri_tmp",
+                    "rc_tmp",
+                    "cldfr",
+                    "sigrc",
                 ]
             }
 
-            temporaries_ice_adjust = {
-                "criaut": criaut,
+            temporaries_condensation = {
                 "cph": cph,
                 "lv": lv,
                 "ls": ls,
@@ -332,9 +326,9 @@ class IceAdjust(ImplicitTendencyComponent):
 
             # Timestep
             logging.info("Launching ice_adjust")
-            self.ice_adjust(
-                **state_ice_adjust,
-                **temporaries_ice_adjust,
+            self.condensation(
+                **state_condensation,
+                **temporaries_condensation,
                 src_1d=src_1D,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
@@ -342,3 +336,30 @@ class IceAdjust(ImplicitTendencyComponent):
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
+
+            state_cloud_fraction = {
+                key: state[key]
+                for key in [
+                    "rhodref",
+                    "exnref",
+                    "rc",
+                    "ri",
+                    "rcs",
+                    "ris",
+                    "rc_mf",
+                    "ri_mf",
+                    "cf_mf",
+                    "rc_tmp",
+                    "ri_tmp",
+                    "hlc_hrc",
+                    "hlc_hcf",
+                    "hli_hri",
+                    "hli_hcf",
+                ]
+            }
+
+            temporaries_cloud_fraction = {
+                "lv": lv,
+                "ls": ls,
+                "cph": cph,
+            }
