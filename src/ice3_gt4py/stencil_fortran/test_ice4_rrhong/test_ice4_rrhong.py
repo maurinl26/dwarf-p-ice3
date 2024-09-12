@@ -7,8 +7,6 @@ from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.grid import ComputationalGrid
 import datetime
 
-from ice3_gt4py.phyex_common.phyex import Phyex
-
 
 class TestIce4RRHONG(ComputationalGridComponent):
     def __init__(
@@ -32,18 +30,6 @@ class TestIce4RRHONG(ComputationalGridComponent):
         self.mode_ice4_rrhong = fmodpy.fimport(
             "./src/ice3_gt4py/stencil_fortran/mode_ice4_rrhong.F90"
         )
-
-        # self.KPROMA = 50
-        # self.KSIZE = 50
-
-        # self.LDCOMPUTE = np.asfortranarray(np.random.randint(2, size=KPROMA))
-        # self.PEXN = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PLVFACT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PLSFACT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PRRT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PTHT = np.asfortranarray(np.random.rand(KSIZE))
-        # PRRHONG_MR = np.asfortranarray(np.random.rand(KSIZE))
 
     def test_fortran(self):
         """Call fortran stencil"""
