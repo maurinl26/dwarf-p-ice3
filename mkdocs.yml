@@ -68,7 +68,10 @@ nav:
       - core: ice3_gt4py/drivers/core.md
 
 
-theme: readthedocs
+# theme: readthedocs
+theme:
+  features:
+    - navigation.tabs
 plugins:
   - mkdocstrings
 watch:
