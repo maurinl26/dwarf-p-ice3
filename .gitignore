@@ -19,6 +19,9 @@ src/ice3_gt4py/stencils/ice4*
 src/testprogs_data/fortran/
 output/
 dist/
+venv*
+.venv*
+scripts
 
 *.log
 *.sh
