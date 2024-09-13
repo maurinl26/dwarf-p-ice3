@@ -33,18 +33,6 @@ class TestIce4RRHONG(ComputationalGridComponent):
             "./src/ice3_gt4py/stencil_fortran/mode_ice4_rrhong.F90"
         )
 
-        # self.KPROMA = 50
-        # self.KSIZE = 50
-
-        # self.LDCOMPUTE = np.asfortranarray(np.random.randint(2, size=KPROMA))
-        # self.PEXN = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PLVFACT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PLSFACT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PRRT = np.asfortranarray(np.random.rand(KSIZE))
-        # self.PTHT = np.asfortranarray(np.random.rand(KSIZE))
-        # PRRHONG_MR = np.asfortranarray(np.random.rand(KSIZE))
-
     def test_fortran(self):
         """Call fortran stencil"""
 
