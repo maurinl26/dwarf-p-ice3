@@ -7,8 +7,6 @@ from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.grid import ComputationalGrid
 import datetime
 
-from ice3_gt4py.phyex_common.phyex import Phyex
-
 
 class TestIce4RRHONG(ComputationalGridComponent):
     def __init__(
@@ -33,7 +31,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
             "./src/ice3_gt4py/stencil_fortran/mode_ice4_rrhong.F90"
         )
 
-    def test_fortran(self):
+    def test_feedbackt(self):
         """Call fortran stencil"""
 
         self.ice4_rrhong = self.mode_ice4_rrhong.mode_ice4_rrhong.ice4_rrhong(
@@ -51,10 +49,9 @@ class TestIce4RRHONG(ComputationalGridComponent):
             PTHT,
             PRRHONG_MR,
         )
-
-    def test_gt4py(self):
-        """Call GT4Py stencil"""
-
+        
+        rrhong_mr_fortran = PRRHONG_MR.copy()
+        
         self.ice4_rrhong_gt4py(
             LFEEDBACKT,
             KPROMA,
@@ -68,15 +65,13 @@ class TestIce4RRHONG(ComputationalGridComponent):
             PTHT,
             PRRHONG_MR,
         )
+        
+        rrhong_mr_gt4py = PRRHONG_MR.copy() 
+        
+        diff = rrhong_mr_gt4py - rrhong_mr_fortran
+        assert diff.mean() < 10e-2
 
-    def compare(self):
-        """Compare Fortran and Python routines"""
-
-        self.test_fortran()
-        logging.info("Fortran called")
-
-        self.test_gt4py()
-        logging.info("GT4Py called")
+    
 
 
 if __name__ == "__main__":
@@ -94,11 +89,6 @@ if __name__ == "__main__":
     gt4py_config = GT4PyConfig(
         backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=True
     )
-
-    # ############### Fortran call ###############
-    # mode_ice4_rrhong = fmodpy.fimport(
-    #     "./src/ice3_gt4py/stencil_fortran/mode_ice4_rrhong.F90"
-    # )
 
     XTT = 0
     XRTMIN = 10e-5
@@ -121,4 +111,4 @@ if __name__ == "__main__":
         gt4py_config=gt4py_config,
     )
 
-    ice4_rrhong.compare()
+    ice4_rrhong.test_feedbackt()
