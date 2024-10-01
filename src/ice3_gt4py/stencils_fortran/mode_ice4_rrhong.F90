@@ -6,7 +6,7 @@
 MODULE MODE_ICE4_RRHONG
     IMPLICIT NONE
     CONTAINS
-    SUBROUTINE ICE4_RRHONG(XTT, XRTMIN, LFEEDBACKT, KPROMA, KSIZE, LDCOMPUTE, &
+    SUBROUTINE ICE4_RRHONG(XTT, R_RTMIN, LFEEDBACKT, KPROMA, KSIZE, LDCOMPUTE, &
                            &PEXN, PLVFACT, PLSFACT, &
                            &PT,   PRRT, &
                            &PTHT, &
@@ -37,9 +37,9 @@ MODULE MODE_ICE4_RRHONG
     !
     !*       0.1   Declarations of dummy arguments :
     !
-    REAL :: XTT
-    REAL :: XRTMIN
-    LOGICAL :: LFEEDBACKT
+    REAL, intent(in) :: XTT
+    REAL, intent(in) :: R_RTMIN
+    LOGICAL, intent(in) :: LFEEDBACKT
     ! TYPE(CST_t),              INTENT(IN)    :: CST
     ! TYPE(PARAM_ICE_t),        INTENT(IN)    :: PARAMI
     ! TYPE(RAIN_ICE_DESCR_t),   INTENT(IN)    :: ICED
@@ -61,7 +61,7 @@ MODULE MODE_ICE4_RRHONG
     !*       3.3     compute the spontaneous freezing source: RRHONG
     !
     DO JL=1, KSIZE
-      IF(PT(JL)<XTT-35.0 .AND. PRRT(JL)>XRTMIN .AND. LDCOMPUTE(JL)) THEN
+      IF(PT(JL)<XTT-35.0 .AND. PRRT(JL)>R_RTMIN .AND. LDCOMPUTE(JL)) THEN
         PRRHONG_MR(JL)=PRRT(JL)
         IF(LFEEDBACKT) THEN
           !Limitation due to -35 crossing of temperature
