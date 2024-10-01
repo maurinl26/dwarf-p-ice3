@@ -22,28 +22,23 @@ from ice3_gt4py.functions.ice_adjust import (
 )
 from ice3_gt4py.functions.temperature import update_temperature
 from ice3_gt4py.functions.tiwmx import e_sat_i, e_sat_w
+from ifs_physics_common.utils.f2py import ported_method
 
 
+@ported_method(
+    from_file="PHYEX/src/common/micro/condensation.F90",
+)
 @stencil_collection("condensation")
 def condensation(
     sigqsat: gtscript.Field["float"],
-    exn: gtscript.Field["float"],
     pabs: gtscript.Field["float"],
     sigs: gtscript.Field["float"],
-    th: gtscript.Field["float"],
-    rv: gtscript.Field["float"],
-    rc: gtscript.Field["float"],
-    ri: gtscript.Field["float"],
-    rr: gtscript.Field["float"],
-    rs: gtscript.Field["float"],
-    rg: gtscript.Field["float"],
-    ths: gtscript.Field["float"],
-    rvs: gtscript.Field["float"],
-    rcs: gtscript.Field["float"],
-    ris: gtscript.Field["float"],
-    rv_tmp: gtscript.Field["float"],
-    ri_tmp: gtscript.Field["float"],
-    rc_tmp: gtscript.Field["float"],
+    rv_in: gtscript.Field["float"],
+    ri_in: gtscript.Field["float"],
+    rc_in: gtscript.Field["float"],
+    rv_out: gtscript.Field["float"],
+    rc_out: gtscript.Field["float"],
+    ri_out: gtscript.Field["float"],
     cldfr: gtscript.Field["float"],
     sigrc: gtscript.Field["float"],
     cph: gtscript.Field["float"],
@@ -51,103 +46,31 @@ def condensation(
     ls: gtscript.Field["float"],
     inq1: gtscript.Field[np.int64],
     src_1d: gtscript.GlobalTable[("float", (34))],
-    dt: "float",
 ):
-    """Microphysical adjustments for specific contents due to condensation.
-
-    Args:
-        sigqsat (gtscript.Field[float]): external qsat variance contribution
-        exnref (gtscript.Field[float]): reference exner pressure
-        exn (gtscript.Field[float]): true exner pressure
-        rhodref (gtscript.Field[float]): reference density
-        pabs (gtscript.Field[float]): absolute pressure at time t
-        sigs (gtscript.Field[float]): standard dev for sub-grid saturation       (from turbulence scheme)
-        cf_mf (gtscript.Field[float]): convective mass flux cloud fraction       (from shallow convection)
-        rc_mf (gtscript.Field[float]): convective mass flux liquid mixing ratio  (from shallow convection)
-        ri_mf (gtscript.Field[float]): convective mass flux ice mixing ratio     (from shallow convection)
-        th (gtscript.Field[float]): potential temperature
-        rv (gtscript.Field[float]): water vapour m.r. to adjust
-        rc (gtscript.Field[float]): cloud water m.r. to adjust
-        ri (gtscript.Field[float]): cloud ice m.r. to adjust
-        rr (gtscript.Field[float]): rain water m.r. to adjust
-        rs (gtscript.Field[float]): snow m.r. to adjust
-        rg (gtscript.Field[float]): graupel m.r. to adjust
-        ths (gtscript.Field[float]): potential temperature source
-        rvs (gtscript.Field[float]): water vapour source
-        rcs (gtscript.Field[float]): cloud droplets source
-        ris (gtscript.Field[float]): ice source
-        cldfr (gtscript.Field[float]): cloud fraction
-        ifr (gtscript.Field[float]): ratio cloud ice moist part to dry part
-        hlc_hrc (gtscript.Field[float]): high liquid content droplet m.r.
-        hlc_hcf (gtscript.Field[float]): high liquid content cloud fraction
-        hli_hri (gtscript.Field[float]): high liquid content ice m.r.
-        hli_hcf (gtscript.Field[float]): high liquid content cloud fraction
-        sigrc (gtscript.Field[float]): _description_
-        dt (float): time step
-    """
+    """Microphysical adjustments for specific contents due to condensation."""
 
     from __externals__ import (
-        CI,
-        CL,
         CPD,
-        CPV,
-        NRR,
         RD,
         RV,
         LAMBDA3,
     )
 
-    # 2.3 Compute the variation of mixing ratio
-    with computation(PARALLEL), interval(...):
-        t = th * exn
-        lv = vaporisation_latent_heat(t)
-        ls = sublimation_latent_heat(t)
-
-        # Rem
-        rv_tmp = rv
-        ri_tmp = ri
-        rc_tmp = rc
-
-    # Translation note : in Fortran, ITERMAX = 1, DO JITER =1,ITERMAX
-    # Translation note : version without iteration is kept (1 iteration)
-    #                   IF jiter = 1; CALL ITERATION()
-    # jiter > 0
-
-    # numer of moist variables fixed to 6 (without hail)
-
-    # Translation note :
-    # 2.4 specific heat for moist air at t+1
-    with computation(PARALLEL), interval(...):
-        # Translation note : case(7) removed because hail is not taken into account
-        # Translation note : l453 to l456 removed
-        if __INLINED(NRR == 6):
-            cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs + rg)
-        if __INLINED(NRR == 5):
-            cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr) + CI * (ri_tmp + rs)
-        if __INLINED(NRR == 4):
-            cph = CPD + CPV * rv_tmp + CL * (rc_tmp + rr)
-        if __INLINED(NRR == 2):
-            cph = CPD + CPV * rv_tmp + CL * rc_tmp + CI * ri_tmp
-
     # 3. subgrid condensation scheme
     # Translation note : only the case with LSUBG_COND = True retained (l475 in ice_adjust.F90)
     # sigqsat and sigs must be provided by the user
     with computation(PARALLEL), interval(...):
-        cldfr = 0
-        sigrc = 0
-
         # local gtscript.Fields
         # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
         # Translation note : 515 -> 575 skipped (ocnd2 == True)
         prifact = 1  # ocnd2 == False for AROME
-        ifr = 10
         frac_tmp = 0  # l340 in Condensation .f90
 
         # Translation note : 252 -> 263 if(present(PLV)) skipped (ls/lv are assumed to be present)
         # Translation note : 264 -> 274 if(present(PCPH)) skipped (files are assumed to be present)
 
         # store total water mixing ratio (244 -> 248)
-        rt = rv_tmp + rc_tmp + ri_tmp * prifact
+        rt = rv_in + rc_in + ri_in * prifact
 
         # Translation note : 276 -> 310 (not osigmas) skipped (osigmas = True) for Arome default version
         # Translation note : 316 -> 331 (ocnd2 == True) skipped
@@ -162,13 +85,10 @@ def condensation(
             0.99 * pabs,
         )
 
-        # Translation note : OUSERI = True, OCND2 = False
-        frac_tmp = ri_tmp / (rc_tmp + ri_tmp) if rc_tmp + ri_tmp > 1e-20 else 0
-        frac_tmp = compute_frac_ice(t)
-
+        # Translation note : OUSERI = False, OCND2 = False
         # Supersaturation coefficients
-        qsl = (RD / RV) * pv / (pabs - pv)
-        qsi = (RD / RV) * piv / (pabs - piv)
+        qsl = RD / RV * pv / (pabs - pv)
+        qsi = RD / RV * piv / (pabs - piv)
 
         # # dtype_interpolate bewteen liquid and solid as a function of temperature
         qsl = (1 - frac_tmp) * qsl + frac_tmp * qsi
@@ -178,7 +98,7 @@ def condensation(
         ah = lvs * qsl / (RV * t**2) * (1 + RV * qsl / RD)
         a = 1 / (1 + lvs / cph * ah)
         # # b = ah * a
-        sbar = a * (rt - qsl + ah * lvs * (rc_tmp + ri_tmp * prifact) / CPD)
+        sbar = a * (rt - qsl + ah * lvs * (rc_in + ri_in * prifact) / CPD)
 
         # l369 - l390
         # Translation note : LSTATNW = False
@@ -219,16 +139,59 @@ def condensation(
         sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
 
         # # Translation notes : 506 -> 514 (not ocnd2)
-        rc_tmp = (1 - frac_tmp) * cond_tmp  # liquid condensate
-        ri_tmp = frac_tmp * cond_tmp  # solid condensate
-        t = update_temperature(t, rc_tmp, rc_tmp, rc, ri, lv, ls)
-        rv_tmp = rt - rc_tmp - ri_tmp * prifact
+        rc_out = (1 - frac_tmp) * cond_tmp  # liquid condensate
+        ri_out = frac_tmp * cond_tmp  # solid condensate
+        t = update_temperature(t, rc_out, rc_in, ri_out, ri_in, lv, ls)
+        rv_out = rt - rc_in - ri_in * prifact
 
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
         if __INLINED(LAMBDA3 == 0):
             sigrc *= min(3, max(1, 1 - q1))
 
     # Translation note : end jiter
+
+
+@stencil_collection("thermodynamic_fields")
+def thermodynamic_fields(
+    th: gtscript.Field["float"],
+    exn: gtscript.Field["float"],
+    rv: gtscript.Field["float"],
+    rc: gtscript.Field["float"],
+    rr: gtscript.Field["float"],
+    ri: gtscript.Field["float"],
+    rs: gtscript.Field["float"],
+    lv: gtscript.Field["float"],
+    ls: gtscript.Field["float"],
+    cph: gtscript.Field["float"],
+):
+    from __externals__ import NRR, CPV, CPD, CL, CI
+
+    # 2.3 Compute the variation of mixing ratio
+    with computation(PARALLEL), interval(...):
+        t = th * exn
+        lv = vaporisation_latent_heat(t)
+        ls = sublimation_latent_heat(t)
+
+    # Translation note : in Fortran, ITERMAX = 1, DO JITER =1,ITERMAX
+    # Translation note : version without iteration is kept (1 iteration)
+    #                   IF jiter = 1; CALL ITERATION()
+    # jiter > 0
+
+    # numer of moist variables fixed to 6 (without hail)
+
+    # Translation note :
+    # 2.4 specific heat for moist air at t+1
+    with computation(PARALLEL), interval(...):
+        # Translation note : case(7) removed because hail is not taken into account
+        # Translation note : l453 to l456 removed
+        if __INLINED(NRR == 6):
+            cph = CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs + rg)
+        if __INLINED(NRR == 5):
+            cph = CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs)
+        if __INLINED(NRR == 4):
+            cph = CPD + CPV * rv + CL * (rc + rr)
+        if __INLINED(NRR == 2):
+            cph = CPD + CPV * rv + CL * rc + CI * ri
 
 
 @stencil_collection("cloud_fraction")
