@@ -105,7 +105,7 @@ IMPLICIT NONE
 ! TYPE(NEB_t),                  INTENT(IN)    :: NEBN
 ! TYPE(TURB_t),                 INTENT(IN)    :: TURBN
 integer, intent(in) :: NIJT, NKT, NKTB, NKTE, NIJE, NIJB, NKL, NKB, NKE
-real, intent(in) :: XTT, XLVTT, XLSTT, XCPV, XCPD, XCI, XCL, XG, XRD, XRV, XALPW, XBETAW, XGAMW, XALPI, XPI, XBETAI, XGAMI
+real, intent(in) :: XTT, XLVTT, XLSTT, XCPV, XCPD, XCI, XCL, XRD, XRV, XALPW, XBETAW, XGAMW, XALPI, XPI, XBETAI, XGAMI
 real, intent(in) :: XCRIAUTI, XACRIAUTI, XBCRIAUTI, XCRIAUTC
 real, dimension(50), intent(in) :: XFRMIN
 logical, intent(in) :: LSTATNW, LHGT_QS
@@ -378,11 +378,11 @@ IF ( OSIGMAS ) THEN
     DO JIJ=IIJB,IIJE
         IF (PSIGQSAT(JIJ)/=0.) THEN
             ZDZFACT = 1.
-            IF(LHGT_QS .AND. JK+1 <= IKTE)THEN
-                ZDZFACT= MAX(XFRMIN(23),MIN(XFRMIN(24),(PZZ(JIJ,JK) - PZZ(JIJ,JK+1))/ZDZREF))
-            ELSEIF(LHGT_QS)THEN
+            ! IF(LHGT_QS .AND. JK+1 <= IKTE)THEN
+            !     ZDZFACT= MAX(XFRMIN(23),MIN(XFRMIN(24),(PZZ(JIJ,JK) - PZZ(JIJ,JK+1))/ZDZREF))
+            ! ELSEIF(LHGT_QS)THEN
                 ZDZFACT= MAX(XFRMIN(23),MIN(XFRMIN(24),((PZZ(JIJ,JK-1) - PZZ(JIJ,JK)))*0.8/ZDZREF))
-            ENDIF
+            ! ENDIF
             ! IF (LSTATNW) THEN
             !     ZSIGMA(JIJ) = SQRT((PSIGS(JIJ,JK))**2 + (PSIGQSAT(JIJ)*ZDZFACT*ZQSL(JIJ)*ZA(JIJ))**2)
             ! ELSE
