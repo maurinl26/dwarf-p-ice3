@@ -15,15 +15,14 @@ import datetime
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 
-if TYPE_CHECKING:
-    from typing import Literal, Tuple
+from typing import Literal, Tuple
 
-    from ifs_physics_common.framework.config import GT4PyConfig
-    from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
-    from ifs_physics_common.utils.typingx import (
-        DataArray,
-        NDArrayLikeDict,
-    )
+from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
+from ifs_physics_common.utils.typingx import (
+    DataArray,
+    NDArrayLikeDict,
+)
 
 
 def allocate_state_cloud_fraction(
