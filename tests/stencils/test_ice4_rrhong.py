@@ -2,6 +2,7 @@
 import fmodpy
 import numpy as np
 import logging
+from functools import cached_property
 from typing import TYPE_CHECKING
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.components import ComputationalGridComponent
@@ -87,9 +88,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
             "lfeedbackt": externals["LFEEDBACKT"],
         }
 
-        self.dims = {"kproma": 50, "ksize": 15}
-
-        self.generate_state()
+        self.generate_gt4py_state()
 
         # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
 
@@ -97,37 +96,48 @@ class TestIce4RRHONG(ComputationalGridComponent):
             "./src/ice3_gt4py/stencils_fortran/mode_ice4_rrhong.F90"
         )
 
-    def generate_state(self):
-        kproma, ksize = self.dims["kproma"], self.dims["ksize"]
+    @cached_property
+    def dims(self):
+        return {"kproma": KPROMA, "ksize": KSIZE}
 
-        logging.info(f"kproma dtype : {type(kproma)}")
-
-        self.fields = {
-            "ldcompute": np.asfortranarray(np.ones((kproma, ksize), dtype=np.int32)),
-            "pexn": np.asfortranarray(np.random.rand(kproma, ksize)),
-            "plvfact": np.asfortranarray(np.random.rand(kproma, ksize)),
-            "plsfact": np.asfortranarray(np.random.rand(kproma, ksize)),
-            "pt": np.asfortranarray(np.random.rand(kproma, ksize)),
-            "prrt": np.asfortranarray(np.random.rand(kproma, ksize)),
-            "ptht": np.asfortranarray(np.random.rand(kproma, ksize)),
-            "prrhong_mr": np.asfortranarray(np.zeros((kproma, ksize))),
+    @cached_property
+    def fields_mapping(self):
+        return {
+            "ldcompute": "ldcompute",
+            "pexn": "exn",
+            "plsfact": "ls_fact",
+            "plvfact": "lv_fact",
+            "pt": "t",
+            "ptht": "tht",
+            "prrt": "rr_t",
+            "prrhong_mr": "rrhong_mr",
         }
+
+    @cached_property
+    def fields_in(self):
+        return {
+            "ldcompute": np.ones((self.kproma), dtype=np.int32),
+            "pexn": np.random.rand(self.kproma),
+            "plvfact": np.random.rand(self.kproma),
+            "plsfact": np.random.rand(self.kproma),
+            "pt": np.random.rand(self.kproma),
+            "prrt": np.random.rand(self.kproma),
+            "ptht": np.random.rand(self.kproma),
+        }
+
+    @cached_property
+    def fields_out(self):
+        return {"prrhong_mr": np.zeros((self.kproma))}
+
+    def generate_gt4py_state(self):
 
         self.state_gt4py = allocate_state_ice4_rrhong(
             self.computational_grid, self.gt4py_config
         )
-
-        initialize_field(self.state_gt4py["ldcompute"], self.fields["ldcompute"]),
-        initialize_field(self.state_gt4py["exn"], self.fields["pexn"]),
-        initialize_field(self.state_gt4py["ls_fact"], self.fields["plsfact"]),
-        initialize_field(self.state_gt4py["lv_fact"], self.fields["plvfact"]),
-        initialize_field(self.state_gt4py["t"], self.fields["pt"]),
-        initialize_field(self.state_gt4py["tht"], self.fields["ptht"]),
-        initialize_field(self.state_gt4py["rr_t"], self.fields["prrt"]),
-        initialize_field(
-            self.state_gt4py["rrhong_mr"],
-            np.asfortranarray(np.random.rand(kproma, ksize)),
-        ),
+        for key_gt4py, key_fortran in self.fields_mapping.items():
+            initialize_field(
+                self.state_gt4py[key_gt4py], self.fields[key_fortran][:, np.newaxis]
+            )
 
     def test(self):
         """Call fortran stencil"""
@@ -135,7 +145,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
         logging.info(f"Input field, rrhong_mr : {self.fields['prrhong_mr'].mean()}")
 
         prrhong_mr = self.mode_ice4_rrhong.mode_ice4_rrhong.ice4_rrhong(
-            **self.dims, **self.externals, **self.fields
+            **self.dims, **self.externals, **self.fields_in, **self.fields_out
         )
 
         self.ice4_rrhong_gt4py(
@@ -143,7 +153,6 @@ class TestIce4RRHONG(ComputationalGridComponent):
         )
 
         logging.info(f"Mean Fortran : {prrhong_mr.mean()}")
-        logging.info(f"Mean prrhong_mr field : {self.fields['prrhong_mr'].mean()}")
 
         field_gt4py = self.state_gt4py["rrhong_mr"][...]
         logging.info(f"Mean GT4Py {field_gt4py.mean()}")
@@ -151,16 +160,19 @@ class TestIce4RRHONG(ComputationalGridComponent):
 
 if __name__ == "__main__":
 
+    KPROMA, KSIZE = 50, 15
+
     # TODO : set in env values
-    backend = "gt:cpu_ifirst"
-    rebuild = True
+    backend = "gt:cpu_kfirst"
+    rebuild = False
     validate_args = True
 
     phyex = Phyex(program="AROME")
 
-    # TODO : set init with grid
     logging.info("Initializing grid ...")
-    grid = ComputationalGrid(50, 1, 15)
+
+    # Grid has only 1 dimension since fields are packed in fortran version
+    grid = ComputationalGrid(50, 1, 1)
     dt = datetime.timedelta(seconds=1)
 
     ######## Backend and gt4py config #######

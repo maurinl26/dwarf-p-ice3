@@ -106,23 +106,23 @@ class TestCondensation(ComputationalGridComponent):
             "xalpw": c_double(externals_gt4py["ALPW"]),
             "xbetaw": c_double(externals_gt4py["BETAW"]),
             "xgamw": c_double(externals_gt4py["GAMW"]),
-            "hcondens": "cb02",
-            "hlambda3": "cb",
-            "lstatnw": False,
-            "ouseri": False,
-            "osigmas": True,
-            "ocnd2": False,
+            "hcondens": 0,
+            "hlambda3": 0,
+            "lstatnw": 0,
+            "ouseri": 0,
+            "osigmas": 1,
+            "ocnd2": 0,
         }
 
         # TODO : infer from gri
-        
+
         self.generate_gt4py_state()
 
         self.fortran_directory = "./src/ice3_gt4py/stencils_fortran/"
         self.fortran_stencil = fmodpy.fimport(
             self.fortran_directory + "mode_condensation.F90",
         )
-        
+
     @cached_property
     def dims(self):
         return {
@@ -133,11 +133,10 @@ class TestCondensation(ComputationalGridComponent):
             "nijb": NIJB,
             "nije": NIJE,
         }
-    
-    @cached_property    
+
+    @cached_property
     def fields_mapping(self):
-        """Map Fortran field name (key) to GT4Py stencil field name (value)
-        """ 
+        """Map Fortran field name (key) to GT4Py stencil field name (value)"""
         return {
             "psigqsat": "sigqsat",
             "ppabs": "pabs",
@@ -155,7 +154,7 @@ class TestCondensation(ComputationalGridComponent):
             "plv": "lv",
             "pls": "ls",
         }
-    
+
     @cached_property
     def fields_in(self):
         """Fields marked as intent(in) in Fortran SUBROUTINE
@@ -176,7 +175,7 @@ class TestCondensation(ComputationalGridComponent):
             "pls": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
             "pcph": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
         }
-        
+
     @cached_property
     def fields_out(self):
         """Fields marked as intent(out) in Fortran SUBROUTINE
@@ -193,15 +192,14 @@ class TestCondensation(ComputationalGridComponent):
             "psigrc": np.zeros((nijt, nkt), dtype=c_double, order="F"),
             "pcldfr": np.zeros((nijt, nkt), dtype=c_double, order="F"),
         }
-        
+
     def generate_gt4py_state(self):
 
-        fields = {
-            **self.fields_in,
-            **self.fields_out
-        }
+        fields = {**self.fields_in, **self.fields_out}
         fields.pop("pt_out")
-        self.state_gt4py = allocate_state_condensation(self.computational_grid, self.gt4py_config)
+        self.state_gt4py = allocate_state_condensation(
+            self.computational_grid, self.gt4py_config
+        )
         for fortran_key, gt4py_key in self.fields_mapping.items():
             initialize_field(self.state_gt4py[gt4py_key], fields[fortran_key])
 
@@ -209,28 +207,27 @@ class TestCondensation(ComputationalGridComponent):
         nijt, nkt = self.dims["nijt"], self.dims["nkt"]
         self.state_gt4py = {
             **self.state_gt4py,
-            **{"inq1": initialize_field(self.state_gt4py["inq1"], np.zeros((nijt, nkt), dtype=int)),
-               "src_1d": from_array(src_1d, backend=gt4py_config.backend)
-               }
+            **{
+                "inq1": initialize_field(
+                    self.state_gt4py["inq1"], np.zeros((nijt, nkt), dtype=int)
+                ),
+                "src_1d": from_array(src_1d, backend=gt4py_config.backend),
+            },
         }
 
     def test(self):
         """Call fortran stencil"""
-        
-        # Run gt4py
-        logging.info("Run gt4py stencil")
-        self.gt4py_stencil(
-            **self.state_gt4py
-        )
 
         # Run Fortran
         logging.info("Run fortran stencil")
-        # pt_out, prv_out, pri_out, prc_out, pcldfr, psigrc 
+        # pt_out, prv_out, pri_out, prc_out, pcldfr, psigrc
         self.fortran_stencil.mode_condensation.condensation(
             **self.dims, **self.externals, **self.fields_in, **self.fields_out
         )
-        
-        
+
+        # Run gt4py
+        logging.info("Run gt4py stencil")
+        self.gt4py_stencil(**self.state_gt4py)
 
 
 if __name__ == "__main__":
