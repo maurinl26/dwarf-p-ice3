@@ -33,6 +33,7 @@ def condensation(
     sigqsat: gtscript.Field["float"],
     pabs: gtscript.Field["float"],
     sigs: gtscript.Field["float"],
+    t: gtscript.Field["float"],
     rv_in: gtscript.Field["float"],
     ri_in: gtscript.Field["float"],
     rc_in: gtscript.Field["float"],
