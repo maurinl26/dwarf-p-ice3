@@ -88,7 +88,12 @@ class TestIce4RRHONG(ComputationalGridComponent):
             "lfeedbackt": externals["LFEEDBACKT"],
         }
 
+        logging.info(f"fields_in tht : {self.fields_in['ptht'].mean()}")
+
         self.generate_gt4py_state()
+
+        logging.info(f"fields_in tht : {self.fields_in['ptht'].mean()}")
+        logging.info(f"state_gt4py tht : {self.state_gt4py['tht'][...].mean()}")
 
         # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
         stencils_fortran_directory = "./src/ice3_gt4py/stencils_fortran/"
@@ -137,7 +142,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
         fields = {**self.fields_in, **self.fields_out}
         for key_fortran, key_gt4py in self.fields_mapping.items():
             initialize_field(
-                self.state_gt4py[key_gt4py], fields[key_fortran][:, np.newaxis]
+                self.state_gt4py[key_gt4py], 2 * fields[key_fortran][:, np.newaxis]
             )
 
     def test(self):
