@@ -9,6 +9,7 @@ import ice3_gt4py.stencils.ice4_rrhong
 import ice3_gt4py.stencils.ice4_slow
 import ice3_gt4py.stencils.ice4_warm
 import ice3_gt4py.stencils.ice_adjust
+import ice3_gt4py.stencils.ice_adjust_split
 import ice3_gt4py.stencils.statistical_sedimentation
 import ice3_gt4py.stencils.upwind_sedimentation
 import ice3_gt4py.stencils.step_limiter
