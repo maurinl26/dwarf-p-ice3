@@ -2,12 +2,14 @@
 ! implicit none
 ! contains
 !     ######spl
+module mode_condensation
+    contains
     subroutine condensation(nijb, nije, nktb, nkte, nijt, nkt,  &
         &xrv, xrd, xalpi, xbetai, xgami, xalpw, xbetaw, xgamw,  &
-        &osigmas, ocnd2, ouseri,                                &                                            
+        &osigmas, ocnd2, ouseri,                                &
         &hcondens, hlambda3, lstatnw,                           &
-        &ppabs, pt,                                             &              
-        &prv_in, prv_out, prc_in, prc_out, pri_in, pri_out,     &
+        &ppabs, pt,                                             &
+        &pt_out, prv_in, prv_out, prc_in, prc_out, pri_in, pri_out,     &
         &psigs, pcldfr, psigrc,                                 &
         &psigqsat,                                              &
         &plv, pls, pcph                                                                 &
@@ -18,20 +20,16 @@
 
     integer(kind=int32), intent(in) :: nijb, nije, nktb, nkte, nijt, nkt
     real(kind=real64), intent(in) :: xrv, xrd, xalpi, xbetai, xgami, xalpw, xbetaw, xgamw
-    character(len=4),             intent(in)    :: hcondens
-    character(len=*),             intent(in)    :: hlambda3 ! formulation for lambda3 coeff
+    integer,             intent(in)    :: hcondens
+    integer,             intent(in)    :: hlambda3 ! formulation for lambda3 coeff
     logical, intent(in) :: lstatnw
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: ppabs  ! pressure (pa)
-    real(kind=real64), dimension(nijt,nkt), intent(inout) :: pt     ! grid scale t  (k)
+    real(kind=real64), dimension(nijt,nkt), intent(in)    :: pt     ! grid scale t  (k)
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: prv_in ! grid scale water vapor mixing ratio (kg/kg) in input
-    real(kind=real64), dimension(nijt,nkt), intent(out)   :: prv_out! grid scale water vapor mixing ratio (kg/kg) in output
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: prc_in ! grid scale r_c mixing ratio (kg/kg) in input
-    real(kind=real64), dimension(nijt,nkt), intent(out)   :: prc_out! grid scale r_c mixing ratio (kg/kg) in output
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: pri_in ! grid scale r_i (kg/kg) in input
-    real(kind=real64), dimension(nijt,nkt), intent(out)   :: pri_out! grid scale r_i (kg/kg) in output
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: psigs  ! sigma_s from turbulence scheme
-    real(kind=real64), dimension(nijt,nkt), intent(out)   :: pcldfr ! cloud fraction
-    real(kind=real64), dimension(nijt,nkt), intent(out)   :: psigrc ! s r_c / sig_s^2
+
 
     logical, intent(in)                         :: ouseri ! logical switch to compute both liquid and solid condensate (ouseri=.true.)or only solid condensate (ouseri=.false.)
     logical, intent(in)                         :: osigmas! use present global sigma_s values or that from turbulence scheme
@@ -40,11 +38,19 @@
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: plv    ! latent heat l_v
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: pls    ! latent heat l_s
     real(kind=real64), dimension(nijt,nkt), intent(in)    :: pcph   ! specific heat c_ph
+
+    ! out
+    real(kind=real64), dimension(:,:), intent(out)   :: pt_out
+    real(kind=real64), dimension(:,:), intent(out)   :: prv_out! grid scale water vapor mixing ratio (kg/kg) in output
+    real(kind=real64), dimension(:,:), intent(out)   :: prc_out! grid scale r_c mixing ratio (kg/kg) in output
+    real(kind=real64), dimension(:,:), intent(out)   :: pri_out! grid scale r_i (kg/kg) in output
+    real(kind=real64), dimension(:,:), intent(out)   :: pcldfr ! cloud fraction
+    real(kind=real64), dimension(:,:), intent(out)   :: psigrc ! s r_c / sig_s^2
 !
 !
 !*       0.2   declarations of local variables :
 !
-integer :: jij, jk 
+integer :: jij, jk
 real(kind=real64), dimension(nijt,nkt) :: zrt     ! work arrays for t_l and total water mixing ratio
 real(kind=real64) :: zlvs                                      ! thermodynamics
 real(kind=real64), dimension(nijt) :: zpv, zpiv, zqsl, zqsi ! thermodynamics
@@ -79,11 +85,11 @@ real(kind=real64), dimension(-22:11),parameter :: zsrc_1d = (/                  
 1.0000000    ,  1.000000     /)
 !
 !-------------------------------------------------------------------------------
-pcldfr(:,:) = 0. ! initialize values
-psigrc(:,:) = 0. ! initialize values
-prv_out(:,:)= 0. ! initialize values
-prc_out(:,:)= 0. ! initialize values
-pri_out(:,:)= 0. ! initialize values
+! pcldfr(:,:) = 0. ! initialize values
+! psigrc(:,:) = 0. ! initialize values
+! prv_out(:,:)= 0. ! initialize values
+! prc_out(:,:)= 0. ! initialize values
+! pri_out(:,:)= 0. ! initialize values
 !-------------------------------------------------------------------------------
 ! store total water mixing ratio
 do jk=nktb,nkte
@@ -105,7 +111,7 @@ do jk=nktb,nkte
             zpiv(jij) = min(exp( xalpi - xbetai / pt(jij,jk) - xgami * log( pt(jij,jk) ) ), .99*ppabs(jij,jk))
         end do
     endif
-    
+
     do jij=nijb,nije
         zqsl(jij)   = xrd / xrv * zpv(jij) / ( ppabs(jij,jk) - zpv(jij) )
         zqsi(jij)   = xrd / xrv * zpiv(jij) / ( ppabs(jij,jk) - zpiv(jij) )
@@ -144,7 +150,9 @@ do jk=nktb,nkte
         zq1(jij)   = zsbar(jij)/zsigma(jij)
     end do
 
-    if(hcondens == 'cb02')then
+    ! 0 is for "cb02"
+    ! 1 is for "gaus"
+    if(hcondens == 0)then
         do jij=nijb,nije
             !total condensate
             if (zq1(jij) > 0. .and. zq1(jij) <= 2) then
@@ -177,13 +185,15 @@ do jk=nktb,nkte
         do jij=nijb,nije
             prc_out(jij,jk) = (1.-zfrac(jij)) * zcond(jij) ! liquid condensate
             pri_out(jij,jk) = zfrac(jij) * zcond(jij)   ! solid condensate
-            pt(jij,jk) = pt(jij,jk) + ((prc_out(jij,jk)-prc_in(jij,jk))*plv(jij,jk) + &
+            pt_out(jij,jk) = pt(jij,jk) + ((prc_out(jij,jk)-prc_in(jij,jk))*plv(jij,jk) + &
                  &(pri_out(jij,jk)-pri_in(jij,jk))*pls(jij,jk)   ) &
                & /pcph(jij,jk)
             prv_out(jij,jk) = zrt(jij,jk) - prc_out(jij,jk) - pri_out(jij,jk)*zprifact
         end do
     end if ! end ocnd2
-    if(hlambda3=='cb')then
+
+    ! 0 is for cb
+    if(hlambda3==0)then
         do jij=nijb,nije
             psigrc(jij,jk) = psigrc(jij,jk)* min( 3. , max(1.,1.-zq1(jij)) )
         end do
@@ -191,4 +201,4 @@ do jk=nktb,nkte
 end do
 
 end subroutine condensation
-! end module mode_condensation
+end module mode_condensation
