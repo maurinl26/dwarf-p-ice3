@@ -30,3 +30,5 @@ scripts
 *.o
 *.cfg
 *.json
+
+mode_*
