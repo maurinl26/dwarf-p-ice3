@@ -145,7 +145,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
                 self.state_gt4py[key_gt4py], 2 * fields[key_fortran][:, np.newaxis]
             )
 
-    def test(self):
+    def test(self, tol):
         """Call fortran stencil"""
 
         logging.info(
@@ -170,10 +170,13 @@ class TestIce4RRHONG(ComputationalGridComponent):
             **self.state_gt4py,
         )
 
-        logging.info(f"Mean Fortran : {prrhong_mr.mean()}")
+        fortran_mean = prrhong_mr.mean()
+        gt4py_mean = self.state_gt4py["rrhong_mr"][...].mean()
 
-        field_gt4py = self.state_gt4py["rrhong_mr"][...]
-        logging.info(f"Mean GT4Py {field_gt4py.mean()}")
+        logging.info(f"Mean Fortran : {fortran_mean}")
+        logging.info(f"Mean GT4Py {gt4py_mean}")
+        logging.info(f"Difference : {abs(fortran_mean - gt4py_mean)}")
+        assert abs(fortran_mean - gt4py_mean) < tol
 
 
 if __name__ == "__main__":
@@ -203,4 +206,4 @@ if __name__ == "__main__":
 
     TestIce4RRHONG(
         computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex
-    ).test()
+    ).test(tol=10e-8)
