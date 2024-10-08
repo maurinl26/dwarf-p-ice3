@@ -4,18 +4,11 @@ import fmodpy
 import numpy as np
 import logging
 
-from typing import TYPE_CHECKING
-
-from ifs_physics_common.framework.grid import I, J, K
-from ifs_physics_common.framework.storage import allocate_data_array
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.grid import ComputationalGrid
 import datetime
 
 from ice3_gt4py.phyex_common.phyex import Phyex
-
-from typing import Literal, Tuple
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
@@ -24,7 +17,7 @@ from ifs_physics_common.utils.typingx import (
     NDArrayLikeDict,
 )
 
-from stencils.test_ice_adjust_cloud_fraction import TestCloudFraction
+from tests.stencils.test_cloud_fraction import TestCloudFraction
 from tests.stencils.test_condensation import TestCondensation
 
 if __name__ == "__main__":
