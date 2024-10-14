@@ -91,10 +91,12 @@ class TestIce4RRHONG(ComputationalGridComponent):
         self.generate_gt4py_state()
 
         # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
-        stencils_fortran_directory = "./src/ice3_gt4py/stencils_fortran/"
+        stencils_fortran_directory = "./src/ice3_gt4py/stencils_fortran"
         self.mode_ice4_rrhong = fmodpy.fimport(
-            stencils_fortran_directory + "/mode_ice4_rrhong.F90"
+            "./src/ice3_gt4py/stencils_fortran/mode_ice4_rrhong.F90"
         )
+
+        logging.info(f"{stencils_fortran_directory + '/mode_ice4_rrhong.F90'}")
 
     @cached_property
     def dims(self):
@@ -157,7 +159,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
             f"Input field, ls_fact (gt4py) : {self.state_gt4py['ls_fact'][...].mean()}"
         )
 
-        prrhong_mr = self.mode_ice4_rrhong.mode_ice4_rrhong.ice4_rrhong(
+        self.mode_ice4_rrhong.mode_ice4_rrhong.ice4_rrhong(
             **self.dims, **self.externals, **self.fields_in, **self.fields_out
         )
 
@@ -165,7 +167,7 @@ class TestIce4RRHONG(ComputationalGridComponent):
             **self.state_gt4py,
         )
 
-        logging.info(f"Mean Fortran : {prrhong_mr.mean()}")
+        # logging.info(f"Mean Fortran : {prrhong_mr.mean()}")
 
         field_gt4py = self.state_gt4py["rrhong_mr"][...]
         logging.info(f"Mean GT4Py {field_gt4py.mean()}")

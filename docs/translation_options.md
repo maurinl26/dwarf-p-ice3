@@ -73,6 +73,8 @@ The options below have been retained concerning keys, in order to reproduce AROM
 - option with hail (nrr=7) is not implemented
     therefore, PRH is not present
 
+- OCOMPUTE_SRC is set to False, since PSRCS = PCLDFR
+
 
 ### Rain ice
 

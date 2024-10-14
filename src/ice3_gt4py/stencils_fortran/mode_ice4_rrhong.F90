@@ -11,6 +11,8 @@ module mode_ice4_rrhong
                            &pt,   prrt, &
                            &ptht, &
                            &prrhong_mr)
+
+    use iso_fortran_env, only: real64, int32
     !!
     !!**  purpose
     !!    -------
@@ -23,35 +25,25 @@ module mode_ice4_rrhong
     !!    modifications
     !!    -------------
     !!
-    !
-    !
     !*      0. declarations
     !          ------------
-    !
-    ! use modd_cst,            only: cst_t
-    ! use modd_param_ice_n,      only: param_ice_t
-    ! use modd_rain_ice_descr_n, only: rain_ice_descr_t
-    ! use yomhook , only : lhook, dr_hook, jphook
     !
     implicit none
     !
     !*       0.1   declarations of dummy arguments :
     !
-    real, intent(in) :: xtt
-    real, intent(in) :: r_rtmin
+    real(kind=real64), intent(in) :: xtt
+    real(kind=real64), intent(in) :: r_rtmin
     logical, intent(in) :: lfeedbackt
-    ! type(cst_t),              intent(in)    :: cst
-    ! type(param_ice_t),        intent(in)    :: parami
-    ! type(rain_ice_descr_t),   intent(in)    :: iced
-    integer, intent(in) :: kproma, ksize
-    logical, dimension(KPROMA),    intent(in)    :: ldcompute
-    real, dimension(KPROMA),       intent(in)    :: pexn     ! exner function
-    real, dimension(KPROMA),       intent(in)    :: plvfact  ! l_v/(pi_ref*c_ph)
-    real, dimension(KPROMA),       intent(in)    :: plsfact  ! l_s/(pi_ref*c_ph)
-    real, dimension(KPROMA),       intent(in)    :: pt       ! temperature
-    real, dimension(KPROMA),       intent(in)    :: prrt     ! rain water m.r. at t
-    real, dimension(KPROMA),       intent(in)    :: ptht     ! theta at t
-    real, dimension(:),       intent(out)   :: prrhong_mr ! mixing ratio change due to spontaneous freezing
+    integer(kind=INT32), intent(in) :: kproma, ksize
+    logical, dimension(kproma),    intent(in)    :: ldcompute
+    real(kind=real64), dimension(kproma),       intent(in)    :: pexn     ! exner function
+    real(kind=real64), dimension(kproma),       intent(in)    :: plvfact  ! l_v/(pi_ref*c_ph)
+    real(kind=real64), dimension(kproma),       intent(in)    :: plsfact  ! l_s/(pi_ref*c_ph)
+    real(kind=real64), dimension(kproma),       intent(in)    :: pt       ! temperature
+    real(kind=real64), dimension(kproma),       intent(in)    :: prrt     ! rain water m.r. at t
+    real(kind=real64), dimension(kproma),       intent(in)    :: ptht     ! theta at t
+    real(kind=real64), dimension(:),            intent(out)   :: prrhong_mr ! mixing ratio change due to spontaneous freezing
     !
     !*       0.2  declaration of local variables
     !

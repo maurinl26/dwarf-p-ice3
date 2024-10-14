@@ -15,7 +15,7 @@
                             &pexnref, prhodref, &
                             &pcf_mf, prc_mf, pri_mf,                     &
                             &prc, prvs, prcs, pths,                  &
-                            &ocompute_src, psrcs, pcldfr,                      &
+                            &pcldfr,                      &
                             &pri, pris, &
                             &phlc_hrc, phlc_hcf, phli_hri, phli_hcf)
 
@@ -224,7 +224,6 @@ do jk=iktb,ikte
       endif
     enddo
     !
-
   endif !nebn%lsubg_cond
 enddo
 
