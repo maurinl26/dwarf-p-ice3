@@ -10,6 +10,7 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 from ice3_gt4py.initialisation.utils import initialize_field
+from ice3_gt4py.utils.allocate import allocate
 from pathlib import Path
 
 import datetime
@@ -77,14 +78,15 @@ class TestIce4RRHONG(ComputationalGridComponent):
         phyex: Phyex,
         fortran_module: str,
         fortran_subroutine: str,
-        fortran_script: str
+        fortran_script: str,
+        gt4py_stencil: str
     ) -> None:
         super().__init__(
             computational_grid=computational_grid, gt4py_config=gt4py_config
         )
 
         externals = phyex.to_externals()
-        self.ice4_rrhong_gt4py = self.compile_stencil("ice4_rrhong", externals)
+        self.ice4_rrhong_gt4py = self.compile_stencil(gt4py_stencil, externals)
 
         self.externals = {
             "xtt": externals["TT"],
@@ -182,6 +184,212 @@ class TestIce4RRHONG(ComputationalGridComponent):
 
         field_gt4py = self.state_gt4py["rrhong_mr"][...]
         logging.info(f"Mean GT4Py {field_gt4py.mean()}")
+        
+class Ice4Rrhong(ComputationalGridComponent):
+    def __init__(
+        self,
+        computational_grid: ComputationalGrid,
+        gt4py_config: GT4PyConfig,
+        phyex: Phyex,
+        fortran_subroutine: str,
+        fortran_script: str,
+        fortran_module: str,
+        gt4py_stencil_name: str,
+    ) -> None:
+        super().__init__(
+            computational_grid=computational_grid, gt4py_config=gt4py_config
+        )
+        
+        self.phyex_externals = phyex.to_externals()
+        self.compile_fortran_stencil(
+            fortran_module=fortran_module,
+            fortran_script=fortran_script,
+            fortran_subroutine=fortran_subroutine
+        )
+        self.compile_gt4py_stencil(gt4py_stencil_name, self.phyex_externals)
+    
+    @cached_property
+    def externals(self):
+        """Filter phyex externals"""
+        return {
+            "xtt": self.phyex_externals["TT"],
+            "r_rtmin": self.phyex_externals["R_RTMIN"],
+            "lfeedbackt": self.phyex_externals["LFEEDBACKT"],
+        }
+
+    @cached_property
+    def dims(self) -> dict:
+        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+        return {"kproma": nit * njt, "ksize": nit * njt}
+
+    @cached_property
+    def array_shape(self) -> dict:
+        return self.dims["kproma"]
+
+    @cached_property
+    def fields_in(self):
+        return {
+            "ldcompute": {"grid": (I, J, K), "dtype": "int", "fortran_name": "ldcompute"},
+            "exn": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pexn"},
+            "lvfact": {"grid": (I, J, K), "dtype": "float", "fortran_name": "plvfact"},
+            "lsfact": {"grid": (I, J, K), "dtype": "float", "fortran_name": "plsfact"},
+            "t": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pt"},
+            "rrt":{"grid": (I, J, K), "dtype": "float", "fortran_name": "prrt"},
+            "tht": {"grid": (I, J, K), "dtype": "float", "fortran_name": "ptht"},
+        }
+
+    @cached_property
+    def fields_out(self):
+        return {
+            "rrhong_mr": {"grid": (I, J, K), "dtype": "int", "fortran_name": "prrhong_mr"}
+        }
+
+    @cached_property
+    def fields_inout(self):
+        return {}
+
+    #### Compilations ####
+    def compile_gt4py_stencil(self, gt4py_stencil_name: str, externals: dict):
+        """Compile GT4Py script given
+
+        Args:
+            gt4py_stencil (str): _description_
+            externals (dict): _description_
+        """
+        self.gt4py_stencil = self.compile_stencil(gt4py_stencil_name, externals)
+
+    def compile_fortran_stencil(self, fortran_script, fortran_module, fortran_subroutine):
+        current_directory = Path.cwd()
+        logging.info(f"Root directory {current_directory}")
+        root_directory = current_directory
+        
+        stencils_directory = Path(root_directory, "src", "ice3_gt4py", "stencils_fortran")
+        script_path = Path(stencils_directory, fortran_script)
+        
+        logging.info(f"Fortran script path {script_path}")
+        self.fortran_script = fmodpy.fimport(script_path)
+        fortran_module = getattr(self.fortran_script, fortran_module)
+        self.fortran_stencil = getattr(fortran_module, fortran_subroutine)
+
+    ###### Allocations ######
+    def set_allocators(self):
+        """Allocate zero array in storage given grid and type characteristics"""
+        _allocate_on_computational_grid = partial(
+            allocate,
+            computational_grid=self.computational_grid,
+            gt4py_config=self.gt4py_config,
+        )
+        self.allocate_b_ij = partial(
+            _allocate_on_computational_grid, grid_id=(I, J), units="", dtype="bool"
+        )
+        self.allocate_b_ijk = partial(
+            _allocate_on_computational_grid, grid_id=(I, J, K), units="", dtype="bool"
+        )
+
+        self.allocate_f_ij = partial(
+            _allocate_on_computational_grid, grid_id=(I, J), units="", dtype="float"
+        )
+        self.allocate_f_ijk = partial(
+            _allocate_on_computational_grid, grid_id=(I, J, K), units="", dtype="float"
+        )
+        self.allocate_f_ijk_h = partial(
+            _allocate_on_computational_grid,
+            grid_id=(I, J, K - 1 / 2),
+            units="",
+            dtype="float",
+        )
+
+        self.allocate_i_ij = partial(
+            _allocate_on_computational_grid, grid_id=(I, J), units="", dtype="int"
+        )
+        self.allocate_i_ijk = partial(
+            _allocate_on_computational_grid, grid_id=(I, J, K), units="", dtype="int"
+        )
+
+    def allocate_state(self):
+        """Allocate GT4Py state"""
+        self.set_allocators()
+        
+        state = dict()
+        fields = {**self.fields_in, **self.fields_inout, **self.fields_out}
+        for field_key, field_attributes in fields.items():
+
+            # 3D fields
+            if field_attributes["dtype"] == "float" and field_attributes["grid"] == (
+                I,
+                J,
+                K,
+            ):
+                state.update({field_key: self.allocate_f_ijk()})
+            elif field_attributes["dtype"] == "bool" and field_attributes["grid"] == (
+                I,
+                J,
+                K,
+            ):
+                state.update({field_key: self.allocate_b_ijk()})
+            elif field_attributes["dtype"] == "int" and field_attributes["grid"] == (
+                I,
+                J,
+                K,
+            ):
+                state.update({field_key: self.allocate_i_ijk()})
+
+            # 2D fields
+            if field_attributes["dtype"] == "float" and field_attributes["grid"] == (
+                I,
+                J,
+            ):
+                state.update({field_key: self.allocate_f_ij()})
+            elif field_attributes["dtype"] == "bool" and field_attributes["grid"] == (
+                I,
+                J,
+            ):
+                state.update({field_key: self.allocate_b_ij()})
+            elif field_attributes["dtype"] == "int" and field_attributes["grid"] == (
+                I,
+                J,
+            ):
+                state.update({field_key: self.allocate_i_ij()})
+
+    def allocate_fields(self, fields: dict):
+        """Allocate fields (as gt4py storage)
+
+        Interface with fortran like fields
+        """
+        state = self.allocate_state()
+        fields_properties = {**self.fields_in, **self.fields_inout, **self.fields_out}
+        for field_key, field_attributes in fields.items():
+            initialize_field(state[field_key], fields[field_key][:, np.newaxis])
+        return state
+
+    ##### Calls #####
+    def call_fortran_stencil(self, fields: dict):
+        """Call fortran stencil on a given field dict
+
+        externals and dims are handled by component attributes itself
+
+        Args:
+            fields (dict): dictionnary of numpy arrays
+        """
+        
+        fortran_state = {}
+        component_fields = {**self.fields_in, **self.fields_out, **self.fields_inout}
+        for field_name, field_array in fields.items():
+            fortran_name = component_fields[field_name]["fortran_name"] if field_name in list(component_fields.keys()) else None
+            fortran_state.update({fortran_name: field_array})
+        
+        output_fields = self.fortran_stencil(**fortran_state, **self.dims, **self.externals)
+        return output_fields
+
+    def call_gt4py_stencil(self, fields):
+        """Call gt4py stencil on a given field dict
+
+        Args:
+            fields (dict): dictionnary of numpy arrays
+        """
+        state = self.allocate_fields(fields)
+        self.gt4py_stencil(**state)
+        return state
 
 
 if __name__ == "__main__":
@@ -209,8 +417,42 @@ if __name__ == "__main__":
 
     logging.info("Calling ice4_rrhong with dicts")
 
-    TestIce4RRHONG(
+    test_ice4_rrhong = TestIce4RRHONG(
         computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex, 
         fortran_module="mode_ice4_rrhong", fortran_subroutine="ice4_rrhong",
-        fortran_script="mode_ice4_rrhong.F90"
+        fortran_script="mode_ice4_rrhong.F90",
+        gt4py_stencil="ice4_rrhong"
     ).test()
+    
+    # New component
+    logging.info("Ice4Rrhong component")
+    component = Ice4Rrhong(
+        computational_grid=grid, 
+        gt4py_config=gt4py_config, 
+        phyex=phyex, 
+        fortran_script="mode_ice4_rrhong.F90",
+        fortran_module="mode_ice4_rrhong", 
+        fortran_subroutine="ice4_rrhong",
+        gt4py_stencil_name="ice4_rrhong"
+    )
+    
+    fields = {
+        **{
+            key: np.array(np.random.rand(component.array_shape), "f", order="F")
+            for key in component.fields_in.keys()
+        },
+        **{
+            key: np.array(np.random.rand(component.array_shape), "f", order="F")
+            for key in component.fields_inout.keys()
+        },
+        **{
+            key: np.zeros((component.array_shape), "f", order="F")
+            for key in component.fields_out.keys()
+        },
+    }
+    
+    
+    output = component.call_fortran_stencil(fields)
+    logging.info(f"{output}")
+    component.call_gt4py_stencil(fields)
+    
