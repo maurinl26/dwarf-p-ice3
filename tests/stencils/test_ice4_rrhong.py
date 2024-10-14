@@ -10,6 +10,7 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 from ice3_gt4py.initialisation.utils import initialize_field
+from pathlib import Path
 
 import datetime
 from functools import partial
@@ -74,6 +75,9 @@ class TestIce4RRHONG(ComputationalGridComponent):
         computational_grid: ComputationalGrid,
         gt4py_config: GT4PyConfig,
         phyex: Phyex,
+        fortran_module: str,
+        fortran_subroutine: str,
+        fortran_script: str
     ) -> None:
         super().__init__(
             computational_grid=computational_grid, gt4py_config=gt4py_config
@@ -91,13 +95,21 @@ class TestIce4RRHONG(ComputationalGridComponent):
         self.generate_gt4py_state()
 
         # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
-        stencils_fortran_directory = "./src/ice3_gt4py/stencils_fortran"
-        self.mode_ice4_rrhong = fmodpy.fimport(
-            "./src/ice3_gt4py/stencils_fortran/mode_ice4_rrhong.F90"
+        #stencils_fortran_directory = "./src/ice3_gt4py/stencils_fortran"
+        #fortran_script = "mode_ice4_rrhong.F90"
+    
+        project_dir = Path.cwd()
+        stencils_fortran_dir = Path(project_dir, "src", "ice3_gt4py", "stencils_fortran")
+        
+        fortran_script_path = Path(stencils_fortran_dir, fortran_script)
+        self.fortran_script = fmodpy.fimport(
+            fortran_script_path
         )
-
-        logging.info(f"{stencils_fortran_directory + '/mode_ice4_rrhong.F90'}")
-
+        self.fortran_module = fortran_module
+        self.fortran_subroutine = fortran_subroutine
+        fortran_module = getattr(self.fortran_script, self.fortran_module)
+        self.fortran_stencil = getattr(fortran_module, self.fortran_subroutine)
+        
     @cached_property
     def dims(self):
         return {"kproma": KPROMA, "ksize": KSIZE}
@@ -158,10 +170,9 @@ class TestIce4RRHONG(ComputationalGridComponent):
         logging.info(
             f"Input field, ls_fact (gt4py) : {self.state_gt4py['ls_fact'][...].mean()}"
         )
-
-        self.mode_ice4_rrhong.mode_ice4_rrhong.ice4_rrhong(
-            **self.dims, **self.externals, **self.fields_in, **self.fields_out
-        )
+        
+        
+        self.fortran_stencil(**self.dims, **self.externals, **self.fields_in, **self.fields_out)
 
         self.ice4_rrhong_gt4py(
             **self.state_gt4py,
@@ -199,5 +210,7 @@ if __name__ == "__main__":
     logging.info("Calling ice4_rrhong with dicts")
 
     TestIce4RRHONG(
-        computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex
+        computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex, 
+        fortran_module="mode_ice4_rrhong", fortran_subroutine="ice4_rrhong",
+        fortran_script="mode_ice4_rrhong.F90"
     ).test()
