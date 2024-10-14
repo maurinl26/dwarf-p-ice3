@@ -6,9 +6,12 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.grid import ComputationalGrid
 import numpy as np
-
+import logging
+import sys
+from pathlib import Path
 from ice3_gt4py.initialisation.utils import initialize_field
 from ice3_gt4py.phyex_common.phyex import Phyex
+from gt4py.storage import from_array
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
@@ -19,6 +22,8 @@ from ifs_physics_common.utils.typingx import (
 from ice3_gt4py.utils.allocate import allocate
 from ice3_gt4py.utils.doctor_norm import field_doctor_norm
 
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
 
 class CloudFraction(ComputationalGridComponent):
     def __init__(
@@ -27,72 +32,83 @@ class CloudFraction(ComputationalGridComponent):
         gt4py_config: GT4PyConfig,
         phyex: Phyex,
         fortran_subroutine: str,
+        fortran_script: str,
+        fortran_module: str,
         gt4py_stencil: str,
     ) -> None:
         super().__init__(
             computational_grid=computational_grid, gt4py_config=gt4py_config
         )
-        externals = phyex.to_externals()
+        self.phyex_externals = phyex.to_externals()
 
-        self.compile_fortran_stencil(fortran_subroutine)
-        self.compile_gt4py_stencil(gt4py_stencil)
+        self.compile_fortran_stencil(
+            fortran_module=fortran_module,
+            fortran_script=fortran_script,
+            fortran_subroutine=fortran_subroutine
+        )
 
     @cached_property
-    def externals(self, phyex_externals: dict):
+    def externals(self):
         """Filter phyex externals"""
         return {
-            "lsubg_cond": phyex_externals["SUBG_COND"],
-            "xcriautc": phyex_externals["CRIAUTC"],
-            "csubg_mf_pdf": phyex_externals["SUBG_MF_PDF"],
-            "xcriauti": phyex_externals["CRIAUTI"],
-            "xacriauti": phyex_externals["ACRIAUTI"],
-            "xbcriauti": phyex_externals["BCRIAUTI"],
-            "xtt": phyex_externals["TT"],
+            "lsubg_cond": self.phyex_externals["SUBG_COND"],
+            "xcriautc":self.phyex_externals["CRIAUTC"],
+            "csubg_mf_pdf": self.phyex_externals["SUBG_MF_PDF"],
+            "xcriauti": self.phyex_externals["CRIAUTI"],
+            "xacriauti": self.phyex_externals["ACRIAUTI"],
+            "xbcriauti": self.phyex_externals["BCRIAUTI"],
+            "xtt": self.phyex_externals["TT"],
         }
 
     @cached_property
     def dims(self) -> dict:
         nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
-        return {"nijt": nit * njt, "nkt": nkt}
+        nijt = nit * njt
+        return {
+            "nijt": nijt, 
+            "nkt": nkt,
+            "nkte": 0,
+            "nktb": nkt - 1,
+            "nijb": 0,
+            "nije": nijt - 1,
+            "ptstep": 1
+            }
 
     @cached_property
     def array_shape(self) -> dict:
-        return (self.dims["nijt"], self.dims["nkt"])
+        return (int(self.dims["nijt"]), int(self.dims["nkt"]))
 
     @cached_property
     def fields_in(self):
         return {
-            "lv": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "ls": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "t": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "cph": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "rhodref": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "exnref": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "rc": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "ri": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "rc_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "ri_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "cf_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "rc_tmp": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "ri_tmp": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "rhodref": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prhodref"},
+            "exnref": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pexnref"},
+            "rc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc"},
+            "ri": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri"},
+            "rc_mf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc_mf"},
+            "ri_mf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri_mf"},
+            "cf_mf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pcf_mf"},
+            "rc_tmp": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zrc"},
+            "ri_tmp": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zri"},
         }
 
     @cached_property
     def fields_out(self):
         return {
-            "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "hli_hri": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "hli_hcf": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "cldfr": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pcldfr"},
+            "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "phlc_hrc"},
+            "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "phlc_hcf"},
+            "hli_hri": {"grid": (I, J, K), "dtype": "float", "fortran_name": "phli_hri"},
+            "hli_hcf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "phli_hcf"},
         }
 
     @cached_property
     def fields_inout(self):
         return {
-            "ths": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "rvs": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "rcs": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "ris": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "ths": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pths"},
+            "rvs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prvs"},
+            "rcs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prcs"},
+            "ris": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pris"},
         }
 
     #### Compilations ####
@@ -105,102 +121,20 @@ class CloudFraction(ComputationalGridComponent):
         """
         self.gt4py_stencil = self.compile_stencil(gt4py_stencil, externals)
 
-    def compile_fortran_stencil(self, fortran_subroutine):
-        stencils_directory = "./src/ice3_gt4py/stencils_fortran/"
-        fortran_script = fmodpy.fimport(stencils_directory + "cloud_fraction.F90")
-        # fortran_module = getattr(self.fortran_script, fortran_module)
+    def compile_fortran_stencil(self, fortran_script, fortran_module, fortran_subroutine):
+        current_directory = Path.cwd()
+        logging.info(f"Root directory {current_directory}")
+        root_directory = current_directory
+        
+        stencils_directory = Path(root_directory, "src", "ice3_gt4py", "stencils_fortran")
+        script_path = Path(stencils_directory, fortran_script)
+        
+        logging.info(f"Fortran script path {script_path}")
+        self.fortran_script = fmodpy.fimport(script_path)
+        fortran_module = getattr(self.fortran_script, fortran_module)
         self.fortran_stencil = getattr(fortran_module, fortran_subroutine)
 
-    ###### Allocations ######
-    def set_allocators(self):
-        """Allocate zero array in storage given grid and type characteristics"""
-        _allocate_on_computational_grid = partial(
-            allocate,
-            computational_grid=self.computational_grid,
-            gt4py_config=self.gt4py_config,
-        )
-        self.allocate_b_ij = partial(
-            _allocate_on_computational_grid, grid_id=(I, J), units="", dtype="bool"
-        )
-        self.allocate_b_ijk = partial(
-            _allocate_on_computational_grid, grid_id=(I, J, K), units="", dtype="bool"
-        )
-
-        self.allocate_f_ij = partial(
-            _allocate_on_computational_grid, grid_id=(I, J), units="", dtype="float"
-        )
-        self.allocate_f_ijk = partial(
-            _allocate_on_computational_grid, grid_id=(I, J, K), units="", dtype="float"
-        )
-        self.allocate_f_ijk_h = partial(
-            _allocate_on_computational_grid,
-            grid_id=(I, J, K - 1 / 2),
-            units="",
-            dtype="float",
-        )
-
-        self.allocate_i_ij = partial(
-            _allocate_on_computational_grid, grid_id=(I, J), units="", dtype="int"
-        )
-        self.allocate_i_ijk = partial(
-            _allocate_on_computational_grid, grid_id=(I, J, K), units="", dtype="int"
-        )
-
-    def allocate_state(self):
-        """Allocate GT4Py state"""
-        state = dict()
-        fields = {**self.fields_in, **self.fields_inout, **self.fields_out}
-        for field_key, field_attributes in fields.items():
-
-            # 3D fields
-            if field_attributes["dtype"] == "float" and field_attributes["grid"] == (
-                I,
-                J,
-                K,
-            ):
-                state.update({field_key: self.allocate_f_ijk()})
-            elif field_attributes["dtype"] == "bool" and field_attributes["grid"] == (
-                I,
-                J,
-                K,
-            ):
-                state.update({field_key: self.allocate_b_ijk()})
-            elif field_attributes["dtype"] == "int" and field_attributes["grid"] == (
-                I,
-                J,
-                K,
-            ):
-                state.update({field_key: self.allocate_i_ijk()})
-
-            # 2D fields
-            if field_attributes["dtype"] == "float" and field_attributes["grid"] == (
-                I,
-                J,
-            ):
-                state.update({field_key: self.allocate_f_ij()})
-            elif field_attributes["dtype"] == "bool" and field_attributes["grid"] == (
-                I,
-                J,
-            ):
-                state.update({field_key: self.allocate_b_ij()})
-            elif field_attributes["dtype"] == "int" and field_attributes["grid"] == (
-                I,
-                J,
-            ):
-                state.update({field_key: self.allocate_i_ij()})
-
-    def allocate_fields(self, fields: dict):
-        """Allocate fields (as gt4py storage)
-
-        Interface with fortran like fields
-        """
-        state = self.allocate_state(self.computational_grid, self.gt4py_config)
-        fields = {**self.fields_in, **self.fields_inout, **self.fields_out}
-        for field_key, field_attributes in fields.items():
-            key_fortran = field_doctor_norm(field_key, field_attributes.dtype)
-            initialize_field(state[field_key], fields[key_fortran][:, np.newaxis])
-        return state
-
+    
     ##### Calls #####
     def call_fortran_stencil(self, fields: dict):
         """Call fortran stencil on a given field dict
@@ -210,15 +144,25 @@ class CloudFraction(ComputationalGridComponent):
         Args:
             fields (dict): dictionnary of numpy arrays
         """
-        output_fields = self.fortran_stencil(**fields, **self.dims, **self.externals)
+        field_attributes = {**self.fields_in, **self.fields_out, **self.fields_inout}
+        state_fortran = dict()
+        for key, field in fields.items():
+            fortran_name = field_attributes[key]["fortran_name"]
+            state_fortran.update({
+                fortran_name: field
+            })       
+
+        output_fields_tuple = self.fortran_stencil(**state_fortran, **self.dims, **self.externals)
+        
+        output_fields = dict()
+        keys = list({**self.fields_inout, **self.fields_out}.keys())
+        for field in output_fields_tuple:
+            output_fields.update({keys.pop(0): field})
+        
         return output_fields
+    
+    
+            
+        
 
-    def call_gt4py_stencil(self, fields):
-        """Call gt4py stencil on a given field dict
-
-        Args:
-            fields (dict): dictionnary of numpy arrays
-        """
-        state = self.allocate(fields)
-        self.gt4py_stencil(**state)
-        return state
+    

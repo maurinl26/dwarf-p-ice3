@@ -2,6 +2,8 @@
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 import datetime
+import sys
+import logging
 
 import numpy as np
 
@@ -38,29 +40,40 @@ default_gt4py_config = GT4PyConfig(
 )
 
 if __name__ == "__main__":
+    
+    logging.info("Test CloudFraction")
 
     component = CloudFraction(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,
+        fortran_script="mode_cloud_fraction.F90",
+        fortran_module="mode_cloud_fraction",
         fortran_subroutine="cloud_fraction",
         gt4py_stencil="cloud_fraction",
     )
+    
+    logging.info(f"Component array shape {component.array_shape}")
+    logging.info(f"dtype : {type(component.array_shape[0])}")
 
     fields = {
         **{
-            key: np.array(np.random.rand(component.array_shape), "f", order="F")
+            key: np.array(np.random.rand(component.array_shape[0], component.array_shape[1]), "f", order="F")
             for key in component.fields_in.keys()
         },
         **{
-            key: np.array(np.random.rand(component.array_shape), "f", order="F")
+            key: np.array(np.random.rand(component.array_shape[0], component.array_shape[1]), "f", order="F")
             for key in component.fields_inout.keys()
         },
         **{
-            key: np.zeros(component.array_shape, "f", order="F")
+            key: np.array(np.random.rand(component.array_shape[0], component.array_shape[1]), "f", order="F")
             for key in component.fields_out.keys()
         },
     }
-
+    
+    logging.info("Calling fortran field")
     fortran_fields = component.call_fortran_stencil(fields)
+    print(fortran_fields)
+
+    logging.info("Calling gt4py field")
     gt4py_fields = component.call_gt4py_stencil(fields)
