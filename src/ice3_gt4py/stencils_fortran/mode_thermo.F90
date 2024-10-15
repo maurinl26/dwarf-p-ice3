@@ -13,7 +13,7 @@ module mode_thermo
     implicit none
 
     integer(kind=int32), intent(in) :: nktb, nkte, nijb, nije, nkt, nijt, krr
-    integer(kind=real64), intent(in) :: xlvtt, xlstt, xcl, xci, xtt, xcpv, xcpd
+    real(kind=real64), intent(in) :: xlvtt, xlstt, xcl, xci, xtt, xcpv, xcpd
 
     real(kind=real64), dimension(nijt, nkt), intent(in) :: pth
     real(kind=real64), dimension(nijt, nkt), intent(in) :: pexn
