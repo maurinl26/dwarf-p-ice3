@@ -13,6 +13,8 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
 from stencils.test_cloud_fraction import CloudFraction
+from stencils.test_condensation import Condensation
+from stencils.test_thermodynamic_fields import ThermodynamicFields
 
 ### Fortran dims
 NIT = 50
@@ -77,3 +79,27 @@ if __name__ == "__main__":
 
     logging.info("Calling gt4py field")
     gt4py_fields = component.call_gt4py_stencil(fields)
+    
+    # Compare
+    
+    ####
+    component = Condensation(
+        computational_grid=test_grid,
+        phyex=phyex,
+        gt4py_config=default_gt4py_config,
+        fortran_script="mode_condensation.F90",
+        fortran_module="mode_condensation",
+        fortran_subroutine="condensation",
+        gt4py_stencil="condensation",
+    )
+    
+    ####
+    component = ThermodynamicFields(
+        computational_grid=test_grid,
+        phyex=phyex,
+        gt4py_config=default_gt4py_config,
+        fortran_script="mode_condensation.F90",
+        fortran_module="mode_condensation",
+        fortran_subroutine="condensation",
+        gt4py_stencil="condensation",
+    )

@@ -1,264 +1,182 @@
 # -*- coding: utf-8 -*-
-from functools import partial
+from functools import cached_property, partial
 import fmodpy
-import numpy as np
-import logging
-from ctypes import c_int32, c_double
-from functools import cached_property
-
-from typing import TYPE_CHECKING
-
 from ifs_physics_common.framework.grid import I, J, K
-from ifs_physics_common.framework.storage import allocate_data_array
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.grid import ComputationalGrid
-import datetime
+import numpy as np
+import logging
+import sys
+from pathlib import Path
 from ice3_gt4py.initialisation.utils import initialize_field
-
-
 from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.phyex_common.tables import src_1d
 from gt4py.storage import from_array
 
-
-from typing import Literal, Tuple
-
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
+from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.utils.typingx import (
     DataArray,
-    NDArrayLikeDict,
 )
 
+from ice3_gt4py.utils.allocate import allocate
+from ice3_gt4py.utils.doctor_norm import field_doctor_norm
 
-def allocate_state_condensation(
-    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
-) -> NDArrayLikeDict:
-    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+logging.getLogger()
 
-    Args:
-        computational_grid (ComputationalGrid): grid indexes
-        gt4py_config (GT4PyConfig): gt4py configuration
-
-    Returns:
-        NDArrayLikeDict: dictionnary of field with associated keys for field name
-    """
-
-    def _allocate(
-        grid_id: Tuple[DimSymbol, ...],
-        units: str,
-        dtype: Literal["bool", "float", "int"],
-    ) -> DataArray:
-        return allocate_data_array(
-            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
-        )
-
-    allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
-    allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
-    allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
-    allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
-    allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
-    allocate_i = partial(_allocate, grid_id=(I, J, K), units="", dtype="int")
-
-    return {
-        "sigqsat": allocate_ij(),
-        "pabs": allocate_f(),
-        "sigs": allocate_f(),
-        "t": allocate_f(),
-        "rv_in": allocate_f(),
-        "ri_in": allocate_f(),
-        "rc_in": allocate_f(),
-        "rv_out": allocate_f(),
-        "rc_out": allocate_f(),
-        "ri_out": allocate_f(),
-        "cldfr": allocate_f(),
-        "sigrc": allocate_f(),
-        "cph": allocate_f(),
-        "lv": allocate_f(),
-        "ls": allocate_f(),
-        "inq1": allocate_i(),
-    }
-
-
-class TestCondensation(ComputationalGridComponent):
+class Condensation(ComputationalGridComponent):
     def __init__(
         self,
         computational_grid: ComputationalGrid,
         gt4py_config: GT4PyConfig,
         phyex: Phyex,
+        fortran_subroutine: str,
+        fortran_script: str,
+        fortran_module: str,
+        gt4py_stencil: str,
     ) -> None:
         super().__init__(
             computational_grid=computational_grid, gt4py_config=gt4py_config
         )
+        self.phyex_externals = phyex.to_externals()
 
-        externals_gt4py = phyex.to_externals()
-
-        # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
-        self.gt4py_stencil = self.compile_stencil("condensation", externals_gt4py)
-
-        self.externals = {
-            "xrv": c_double(externals_gt4py["RD"]),
-            "xrd": c_double(externals_gt4py["RV"]),
-            "xalpi": c_double(externals_gt4py["ALPI"]),
-            "xbetai": c_double(externals_gt4py["BETAI"]),
-            "xgami": c_double(externals_gt4py["GAMI"]),
-            "xalpw": c_double(externals_gt4py["ALPW"]),
-            "xbetaw": c_double(externals_gt4py["BETAW"]),
-            "xgamw": c_double(externals_gt4py["GAMW"]),
-            "hcondens": 0,
-            "hlambda3": 0,
-            "lstatnw": 0,
-            "ouseri": 0,
-            "osigmas": 1,
-            "ocnd2": 0,
-        }
-
-        # TODO : infer from gri
-
-        self.generate_gt4py_state()
-
-        self.fortran_directory = "./src/ice3_gt4py/stencils_fortran/"
-        self.fortran_stencil = fmodpy.fimport(
-            self.fortran_directory + "mode_condensation.F90",
+        self.compile_fortran_stencil(
+            fortran_module=fortran_module,
+            fortran_script=fortran_script,
+            fortran_subroutine=fortran_subroutine
         )
+        
+        logging.info(f"{self.phyex_externals['SUBG_COND'], self.phyex_externals['SUBG_MF_PDF']}")
+        
+        
+        self.compile_gt4py_stencil(gt4py_stencil, self.phyex_externals)
 
     @cached_property
-    def dims(self):
+    def externals(self):
+        """Filter phyex externals"""
         return {
-            "nijt": NIJT,
-            "nkt": NKT,
-            "nktb": NKTB,
-            "nkte": NKTE,
-            "nijb": NIJB,
-            "nije": NIJE,
+            "xrv": self.phyex_externals["RV"], 
+            "xrd": self.phyex_externals["RD"], 
+            "xalpi": self.phyex_externals["ALPI"], 
+            "xbetai": self.phyex_externals["BETAI"], 
+            "xgami": self.phyex_externals["GAMI"], 
+            "xalpw": self.phyex_externals["ALPW"],
+            "xbetaw": self.phyex_externals["BETAW"], 
+            "xgamw": self.phyex_externals["GAMW"],
+            "hcondens": self.phyex_externals["CONDENS"], 
+            "hlambda3": self.phyex_externals["LAMBDA3"],
+            "lstatnw": self.phyex_externals["LSTATNW"],
+            "ouseri": 0,
+            "osigmas": 0,
+            "ocnd2": 0
         }
 
     @cached_property
-    def fields_mapping(self):
-        """Map Fortran field name (key) to GT4Py stencil field name (value)"""
+    def dims(self) -> dict:
+        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+        nijt = nit * njt
         return {
-            "psigqsat": "sigqsat",
-            "ppabs": "pabs",
-            "pt": "t",
-            "psigs": "sigs",
-            "prv_in": "rv_in",
-            "prc_in": "rc_in",
-            "pri_in": "ri_in",
-            "prv_out": "rv_out",
-            "prc_out": "rc_out",
-            "pri_out": "ri_out",
-            "psigrc": "sigrc",
-            "pcldfr": "cldfr",
-            "pcph": "cph",
-            "plv": "lv",
-            "pls": "ls",
-        }
+            "nijt": nijt, 
+            "nkt": nkt,
+            "nkte": 0,
+            "nktb": nkt - 1,
+            "nijb": 0,
+            "nije": nijt - 1,
+            "ptstep": 1
+            }
+
+    @cached_property
+    def array_shape(self) -> dict:
+        return (int(self.dims["nijt"]), int(self.dims["nkt"]))
 
     @cached_property
     def fields_in(self):
-        """Fields marked as intent(in) in Fortran SUBROUTINE
-
-        Returns:
-            _type_: _description_
-        """
-        nijt, nkt = self.dims["nijt"], self.dims["nkt"]
         return {
-            "ppabs": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "pt": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "prv_in": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "prc_in": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "pri_in": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "psigs": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "psigqsat": np.array(np.random.rand(nijt), dtype=c_double, order="F"),
-            "plv": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "pls": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
-            "pcph": np.array(np.random.rand(nijt, nkt), dtype=c_double, order="F"),
+            "sigqsat": {"grid": (I, J, K), "dtype": "float", "fortran_name": "psigqsat"},
+    "pabs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "ppabs"},
+    "sigs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "psigs"},
+    "t": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pt"},
+    "rv_in": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prv_in"},
+    "ri_in": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri_in"},
+    "rc_in": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc_in"},
+    "cph": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pcph"},
+    "lv": {"grid": (I, J, K), "dtype": "float", "fortran_name": "plv"},
+    "ls": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pls"},
         }
 
     @cached_property
     def fields_out(self):
-        """Fields marked as intent(out) in Fortran SUBROUTINE
+        return {"rv_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prv_out"},
+    "rc_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc_out"},
+    "ri_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri_out"},
+    "cldfr": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pcldfr"},
+    "sigrc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "psigrc"},}
 
-        Returns:
-            Dict: _description_
+    @cached_property
+    def fields_inout(self):
+        return {}
+
+    #### Compilations ####
+    def compile_gt4py_stencil(self, gt4py_stencil: str, externals: dict):
+        """Compile GT4Py script given
+
+        Args:
+            gt4py_stencil (str): _description_
+            externals (dict): _description_
         """
-        nijt, nkt = self.dims["nijt"], self.dims["nkt"]
-        return {
-            "prc_out": np.zeros((nijt, nkt), dtype=c_double, order="F"),
-            "pri_out": np.zeros((nijt, nkt), dtype=c_double, order="F"),
-            "prv_out": np.zeros((nijt, nkt), dtype=c_double, order="F"),
-            "pt_out": np.zeros((nijt, nkt), dtype=c_double, order="F"),
-            "psigrc": np.zeros((nijt, nkt), dtype=c_double, order="F"),
-            "pcldfr": np.zeros((nijt, nkt), dtype=c_double, order="F"),
-        }
+        self.gt4py_stencil = self.compile_stencil(gt4py_stencil, externals)
 
-    def generate_gt4py_state(self):
+    def compile_fortran_stencil(self, fortran_script, fortran_module, fortran_subroutine):
+        current_directory = Path.cwd()
+        logging.info(f"Root directory {current_directory}")
+        root_directory = current_directory
+        
+        stencils_directory = Path(root_directory, "src", "ice3_gt4py", "stencils_fortran")
+        script_path = Path(stencils_directory, fortran_script)
+        
+        logging.info(f"Fortran script path {script_path}")
+        self.fortran_script = fmodpy.fimport(script_path)
+        fortran_module = getattr(self.fortran_script, fortran_module)
+        self.fortran_stencil = getattr(fortran_module, fortran_subroutine)
 
-        fields = {**self.fields_in, **self.fields_out}
-        fields.pop("pt_out")
-        self.state_gt4py = allocate_state_condensation(
-            self.computational_grid, self.gt4py_config
-        )
-        for fortran_key, gt4py_key in self.fields_mapping.items():
-            initialize_field(self.state_gt4py[gt4py_key], fields[fortran_key])
+    
+    ##### Calls #####
+    def call_fortran_stencil(self, fields: dict):
+        """Call fortran stencil on a given field dict
 
-        # Add inq1
-        nijt, nkt = self.dims["nijt"], self.dims["nkt"]
-        self.state_gt4py = {
-            **self.state_gt4py,
-            **{
-                "inq1": initialize_field(
-                    self.state_gt4py["inq1"], np.zeros((nijt, nkt), dtype=int)
-                ),
-                "src_1d": from_array(src_1d, backend=gt4py_config.backend),
-            },
-        }
+        externals and dims are handled by component attributes itself
 
-    def test(self):
-        """Call fortran stencil"""
+        Args:
+            fields (dict): dictionnary of numpy arrays
+        """
+        field_attributes = {**self.fields_in, **self.fields_out, **self.fields_inout}
+        state_fortran = dict()
+        for key, field in fields.items():
+            fortran_name = field_attributes[key]["fortran_name"]
+            state_fortran.update({
+                fortran_name: field
+            })       
 
-        # Run Fortran
-        logging.info("Run fortran stencil")
-        # pt_out, prv_out, pri_out, prc_out, pcldfr, psigrc
-        self.fortran_stencil.mode_condensation.condensation(
-            **self.dims, **self.externals, **self.fields_in, **self.fields_out
-        )
+        output_fields_tuple = self.fortran_stencil(**state_fortran, **self.dims, **self.externals)
+        
+        output_fields = dict()
+        keys = list({**self.fields_inout, **self.fields_out}.keys())
+        for field in output_fields_tuple:
+            output_fields.update({keys.pop(0): field})
+        
+        return output_fields
+    
 
-        # Run gt4py
-        logging.info("Run gt4py stencil")
-        self.gt4py_stencil(**self.state_gt4py)
+    def call_gt4py_stencil(self, fields: dict):
+        """Call gt4py_stencil from a numpy array"""
+        state_gt4py = dict() 
+        for key, array in fields.items():
+            state_gt4py.update({
+                key: from_array(array)
+                })
+        self.gt4py_stencil(**state_gt4py)
+        
+        return state_gt4py
 
-
-if __name__ == "__main__":
-
-    NIJT = 50
-    NKT = 15
-    NKTB = 15
-    NKTE = 15
-    NIJB = 0
-    NIJE = 50
-
-    # TODO : set in env values
-    backend = "gt:cpu_ifirst"
-    rebuild = True
-    validate_args = True
-
-    phyex = Phyex(program="AROME")
-
-    # TODO : set init with grid
-    logging.info("Initializing grid ...")
-    grid = ComputationalGrid(NIJT, 1, NKT)
-    dt = datetime.timedelta(seconds=1)
-
-    ######## Backend and gt4py config #######
-    logging.info(f"With backend {backend}")
-    gt4py_config = GT4PyConfig(
-        backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
-    )
-
-    logging.info("Calling ice4_rrhong with dicts")
-
-    TestCondensation(
-        computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex
-    ).test()
+    

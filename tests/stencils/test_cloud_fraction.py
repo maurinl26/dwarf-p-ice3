@@ -46,6 +46,16 @@ class CloudFraction(ComputationalGridComponent):
             fortran_script=fortran_script,
             fortran_subroutine=fortran_subroutine
         )
+        
+        logging.info(f"{self.phyex_externals['SUBG_COND'], self.phyex_externals['SUBG_MF_PDF']}")
+        
+        externals_gt4py = dict()
+        for key in ["SUBG_COND", "CRIAUTC", "SUBG_MF_PDF", "CRIAUTI", "ACRIAUTI", "BCRIAUTI", "TT"]:
+            externals_gt4py.update({
+                key: self.phyex_externals[key]
+            })
+        
+        self.compile_gt4py_stencil(gt4py_stencil, externals_gt4py)
 
     @cached_property
     def externals(self):
@@ -161,8 +171,16 @@ class CloudFraction(ComputationalGridComponent):
         
         return output_fields
     
-    
-            
+
+    def call_gt4py_stencil(self, fields: dict):
+        """Call gt4py_stencil from a numpy array"""
+        state_gt4py = dict() 
+        for key, array in fields.items():
+            state_gt4py.update({
+                key: from_array(array)
+                })
+        self.gt4py_stencil(**state_gt4py)
         
+        return state_gt4py
 
     
