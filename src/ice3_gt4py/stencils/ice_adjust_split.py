@@ -161,6 +161,7 @@ def thermodynamic_fields(
     rr: gtscript.Field["float"],
     ri: gtscript.Field["float"],
     rs: gtscript.Field["float"],
+    rg: gtscript.Field["float"],
     lv: gtscript.Field["float"],
     ls: gtscript.Field["float"],
     cph: gtscript.Field["float"],
