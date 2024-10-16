@@ -16,8 +16,8 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 
 from stencils.test_cloud_fraction import CloudFraction
 from stencils.test_condensation import Condensation
-from stencils.test_latent_heat import LatentHeat, allocate_state_latent_heat
-from utils.allocate_state import FieldAllocator
+from stencils.test_latent_heat import LatentHeat
+from utils.allocate_state import allocate_state
 
 ### Fortran dims
 NIT = 50
@@ -88,7 +88,12 @@ if __name__ == "__main__":
     fortran_fields = component.call_fortran_stencil(fields)
     print(fortran_fields)
     
-    state_gt4py = allocate_state_latent_heat(test_grid, default_gt4py_config)
+    fields_metadata = {
+        **component.fields_in,
+        **component.fields_out,
+        **component.fields_inout
+    }
+    state_gt4py = allocate_state(test_grid, default_gt4py_config, fields_metadata)
     for key, field_array in fields.items():
         initialize_field(state_gt4py[key], field_array)
 
