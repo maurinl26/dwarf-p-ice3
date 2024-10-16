@@ -57,29 +57,29 @@ class AroAdjust(ImplicitTendencyComponent):
     def _input_properties(self) -> PropertyDict:
         # TODO : sort input properties from state
         return {
-            "sigqsat": {"grid": (I, J, K), "units": ""},
-            "exn": {"grid": (I, J, K), "units": ""},
-            "exnref": {"grid": (I, J, K), "units": ""},
-            "rhodref": {"grid": (I, J, K), "units": ""},
-            "pabs": {"grid": (I, J, K), "units": ""},
-            "sigs": {"grid": (I, J, K), "units": ""},
-            "cf_mf": {"grid": (I, J, K), "units": ""},
-            "rc_mf": {"grid": (I, J, K), "units": ""},
-            "ri_mf": {"grid": (I, J, K), "units": ""},
-            "th": {"grid": (I, J, K), "units": ""},
-            "rv": {"grid": (I, J, K), "units": ""},
-            "rc": {"grid": (I, J, K), "units": ""},
-            "rr": {"grid": (I, J, K), "units": ""},
-            "ri": {"grid": (I, J, K), "units": ""},
-            "rs": {"grid": (I, J, K), "units": ""},
-            "rg": {"grid": (I, J, K), "units": ""},
-            "cldfr": {"grid": (I, J, K), "units": ""},
-            "ifr": {"grid": (I, J, K), "units": ""},
-            "hlc_hrc": {"grid": (I, J, K), "units": ""},
-            "hlc_hcf": {"grid": (I, J, K), "units": ""},
-            "hli_hri": {"grid": (I, J, K), "units": ""},
-            "hli_hcf": {"grid": (I, J, K), "units": ""},
-            "sigrc": {"grid": (I, J, K), "units": ""},
+            "sigqsat": {"grid": (I, J, K), "dtype": "float","units": ""},
+            "exn": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "exnref": {"grid": (I, J, K), "dtype": "float","units": ""},
+            "rhodref": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "pabs": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "sigs": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "cf_mf": {"grid": (I, J, K), "dtype":"float", "units": ""},
+            "rc_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "ri_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
+            "th": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "rv": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "rc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "rr": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "ri": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "rs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "rg": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "cldfr": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "ifr": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "hli_hri": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "hli_hcf": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
+            "sigrc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
         }
 
     @cached_property
@@ -91,13 +91,13 @@ class AroAdjust(ImplicitTendencyComponent):
     def _diagnostic_properties(self) -> PropertyDict:
         # TODO : sort diagnostic properties from state
         return {
-            "f_ths": {"grid": (I, J, K), "units": ""},
-            "f_rcs": {"grid": (I, J, K), "units": ""},
-            "f_rrs": {"grid": (I, J, K), "units": ""},
-            "f_ris": {"grid": (I, J, K), "units": ""},
-            "f_rss": {"grid": (I, J, K), "units": ""},
-            "f_rvs": {"grid": (I, J, K), "units": ""},
-            "f_rgs": {"grid": (I, J, K), "units": ""},
+            "f_ths": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "f_rcs": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "f_rrs": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "f_ris": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "f_rss": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "f_rvs": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "f_rgs": {"grid": (I, J, K), "dtype": "float", "unit": ""},
         }
 
     @cached_property
