@@ -14,7 +14,7 @@ from ice3_gt4py.utils.allocate import allocate
 from pathlib import Path
 
 import datetime
-from typing import Literal, 
+
 from functools import partial
 from ice3_gt4py.phyex_common.phyex import Phyex
 
