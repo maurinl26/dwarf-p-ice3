@@ -73,15 +73,15 @@ class Neb:
 
     TMINMIX: float = field(default=273.16)
     TMAXMIX: float = field(default=253.16)
-    HGT_QS: float = field(default=False)
+    LHGT_QS: bool = field(default=False)
     FRAC_ICE_ADJUST: int = field(default=FracIceAdjust.S.value)
     FRAC_ICE_SHALLOW: int = field(default=FracIceShallow.S.value)
     VSIGQSAT: float = field(default=0.02)
     CONDENS: int = field(default=Condens.CB02.value)
     LAMBDA3: int = field(default=Lambda3.CB.value)
-    STATNW: bool = field(default=False)
-    SIGMAS: bool = field(default=True)
-    SUBG_COND: bool = field(default=False)
+    LSTATNW: bool = field(default=False)
+    LSIGMAS: bool = field(default=True)
+    LSUBG_COND: bool = field(default=False)
 
     def __post_init__(self):
         if self.HPROGRAM == "AROME":
