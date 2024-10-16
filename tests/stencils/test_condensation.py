@@ -155,7 +155,12 @@ class Condensation(ComputationalGridComponent):
             fortran_name = field_attributes[key]["fortran_name"]
             state_fortran.update({
                 fortran_name: field
-            })       
+            })    
+            
+        # Specific to condensation
+        state_fortran.update({
+            "pt_out": state_fortran["pt"]
+        })   
 
         output_fields_tuple = self.fortran_stencil(**state_fortran, **self.dims, **self.externals)
         

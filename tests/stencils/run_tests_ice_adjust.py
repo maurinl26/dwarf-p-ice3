@@ -96,23 +96,51 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
             for key in component.fields_out.keys()
         },
     }
-
-##### Test components ######
-import unittest
-
-class TestLatentHeat(unittest.TestCase):
     
-    def setUp(self):
-        ...
-        
-    def tearDown(self):
-        ...
-        
-    def test_latent_heat(self):
-        ...
+    
+def compare(fortran_fields: dict, gt4py_state: dict):
+    """Compare fortran and gt4py field mean
+
+    Args:
+        fortran_fields (dict): output fields from fortran
+        gt4py_state (dict): output fields from gt4py
+    """
+    for field_name, field_array in fortran_fields.items():
+        logging.info(f"{field_name}")
+        fortran_mean = field_array.mean()
+        gt4py_mean = gt4py_state[field_name].mean()
+        absolute_diff = abs(gt4py_mean - fortran_mean)
+        logging.info(f"{field_name}, absolute mean difference {absolute_diff}")
+
+def run_test(component: ComputationalGridComponent):  
+    """Draw random arrays and call gt4py and fortran stencils side-by-side
+
+    Args:
+        component (ComputationalGridComponent): component to test
+    """
+    
+    logging.info(f"Start test {component.__class__.__name__}")
+    fields = draw_fields(component)
+    state_gt4py = allocate_gt4py_fields(component, fields)
+    
+    logging.info(f"Compare input fields")
+    compare(fortran_fields=fields, gt4py_state=state_gt4py)
+
+    logging.info("Calling fortran field")
+    fortran_output_fields = component.call_fortran_stencil(fields)
+
+    logging.info("Calling gt4py field")
+    gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+    logging.info("Compare output fields")
+    compare(fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+    logging.info(f"End test {component.__class__.__name__}")
+    
+    
 
 if __name__ == "__main__":
 
+    ####### LatentHeat #######
     logging.info("Test Latent Heat")
     component = LatentHeat(
         computational_grid=test_grid,
@@ -123,16 +151,8 @@ if __name__ == "__main__":
         fortran_subroutine="latent_heat",
         gt4py_stencil="thermodynamic_fields",
     )
-
-    fields = draw_fields(component)
-
-    logging.info("Calling fortran field")
-    fortran_fields = component.call_fortran_stencil(fields)
     
-    state_gt4py = allocate_gt4py_fields(component, fields)
-
-    logging.info("Calling gt4py field")
-    gt4py_fields = component.call_gt4py_stencil(state_gt4py)
+    run_test(component)
 
     ########### Condensation #############
     logging.info("Test Condensation")
@@ -146,17 +166,7 @@ if __name__ == "__main__":
         gt4py_stencil="condensation"
     )
     
-    fields = draw_fields(component) 
-
-    logging.info("Calling fortran field")
-    fortran_fields = component.call_fortran_stencil(fields)
-    
-    fields = allocate_gt4py_fields(component, fields)
-
-    logging.info("Calling gt4py field")
-    gt4py_fields = component.call_gt4py_stencil(state_gt4py)
-
-    
+    run_test(component)
 
     ########### CloudFraction ############
     logging.info("Test CloudFraction")
@@ -173,13 +183,4 @@ if __name__ == "__main__":
     logging.info(f"Component array shape {component.array_shape}")
     logging.info(f"dtype : {type(component.array_shape[0])}")
     
-    fields = draw_fields(component)
-
-    logging.info("Calling fortran field")
-    fortran_fields = component.call_fortran_stencil(fields)
-    print(fortran_fields)
-
-    logging.info("Calling gt4py field")
-    gt4py_fields = component.call_gt4py_stencil(fields)
-
-    # Compare
+    run_test(component)

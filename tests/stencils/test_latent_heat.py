@@ -146,7 +146,7 @@ class LatentHeat(ComputationalGridComponent):
         output_fields_tuple = self.fortran_stencil(
             **state_fortran, **self.dims, **self.externals
         )
-
+        
         output_fields = dict()
         keys = list({**self.fields_inout, **self.fields_out}.keys())
         for field in output_fields_tuple:
