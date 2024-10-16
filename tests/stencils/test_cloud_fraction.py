@@ -19,9 +19,6 @@ from ifs_physics_common.utils.typingx import (
     DataArray,
 )
 
-from ice3_gt4py.utils.allocate import allocate
-from ice3_gt4py.utils.doctor_norm import field_doctor_norm
-
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 

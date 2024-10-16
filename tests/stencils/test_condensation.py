@@ -47,7 +47,7 @@ class Condensation(ComputationalGridComponent):
             fortran_subroutine=fortran_subroutine
         )
         
-        logging.info(f"{self.phyex_externals['SUBG_COND'], self.phyex_externals['SUBG_MF_PDF']}")
+        logging.info(f"{self.phyex_externals['LSUBG_COND'], self.phyex_externals['SUBG_MF_PDF']}")
         
         
         self.compile_gt4py_stencil(gt4py_stencil, self.phyex_externals)
@@ -83,7 +83,6 @@ class Condensation(ComputationalGridComponent):
             "nktb": nkt - 1,
             "nijb": 0,
             "nije": nijt - 1,
-            "ptstep": 1
             }
 
     @cached_property
