@@ -70,7 +70,7 @@ def allocate_state_ice4_rrhong(
     }
 
 
-class TestIce4RRHONG(ComputationalGridComponent):
+class Ice4RRHONG(ComputationalGridComponent):
     def __init__(
         self,
         computational_grid: ComputationalGrid,
@@ -211,42 +211,11 @@ if __name__ == "__main__":
 
     logging.info("Calling ice4_rrhong with dicts")
 
-    test_ice4_rrhong = TestIce4RRHONG(
+    test_ice4_rrhong = Ice4RRHONG(
         computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex, 
         fortran_module="mode_ice4_rrhong", fortran_subroutine="ice4_rrhong",
         fortran_script="mode_ice4_rrhong.F90",
         gt4py_stencil="ice4_rrhong"
     ).test()
     
-    # New component
-    logging.info("Ice4Rrhong component")
-    component = Ice4Rrhong(
-        computational_grid=grid, 
-        gt4py_config=gt4py_config, 
-        phyex=phyex, 
-        fortran_script="mode_ice4_rrhong.F90",
-        fortran_module="mode_ice4_rrhong", 
-        fortran_subroutine="ice4_rrhong",
-        gt4py_stencil_name="ice4_rrhong"
-    )
-    
-    fields = {
-        **{
-            key: np.array(np.random.rand(component.array_shape), "f", order="F")
-            for key in component.fields_in.keys()
-        },
-        **{
-            key: np.array(np.random.rand(component.array_shape), "f", order="F")
-            for key in component.fields_inout.keys()
-        },
-        **{
-            key: np.zeros((component.array_shape), "f", order="F")
-            for key in component.fields_out.keys()
-        },
-    }
-    
-    
-    output = component.call_fortran_stencil(fields)
-    logging.info(f"{output}")
-    component.call_gt4py_stencil(fields)
-    
+  

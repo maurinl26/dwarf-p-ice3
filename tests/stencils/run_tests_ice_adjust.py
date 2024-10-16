@@ -109,7 +109,7 @@ def compare(fortran_fields: dict, gt4py_state: dict):
         logging.info(f"{field_name}")
         fortran_mean = field_array.mean()
         gt4py_mean = gt4py_state[field_name].mean()
-        absolute_diff = abs(gt4py_mean - fortran_mean)
+        absolute_diff = abs(gt4py_mean - fortran_mean)[0]
         logging.info(f"{field_name}, absolute mean difference {absolute_diff}")
 
 def run_test(component: ComputationalGridComponent):  
