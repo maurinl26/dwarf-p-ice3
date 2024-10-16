@@ -4,22 +4,69 @@ import fmodpy
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.components import ComputationalGridComponent
-from ifs_physics_common.framework.grid import ComputationalGrid
+from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
+from ifs_physics_common.framework.storage import allocate_data_array
 import numpy as np
 import logging
 import sys
 from pathlib import Path
 from ice3_gt4py.phyex_common.phyex import Phyex
-from gt4py.storage import from_array
 
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
+
+
+from typing import Literal, Tuple
 from ifs_physics_common.utils.typingx import (
     DataArray,
+    DataArrayDict,
+    NDArrayLikeDict,
 )
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
+
+def allocate_state_latent_heat(
+    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
+) -> NDArrayLikeDict:
+    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
+
+    Args:
+        computational_grid (ComputationalGrid): grid indexes
+        gt4py_config (GT4PyConfig): gt4py configuration
+
+    Returns:
+        NDArrayLikeDict: dictionnary of field with associated keys for field name
+    """
+
+    def _allocate(
+        grid_id: Tuple[DimSymbol, ...],
+        units: str,
+        dtype: Literal["bool", "float", "int"],
+    ) -> DataArray:
+        return allocate_data_array(
+            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
+        )
+
+    allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
+    allocate_b = partial(_allocate, grid_id=(I, J, K), units="", dtype="bool")
+    allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
+    allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
+    allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
+    allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
+
+    return {
+        "th": allocate_f(),
+        "exn": allocate_f(),
+        "rv": allocate_f(),
+        "rc": allocate_f(),
+        "ri": allocate_f(),
+        "rs": allocate_f(),
+        "rr": allocate_f(),
+        "rg": allocate_f(),
+        "t": allocate_f(),
+        "lv": allocate_f(),
+        "ls": allocate_f(),
+        "cph": allocate_f()
+    }
 
 
 class LatentHeat(ComputationalGridComponent):
@@ -56,6 +103,7 @@ class LatentHeat(ComputationalGridComponent):
             "xci": self.phyex_externals["CI"],
             "xtt": self.phyex_externals["TT"],
             "xcpv": self.phyex_externals["CPV"],
+            "xcpd": self.phyex_externals["CPD"],
             "krr": self.phyex_externals["NRR"],
         }
 
@@ -95,7 +143,7 @@ class LatentHeat(ComputationalGridComponent):
             "t": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
             "lv": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zlv"},
             "ls": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zls"},
-            "cph": {"grid": (I, J, K), "dtype": "float", "fortran_name": "cph"},
+            "cph": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zcph"},
         }
 
     @cached_property
@@ -157,9 +205,5 @@ class LatentHeat(ComputationalGridComponent):
 
     def call_gt4py_stencil(self, fields: dict):
         """Call gt4py_stencil from a numpy array"""
-        state_gt4py = dict()
-        for key, array in fields.items():
-            state_gt4py.update({key: from_array(array)})
-        self.gt4py_stencil(**state_gt4py)
-
-        return state_gt4py
+        self.gt4py_stencil(**fields)
+        return fields

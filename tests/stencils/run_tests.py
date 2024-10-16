@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
+
 import datetime
 import sys
 import logging
@@ -8,13 +9,15 @@ import logging
 import numpy as np
 
 from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3_gt4py.initialisation.utils import initialize_field
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
 from stencils.test_cloud_fraction import CloudFraction
 from stencils.test_condensation import Condensation
-from stencils.test_latent_heat import LatentHeat
+from stencils.test_latent_heat import LatentHeat, allocate_state_latent_heat
+from utils.allocate_state import FieldAllocator
 
 ### Fortran dims
 NIT = 50
@@ -84,9 +87,13 @@ if __name__ == "__main__":
     logging.info("Calling fortran field")
     fortran_fields = component.call_fortran_stencil(fields)
     print(fortran_fields)
+    
+    state_gt4py = allocate_state_latent_heat(test_grid, default_gt4py_config)
+    for key, field_array in fields.items():
+        initialize_field(state_gt4py[key], field_array)
 
     logging.info("Calling gt4py field")
-    gt4py_fields = component.call_gt4py_stencil(fields)
+    gt4py_fields = component.call_gt4py_stencil(state_gt4py)
 
     logging.info("Test CloudFraction")
 
