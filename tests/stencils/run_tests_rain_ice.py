@@ -2,22 +2,11 @@
 import datetime
 import logging
 
-import numpy as np
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
-from ifs_physics_common.framework.components import ComputationalGridComponent
-from ifs_physics_common.utils.typingx import (
-    NDArrayLikeDict,
-)
-
 from stencils.test_ice4_rrhong import Ice4RRHONG
-from utils.allocate_state import allocate_state
 
-
-from ice3_gt4py.initialisation.utils import initialize_field
 from ice3_gt4py.phyex_common.phyex import Phyex
-
-
 
 ###### Default config for tests #######
 backend = "gt:cpu_ifirst"
@@ -59,10 +48,11 @@ if __name__ == "__main__":
     logging.info("Calling ice4_rrhong with dicts")
 
     test_ice4_rrhong = Ice4RRHONG(
-        computational_grid=grid, gt4py_config=gt4py_config, phyex=phyex, 
-        fortran_module="mode_ice4_rrhong", fortran_subroutine="ice4_rrhong",
+        computational_grid=grid,
+        gt4py_config=gt4py_config,
+        phyex=phyex,
+        fortran_module="mode_ice4_rrhong",
+        fortran_subroutine="ice4_rrhong",
         fortran_script="mode_ice4_rrhong.F90",
-        gt4py_stencil="ice4_rrhong"
+        gt4py_stencil="ice4_rrhong",
     ).test()
-    
-  

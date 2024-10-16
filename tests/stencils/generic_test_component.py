@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
-import logging
 from abc import abstractmethod
 from functools import cached_property, partial
-from pathlib import Path
-
 import fmodpy
-import numpy as np
+from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.components import ComputationalGridComponent
+from ifs_physics_common.framework.grid import ComputationalGrid
+import numpy as np
+
+from ice3_gt4py.phyex_common.phyex import Phyex
+
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
-from ice3_gt4py.phyex_common.phyex import Phyex
+from pathlib import Path
+
+import logging
 
 
 class TestComponent(ComputationalGridComponent):
@@ -45,6 +49,7 @@ class TestComponent(ComputationalGridComponent):
         value is the value stored in phyex dataclasses
         """
         pass
+        
 
     @cached_property
     @abstractmethod
@@ -55,6 +60,7 @@ class TestComponent(ComputationalGridComponent):
             dict: _description_
         """
         pass
+
 
     @cached_property
     @abstractmethod
@@ -121,7 +127,7 @@ class TestComponent(ComputationalGridComponent):
         output_fields_tuple = self.fortran_stencil(
             **state_fortran, **self.dims, **self.externals
         )
-
+        
         output_fields = dict()
         keys = list({**self.fields_inout, **self.fields_out}.keys())
         for field in output_fields_tuple:
