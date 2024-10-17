@@ -1,7 +1,6 @@
 .vscode
 .venv
 data
-sandbox
 namelists
 src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
