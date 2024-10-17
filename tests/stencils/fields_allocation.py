@@ -7,6 +7,7 @@ from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.utils.typingx import NDArrayLikeDict
+from stencils.generic_test_component import TestComponent
 from utils.allocate_state import allocate_state
 
 from ice3_gt4py.initialisation.utils import initialize_field
@@ -93,19 +94,26 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
     }
 
 
-def compare(fortran_fields: dict, gt4py_state: dict):
-    """Compare fortran and gt4py field mean
+def compare_output(component: TestComponent, fortran_fields: dict, gt4py_state: dict):
+    """Compare fortran and gt4py field mean on inout and out fields for a TestComponent
 
     Args:
         fortran_fields (dict): output fields from fortran
         gt4py_state (dict): output fields from gt4py
     """
     absolute_differences = dict()
-    for field_name, field_array in fortran_fields.items():
+    fields_to_compare = {**component.fields_inout, **component.fields_out}
+    for field_name, field_attributes in fields_to_compare.items():
         logging.info(f"{field_name}")
-        fortran_mean = field_array.mean()
-        gt4py_mean = gt4py_state[field_name].mean()
-        absolute_diff = abs(gt4py_mean - fortran_mean)[0]
+        fortran_name = field_attributes["fortran_name"]
+        fortran_field = fortran_fields[fortran_name]
+        logging.info(f"Fortran field shape {fortran_field.shape}")
+        
+        # 2D fields + removing shadow level
+        gt4py_reshaped_field = gt4py_state[field_name][:,0,1:]
+        logging.info(f"gt4py field shape {gt4py_reshaped_field.shape}")
+        
+        absolute_diff = abs(gt4py_reshaped_field - fortran_field).values.mean()
         logging.info(f"{field_name}, absolute mean difference {absolute_diff}")
         absolute_differences.update({
             field_name: absolute_diff
@@ -130,9 +138,11 @@ def run_test(component: ComputationalGridComponent):
 
     logging.info("Calling gt4py field")
     gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+    # TODO: remove shadow first level
 
     logging.info("Compare output fields")
-    absolute_differences = compare(fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+    absolute_differences = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
     logging.info(f"End test {component.__class__.__name__}")
     
     return absolute_differences

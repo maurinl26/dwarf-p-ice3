@@ -129,10 +129,17 @@ class TestComponent(ComputationalGridComponent):
         )
         
         output_fields = dict()
-        keys = list({**self.fields_inout, **self.fields_out}.keys())
-        for field in output_fields_tuple:
-            output_fields.update({keys.pop(0): field})
-
+        fields_to_name = {**self.fields_inout, **self.fields_out}
+        assert(len(output_fields_tuple) == len(list(fields_to_name.keys())))
+        
+        i = 0
+        for field_name, field_attributes in fields_to_name.items():
+            fortran_name = field_attributes["fortran_name"]
+            output_fields.update({
+                fortran_name: output_fields_tuple[i]
+            })
+            i+=1
+            
         return output_fields
 
     def call_gt4py_stencil(self, fields: dict):

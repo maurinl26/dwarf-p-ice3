@@ -17,6 +17,7 @@ import ice3_gt4py.stencils
 from ice3_gt4py.initialisation.utils import initialize_field
 from ice3_gt4py.phyex_common.phyex import Phyex
 from ice3_gt4py.utils.allocate import allocate
+from stencils.generic_test_component import TestComponent
 
 
 ##### For tests ####
@@ -61,7 +62,7 @@ def allocate_state_ice4_rrhong(
     }
 
 
-class TestIce4RRHONG(ComputationalGridComponent):
+class Ice4RRHONG(TestComponent):
     def __init__(
         self,
         computational_grid: ComputationalGrid,
@@ -73,142 +74,39 @@ class TestIce4RRHONG(ComputationalGridComponent):
         gt4py_stencil: str,
     ) -> None:
         super().__init__(
-            computational_grid=computational_grid, gt4py_config=gt4py_config
+            computational_grid=computational_grid, 
+            gt4py_config=gt4py_config,
+            phyex=phyex,
+            fortran_script=fortran_script,
+            fortran_module=fortran_module,
+            fortran_subroutine=fortran_subroutine,
+            gt4py_stencil=gt4py_stencil
         )
-
-        externals = phyex.to_externals()
-        self.ice4_rrhong_gt4py = self.compile_stencil(gt4py_stencil, externals)
-
-        self.externals = {
-            "xtt": externals["TT"],
-            "r_rtmin": externals["R_RTMIN"],
-            "lfeedbackt": externals["LFEEDBACKT"],
-        }
-
-        self.generate_gt4py_state()
-
-        # aro_filter stands for the parts before 'call ice_adjust' in aro_adjust.f90
-        # stencils_fortran_directory = "./src/ice3_gt4py/stencils_fortran"
-        # fortran_script = "mode_ice4_rrhong.F90"
-
-        project_dir = Path.cwd()
-        stencils_fortran_dir = Path(
-            project_dir, "src", "ice3_gt4py", "stencils_fortran"
-        )
-
-        fortran_script_path = Path(stencils_fortran_dir, fortran_script)
-        self.fortran_script = fmodpy.fimport(fortran_script_path)
-        self.fortran_module = fortran_module
-        self.fortran_subroutine = fortran_subroutine
-        fortran_module = getattr(self.fortran_script, self.fortran_module)
-        self.fortran_stencil = getattr(fortran_module, self.fortran_subroutine)
 
     @cached_property
     def dims(self):
+        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+        kproma = nit * njt * nkt
+        ksize = kproma
         return {"kproma": KPROMA, "ksize": KSIZE}
-
-    @cached_property
-    def fields_mapping(self):
-        return {
-            "ldcompute": "ldcompute",
-            "pexn": "exn",
-            "plsfact": "ls_fact",
-            "plvfact": "lv_fact",
-            "pt": "t",
-            "ptht": "tht",
-            "prrt": "rr_t",
-            "prrhong_mr": "rrhong_mr",
-        }
 
     @cached_property
     def fields_in(self):
         return {
-            "ldcompute": np.ones((self.dims["kproma"]), dtype=np.int32),
-            "pexn": np.array(np.random.rand(self.dims["kproma"]), "f", order="F"),
-            "plvfact": np.array(np.random.rand(self.dims["kproma"]), "f", order="F"),
-            "plsfact": np.array(np.random.rand(self.dims["kproma"]), "f", order="F"),
-            "pt": np.array(np.random.rand(self.dims["kproma"]), "f", order="F"),
-            "prrt": np.array(np.random.rand(self.dims["kproma"]), "f", order="F"),
-            "ptht": np.array(np.random.rand(self.dims["kproma"]), "f", order="F"),
+            "ldcompute": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "ldcompute"},
+            "exn": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "pexn"},
+            "lvfact": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "plvfact"},
+            "lsfact": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "plsfact"},
+            "t": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "pt"},
+            "rrt": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "prrt"},
+            "tht": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "ptht"},
         }
+        
+    @cached_property
+    def fields_inout(self):
+        return {}
 
     @cached_property
     def fields_out(self):
-        return {"prrhong_mr": np.zeros((self.dims["kproma"]), "f", order="F")}
+        return {"rrhong_mr": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "prrhong_mr"}}
 
-    def generate_gt4py_state(self):
-
-        self.state_gt4py = allocate_state_ice4_rrhong(
-            self.computational_grid, self.gt4py_config
-        )
-        fields = {**self.fields_in, **self.fields_out}
-        for key_fortran, key_gt4py in self.fields_mapping.items():
-            initialize_field(
-                self.state_gt4py[key_gt4py], fields[key_fortran][:, np.newaxis]
-            )
-
-    def test(self):
-        """Call fortran stencil"""
-
-        logging.info(
-            f"Input field, rrhong_mr (fortran) : {self.fields_out['prrhong_mr'].mean()}"
-        )
-        logging.info(
-            f"Input field, rrhong_mr (gt4py) : {self.state_gt4py['rrhong_mr'][...].mean()}"
-        )
-
-        logging.info(
-            f"Input field, ls_fact (fortran) : {self.fields_in['plsfact'].mean()}"
-        )
-        logging.info(
-            f"Input field, ls_fact (gt4py) : {self.state_gt4py['ls_fact'][...].mean()}"
-        )
-
-        self.fortran_stencil(
-            **self.dims, **self.externals, **self.fields_in, **self.fields_out
-        )
-
-        self.ice4_rrhong_gt4py(
-            **self.state_gt4py,
-        )
-
-        # logging.info(f"Mean Fortran : {prrhong_mr.mean()}")
-
-        field_gt4py = self.state_gt4py["rrhong_mr"][...]
-        logging.info(f"Mean GT4Py {field_gt4py.mean()}")
-
-
-if __name__ == "__main__":
-
-    KPROMA, KSIZE = 50, 50
-
-    # TODO : set in env values
-    backend = "gt:cpu_ifirst"
-    rebuild = True
-    validate_args = True
-
-    phyex = Phyex(program="AROME")
-
-    logging.info("Initializing grid ...")
-
-    # Grid has only 1 dimension since fields are packed in fortran version
-    grid = ComputationalGrid(50, 1, 1)
-    dt = datetime.timedelta(seconds=1)
-
-    ######## Backend and gt4py config #######
-    logging.info(f"With backend {backend}")
-    gt4py_config = GT4PyConfig(
-        backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
-    )
-
-    logging.info("Calling ice4_rrhong with dicts")
-
-    test_ice4_rrhong = TestIce4RRHONG(
-        computational_grid=grid,
-        gt4py_config=gt4py_config,
-        phyex=phyex,
-        fortran_module="mode_ice4_rrhong",
-        fortran_subroutine="ice4_rrhong",
-        fortran_script="mode_ice4_rrhong.F90",
-        gt4py_stencil="ice4_rrhong",
-    ).test()
