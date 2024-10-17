@@ -39,7 +39,7 @@ class CloudFraction(TestComponent):
     def externals(self):
         """Filter phyex externals"""
         return {
-            "lsubg_cond": self.phyex_externals["SUBG_COND"],
+            "lsubg_cond": self.phyex_externals["LSUBG_COND"],
             "xcriautc": self.phyex_externals["CRIAUTC"],
             "csubg_mf_pdf": self.phyex_externals["SUBG_MF_PDF"],
             "xcriauti": self.phyex_externals["CRIAUTI"],
