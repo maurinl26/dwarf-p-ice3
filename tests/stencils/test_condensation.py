@@ -113,6 +113,6 @@ class Condensation(TestComponent):
         inq1_field = {"inq1": {"grid": (I, J, K), "dtype":"int"}}
         state = allocate_state(self.computational_grid, self.gt4py_config, inq1_field)
         fields.update(state)
+        fields.update({"src_1d": src_1d})
         
-        self.gt4py_stencil(**fields, src_1d=src_1d)
-        return fields
+        return super().call_gt4py_stencil(fields)
