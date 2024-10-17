@@ -5,7 +5,6 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
@@ -53,6 +52,7 @@ def allocate_state(
     allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
     allocate_b = partial(_allocate, grid_id=(I, J, K), units="", dtype="bool")
     allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
+    allocate_i = partial(_allocate, grid_id=(I, J, K), units="", dtype="int")
     allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
     allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
     allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
@@ -61,5 +61,7 @@ def allocate_state(
     for field_name, field_attributes in fields.items():
         if field_attributes["dtype"] == "float":
             state.update({field_name: allocate_f()})
+        if field_attributes["dtype"] == "int":
+            state.update({field_name: allocate_i()})
 
     return state 

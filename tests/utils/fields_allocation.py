@@ -8,9 +8,9 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.utils.typingx import NDArrayLikeDict
 from stencils.generic_test_component import TestComponent
+from utils.initialize_fields import initialize_field
 from utils.allocate_state import allocate_state
 
-from ice3_gt4py.initialisation.utils import initialize_field
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 ###### Default config for tests #######
@@ -106,15 +106,16 @@ def compare_output(component: TestComponent, fortran_fields: dict, gt4py_state: 
     for field_name, field_attributes in fields_to_compare.items():
         logging.info(f"{field_name}")
         fortran_name = field_attributes["fortran_name"]
-        fortran_field = fortran_fields[fortran_name]
-        logging.info(f"Fortran field shape {fortran_field.shape}")
+        fortran_field = fortran_fields[fortran_name][:, np.newaxis,:]
+        logging.info(f"fortran field shape {fortran_field.shape}")
+        logging.info(f"fortran field mean : {fortran_field.mean()}")
         
         # 2D fields + removing shadow level
-        gt4py_reshaped_field = gt4py_state[field_name][:,0,1:]
-        logging.info(f"gt4py field shape {gt4py_reshaped_field.shape}")
-        
-        absolute_diff = abs(gt4py_reshaped_field - fortran_field).values.mean()
-        logging.info(f"{field_name}, absolute mean difference {absolute_diff}")
+        gt4py_field = gt4py_state[field_name]
+        logging.info(f"gt4py field shape {gt4py_field.shape}")
+        logging.info(f"gt4py field mean : {gt4py_field.values.mean()}")
+        absolute_diff = abs(gt4py_field - fortran_field).values.mean()
+        logging.info(f"{field_name}, absolute mean difference {absolute_diff}\n")
         absolute_differences.update({
             field_name: absolute_diff
         })
