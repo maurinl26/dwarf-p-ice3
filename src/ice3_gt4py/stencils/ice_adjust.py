@@ -106,7 +106,7 @@ def ice_adjust(
         NRR,
         RD,
         RV,
-        SUBG_COND,
+        LSUBG_COND,
         SUBG_MF_PDF,
         TT,
         LAMBDA3,
@@ -270,7 +270,7 @@ def ice_adjust(
         ths += w2 * ls / (cph * exnref)
 
         # 5.2  compute the cloud fraction cldfr
-        if __INLINED(not SUBG_COND):
+        if __INLINED(not LSUBG_COND):
             cldfr = 1 if (rcs + ris > 1e-12 / dt) else 0
         # Translation note : OCOMPUTE_SRC is taken False
         # Translation note : l320 to l322 removed

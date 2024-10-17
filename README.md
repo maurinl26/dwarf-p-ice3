@@ -38,7 +38,7 @@ There are three components available for microphysical adjustments, under _/src/
 
 - To launch ice_adjust (with cli):
 ```
-python src/ice3_gt4py/drivers/cli.py run-ice-adjust gt:cpu_ifirst /data/ice_adjust/reference.nc /data/ice_adjust/run.nc track_ice_adjust.json
+python src/drivers/cli.py run-ice-adjust gt:cpu_ifirst ./data/ice_adjust/reference.nc ./data/ice_adjust/run.nc track_ice_adjust.json
 ```
 
 
@@ -52,18 +52,15 @@ There are three components available for rain_ice (one-moment microphysical proc
 
 - To launch rain_ice (with cli):
 ```
-python src/ice3_gt4py/drivers/cli.py run-rain-ice gt:cpu_ifirst /data/rain_ice/reference.nc /data/rain_ice/run.nc track_rain_ice.json
+python src/drivers/cli.py run-rain-ice gt:cpu_ifirst ./data/rain_ice/reference.nc ./data/rain_ice/run.nc track_rain_ice.json
 ```
 
 ## Unit tests with fmodpy
 
-Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory). 
+Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
 
 Fortran routines are issued from CY49T0 version of the code and reworked to eliminate
-derivate types from routines. Then both stencils are ran with random numpy arrays 
+derivate types from routines. Then both stencils are ran with random numpy arrays
 as an input.
 
 ## Extraction of .dat files
-
-
-
