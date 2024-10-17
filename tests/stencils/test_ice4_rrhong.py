@@ -88,7 +88,11 @@ class Ice4RRHONG(TestComponent):
         nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
         kproma = nit * njt * nkt
         ksize = kproma
-        return {"kproma": KPROMA, "ksize": KSIZE}
+        return {"kproma": kproma, "ksize": ksize}
+    
+    @cached_property
+    def array_shape(self):
+        return (self.dims["ksize"], 1)
 
     @cached_property
     def fields_in(self):

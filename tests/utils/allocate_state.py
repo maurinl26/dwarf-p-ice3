@@ -61,7 +61,10 @@ def allocate_state(
     for field_name, field_attributes in fields.items():
         if field_attributes["dtype"] == "float":
             state.update({field_name: allocate_f()})
-        if field_attributes["dtype"] == "int":
+        elif field_attributes["dtype"] == "int":
             state.update({field_name: allocate_i()})
+        elif field_attributes["dtype"] == "bool":
+            state.update({field_name: allocate_b()})
+        
 
     return state 

@@ -19,7 +19,7 @@ default_epsilon = 10e-6
 
 phyex = Phyex(program="AROME")
 
-test_grid = ComputationalGrid(50, 1, 15)
+test_grid = ComputationalGrid(50, 1, 1)
 dt = datetime.timedelta(seconds=1)
 
 default_gt4py_config = GT4PyConfig(

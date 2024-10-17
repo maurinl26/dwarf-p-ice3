@@ -69,7 +69,7 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
     return {
         **{
             key: np.array(
-                np.random.rand(component.array_shape[0], component.array_shape[1]),
+                np.random.rand(*component.array_shape),
                 "f",
                 order="F",
             )
@@ -77,7 +77,7 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
         },
         **{
             key: np.array(
-                np.random.rand(component.array_shape[0], component.array_shape[1]),
+                np.random.rand(*component.array_shape),
                 "f",
                 order="F",
             )
@@ -85,7 +85,7 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
         },
         **{
             key: np.array(
-                np.random.rand(component.array_shape[0], component.array_shape[1]),
+                np.random.rand(*component.array_shape),
                 "f",
                 order="F",
             )
