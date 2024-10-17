@@ -40,6 +40,7 @@ def condensation(
     rv_out: gtscript.Field["float"],
     rc_out: gtscript.Field["float"],
     ri_out: gtscript.Field["float"],
+    t_out: gtscript.Field["float"],
     cldfr: gtscript.Field["float"],
     sigrc: gtscript.Field["float"],
     cph: gtscript.Field["float"],
@@ -142,7 +143,7 @@ def condensation(
         # # Translation notes : 506 -> 514 (not ocnd2)
         rc_out = (1 - frac_tmp) * cond_tmp  # liquid condensate
         ri_out = frac_tmp * cond_tmp  # solid condensate
-        t = update_temperature(t, rc_out, rc_in, ri_out, ri_in, lv, ls)
+        t_out = update_temperature(t, rc_out, rc_in, ri_out, ri_in, lv, ls)
         rv_out = rt - rc_in - ri_in * prifact
 
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
