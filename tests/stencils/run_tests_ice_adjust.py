@@ -16,7 +16,7 @@ from stencils.fields_allocation import run_test
 backend = "gt:cpu_ifirst"
 rebuild = True
 validate_args = True
-
+default_epsilon = 10e-6
 phyex = Phyex(program="AROME")
 
 test_grid = ComputationalGrid(50, 1, 15)
@@ -26,67 +26,73 @@ default_gt4py_config = GT4PyConfig(
     backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
 )
 
+
 class TestLatentHeat(unittest.TestCase):
-    
     def setUp(self):
         self.component = LatentHeat(
-        computational_grid=test_grid,
-        phyex=phyex,
-        gt4py_config=default_gt4py_config,
-        fortran_script="mode_thermo.F90",
-        fortran_module="mode_thermo",
-        fortran_subroutine="latent_heat",
-        gt4py_stencil="thermodynamic_fields",
-    )
-        
-    def test_reproductibility(self):
-        absolute_differences = run_test(self.component)
-        
-        for field, diff in absolute_differences.items():
-            logging.info(f"{field}")
-            self.assertLess(diff, 10e-6)   
-            
+            computational_grid=test_grid,
+            phyex=phyex,
+            gt4py_config=default_gt4py_config,
+            fortran_script="mode_thermo.F90",
+            fortran_module="mode_thermo",
+            fortran_subroutine="latent_heat",
+            gt4py_stencil="thermodynamic_fields",
+        )
+
+    def test_repro(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        mean_absolute_errors = run_test(self.component)
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)
+
+
 class TestCondensation(unittest.TestCase):
-    
     def setUp(self):
         self.component = Condensation(
-        computational_grid=test_grid,
-        phyex=phyex,
-        gt4py_config=default_gt4py_config,
-        fortran_script="mode_condensation.F90",
-        fortran_module="mode_condensation",
-        fortran_subroutine="condensation",
-        gt4py_stencil="condensation",
-    )
+            computational_grid=test_grid,
+            phyex=phyex,
+            gt4py_config=default_gt4py_config,
+            fortran_script="mode_condensation.F90",
+            fortran_module="mode_condensation",
+            fortran_subroutine="condensation",
+            gt4py_stencil="condensation",
+        )
 
-        
-    def test_reproductibility(self):
-        absolute_differences = run_test(self.component)
-        
-        for field, diff in absolute_differences.items():
-            logging.info(f"{field}")
-            self.assertLess(diff, 10e-6) 
-            
+    def test_repro(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        mean_absolute_errors = run_test(self.component)
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)
+
+
 class TestCloudFraction(unittest.TestCase):
-    
     def setUp(self):
         self.component = CloudFraction(
-        computational_grid=test_grid,
-        phyex=phyex,
-        gt4py_config=default_gt4py_config,
-        fortran_script="mode_cloud_fraction.F90",
-        fortran_module="mode_cloud_fraction",
-        fortran_subroutine="cloud_fraction",
-        gt4py_stencil="cloud_fraction",
-    )
-        
-    def test_reproductibility(self):
-        absolute_differences = run_test(self.component)
-        
-        for field, diff in absolute_differences.items():
-            logging.info(f"{field}")
-            self.assertLess(diff, 10e-6) 
-    
+            computational_grid=test_grid,
+            phyex=phyex,
+            gt4py_config=default_gt4py_config,
+            fortran_script="mode_cloud_fraction.F90",
+            fortran_module="mode_cloud_fraction",
+            fortran_subroutine="cloud_fraction",
+            gt4py_stencil="cloud_fraction",
+        )
+
+    def test_repro(self):
+        """Assert mean absolute error (MAE) on inout/out fields less than epsilon"""
+        mean_absolute_errors = run_test(self.component)
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)
+
 
 if __name__ == "__main__":
     unittest.main()
