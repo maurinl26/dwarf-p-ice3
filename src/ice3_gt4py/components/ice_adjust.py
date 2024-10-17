@@ -45,9 +45,9 @@ class IceAdjust(ImplicitTendencyComponent):
         self.cloud_fraction = self.compile_stencil("cloud_fraction", externals)
 
         logging.info(f"Keys")
-        logging.info(f"SUBG_COND : {phyex.nebn.SUBG_COND}")
+        logging.info(f"SUBG_COND : {phyex.nebn.LSUBG_COND}")
         logging.info(f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}")
-        logging.info(f"SIGMAS : {phyex.nebn.SIGMAS}")
+        logging.info(f"SIGMAS : {phyex.nebn.LSIGMAS}")
         logging.info(f"LMFCONV : {phyex.LMFCONV}")
 
     @cached_property

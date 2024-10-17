@@ -88,8 +88,8 @@ class Neb:
             self.FRAC_ICE_ADJUST = FracIceAdjust.S.value
             self.FRAC_ICE_SHALLOW = FracIceShallow.T.value
             self.VSIGQSAT = 0
-            self.SIGMAS = False
-            self.SUBG_COND = True
+            self.LSIGMAS = False
+            self.LSUBG_COND = True
 
         elif self.HPROGRAM == "LMDZ":
-            self.SUBG_COND = True
+            self.LSUBG_COND = True
