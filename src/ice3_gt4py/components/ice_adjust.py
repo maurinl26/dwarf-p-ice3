@@ -260,10 +260,10 @@ class IceAdjust(ImplicitTendencyComponent):
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {
-            "lv": {"grid": (I, J, K), "units": ""},
-            "ls": {"grid": (I, J, K), "units": ""},
-            "cph": {"grid": (I, J, K), "units": ""},
-            "criaut": {"grid": (I, J, K), "units": ""},
+            "lv": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ls": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "cph": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "criaut": {"grid": (I, J, K), "dtype": "float", "unit": ""},
         }
 
     def array_call(
