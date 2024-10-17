@@ -107,7 +107,7 @@ def ice_adjust(
         RD,
         RV,
         LSUBG_COND,
-        LSUBG_MF_PDF,
+        SUBG_MF_PDF,
         TT,
         LAMBDA3,
     )
