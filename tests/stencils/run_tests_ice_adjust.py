@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import logging
+import unittest
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
@@ -24,13 +25,11 @@ dt = datetime.timedelta(seconds=1)
 default_gt4py_config = GT4PyConfig(
     backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
 )
-            
 
-if __name__ == "__main__":
-
-    ####### LatentHeat #######
-    logging.info("Test Latent Heat")
-    component = LatentHeat(
+class TestLatentHeat(unittest.TestCase):
+    
+    def setUp(self):
+        self.component = LatentHeat(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,
@@ -39,12 +38,18 @@ if __name__ == "__main__":
         fortran_subroutine="latent_heat",
         gt4py_stencil="thermodynamic_fields",
     )
-
-    run_test(component)
-
-    ########### Condensation #############
-    logging.info("Test Condensation")
-    component = Condensation(
+        
+    def test_reproductibility(self):
+        absolute_differences = run_test(self.component)
+        
+        for field, diff in absolute_differences.items():
+            logging.info(f"{field}")
+            self.assertLess(diff, 10e-6)   
+            
+class TestCondensation(unittest.TestCase):
+    
+    def setUp(self):
+        self.component = Condensation(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,
@@ -54,11 +59,18 @@ if __name__ == "__main__":
         gt4py_stencil="condensation",
     )
 
-    run_test(component)
-
-    ########### CloudFraction ############
-    logging.info("Test CloudFraction")
-    component = CloudFraction(
+        
+    def test_reproductibility(self):
+        absolute_differences = run_test(self.component)
+        
+        for field, diff in absolute_differences.items():
+            logging.info(f"{field}")
+            self.assertLess(diff, 10e-6) 
+            
+class TestCloudFraction(unittest.TestCase):
+    
+    def setUp(self):
+        self.component = CloudFraction(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,
@@ -67,8 +79,14 @@ if __name__ == "__main__":
         fortran_subroutine="cloud_fraction",
         gt4py_stencil="cloud_fraction",
     )
+        
+    def test_reproductibility(self):
+        absolute_differences = run_test(self.component)
+        
+        for field, diff in absolute_differences.items():
+            logging.info(f"{field}")
+            self.assertLess(diff, 10e-6) 
+    
 
-    logging.info(f"Component array shape {component.array_shape}")
-    logging.info(f"dtype : {type(component.array_shape[0])}")
-
-    run_test(component)
+if __name__ == "__main__":
+    unittest.main()
