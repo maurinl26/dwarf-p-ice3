@@ -118,10 +118,6 @@ class Ice4RRHONG(TestComponent):
         
         ldcompute = np.ones((self.dims["ksize"]))
         fields.update({"ldcompute": ldcompute})
-        
-        raveled_fields = dict()
-        for name, array in fields.items():
-            raveled_fields.update({name: array.reshape(1, -1).ravel()})
-        
-        return super().call_fortran_stencil(raveled_fields)
+                
+        return super().call_fortran_stencil(fields)
 
