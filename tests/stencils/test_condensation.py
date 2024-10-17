@@ -2,12 +2,13 @@
 import logging
 import sys
 from functools import cached_property
-
+from ice3_gt4py.phyex_common.tables import src_1d
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 from stencils.generic_test_component import TestComponent
+from utils.allocate_state import allocate_state
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -94,6 +95,7 @@ class Condensation(TestComponent):
     @cached_property
     def fields_out(self):
         return {
+            "t_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pt_out"},
             "rv_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prv_out"},
             "rc_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc_out"},
             "ri_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri_out"},
@@ -104,3 +106,13 @@ class Condensation(TestComponent):
     @cached_property
     def fields_inout(self):
         return {}
+    
+    def call_gt4py_stencil(self, fields: dict):
+        """Call gt4py_stencil from a numpy array"""
+        
+        inq1_field = {"inq1": {"grid": (I, J, K), "dtype":"int"}}
+        state = allocate_state(self.computational_grid, self.gt4py_config, inq1_field)
+        fields.update(state)
+        
+        self.gt4py_stencil(**fields, src_1d=src_1d)
+        return fields
