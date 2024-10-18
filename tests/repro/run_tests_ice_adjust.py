@@ -98,4 +98,9 @@ class TestCloudFraction(unittest.TestCase):
     
 
 if __name__ == "__main__":
+    import logging
+    import sys 
+    
+    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    logging.getLogger()
     unittest.main()
