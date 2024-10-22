@@ -5,7 +5,7 @@ import unittest
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
-from stencils.test_ice4_rrhong import Ice4RRHONG
+from repro.test_ice4_rrhong import Ice4RRHONG
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 from utils.fields_allocation import run_test

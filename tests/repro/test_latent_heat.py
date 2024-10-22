@@ -5,7 +5,7 @@ from functools import cached_property
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from stencils.generic_test_component import TestComponent
+from repro.generic_test_component import TestComponent
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 
@@ -91,3 +91,12 @@ class LatentHeat(TestComponent):
     @cached_property
     def fields_inout(self):
         return {}
+    
+
+    def call_gt4py_stencil(self, fields: dict):
+        """Call gt4py_stencil from a numpy array"""
+        
+        for key, value in self.externals.items():
+            logging.info(f"External {key}, value : {value}")
+        
+        return super().call_gt4py_stencil(fields)

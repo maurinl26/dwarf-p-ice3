@@ -7,7 +7,7 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
 from ice3_gt4py.phyex_common.phyex import Phyex
-from stencils.generic_test_component import TestComponent
+from repro.generic_test_component import TestComponent
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -37,14 +37,19 @@ class CloudFraction(TestComponent):
     @cached_property
     def externals(self):
         """Filter phyex externals"""
+        
+        mapping  = {
+            "lsubg_cond": "LSUBG_COND",
+            "xcriautc": "CRIAUTC",
+            "csubg_mf_pdf": "SUBG_MF_PDF",
+            "xcriauti": "CRIAUTI",
+            "xacriauti": "ACRIAUTI",
+            "xbcriauti": "BCRIAUTI",
+            "xtt": "TT"
+        }
+        
         return {
-            "lsubg_cond": self.phyex_externals["LSUBG_COND"],
-            "xcriautc": self.phyex_externals["CRIAUTC"],
-            "csubg_mf_pdf": self.phyex_externals["SUBG_MF_PDF"],
-            "xcriauti": self.phyex_externals["CRIAUTI"],
-            "xacriauti": self.phyex_externals["ACRIAUTI"],
-            "xbcriauti": self.phyex_externals["BCRIAUTI"],
-            "xtt": self.phyex_externals["TT"],
+            key: self.phyex_externals[value] for key, value in mapping.items() 
         }
 
     @cached_property

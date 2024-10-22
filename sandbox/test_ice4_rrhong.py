@@ -159,6 +159,15 @@ class TestIce4RRHONG(ComputationalGridComponent):
         ls_fact_mean = self.state_gt4py['ls_fact'].values.mean()
         logging.info(f"Input field, ls_fact (fortran) : {plsfact_mean}")
         logging.info(f"Input field, ls_fact (gt4py) : {ls_fact_mean}\n ")
+        
+        state_fortran = {
+            **self.fields_in,
+            **self.fields_out,
+        }
+        
+        for field_name, array in state_fortran.items():
+            logging.info(f"Fortran field name {field_name}, array shape {array.shape}, array type {type(array)}")
+            print(array)
 
         field_fortran = self.fortran_stencil(
             **self.dims, **self.externals, **self.fields_in, **self.fields_out

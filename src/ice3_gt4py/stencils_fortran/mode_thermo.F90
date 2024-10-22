@@ -9,10 +9,10 @@ module mode_thermo
         &pth, pexn,&
         &zt, zls, zlv, zcph)
 
-    use iso_fortran_env, only: real64, int32
+    use iso_fortran_env, only: real64, int64
     implicit none
 
-    integer(kind=int32), intent(in) :: nktb, nkte, nijb, nije, nkt, nijt, krr
+    integer(kind=int64), intent(in) :: nktb, nkte, nijb, nije, nkt, nijt, krr
     real(kind=real64), intent(in) :: xlvtt, xlstt, xcl, xci, xtt, xcpv, xcpd
 
     real(kind=real64), dimension(nijt, nkt), intent(in) :: pth
@@ -29,8 +29,16 @@ module mode_thermo
     real(kind=real64), dimension(nijt, nkt), intent(out) :: zls
     real(kind=real64), dimension(nijt, nkt), intent(out) :: zcph
 
-    integer(kind=int32) jk, jij
+    integer(kind=int64) jk, jij
 
+
+print *, "xlvtt : ", xlvtt
+print *, "xlstt : ", xlstt
+print *, "xcl : ", xcl
+print *, "xci : ", xci
+print *, "xtt : ", xtt
+print *, "xcpv : ", xcpv
+print *, "xcpd : ", xcpd
 
 do jk=nktb, nkte
     do jij=nijb,nije

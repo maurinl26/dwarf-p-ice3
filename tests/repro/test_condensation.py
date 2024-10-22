@@ -7,7 +7,7 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
 from ice3_gt4py.phyex_common.phyex import Phyex
-from stencils.generic_test_component import TestComponent
+from repro.generic_test_component import TestComponent
 from utils.allocate_state import allocate_state
 
 

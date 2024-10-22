@@ -1,65 +1,14 @@
 # -*- coding: utf-8 -*-
-import datetime
 import logging
-from functools import cached_property, partial
-from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Tuple
+from functools import cached_property
 
-import fmodpy
 import numpy as np
-from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol, I, J, K
-from ifs_physics_common.framework.storage import allocate_data_array
-from ifs_physics_common.utils.typingx import DataArray, NDArrayLikeDict
+from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 
 import ice3_gt4py.stencils
-from ice3_gt4py.initialisation.utils import initialize_field
 from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.utils.allocate import allocate
-from stencils.generic_test_component import TestComponent
-
-
-##### For tests ####
-def allocate_state_ice4_rrhong(
-    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
-) -> NDArrayLikeDict:
-    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
-
-    Args:
-        computational_grid (ComputationalGrid): grid indexes
-        gt4py_config (GT4PyConfig): gt4py configuration
-
-    Returns:
-        NDArrayLikeDict: dictionnary of field with associated keys for field name
-    """
-
-    def _allocate(
-        grid_id: Tuple[DimSymbol, ...],
-        units: str,
-        dtype: Literal["bool", "float", "int"],
-    ) -> DataArray:
-        return allocate_data_array(
-            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
-        )
-
-    allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
-    allocate_b = partial(_allocate, grid_id=(I, J, K), units="", dtype="bool")
-    allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
-    allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
-    allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
-    allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
-
-    return {
-        "ldcompute": allocate_b(),
-        "exn": allocate_f(),
-        "ls_fact": allocate_f(),
-        "lv_fact": allocate_f(),
-        "t": allocate_f(),
-        "tht": allocate_f(),
-        "rr_t": allocate_f(),
-        "rrhong_mr": allocate_f(),
-    }
+from repro.generic_test_component import TestComponent
 
 
 class Ice4RRHONG(TestComponent):
@@ -116,8 +65,17 @@ class Ice4RRHONG(TestComponent):
     
     def call_fortran_stencil(self, fields: dict):
         
-        ldcompute = np.ones((self.dims["ksize"]))
-        fields.update({"ldcompute": ldcompute})
+        # Reshape dimension (single lign)
+        state_fortran = dict()
+        for key, array in fields.items():
+            state_fortran.update({key: array.reshape(-1)})
+        
+        # Add ldcompute as an integer
+        ldcompute = np.ones((self.dims["ksize"]), dtype=np.int32, order="F")
+        state_fortran.update({"ldcompute": ldcompute}) 
+        
+        for field_name, array in state_fortran.items():
+            logging.info(f"Fortran field name {field_name}, array shape {array.shape}, array type {type(array)}")
                 
-        return super().call_fortran_stencil(fields)
+        return super().call_fortran_stencil(state_fortran)
 

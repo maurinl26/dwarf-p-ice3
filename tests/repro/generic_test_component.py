@@ -120,12 +120,15 @@ class TestComponent(ComputationalGridComponent):
         """
         field_attributes = {**self.fields_in, **self.fields_out, **self.fields_inout}
         state_fortran = dict()
-        for key, field in fields.items():
+        for key, array in fields.items():
             fortran_name = field_attributes[key]["fortran_name"]
-            state_fortran.update({fortran_name: field})
+            state_fortran.update({fortran_name: array})
+
+        for field_name, array in state_fortran.items():
+            logging.info(f"Field name {field_name}, array shape {array.shape}, array type {type(array)}")
 
         output_fields_tuple = self.fortran_stencil(
-            **state_fortran, **self.dims, **self.externals
+            **self.dims, **self.externals, **state_fortran 
         )
         
         output_fields = dict()

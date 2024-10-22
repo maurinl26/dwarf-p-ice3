@@ -15,7 +15,6 @@ from gt4py.cartesian import gtscript
 from ifs_physics_common.framework.stencil import stencil_collection
 import numpy as np
 
-from ice3_gt4py.functions.compute_ice_frac import compute_frac_ice
 from ice3_gt4py.functions.ice_adjust import (
     sublimation_latent_heat,
     vaporisation_latent_heat,
@@ -287,7 +286,7 @@ def cloud_fraction(
                     hlc_hcf = min(1, hlc_hcf + cf_mf)
 
             # Translation note : if LLTRIANGLE in .F90
-            elif __INLINED(SUBG_MF_PDF == 1):
+            if __INLINED(SUBG_MF_PDF == 1):
                 if w1 * dt > cf_mf * criaut:
                     hcf = 1 - 0.5 * (criaut * cf_mf / max(1e-20, w1 * dt)) ** 2
                     hr = w1 * dt - (criaut * cf_mf) ** 3 / (
@@ -323,7 +322,7 @@ def cloud_fraction(
                     hli_hri += w2 * dt
                     hli_hcf = min(1, hli_hcf + cf_mf)
 
-            elif __INLINED(SUBG_MF_PDF == 1):
+            if __INLINED(SUBG_MF_PDF == 1):
                 if w2 * dt > cf_mf * criaut:
                     hli_hcf = 1 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
                     hli_hri = w2 * dt - (criaut * cf_mf) ** 3 / (3 * (w2 * dt) ** 2)

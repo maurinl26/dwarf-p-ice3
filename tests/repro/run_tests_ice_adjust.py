@@ -5,13 +5,13 @@ import unittest
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
-from stencils.test_cloud_fraction import CloudFraction
-from stencils.test_condensation import Condensation
-from stencils.test_latent_heat import LatentHeat
+from repro.test_cloud_fraction import CloudFraction
+from repro.test_condensation import Condensation
+from repro.test_latent_heat import LatentHeat
 
 from ice3_gt4py.phyex_common.phyex import Phyex
 from utils.fields_allocation import run_test
-
+import sys
 ###### Default config for tests #######
 backend = "gt:cpu_ifirst"
 rebuild = True
@@ -95,12 +95,14 @@ class TestCloudFraction(unittest.TestCase):
             logging.info(f"Field name : {field}")
             logging.info(f"Epsilon {default_epsilon}")
             self.assertLess(diff, default_epsilon)  
-    
+            
+def main(out = sys.stderr, verbosity = 2): 
+    loader = unittest.TestLoader() 
+  
+    suite = loader.loadTestsFromModule(sys.modules[__name__]) 
+    unittest.TextTestRunner(out, verbosity = verbosity).run(suite) 
+      
+if __name__ == '__main__': 
+    with open('testing.out', 'w') as f: 
+        main(f) 
 
-if __name__ == "__main__":
-    import logging
-    import sys 
-    
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-    logging.getLogger()
-    unittest.main()
