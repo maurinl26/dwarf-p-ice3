@@ -127,23 +127,30 @@ class TestComponent(ComputationalGridComponent):
         for field_name, array in state_fortran.items():
             logging.info(f"Field name {field_name}, array shape {array.shape}, array type {type(array)}")
 
-        output_fields_tuple = self.fortran_stencil(
-            **self.dims, **self.externals, **state_fortran 
-        )
+
+        output_fields_attributes = {**self.fields_inout, **self.fields_out}
+        logging.info(f"Length of outputs {len(output_fields_attributes)}")
+        output_fields = self.fortran_stencil(
+                **self.dims, **self.externals, **state_fortran 
+            )
         
-        output_fields = dict()
-        fields_to_name = {**self.fields_inout, **self.fields_out}
-        assert(len(output_fields_tuple) == len(list(fields_to_name.keys())))
-        
-        i = 0
-        for field_name, field_attributes in fields_to_name.items():
-            fortran_name = field_attributes["fortran_name"]
-            output_fields.update({
-                fortran_name: output_fields_tuple[i]
-            })
-            i+=1
-            
-        return output_fields
+        if len(output_fields_attributes) == 1:
+            return {output_fields_attributes.keys()[0]: np.array(output_fields)}
+        elif len(output_fields_attributes) > 1:
+            output_fields_dict = dict()
+            fields_to_name = {**self.fields_inout, **self.fields_out}
+                
+            # Extract data as a dictionary
+            i = 0
+            for field_name, field_attributes in fields_to_name.items():
+                fortran_name = field_attributes["fortran_name"]
+                output_fields_dict.update({
+                    fortran_name: output_fields[i]
+                })
+                i+=1
+                
+            return output_fields_dict
+    
 
     def call_gt4py_stencil(self, fields: dict):
         """Call gt4py_stencil from a numpy array"""

@@ -1,30 +1,13 @@
 # -*- coding: utf-8 -*-
-import datetime
 import logging
 import unittest
+import sys
 
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
 from repro.test_ice4_rrhong import Ice4RRHONG
 
-from ice3_gt4py.phyex_common.phyex import Phyex
 from utils.fields_allocation import run_test
+from repro.test_config import phyex, default_epsilon, test_grid, default_gt4py_config
 
-###### Default config for tests #######
-backend = "gt:cpu_ifirst"
-rebuild = True
-validate_args = True
-
-default_epsilon = 10e-6
-
-phyex = Phyex(program="AROME")
-
-test_grid = ComputationalGrid(50, 1, 1)
-dt = datetime.timedelta(seconds=1)
-
-default_gt4py_config = GT4PyConfig(
-    backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
-)
 
 class TestIce4RRHONG(unittest.TestCase):
     
@@ -49,6 +32,12 @@ class TestIce4RRHONG(unittest.TestCase):
             logging.info(f"Epsilon {default_epsilon}")
             self.assertLess(diff, default_epsilon)  
         
-
-if __name__ == "__main__":
-    unittest.main()
+def main(out = sys.stderr, verbosity = 2): 
+    loader = unittest.TestLoader() 
+  
+    suite = loader.loadTestsFromModule(sys.modules[__name__]) 
+    unittest.TextTestRunner(out, verbosity = verbosity).run(suite) 
+      
+if __name__ == '__main__': 
+    with open('test_ice_adjust.out', 'w') as f: 
+        main(f) 

@@ -7,7 +7,6 @@ from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.utils.typingx import NDArrayLikeDict
-from repro.generic_test_component import TestComponent
 from utils.initialize_fields import initialize_field
 from utils.allocate_state import allocate_state
 
@@ -30,7 +29,8 @@ default_gt4py_config = GT4PyConfig(
 
 ####### Field allocation functions #######
 def allocate_gt4py_fields(
-    component: ComputationalGridComponent, fields: dict
+    component: ComputationalGridComponent, 
+    fields: dict
 ) -> NDArrayLikeDict:
     """Allocate storage for gt4py fields and
     initialize fields with given np arrays
@@ -52,7 +52,6 @@ def allocate_gt4py_fields(
     for key, field_array in fields.items():
         initialize_field(state_gt4py[key], field_array)
     
-
     return state_gt4py
 
 
@@ -107,10 +106,11 @@ def compare_output(component, fortran_fields: dict, gt4py_state: dict):
     absolute_differences = dict()
     fields_to_compare = {**component.fields_inout, **component.fields_out}
     for field_name, field_attributes in fields_to_compare.items():
-        logging.info(f"{field_name}")
+        logging.info(f"field to compare : {field_name}")
         fortran_name = field_attributes["fortran_name"]
+        logging.info(f"fortran field shape : {fortran_fields[fortran_name].shape}")
         fortran_field = fortran_fields[fortran_name][:, np.newaxis,:]
-        logging.info(f"fortran field shape {fortran_field.shape}")
+        logging.info(f"fortran field shape : {fortran_field.shape}")
         logging.info(f"fortran field mean : {fortran_field.mean()}")
         
         # 2D fields + removing shadow level

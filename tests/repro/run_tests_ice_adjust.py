@@ -1,31 +1,16 @@
 # -*- coding: utf-8 -*-
-import datetime
 import logging
 import unittest
 
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
 from repro.test_cloud_fraction import CloudFraction
 from repro.test_condensation import Condensation
 from repro.test_latent_heat import LatentHeat
 
-from ice3_gt4py.phyex_common.phyex import Phyex
 from utils.fields_allocation import run_test
 import sys
-###### Default config for tests #######
-backend = "gt:cpu_ifirst"
-rebuild = True
-validate_args = True
-default_epsilon = 10e-6
 
-phyex = Phyex(program="AROME")
+from repro.test_config import test_grid, phyex, default_gt4py_config, default_epsilon
 
-test_grid = ComputationalGrid(50, 1, 15)
-dt = datetime.timedelta(seconds=1)
-
-default_gt4py_config = GT4PyConfig(
-    backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
-)
 
 class TestLatentHeat(unittest.TestCase):
     
@@ -103,6 +88,6 @@ def main(out = sys.stderr, verbosity = 2):
     unittest.TextTestRunner(out, verbosity = verbosity).run(suite) 
       
 if __name__ == '__main__': 
-    with open('testing.out', 'w') as f: 
+    with open('test_ice_adjust.out', 'w') as f: 
         main(f) 
 

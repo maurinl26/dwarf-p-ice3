@@ -24,3 +24,4 @@ import ice3_gt4py.stencils.rain_ice_nucleation
 import ice3_gt4py.stencils.rain_ice_start
 import ice3_gt4py.stencils.rain_ice_total_tendencies
 import ice3_gt4py.stencils.ice4_compute_pdf
+import ice3_gt4py.stencils.multiply_ab2c

@@ -29,3 +29,6 @@ dt = datetime.timedelta(seconds=1)
 default_gt4py_config = GT4PyConfig(
     backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
 )
+
+#### Default error margin ####
+default_epsilon = 10e-5
