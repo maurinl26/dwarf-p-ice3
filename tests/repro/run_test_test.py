@@ -7,7 +7,6 @@ from functools import cached_property
 from ifs_physics_common.framework.grid import I, J, K
 from utils.generic_test_component import TestComponent
 from utils.fields_allocation import run_test
-import numpy as np
 
 from repro.default_config import default_gt4py_config, test_grid, phyex, default_epsilon
 
