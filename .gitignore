@@ -11,6 +11,8 @@ src/testprogs_data/main_ice_adjust
 .gt_cache/
 src/ice3_gt4py/__pycache__/
 src/PHYEX/
+test/
+test_OLD/
 
 *.pyc
 src/ice3_gt4py/drivers/tests.py
