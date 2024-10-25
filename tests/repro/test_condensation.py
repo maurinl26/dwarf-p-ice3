@@ -4,9 +4,12 @@ import sys
 from functools import cached_property
 from ice3_gt4py.phyex_common.tables import src_1d
 from ifs_physics_common.framework.grid import I, J, K
+import unittest
 
+from tests.utils.fields_allocation import run_test
 from utils.generic_test_component import TestComponent
 from utils.allocate_state import allocate_state
+from repro.default_config import test_grid, phyex, default_gt4py_config
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -95,3 +98,26 @@ class Condensation(TestComponent):
         fields.update({"src_1d": src_1d})
         
         return super().call_gt4py_stencil(fields)
+    
+class TestCondensation(unittest.TestCase):
+    
+    def setUp(self):
+        self.component = Condensation(
+        computational_grid=test_grid,
+        phyex=phyex,
+        gt4py_config=default_gt4py_config,
+        fortran_script="mode_condensation.F90",
+        fortran_module="mode_condensation",
+        fortran_subroutine="condensation",
+        gt4py_stencil="condensation",
+    )
+  
+    def test_repro_condensation(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        mean_absolute_errors = run_test(self.component)
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)  

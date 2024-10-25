@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 import logging
-import sys
 from functools import cached_property
+import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
+from utils.fields_allocation import run_test
 from utils.generic_test_component import TestComponent
 
-from ice3_gt4py.phyex_common.phyex import Phyex
+from repro.default_config import default_epsilon, default_gt4py_config, test_grid, phyex
 
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logging.getLogger()
 
 
 class LatentHeat(TestComponent):
@@ -80,3 +79,29 @@ class LatentHeat(TestComponent):
             logging.info(f"External {key}, value : {value}")
         
         return super().call_gt4py_stencil(fields)
+    
+class TestLatentHeat(unittest.TestCase):
+    
+    def setUp(self):
+        self.component = LatentHeat(
+        computational_grid=test_grid,
+        phyex=phyex,
+        gt4py_config=default_gt4py_config,
+        fortran_script="mode_thermo.F90",
+        fortran_module="mode_thermo",
+        fortran_subroutine="latent_heat",
+        gt4py_stencil="thermodynamic_fields",
+    )
+        
+    def test_repro_latent_heat(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        mean_absolute_errors = run_test(self.component)
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)     
+            
+
+            

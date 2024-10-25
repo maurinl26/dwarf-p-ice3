@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 import logging
-import sys
 from functools import cached_property
+import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
 
-from ice3_gt4py.phyex_common.phyex import Phyex
+from utils.fields_allocation import run_test
 from utils.generic_test_component import TestComponent
-
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logging.getLogger()
-
+from repro.default_config import default_gt4py_config, default_epsilon, phyex, test_grid
 
 class CloudFraction(TestComponent):
 
@@ -102,3 +99,27 @@ class CloudFraction(TestComponent):
             "rcs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prcs"},
             "ris": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pris"},
         }
+
+
+class TestCloudFraction(unittest.TestCase):
+    
+    def setUp(self):
+        self.component = CloudFraction(
+        computational_grid=test_grid,
+        phyex=phyex,
+        gt4py_config=default_gt4py_config,
+        fortran_script="mode_cloud_fraction.F90",
+        fortran_module="mode_cloud_fraction",
+        fortran_subroutine="cloud_fraction",
+        gt4py_stencil="cloud_fraction",
+    )
+        
+    def test_repro_cloud_fraction(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        mean_absolute_errors = run_test(self.component)
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)  

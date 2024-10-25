@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
-import sys
 from functools import cached_property
+import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
 from utils.generic_test_component import TestComponent
-
-
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logging.getLogger()
 
 
 class AroFilter(TestComponent):
