@@ -15,26 +15,6 @@ logging.getLogger()
 
 class LatentHeat(TestComponent):
 
-    def __init__(
-        self,
-        computational_grid: ComputationalGrid,
-        gt4py_config: GT4PyConfig,
-        phyex: Phyex,
-        fortran_subroutine: str,
-        fortran_script: str,
-        fortran_module: str,
-        gt4py_stencil: str,
-    ) -> None:
-        super().__init__(
-            computational_grid=computational_grid,
-            gt4py_config=gt4py_config,
-            fortran_script=fortran_script,
-            fortran_module=fortran_module,
-            fortran_subroutine=fortran_subroutine,
-            gt4py_stencil=gt4py_stencil,
-            phyex=phyex,
-        )
-
     @cached_property
     def externals(self):
         """Filter phyex externals"""
@@ -95,6 +75,7 @@ class LatentHeat(TestComponent):
 
     def call_gt4py_stencil(self, fields: dict):
         """Call gt4py_stencil from a numpy array"""
+        # Overriden method to debug call
         
         for key, value in self.externals.items():
             logging.info(f"External {key}, value : {value}")

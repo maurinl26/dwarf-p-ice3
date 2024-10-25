@@ -16,25 +16,6 @@ logging.getLogger()
 
 
 class Condensation(TestComponent):
-    def __init__(
-        self,
-        computational_grid: ComputationalGrid,
-        gt4py_config: GT4PyConfig,
-        phyex: Phyex,
-        fortran_subroutine: str,
-        fortran_script: str,
-        fortran_module: str,
-        gt4py_stencil: str,
-    ) -> None:
-        super().__init__(
-            computational_grid=computational_grid,
-            gt4py_config=gt4py_config,
-            phyex=phyex,
-            fortran_script=fortran_script,
-            fortran_module=fortran_module,
-            fortran_subroutine=fortran_subroutine,
-            gt4py_stencil=gt4py_stencil,
-        )
 
     @cached_property
     def externals(self):
