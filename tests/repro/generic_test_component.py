@@ -128,21 +128,22 @@ class TestComponent(ComputationalGridComponent):
             logging.info(f"Field name {field_name}, array shape {array.shape}, array type {type(array)}")
 
 
-        output_fields_attributes = {**self.fields_inout, **self.fields_out}
-        logging.info(f"Length of outputs {len(output_fields_attributes)}")
         output_fields = self.fortran_stencil(
                 **self.dims, **self.externals, **state_fortran 
             )
         
+        output_fields_attributes = {**self.fields_inout, **self.fields_out}
+        logging.info(f"Length of outputs {len(output_fields_attributes)}")
         if len(output_fields_attributes) == 1:
-            return {output_fields_attributes.keys()[0]: np.array(output_fields)}
+            logging.info(f"{output_fields_attributes}")
+            return {next(iter(output_fields_attributes.keys())): np.array(output_fields)}
         elif len(output_fields_attributes) > 1:
             output_fields_dict = dict()
-            fields_to_name = {**self.fields_inout, **self.fields_out}
+            output_fields_attributes = {**self.fields_inout, **self.fields_out}
                 
             # Extract data as a dictionary
             i = 0
-            for field_name, field_attributes in fields_to_name.items():
+            for field_name, field_attributes in output_fields_attributes.items():
                 fortran_name = field_attributes["fortran_name"]
                 output_fields_dict.update({
                     fortran_name: output_fields[i]

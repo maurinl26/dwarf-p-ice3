@@ -7,6 +7,7 @@ from functools import cached_property
 from ifs_physics_common.framework.grid import I, J, K
 from repro.generic_test_component import TestComponent
 from utils.fields_allocation import run_test
+import numpy as np
 
 from repro.test_config import default_gt4py_config, test_grid, phyex, default_epsilon
 
@@ -139,14 +140,15 @@ class MultiplyOneD(TestComponent):
         nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
         
         # Here we map the packing operation
-        nijt = nit * njt * nkt
+        nijkt = nit * njt * nkt
         return {
-            "nijt": nijt,
+            "nijkt": nijkt,
         }
 
     @cached_property
     def array_shape(self) -> dict:
-        return (int(self.dims["nijt"]))
+        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+        return nit*njt, nkt
 
     @cached_property
     def fields_in(self):
@@ -163,6 +165,21 @@ class MultiplyOneD(TestComponent):
     @cached_property
     def fields_inout(self):
         return {}
+    
+    def call_fortran_stencil(self, fields: dict):
+        
+        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+        nijt = nit * njt
+        
+        # naïve unpacking, leaving one dimension on k
+        new_fields = {
+            key: field.reshape(nijt, nkt) for key, field in fields.items()
+        }
+        
+        for key, field in new_fields.items():
+            logging.info(f"Field shape (reshaped) : {field.shape}")
+        
+        return super().call_fortran_stencil(new_fields)
 
 
 ############## Test classes ############################
@@ -170,7 +187,7 @@ class MultiplyOneD(TestComponent):
 class TestDoubleA(unittest.TestCase):
     
     def setUp(self):
-        self.component = MutliplyAB2C(
+        self.component = DoubleA(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,
@@ -216,7 +233,7 @@ class TestMultiplyAB2C(unittest.TestCase):
 class TestMultioutput(unittest.TestCase):
     
     def setUp(self):
-        self.component = MutliplyAB2C(
+        self.component = Multioutput(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,

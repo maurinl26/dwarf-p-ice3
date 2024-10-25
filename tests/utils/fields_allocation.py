@@ -67,8 +67,9 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
     """
     
     np.random.seed(23)
-
-    return {
+    
+    if isinstance(component.array_shape, tuple):
+        return {
         **{
             key: np.array(
                 np.random.rand(*component.array_shape),
@@ -94,6 +95,10 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
             for key in component.fields_out.keys()
         },
     }
+
+    else:
+        return TypeError("Array shape is not a tuple")
+        
 
 
 def compare_output(component, fortran_fields: dict, gt4py_state: dict):
