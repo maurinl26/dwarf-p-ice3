@@ -1,30 +1,15 @@
 # -*- coding: utf-8 -*-
-import datetime
 import logging
 
 import numpy as np
-from ifs_physics_common.framework.components import ComputationalGridComponent
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
+from ifs_physics_common.framework.components import ComputationalGridComponent 
+from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.utils.typingx import NDArrayLikeDict
+from utils.array_dict_operations import remove_y_axis, unpack
 from utils.initialize_fields import initialize_field
 from utils.allocate_state import allocate_state
 
-from ice3_gt4py.phyex_common.phyex import Phyex
-
-###### Default config for tests #######
-backend = "gt:cpu_ifirst"
-rebuild = True
-validate_args = True
-
-phyex = Phyex(program="AROME")
-
-test_grid = ComputationalGrid(50, 1, 15)
-dt = datetime.timedelta(seconds=1)
-
-default_gt4py_config = GT4PyConfig(
-    backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=False
-)
+from repro.default_config import test_grid, default_gt4py_config
 
 
 ####### Field allocation functions #######
@@ -108,21 +93,26 @@ def compare_output(component, fortran_fields: dict, gt4py_state: dict):
         fortran_fields (dict): output fields from fortran
         gt4py_state (dict): output fields from gt4py
     """
+    
+    
+    
+    
+        
+    fortran_fields = unpack(fortran_fields, component.computational_grid)
+    gt4py_fields = remove_y_axis(gt4py_state)
+    
     absolute_differences = dict()
     fields_to_compare = {**component.fields_inout, **component.fields_out}
     for field_name, field_attributes in fields_to_compare.items():
-        logging.info(f"field to compare : {field_name}")
-        fortran_name = field_attributes["fortran_name"]
-        logging.info(f"fortran field shape : {fortran_fields[fortran_name].shape}")
-        fortran_field = fortran_fields[fortran_name][:, np.newaxis,:]
-        logging.info(f"fortran field shape : {fortran_field.shape}")
-        logging.info(f"fortran field mean : {fortran_field.mean()}")
-        
-        # 2D fields + removing shadow level
-        gt4py_field = gt4py_state[field_name]
-        logging.info(f"gt4py field shape {gt4py_field.shape}")
-        logging.info(f"gt4py field mean : {gt4py_field.values.mean()}")
-        absolute_diff = abs(gt4py_field - fortran_field).values.mean()
+        logging.info(f"Field to compare : {field_name}")
+        logging.info(f"fortran field shape : {fortran_fields[field_name].shape}")
+        logging.info(f"fortran field mean : {fortran_fields[field_name].mean()}")   
+             
+        # Removing njt dimension
+        assert(gt4py_fields[field_name].shape == fortran_fields[field_name].shape)
+        logging.info(f"gt4py field shape {gt4py_fields[field_name].shape}")
+        logging.info(f"gt4py field mean : {gt4py_fields[field_name].values.mean()}")
+        absolute_diff = abs(gt4py_fields[field_name] - fortran_fields[field_name]).values.mean()
         logging.info(f"{field_name}, absolute mean difference {absolute_diff}\n")
         absolute_differences.update({
             field_name: absolute_diff
@@ -180,6 +170,7 @@ def run_test(component: ComputationalGridComponent):
     
     logging.info("Calling fortran field")
     fortran_output_fields = component.call_fortran_stencil(fields)
+    logging.info(f"fortran_output_fields {fortran_output_fields.keys()}")
 
     logging.info("Calling gt4py field")
     gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
