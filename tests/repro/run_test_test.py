@@ -5,11 +5,11 @@ import unittest
 from functools import cached_property
 
 from ifs_physics_common.framework.grid import I, J, K
-from repro.generic_test_component import TestComponent
+from utils.generic_test_component import TestComponent
 from utils.fields_allocation import run_test
 import numpy as np
 
-from repro.test_config import default_gt4py_config, test_grid, phyex, default_epsilon
+from repro.default_config import default_gt4py_config, test_grid, phyex, default_epsilon
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -175,9 +175,6 @@ class MultiplyOneD(TestComponent):
         new_fields = {
             key: field.reshape(nijt, nkt) for key, field in fields.items()
         }
-        
-        for key, field in new_fields.items():
-            logging.info(f"Field shape (reshaped) : {field.shape}")
         
         return super().call_fortran_stencil(new_fields)
 

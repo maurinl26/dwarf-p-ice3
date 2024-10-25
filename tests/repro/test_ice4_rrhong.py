@@ -3,15 +3,22 @@ import logging
 from functools import cached_property
 
 import numpy as np
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
+
+from ifs_physics_common.framework.grid import I, J, K
 
 import ice3_gt4py.stencils
-from ice3_gt4py.phyex_common.phyex import Phyex
-from repro.generic_test_component import TestComponent
+from utils.generic_test_component import TestComponent
 
 
 class Ice4RRHONG(TestComponent):
+    
+    @cached_property
+    def externals(self):
+        return {
+            "r_rtmin": self.phyex_externals["R_RTMIN"],
+            "lfeedbackt": self.phyex_externals["LFEEDBACKT"],
+            "xtt": self.phyex_externals["TT"]
+        }
 
     @cached_property
     def dims(self):
@@ -22,18 +29,21 @@ class Ice4RRHONG(TestComponent):
     
     @cached_property
     def array_shape(self):
-        return (self.dims["ksize"], 1)
+        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+        kproma = nit * njt * nkt
+
+        return nit*njt, nkt
 
     @cached_property
     def fields_in(self):
         return {
             "ldcompute": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "ldcompute"},
-            "exn": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "pexn"},
-            "lvfact": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "plvfact"},
-            "lsfact": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "plsfact"},
-            "t": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "pt"},
-            "rrt": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "prrt"},
-            "tht": {"grid": (I, J, K), "dtype": "bool", "fortran_name": "ptht"},
+            "exn": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pexn"},
+            "lvfact": {"grid": (I, J, K), "dtype": "float", "fortran_name": "plvfact"},
+            "lsfact": {"grid": (I, J, K), "dtype": "float", "fortran_name": "plsfact"},
+            "t": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pt"},
+            "rrt": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prrt"},
+            "tht": {"grid": (I, J, K), "dtype": "float", "fortran_name": "ptht"},
         }
         
     @cached_property
@@ -46,17 +56,32 @@ class Ice4RRHONG(TestComponent):
     
     def call_fortran_stencil(self, fields: dict):
         
-        # Reshape dimension (single lign)
-        state_fortran = dict()
-        for key, array in fields.items():
-            state_fortran.update({key: array.reshape(-1)})
         
-        # Add ldcompute as an integer
-        ldcompute = np.ones((self.dims["ksize"]), dtype=np.int32, order="F")
-        state_fortran.update({"ldcompute": ldcompute}) 
+        def packing(fields):
+            """Reshaping fields from (nijt, nkt) dims 
+            to (nijt*nkt, 1) dims
+
+            Args:
+                fields (_type_): _description_
+
+            Returns:
+                _type_: _description_
+            """
+            nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
+            nijt = nit * njt
         
-        for field_name, array in state_fortran.items():
-            logging.info(f"Fortran field name {field_name}, array shape {array.shape}, array type {type(array)}")
-                
-        return super().call_fortran_stencil(state_fortran)
+            # naïve unpacking, leaving one dimension on k
+            return {
+                key: field.reshape(nijt*nkt, 1) for key, field in fields.items()
+            }
+        
+        # Handling packing
+        new_fields = packing(fields)
+        logging.info(f"Field keys : {new_fields.keys()}, new_fields shape : {new_fields['lsfact'].shape}")
+
+        # Handling ldcompute
+        ldcompute = np.ones((self.dims["kproma"], 1), dtype="int", order="F")
+        new_fields.update({"ldcompute": ldcompute})
+        
+        return super().call_fortran_stencil(fields)
 

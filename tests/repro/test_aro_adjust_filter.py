@@ -2,15 +2,10 @@
 import logging
 import sys
 from functools import cached_property
-from pathlib import Path
 
-import fmodpy
-from ifs_physics_common.framework.components import ComputationalGridComponent
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from repro.generic_test_component import TestComponent
+from ifs_physics_common.framework.grid import I, J, K
+from utils.generic_test_component import TestComponent
 
-from ice3_gt4py.phyex_common.phyex import Phyex
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
