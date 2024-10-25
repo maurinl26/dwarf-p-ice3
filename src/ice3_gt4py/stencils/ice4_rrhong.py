@@ -35,14 +35,11 @@ def ice4_rrhong(
 
     # 3.3 compute the spontaneous frezzing source: RRHONG
     with computation(PARALLEL), interval(...):
-        if t < TT - 35 and rrt > R_RTMIN and ldcompute:
-            rrhong_mr = rrt
-
+        if t < TT - 35.0 and rrt > R_RTMIN and ldcompute:
             # limitation for -35 degrees crossing
-            if LFEEDBACKT == 1:
-                rrhong_mr = min(
+            rrhong_mr = min(
                     rrhong_mr, max(0, ((TT - 35) / exn - tht) / (lsfact - lvfact))
-                )
+                ) if LFEEDBACKT else rrt
 
         else:
             rrhong_mr = 0
