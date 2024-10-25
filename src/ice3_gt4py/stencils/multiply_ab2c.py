@@ -24,16 +24,16 @@ def multiply_ab2c(
 @stencil_collection("double_a")
 def double_a(
     a: Field["float"],
-    double_a: Field["float"]
+    c: Field["float"]
 ):
     """Returns the double of a
 
     Args:
         a (Field["float"]): input field
-        double_a (Field["float"]): double of input field
+        c (Field["float"]): double of input field
     """
     with computation(PARALLEL), interval(...):
-        double_a = 2.0 * a
+        c = 2.0 * a
         
 @stencil_collection("multioutput")
 def multioutput(
