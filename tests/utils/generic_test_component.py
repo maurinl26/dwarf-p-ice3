@@ -146,7 +146,7 @@ class TestComponent(ComputationalGridComponent):
             return {next(iter(output_fields_attributes.keys())): np.array(output_fields)}
         elif len(output_fields_attributes) > 1:
             return {
-                    field_attributes["fortran_name"]: output_fields[i] for i, value in enumerate(output_fields_attributes.values())
+                    value["fortran_name"]: output_fields[i] for i, value in enumerate(output_fields_attributes.values())
                 }
     
 
