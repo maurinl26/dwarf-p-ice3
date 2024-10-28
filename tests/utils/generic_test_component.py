@@ -22,7 +22,7 @@ class TestComponent(ComputationalGridComponent):
         self,
         computational_grid: ComputationalGrid,
         gt4py_config: GT4PyConfig,
-        phyex: Phyex,
+        externals: dict,
         fortran_subroutine: str,
         fortran_script: str,
         fortran_module: str,
@@ -31,7 +31,7 @@ class TestComponent(ComputationalGridComponent):
         super().__init__(
             computational_grid=computational_grid, gt4py_config=gt4py_config
         )
-        self.phyex_externals = phyex.to_externals()
+        self.externals = externals
 
         self.compile_fortran_stencil(
             fortran_module=fortran_module,
@@ -39,11 +39,11 @@ class TestComponent(ComputationalGridComponent):
             fortran_subroutine=fortran_subroutine,
         )
 
-        self.compile_gt4py_stencil(gt4py_stencil, self.phyex_externals)
+        self.compile_gt4py_stencil(gt4py_stencil, self.externals)
 
     @cached_property
     @abstractmethod
-    def externals(self):
+    def fortran_externals(self):
         """Dictionnary of externals
         key is fortran_name
         value is the value stored in phyex dataclasses
@@ -135,7 +135,7 @@ class TestComponent(ComputationalGridComponent):
 
         ############### Call ##################
         output_fields = self.fortran_stencil(
-                **self.dims, **self.externals, **state_fortran 
+                **self.dims, **self.fortran_externals, **state_fortran 
             )
         
         ############## Preparing output #######
