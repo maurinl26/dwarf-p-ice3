@@ -8,8 +8,9 @@ import numpy as np
 from ifs_physics_common.framework.grid import I, J, K
 
 import ice3_gt4py.stencils
-from utils.fields_allocation import run_test
+from utils.fields_allocation import allocate_gt4py_fields, compare_input, compare_output, draw_fields, run_test
 from utils.generic_test_component import TestComponent
+from repro.default_config import phyex, default_epsilon, test_grid, default_gt4py_config
 
 
 class Ice4RRHONG(TestComponent):
@@ -87,27 +88,46 @@ class Ice4RRHONG(TestComponent):
         
         return super().call_fortran_stencil(fields)
 
-from repro.default_config import phyex, default_epsilon, test_grid, default_gt4py_config
 
 
 class TestIce4RRHONG(unittest.TestCase):
     
     def setUp(self):
-        self.component = Ice4RRHONG(
+        self.externals = phyex.to_externals()
+    
+    def test_repro(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        component = Ice4RRHONG(
             computational_grid=test_grid,
             gt4py_config=default_gt4py_config,
-            phyex=phyex,
+            externals=self.externals,
             fortran_script="mode_ice4_rrhong.F90",
             fortran_module="mode_ice4_rrhong",
             fortran_subroutine="ice4_rrhong",
             gt4py_stencil="ice4_rrhong"
         )
         
-    def test_repro(self):
-        """Assert mean absolute error on inout and out fields
-        are less than epsilon
-        """
-        mean_absolute_errors = run_test(self.component)
+        fields = draw_fields(component)
+        state_gt4py = allocate_gt4py_fields(component, fields)
+    
+        logging.info(f"Compare input  fields")
+        compare_input(component, fields, state_gt4py)
+    
+        logging.info("Calling fortran field")
+        
+        fortran_output_fields = component.call_fortran_stencil(fields)
+        logging.info(f"fortran_output_fields {fortran_output_fields.keys()}")
+
+        logging.info("Calling gt4py field")
+        gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+        # TODO: remove shadow first level
+
+        logging.info("Compare output fields")
+        mean_absolute_errors = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+        
         for field, diff in mean_absolute_errors.items():
             logging.info(f"Field name : {field}")
             logging.info(f"Epsilon {default_epsilon}")
@@ -115,12 +135,138 @@ class TestIce4RRHONG(unittest.TestCase):
             
     def test_ldcompute_false(self):
         
-        # TODO : test
-        # self.component.call_gt4py_stencil()
-        ...
+        self.externals.update({
+            "lfeedbackt": False
+        })
+        
+        component = Ice4RRHONG(
+            computational_grid=test_grid,
+            gt4py_config=default_gt4py_config,
+            externals=self.externals,
+            fortran_script="mode_ice4_rrhong.F90",
+            fortran_module="mode_ice4_rrhong",
+            fortran_subroutine="ice4_rrhong",
+            gt4py_stencil="ice4_rrhong"
+        )
+        
+        fields = draw_fields(component)
+        
+        fields.update({
+            "ldcompute": np.zeros(component.dims, type=np.int32, order="F")
+        })
+        
+        state_gt4py = allocate_gt4py_fields(component, fields)     
+    
+        logging.info(f"Compare input  fields")
+        compare_input(component, fields, state_gt4py)
+    
+        logging.info("Calling fortran field")
+        
+        fortran_output_fields = component.call_fortran_stencil(fields)
+        logging.info(f"fortran_output_fields {fortran_output_fields.keys()}")
+
+        logging.info("Calling gt4py field")
+        gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+        # TODO: remove shadow first level
+
+        logging.info("Compare output fields")
+        mean_absolute_errors = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+        
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)  
+        
+        
         
     def test_lfeedbackt_true(self):
-        ...
+        
+        self.externals.update({
+            "lfeedbackt": True
+        })
+        
+        component = Ice4RRHONG(
+            computational_grid=test_grid,
+            gt4py_config=default_gt4py_config,
+            externals=self.externals,
+            fortran_script="mode_ice4_rrhong.F90",
+            fortran_module="mode_ice4_rrhong",
+            fortran_subroutine="ice4_rrhong",
+            gt4py_stencil="ice4_rrhong"
+        )
+        
+        fields = draw_fields(component)
+        
+        fields.update({
+            "ldcompute": np.ones(component.dims, type=np.int32, order="F")
+        })
+        
+        state_gt4py = allocate_gt4py_fields(component, fields)
+    
+        logging.info(f"Compare input  fields")
+        compare_input(component, fields, state_gt4py)
+    
+        logging.info("Calling fortran field")
+        
+        fortran_output_fields = component.call_fortran_stencil(fields)
+        logging.info(f"fortran_output_fields {fortran_output_fields.keys()}")
+
+        logging.info("Calling gt4py field")
+        gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+        # TODO: remove shadow first level
+
+        logging.info("Compare output fields")
+        mean_absolute_errors = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+        
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)  
+        
         
     def test_lfeedbackt_false(self):
-        ...
+        
+        self.externals.update({
+            "lfeedbackt": False
+        })
+        
+        component = Ice4RRHONG(
+            computational_grid=test_grid,
+            gt4py_config=default_gt4py_config,
+            externals=self.externals,
+            fortran_script="mode_ice4_rrhong.F90",
+            fortran_module="mode_ice4_rrhong",
+            fortran_subroutine="ice4_rrhong",
+            gt4py_stencil="ice4_rrhong"
+        )
+        
+        fields = draw_fields(component)
+        
+        fields.update({
+            "ldcompute": np.ones(component.dims, type=np.int32, order="F")
+        })
+        
+        state_gt4py = allocate_gt4py_fields(component, fields)
+    
+        logging.info(f"Compare input  fields")
+        compare_input(component, fields, state_gt4py)
+    
+        logging.info("Calling fortran field")
+        
+        fortran_output_fields = component.call_fortran_stencil(fields)
+        logging.info(f"fortran_output_fields {fortran_output_fields.keys()}")
+
+        logging.info("Calling gt4py field")
+        gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+        # TODO: remove shadow first level
+
+        logging.info("Compare output fields")
+        mean_absolute_errors = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+        
+        for field, diff in mean_absolute_errors.items():
+            logging.info(f"Field name : {field}")
+            logging.info(f"Epsilon {default_epsilon}")
+            self.assertLess(diff, default_epsilon)  

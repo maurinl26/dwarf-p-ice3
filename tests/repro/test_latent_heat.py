@@ -4,7 +4,7 @@ from functools import cached_property
 import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
-from utils.fields_allocation import run_test
+from utils.fields_allocation import allocate_gt4py_fields, compare_input, compare_output, draw_fields, run_test
 from utils.generic_test_component import TestComponent
 
 from repro.default_config import default_epsilon, default_gt4py_config, test_grid, phyex
@@ -15,7 +15,7 @@ class LatentHeat(TestComponent):
 
     @cached_property
     def externals(self):
-        """Filter phyex externals"""
+        """Mapping between Fortran externals and GT4Py externals"""
         return {
             "xlvtt": self.phyex_externals["LVTT"],
             "xlstt": self.phyex_externals["LSTT"],
@@ -70,20 +70,14 @@ class LatentHeat(TestComponent):
     def fields_inout(self):
         return {}
     
-
-    def call_gt4py_stencil(self, fields: dict):
-        """Call gt4py_stencil from a numpy array"""
-        # Overriden method to debug call
-        
-        for key, value in self.externals.items():
-            logging.info(f"External {key}, value : {value}")
-        
-        return super().call_gt4py_stencil(fields)
-    
 class TestLatentHeat(unittest.TestCase):
-    
-    def setUp(self):
-        self.component = LatentHeat(
+            
+    def test_repro_latent_heat(self):
+        """Assert mean absolute error on inout and out fields
+        are less than epsilon
+        """
+        
+        component = LatentHeat(
         computational_grid=test_grid,
         phyex=phyex,
         gt4py_config=default_gt4py_config,
@@ -93,15 +87,26 @@ class TestLatentHeat(unittest.TestCase):
         gt4py_stencil="thermodynamic_fields",
     )
         
-    def test_repro_latent_heat(self):
-        """Assert mean absolute error on inout and out fields
-        are less than epsilon
-        """
-        mean_absolute_errors = run_test(self.component)
-        for field, diff in mean_absolute_errors.items():
-            logging.info(f"Field name : {field}")
-            logging.info(f"Epsilon {default_epsilon}")
-            self.assertLess(diff, default_epsilon)     
+        logging.info(f"\n Start test {component.__class__.__name__}")
+
+        fields = draw_fields(component)
+        state_gt4py = allocate_gt4py_fields(component, fields)
+    
+        logging.info(f"Compare input  fields")
+        compare_input(component, fields, state_gt4py)
+    
+        logging.info("Calling fortran field")
+        fortran_output_fields = component.call_fortran_stencil(fields)
+        logging.info(f"fortran_output_fields {
+            fortran_output_fields.keys()}")
+
+        logging.info("Calling gt4py field")
+        gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
+    
+
+        logging.info("Compare output fields")
+        absolute_differences = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
+        logging.info(f"End test {component.__class__.__name__}\n")    
             
 
             
