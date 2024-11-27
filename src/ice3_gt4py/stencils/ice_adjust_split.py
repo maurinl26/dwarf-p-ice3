@@ -45,8 +45,6 @@ def condensation(
     cph: gtscript.Field["float"],
     lv: gtscript.Field["float"],
     ls: gtscript.Field["float"],
-    inq1: gtscript.Field[np.int64],
-    src_1d: gtscript.GlobalTable[("float", (34))],
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
@@ -54,7 +52,6 @@ def condensation(
         CPD,
         RD,
         RV,
-        LAMBDA3,
     )
 
     # 3. subgrid condensation scheme
@@ -132,24 +129,39 @@ def condensation(
         # Translation note : l487 to l489
         cond_tmp = 0 if cldfr == 0 else cond_tmp
 
-        inq1 = floor(
-            min(10, max(-22, min(-100, 2 * floor(q1))))
-        )  # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1 - inq1
-
-        sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
-
-        # # Translation notes : 506 -> 514 (not ocnd2)
+        # Translation notes : 506 -> 514 (not ocnd2)
         rc_out = (1 - frac_tmp) * cond_tmp  # liquid condensate
         ri_out = frac_tmp * cond_tmp  # solid condensate
         t_out = update_temperature(t, rc_out, rc_in, ri_out, ri_in, lv, ls)
         rv_out = rt - rc_in - ri_in * prifact
+        
+        # Translation note : sigrc computation out of scope
+        # sigrc computation in sigrc_computation stencil
 
+    # Translation note : end jiter
+    
+# TODO : shift stencil compilation
+@stencil_collection("sigrc")
+def sigrc_computation(
+    q1: Field["float"],
+    sigrc: Field["float"],
+    src_1d: GlobalTable["float", (34)]
+):
+    
+    from __externals__ import (
+        LAMBDA3
+    )
+    with computation(PARALLEL), interval(...):
+        
+        inq1 = floor(
+            min(10, max(-22, min(-100, 2 * floor(q1))))
+        )  # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
+        inc = 2 * q1 - inq1
+        sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
+        
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
         if __INLINED(LAMBDA3 == 0):
             sigrc *= min(3, max(1, 1 - q1))
-
-    # Translation note : end jiter
 
 
 @stencil_collection("thermodynamic_fields")
