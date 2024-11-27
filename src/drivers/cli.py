@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 import subprocess
+from ice3_gt4py.components.ice_adjust_split import IceAdjustSplit
 import typer
 import logging
 import datetime
@@ -62,6 +63,72 @@ def run_ice_adjust(
     logging.info(f"Compilation for IceAdjust stencils")
     start = time.time()
     ice_adjust = IceAdjust(grid, gt4py_config, phyex)
+    stop = time.time()
+    elapsed_time = stop - start
+    logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
+
+    ####### Create state for AroAdjust #######
+    reader = NetCDFReader(Path(dataset))
+
+    logging.info("Getting state for IceAdjust")
+    state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
+    logging.info(f"Keys : {list(state.keys())}")
+
+    ###### Launching IceAdjust ###############
+    logging.info("Launching IceAdjust")
+
+    # TODO: decorator for tracking
+    start = time.time()
+    tends, diags = ice_adjust(state, dt)
+    stop = time.time()
+    elapsed_time = stop - start
+    logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
+
+    #################### Write dataset ######################
+    write_dataset(state, (nx, ny, nz), output_path)
+
+    ############### Compute differences per field ###########
+    metrics = compare_fields(dataset, output_path, "ice_adjust")
+
+    ####################### Tracking ########################
+    write_performance_tracking(gt4py_config, metrics, tracking_file)
+    
+@app.command()
+def run_ice_adjust_split(
+    backend: str,
+    dataset: str,
+    output_path: str,
+    tracking_file: str,
+    rebuild: bool = True,
+    validate_args: bool = False
+):
+    """Run ice_adjust splitted version to avoid
+    interpolation problems for sigrc
+    """
+    
+    ##### Grid #####
+    logging.info("Initializing grid ...")
+    nx = 10000
+    ny = 1
+    nz = 15
+    grid = ComputationalGrid(nx, ny, nz)
+    dt = datetime.timedelta(seconds=1)
+
+    ################## Phyex #################
+    logging.info("Initializing Phyex ...")
+    cprogram = "AROME"
+    phyex = Phyex(cprogram)
+
+    ######## Backend and gt4py config #######
+    logging.info(f"With backend {backend}")
+    gt4py_config = GT4PyConfig(
+        backend=backend, rebuild=rebuild, validate_args=validate_args, verbose=True
+    )
+
+    ######## Instanciation + compilation #####
+    logging.info(f"Compilation for IceAdjust stencils")
+    start = time.time()
+    ice_adjust = IceAdjustSplit(grid, gt4py_config, phyex)
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
