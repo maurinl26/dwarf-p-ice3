@@ -9,6 +9,7 @@ src/testprogs_data/main_ice_adjust
 .dacecache/
 .venv-prod/
 .gt_cache/
+.pytest_cache/
 src/ice3_gt4py/__pycache__/
 src/PHYEX/
 test/
@@ -32,5 +33,6 @@ scripts
 *.cfg
 *.json
 
-mode_*
+mode_*/
 cloud_fraction/
+sandbox/
