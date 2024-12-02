@@ -5,7 +5,7 @@ from gt4py.cartesian.gtscript import Field, computation, PARALLEL, interval
 from ifs_physics_common.framework.stencil import stencil_collection
 
 from ice3_gt4py.functions.ice_adjust import (
-    cph,
+    constant_pressure_heat_capacity,
     sublimation_latent_heat,
     vaporisation_latent_heat,
 )
@@ -14,6 +14,7 @@ from ice3_gt4py.functions.ice_adjust import (
 @stencil_collection("aro_filter")
 def aro_filter(
     exnref: Field["float"],
+    _cph: Field["float"],
     tht: Field["float"],
     ths: Field["float"],
     rcs: Field["float"],
@@ -50,7 +51,7 @@ def aro_filter(
         t = tht[0, 0, 0] * exnref[0, 0, 0]
         ls = sublimation_latent_heat(t)
         lv = vaporisation_latent_heat(t)
-        cph_ = cph(rvs, rcs, ris, rrs, rss, rgs)
+        cph = constant_pressure_heat_capacity(rvs, rcs, ris, rrs, rss, rgs)
 
     with computation(PARALLEL), interval(...):
         if ris[0, 0, 0] > 0:
@@ -66,7 +67,7 @@ def aro_filter(
             rvs[0, 0, 0] = rvs[0, 0, 0] + rcs[0, 0, 0]
             ths[0, 0, 0] = (
                 ths[0, 0, 0]
-                - rcs[0, 0, 0] * lv[0, 0, 0] / cph_[0, 0, 0] / exnref[0, 0, 0]
+                - rcs[0, 0, 0] * lv[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
             )
             rcs[0, 0, 0] = 0
 
@@ -79,7 +80,7 @@ def aro_filter(
         )
         rvs[0, 0, 0] = rvs[0, 0, 0] + cor[0, 0, 0]
         ths[0, 0, 0] = (
-            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph_[0, 0, 0] / exnref[0, 0, 0]
+            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
         )
         rcs[0, 0, 0] = rcs[0, 0, 0] - cor[0, 0, 0]
 
@@ -92,7 +93,7 @@ def aro_filter(
         )
         rvs[0, 0, 0] = rvs[0, 0, 0] + cor[0, 0, 0]
         ths[0, 0, 0] = (
-            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph_[0, 0, 0] / exnref[0, 0, 0]
+            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
         )
         ris[0, 0, 0] = ris[0, 0, 0] - cor[0, 0, 0]
 

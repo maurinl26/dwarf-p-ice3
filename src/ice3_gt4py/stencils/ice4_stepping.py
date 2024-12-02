@@ -7,7 +7,7 @@ from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
 from ice3_gt4py.functions.ice_adjust import (
-    cph,
+    constant_pressure_heat_capacity,
     sublimation_latent_heat,
     vaporisation_latent_heat,
 )
@@ -90,7 +90,7 @@ def ice4_stepping_heat(
         t (Field[float]): temperature
     """
     with computation(PARALLEL), interval(...):
-        specific_heat = cph(rv_t, rc_t, ri_t, rr_t, rs_t, rg_t)
+        specific_heat = constant_pressure_heat_capacity(rv_t, rc_t, ri_t, rr_t, rs_t, rg_t)
         t = theta2temperature(th_t, exn)
         ls_fact = sublimation_latent_heat(t) / specific_heat
         lv_fact = vaporisation_latent_heat(t) / specific_heat

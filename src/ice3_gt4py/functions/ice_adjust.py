@@ -41,7 +41,7 @@ def sublimation_latent_heat(
 
 
 @function
-def cph(
+def constant_pressure_heat_capacity(
     rv: Field["float"],
     rc: Field["float"],
     ri: Field["float"],
