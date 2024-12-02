@@ -7,7 +7,6 @@ import sys
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
-from gt4py.storage import from_array
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
@@ -15,7 +14,6 @@ from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
 from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.phyex_common.tables import src_1d
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -264,7 +262,6 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             "lv": {"grid": (I, J, K), "units": ""},
             "ls": {"grid": (I, J, K), "units": ""},
             "cph": {"grid": (I, J, K), "units": ""},
-            "criaut": {"grid": (I, J, K), "units": ""},
         }
 
     def array_call(
@@ -277,15 +274,17 @@ class IceAdjustSplit(ImplicitTendencyComponent):
     ) -> None:
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 4),
-            *repeat(((I, J, K), "int"), 1),
+            *repeat(((I, J, K), "float"), 8),
             gt4py_config=self.gt4py_config,
         ) as (
             lv,
             ls,
             cph,
-            criaut,
-            inq1,
+            t,
+            rc_out,
+            ri_out,
+            rv_out,
+            t_out
         ):
             
             state_thermo = {
@@ -298,24 +297,20 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                     "ri",
                     "rs",
                     "rg",
-                    "lv",
-                    "ls",
-                    "cph",
-                    "t",
                 ]
             }
             
             temporaries_thermo = {
                 "cph": cph,
                 "lv": lv,
-                "ls": ls
+                "ls": ls,
+                "t": t
             }
             
             logging.info("Launching thermo")
             self.thermo(
                 **state_thermo,
                 **temporaries_thermo,
-                dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
@@ -326,15 +321,8 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 key: state[key] for key in [
                     "sigqsat",
                     "pabs",
-                    "t",
-                    "rv_in",
-                    "ri_in",
-                    "rc_in",
-                    "rv_out",
-                    "rc_out",
-                    "ri_out",
-                    "t_out",
                     "cldfr",
+                    "sigs"
                 ]
             }
  
@@ -342,25 +330,32 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "cph": cph,
                 "lv": lv,
                 "ls": ls,
+                "t": t,
+                "rv_in": state["rv"],
+                "ri_in": state["ri"],
+                "rc_in": state["rc"],
+                "rv_out": rv_out,
+                "ri_out": ri_out,
+                "rc_out": rc_out,
+                "t_out": t_out
             }
             
             logging.info("Launching condensation")
             self.condensation(
                 **state_condensation,
                 **temporaries_condensation,
-                dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
             
-            # Translation note : if needed, sigrc_computation could
-            # be inserted here
+            # TODO : insert diagnostic on sigrc here
+            # Translation note : if needed, sigrc_computation could be inserted here
             
             state_cloud_fraction = {
                 key: state[key] for key in [
-                    "t",
+                    # "t",
                     "rhodref",
                     "exnref",
                     "rc",
@@ -372,19 +367,21 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                     "rc_mf",
                     "ri_mf",
                     "cf_mf",
-                    "rc_tmp",
-                    "ri_tmp",
                     "hlc_hrc",
                     "hlc_hcf",
                     "hli_hri",
                     "hli_hcf",
+                    "cldfr"
                 ]
             }
             
             temporaries_cloud_fraction = {
                 "lv": lv,
                 "ls": ls,
-                "cph": cph
+                "cph": cph,
+                "t": t,
+                "rc_tmp": rc_out,
+                "ri_tmp": ri_out,
             }
             
             logging.info("Launching cloud fraction")
