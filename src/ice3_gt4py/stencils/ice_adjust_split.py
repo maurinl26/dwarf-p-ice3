@@ -41,7 +41,6 @@ def condensation(
     ri_out: gtscript.Field["float"],
     t_out: gtscript.Field["float"],
     cldfr: gtscript.Field["float"],
-    sigrc: gtscript.Field["float"],
     cph: gtscript.Field["float"],
     lv: gtscript.Field["float"],
     ls: gtscript.Field["float"],

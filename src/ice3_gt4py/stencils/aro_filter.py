@@ -14,7 +14,7 @@ from ice3_gt4py.functions.ice_adjust import (
 @stencil_collection("aro_filter")
 def aro_filter(
     exnref: Field["float"],
-    _cph: Field["float"],
+    cph: Field["float"],
     tht: Field["float"],
     ths: Field["float"],
     rcs: Field["float"],
