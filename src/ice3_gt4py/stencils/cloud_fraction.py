@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import (
-    PARALLEL,
-    computation,
-    interval,
-    Field,
-    __INLINED
-)
+from gt4py.cartesian.gtscript import PARALLEL, computation, interval, Field, __INLINED
 from ifs_physics_common.framework.stencil import stencil_collection
-
 
 
 @stencil_collection("cloud_fraction")
@@ -51,22 +44,8 @@ def cloud_fraction(
     )
 
     # l274 in ice_adjust.F90
-    ##### 5.     COMPUTE THE SOURCES AND STORES THE CLOUD FRACTION #####
+    # 5. COMPUTE THE SOURCES AND STORES THE CLOUD FRACTION
     with computation(PARALLEL), interval(...):
-        # 5.0 compute the variation of mixing ratio
-        w1 = (rc_tmp - rc) / dt
-        w2 = (ri_tmp - ri) / dt
-
-        # 5.1 compute the sources
-        w1 = max(w1, -rcs) if w1 < 0 else min(w1, rvs)
-        rvs -= w1
-        rcs += w1
-        ths += w1 * lv / (cph * exnref)
-
-        w2 = max(w2, -ris) if w2 < 0 else min(w2, rvs)
-        rvs -= w2
-        rcs += w2
-        ths += w2 * ls / (cph * exnref)
 
         # 5.2  compute the cloud fraction cldfr
         if __INLINED(not LSUBG_COND):
