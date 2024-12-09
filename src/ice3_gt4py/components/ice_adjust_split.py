@@ -41,6 +41,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
         externals = phyex.to_externals()
         self.thermo = self.compile_stencil("thermodynamic_fields", externals)
         self.condensation = self.compile_stencil("condensation", externals)
+        self.compute_sources = self.compile_stencil("ice_adjust_sources", externals)
         self.cloud_fraction = self.compile_stencil("cloud_fraction", externals)
 
         logging.info(f"Keys")
@@ -276,19 +277,11 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             self.computational_grid,
             *repeat(((I, J, K), "float"), 8),
             gt4py_config=self.gt4py_config,
-        ) as (
-            lv,
-            ls,
-            cph,
-            t,
-            rc_out,
-            ri_out,
-            rv_out,
-            t_out
-        ):
-            
+        ) as (lv, ls, cph, t, rc_out, ri_out, rv_out, t_out):
+
             state_thermo = {
-                key: state[key] for key in [
+                key: state[key]
+                for key in [
                     "th",
                     "exn",
                     "rv",
@@ -299,14 +292,9 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                     "rg",
                 ]
             }
-            
-            temporaries_thermo = {
-                "cph": cph,
-                "lv": lv,
-                "ls": ls,
-                "t": t
-            }
-            
+
+            temporaries_thermo = {"cph": cph, "lv": lv, "ls": ls, "t": t}
+
             logging.info("Launching thermo")
             self.thermo(
                 **state_thermo,
@@ -316,30 +304,27 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
-            
+
             state_condensation = {
-                key: state[key] for key in [
-                    "sigqsat",
-                    "pabs",
-                    "cldfr",
-                    "sigs"
-                ]
+                **{key: state[key] for key in ["sigqsat", "pabs", "cldfr", "sigs"]},
+                **{
+                    "rv_in": state["rv"],
+                    "ri_in": state["ri"],
+                    "rc_in": state["rc"],
+                },
             }
- 
+
             temporaries_condensation = {
                 "cph": cph,
                 "lv": lv,
                 "ls": ls,
                 "t": t,
-                "rv_in": state["rv"],
-                "ri_in": state["ri"],
-                "rc_in": state["rc"],
                 "rv_out": rv_out,
                 "ri_out": ri_out,
                 "rc_out": rc_out,
-                "t_out": t_out
+                "t_out": t_out,
             }
-            
+
             logging.info("Launching condensation")
             self.condensation(
                 **state_condensation,
@@ -349,12 +334,50 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
-            
+
+            logging.info("Compute tendencies (sources)")
+
+            state_sources = {
+                **{
+                    key: state[key]
+                    for key in [
+                        "rvs",
+                        "ris",
+                        "ths",
+                        "rc_in",
+                        "rv_in",
+                        "ri_in",
+                        "exnref",
+                    ]
+                },
+                **{"rv_in": state["rv"], "rc_in": state["rc"], "ri_in": state["ri"]},
+            }
+
+            temporaries_sources = {
+                "rv_out": rv_out,
+                "rc_out": rc_out,
+                "ri_out": ri_out,
+                "lv": lv,
+                "ls": ls,
+                "cph": cph,
+            }
+
+            self.compute_sources(
+                **state_sources,
+                **temporaries_sources,
+                dt=timestep.total_seconds(),
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
+            )
+
             # TODO : insert diagnostic on sigrc here
             # Translation note : if needed, sigrc_computation could be inserted here
-            
+
             state_cloud_fraction = {
-                key: state[key] for key in [
+                key: state[key]
+                for key in [
                     # "t",
                     "rhodref",
                     "exnref",
@@ -371,10 +394,10 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                     "hlc_hcf",
                     "hli_hri",
                     "hli_hcf",
-                    "cldfr"
+                    "cldfr",
                 ]
             }
-            
+
             temporaries_cloud_fraction = {
                 "lv": lv,
                 "ls": ls,
@@ -383,7 +406,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "rc_tmp": rc_out,
                 "ri_tmp": ri_out,
             }
-            
+
             logging.info("Launching cloud fraction")
             self.cloud_fraction(
                 **state_cloud_fraction,
@@ -394,6 +417,3 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
-            
-            
-
