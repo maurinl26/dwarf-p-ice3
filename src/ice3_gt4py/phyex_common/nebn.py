@@ -85,10 +85,10 @@ class Neb:
 
     def __post_init__(self):
         if self.HPROGRAM == "AROME":
-            self.FRAC_ICE_ADJUST = FracIceAdjust.S.value
+            self.FRAC_ICE_ADJUST = FracIceAdjust.T.value
             self.FRAC_ICE_SHALLOW = FracIceShallow.T.value
-            self.VSIGQSAT = 0
-            self.LSIGMAS = False
+            self.VSIGQSAT = 0.02
+            self.LSIGMAS = True
             self.LSUBG_COND = True
 
         elif self.HPROGRAM == "LMDZ":

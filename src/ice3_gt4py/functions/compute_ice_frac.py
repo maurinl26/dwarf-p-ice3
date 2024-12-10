@@ -6,6 +6,7 @@ from gt4py.cartesian.gtscript import Field, function, __INLINED
 
 @function
 def compute_frac_ice(
+    frac_ice: Field["float"],
     t: Field["float"],  # type: ignore
 ) -> Field["float"]:  # type: ignore
     """Compute ice fraction based on temperature
@@ -26,12 +27,12 @@ def compute_frac_ice(
     # using temperature
     # FracIceAdjust.T.value
     if __INLINED(FRAC_ICE_ADJUST == 0):
-        frac_ice = max(0, min(1, ((TMAXMIX - t[0, 0, 0]) / (TMAXMIX - TMINMIX))))
+        frac_ice = max(0, min(1, ((TMAXMIX - t) / (TMAXMIX - TMINMIX))))
 
     # using temperature with old formula
     # FracIceAdjust.O.value
     elif __INLINED(FRAC_ICE_ADJUST == 1):
-        frac_ice = max(0, min(1, ((TT - t[0, 0, 0]) / 40)))
+        frac_ice = max(0, min(1, ((TT - t) / 40)))
 
     # no ice
     # FracIceAdjust.N.value

@@ -4,15 +4,19 @@ from functools import cached_property
 import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
-from utils.fields_allocation import allocate_gt4py_fields, compare_input, compare_output, draw_fields, run_test
-from utils.generic_test_component import TestComponent
+from utils.fields_allocation import (
+    allocate_gt4py_fields,
+    compare_input,
+    compare_output,
+    draw_fields,
+    run_test,
+)
+from ice3_gt4py.components.generic_test_component import TestComponent
 
 from repro.default_config import default_epsilon, default_gt4py_config, test_grid, phyex
 
 
-
 class LatentHeat(TestComponent):
-
     @cached_property
     def externals(self):
         """Mapping between Fortran externals and GT4Py externals"""
@@ -69,44 +73,44 @@ class LatentHeat(TestComponent):
     @cached_property
     def fields_inout(self):
         return {}
-    
+
+
 class TestLatentHeat(unittest.TestCase):
-            
     def test_repro_latent_heat(self):
         """Assert mean absolute error on inout and out fields
         are less than epsilon
         """
-        
+
         component = LatentHeat(
-        computational_grid=test_grid,
-        phyex=phyex,
-        gt4py_config=default_gt4py_config,
-        fortran_script="mode_thermo.F90",
-        fortran_module="mode_thermo",
-        fortran_subroutine="latent_heat",
-        gt4py_stencil="thermodynamic_fields",
-    )
-        
+            computational_grid=test_grid,
+            phyex=phyex,
+            gt4py_config=default_gt4py_config,
+            fortran_script="mode_thermo.F90",
+            fortran_module="mode_thermo",
+            fortran_subroutine="latent_heat",
+            gt4py_stencil="thermodynamic_fields",
+        )
+
         logging.info(f"\n Start test {component.__class__.__name__}")
 
         fields = draw_fields(component)
         state_gt4py = allocate_gt4py_fields(component, fields)
-    
+
         logging.info(f"Compare input  fields")
         compare_input(component, fields, state_gt4py)
-    
+
         logging.info("Calling fortran field")
         fortran_output_fields = component.call_fortran_stencil(fields)
-        logging.info(f"fortran_output_fields {
-            fortran_output_fields.keys()}")
+        logging.info(f"fortran_output_fields {fortran_output_fields.keys()}")
 
         logging.info("Calling gt4py field")
         gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
-    
 
         logging.info("Compare output fields")
-        absolute_differences = compare_output(component=component, fortran_fields=fortran_output_fields, gt4py_state=gt4py_output_fields)
-        logging.info(f"End test {component.__class__.__name__}\n")    
-            
-
-            
+        # Compare output is an assertion
+        compare_output(
+            component=component,
+            fortran_fields=fortran_output_fields,
+            gt4py_state=gt4py_output_fields,
+        )
+        logging.info(f"End test {component.__class__.__name__}\n")

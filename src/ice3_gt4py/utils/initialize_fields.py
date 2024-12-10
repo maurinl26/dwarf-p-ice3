@@ -32,10 +32,10 @@ def initialize_storage_3d(storage: NDArrayLike, buffer: NDArray) -> None:
         storage (NDArrayLike): storage slot
         buffer (NDArray): 3D field in buffer
     """
-    
+
     # expand a dimension of size 1 for nj
     assign(storage, buffer[:, np.newaxis, :])
-    
+
 
 def initialize_field(field: DataArray, buffer: NDArray) -> None:
     """Initialize storage for a given field with dimension descriptor

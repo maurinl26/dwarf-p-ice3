@@ -3,8 +3,7 @@ from functools import partial
 from typing import Literal, Tuple
 
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import (ComputationalGrid, DimSymbol, I,
-                                               J, K)
+from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol, I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 from ifs_physics_common.utils.typingx import DataArray, NDArrayLikeDict
 
@@ -38,7 +37,7 @@ def allocate_state(
     allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
     allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
     allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
-    
+
     state = dict()
     for field_name, field_attributes in fields.items():
         if field_attributes["dtype"] == "float":
@@ -47,7 +46,5 @@ def allocate_state(
             state.update({field_name: allocate_i()})
         elif field_attributes["dtype"] == "bool":
             state.update({field_name: allocate_b()})
-        
 
-    return state 
-
+    return state

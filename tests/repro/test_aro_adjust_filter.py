@@ -4,11 +4,10 @@ from functools import cached_property
 import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
-from utils.generic_test_component import TestComponent
+from ice3_gt4py.components.generic_test_component import TestComponent
 
 
 class AroFilter(TestComponent):
-
     @cached_property
     def externals(self):
         """Filter phyex externals"""

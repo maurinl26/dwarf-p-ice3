@@ -6,6 +6,9 @@ src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
 src/testprogs_data/main_ice_adjust
 
+dwarf-p-ice3
+dwarf_p_ice3.egg-info
+
 .dacecache/
 .venv-prod/
 .gt_cache/

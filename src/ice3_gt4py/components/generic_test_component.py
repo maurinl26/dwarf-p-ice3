@@ -49,7 +49,6 @@ class TestComponent(ComputationalGridComponent):
         value is the value stored in phyex dataclasses
         """
         pass
-        
 
     @cached_property
     @abstractmethod
@@ -60,7 +59,6 @@ class TestComponent(ComputationalGridComponent):
             dict: _description_
         """
         pass
-
 
     @cached_property
     @abstractmethod
@@ -95,6 +93,13 @@ class TestComponent(ComputationalGridComponent):
     def compile_fortran_stencil(
         self, fortran_script, fortran_module, fortran_subroutine
     ):
+        """Compile fortran stencil (wrapped in a module)
+
+        Args:
+            fortran_script (_type_): _description_
+            fortran_module (_type_): _description_
+            fortran_subroutine (_type_): _description_
+        """
         current_directory = Path.cwd()
         logging.info(f"Root directory {current_directory}")
         root_directory = current_directory
@@ -118,7 +123,7 @@ class TestComponent(ComputationalGridComponent):
         Args:
             fields (dict): dictionnary of numpy arrays
         """
-        
+
         ############# Preparing input ########
         field_attributes = {**self.fields_in, **self.fields_out, **self.fields_inout}
         state_fortran = dict()
@@ -126,29 +131,32 @@ class TestComponent(ComputationalGridComponent):
             fortran_name = field_attributes[key]["fortran_name"]
             state_fortran.update({fortran_name: array})
 
-
         for field_name, array in state_fortran.items():
-            logging.info(f"Field name {field_name}, array shape {array.shape}, array type {type(array)}")
-            
+            logging.info(
+                f"Field name {field_name}, array shape {array.shape}, array type {type(array)}"
+            )
+
         logging.info(f"Input, dims {self.dims}")
         logging.info(f"Input, externals {self.externals}")
 
         ############### Call ##################
         output_fields = self.fortran_stencil(
-                **self.dims, **self.externals, **state_fortran 
-            )
-        
+            **self.dims, **self.externals, **state_fortran
+        )
+
         ############## Preparing output #######
         output_fields_attributes = {**self.fields_inout, **self.fields_out}
         logging.info(f"Length of outputs {len(output_fields_attributes)}")
         if len(output_fields_attributes) == 1:
             logging.info(f"{output_fields_attributes}")
-            return {next(iter(output_fields_attributes.keys())): np.array(output_fields)}
+            return {
+                next(iter(output_fields_attributes.keys())): np.array(output_fields)
+            }
         elif len(output_fields_attributes) > 1:
             return {
-                    value["fortran_name"]: output_fields[i] for i, value in enumerate(output_fields_attributes.values())
-                }
-    
+                value["fortran_name"]: output_fields[i]
+                for i, value in enumerate(output_fields_attributes.values())
+            }
 
     def call_gt4py_stencil(self, fields: dict):
         """Call gt4py_stencil from a numpy array"""

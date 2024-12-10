@@ -19,7 +19,6 @@ from ice3_gt4py.functions.ice_adjust import (
     sublimation_latent_heat,
     vaporisation_latent_heat,
 )
-from ice3_gt4py.functions.temperature import update_temperature
 from ice3_gt4py.functions.tiwmx import e_sat_i, e_sat_w
 from ifs_physics_common.utils.f2py import ported_method
 
@@ -46,11 +45,7 @@ def condensation(
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
-    from __externals__ import (
-        CPD,
-        RD,
-        RV,
-    )
+    from __externals__ import RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX
 
     # 3. subgrid condensation scheme
     # Translation note : only the case with LSUBG_COND = True retained (l475 in ice_adjust.F90)
@@ -82,7 +77,17 @@ def condensation(
         )
 
         # TODO : l341 -> l350
-        # Translation note : OUSERI = False, OCND2 = False
+        # Translation note : OUSERI = TRUE, OCND2 = False
+        frac_tmp = rc_in / (rc_in + ri_in) if rc_in + ri_in > 1e-20 else 0
+
+        # Default Mode (S)
+        if __INLINED(FRAC_ICE_ADJUST == 3):
+            frac_tmp = max(0, min(1, frac_tmp))
+
+        # AROME mode
+        if __INLINED(FRAC_ICE_ADJUST == 0):
+            frac_tmp = max(0, min(1, ((TMAXMIX - t) / (TMAXMIX - TMINMIX))))
+
         # Supersaturation coefficients
         # TODO: check the order of priority of operations
         qsl = (RD / RV) * pv / (pabs - pv)

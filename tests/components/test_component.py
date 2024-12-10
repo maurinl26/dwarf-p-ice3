@@ -84,11 +84,8 @@ def build_component(
     component: ImplicitTendencyComponent,
 ):
 
-    nx = 100
-    ny = 1
-    nz = 90
-
     logging.info(f"Initializing phyex for AROME config ...")
+    nx, ny, nz = 100, 1, 90
     cprogram = "AROME"
     phyex_config = Phyex(cprogram)
 

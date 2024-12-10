@@ -6,28 +6,26 @@ import unittest
 from ifs_physics_common.framework.grid import I, J, K
 
 from utils.fields_allocation import run_test
-from utils.generic_test_component import TestComponent
+from ice3_gt4py.components.generic_test_component import TestComponent
 from repro.default_config import default_gt4py_config, default_epsilon, phyex, test_grid
 
-class CloudFraction(TestComponent):
 
+class CloudFraction(TestComponent):
     @cached_property
     def externals(self):
         """Filter phyex externals"""
-        
-        mapping  = {
+
+        mapping = {
             "lsubg_cond": "LSUBG_COND",
             "xcriautc": "CRIAUTC",
             "csubg_mf_pdf": "SUBG_MF_PDF",
             "xcriauti": "CRIAUTI",
             "xacriauti": "ACRIAUTI",
             "xbcriauti": "BCRIAUTI",
-            "xtt": "TT"
+            "xtt": "TT",
         }
-        
-        return {
-            key: self.phyex_externals[value] for key, value in mapping.items() 
-        }
+
+        return {key: self.phyex_externals[value] for key, value in mapping.items()}
 
     @cached_property
     def dims(self) -> dict:
@@ -102,18 +100,17 @@ class CloudFraction(TestComponent):
 
 
 class TestCloudFraction(unittest.TestCase):
-    
     def setUp(self):
         self.component = CloudFraction(
-        computational_grid=test_grid,
-        phyex=phyex,
-        gt4py_config=default_gt4py_config,
-        fortran_script="mode_cloud_fraction.F90",
-        fortran_module="mode_cloud_fraction",
-        fortran_subroutine="cloud_fraction",
-        gt4py_stencil="cloud_fraction",
-    )
-        
+            computational_grid=test_grid,
+            phyex=phyex,
+            gt4py_config=default_gt4py_config,
+            fortran_script="mode_cloud_fraction.F90",
+            fortran_module="mode_cloud_fraction",
+            fortran_subroutine="cloud_fraction",
+            gt4py_stencil="cloud_fraction",
+        )
+
     def test_repro_cloud_fraction(self):
         """Assert mean absolute error on inout and out fields
         are less than epsilon
@@ -122,4 +119,4 @@ class TestCloudFraction(unittest.TestCase):
         for field, diff in mean_absolute_errors.items():
             logging.info(f"Field name : {field}")
             logging.info(f"Epsilon {default_epsilon}")
-            self.assertLess(diff, default_epsilon)  
+            self.assertLess(diff, default_epsilon)

@@ -35,9 +35,8 @@ class RainIceDescr:
 
     CEXVT: float = 0.4  # Air density fall speed correction
 
-    RTMIN: np.ndarray = field(
-        default=np.zeros(41)
-    )  # Min values allowed for mixing ratios
+    RTMIN: np.ndarray = field(default_factory=lambda: np.zeros(41))
+    # Min values allowed for mixing ratios
 
     # Cloud droplet charact.
     AC: float = field(default=524)

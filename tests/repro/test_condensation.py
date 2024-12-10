@@ -7,7 +7,7 @@ from ifs_physics_common.framework.grid import I, J, K
 import unittest
 
 from tests.utils.fields_allocation import run_test
-from utils.generic_test_component import TestComponent
+from ice3_gt4py.components.generic_test_component import TestComponent
 from utils.allocate_state import allocate_state
 from repro.default_config import test_grid, phyex, default_gt4py_config
 
@@ -17,7 +17,6 @@ logging.getLogger()
 
 
 class Condensation(TestComponent):
-
     @cached_property
     def externals(self):
         """Filter phyex externals"""
@@ -88,30 +87,30 @@ class Condensation(TestComponent):
     @cached_property
     def fields_inout(self):
         return {}
-    
+
     def call_gt4py_stencil(self, fields: dict):
         """Call gt4py_stencil from a numpy array"""
-        
-        inq1_field = {"inq1": {"grid": (I, J, K), "dtype":"int"}}
+
+        inq1_field = {"inq1": {"grid": (I, J, K), "dtype": "int"}}
         state = allocate_state(self.computational_grid, self.gt4py_config, inq1_field)
         fields.update(state)
         fields.update({"src_1d": src_1d})
-        
+
         return super().call_gt4py_stencil(fields)
-    
+
+
 class TestCondensation(unittest.TestCase):
-    
     def setUp(self):
         self.component = Condensation(
-        computational_grid=test_grid,
-        phyex=phyex,
-        gt4py_config=default_gt4py_config,
-        fortran_script="mode_condensation.F90",
-        fortran_module="mode_condensation",
-        fortran_subroutine="condensation",
-        gt4py_stencil="condensation",
-    )
-  
+            computational_grid=test_grid,
+            phyex=phyex,
+            gt4py_config=default_gt4py_config,
+            fortran_script="mode_condensation.F90",
+            fortran_module="mode_condensation",
+            fortran_subroutine="condensation",
+            gt4py_stencil="condensation",
+        )
+
     def test_repro_condensation(self):
         """Assert mean absolute error on inout and out fields
         are less than epsilon
@@ -120,4 +119,4 @@ class TestCondensation(unittest.TestCase):
         for field, diff in mean_absolute_errors.items():
             logging.info(f"Field name : {field}")
             logging.info(f"Epsilon {default_epsilon}")
-            self.assertLess(diff, default_epsilon)  
+            self.assertLess(diff, default_epsilon)
