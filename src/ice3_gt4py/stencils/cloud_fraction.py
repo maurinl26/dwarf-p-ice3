@@ -1,15 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import (
-    PARALLEL,
-    computation,
-    interval,
-    Field,
-    __INLINED
-)
+from gt4py.cartesian.gtscript import PARALLEL, computation, interval, Field, __INLINED
 from ifs_physics_common.framework.stencil import stencil_collection
-
 
 
 @stencil_collection("cloud_fraction")
@@ -58,12 +51,12 @@ def cloud_fraction(
         w2 = (ri_tmp - ri) / dt
 
         # 5.1 compute the sources
-        w1 = max(w1, -rcs) if w1 < 0 else min(w1, rvs)
+        w1 = max(w1, -rcs) if w1 < 0.0 else min(w1, rvs)
         rvs -= w1
         rcs += w1
         ths += w1 * lv / (cph * exnref)
 
-        w2 = max(w2, -ris) if w2 < 0 else min(w2, rvs)
+        w2 = max(w2, -ris) if w2 < 0.0 else min(w2, rvs)
         rvs -= w2
         rcs += w2
         ths += w2 * ls / (cph * exnref)
@@ -88,6 +81,7 @@ def cloud_fraction(
             ris += w2
             rvs -= w1 + w2
             ths += (w1 * lv + w2 * ls) / cph / exnref
+            # TODO : check order of operations
 
             # Droplets subgrid autoconversion
             # with computation(PARALLEL), interval(...):
@@ -104,17 +98,17 @@ def cloud_fraction(
             # Translation note : if LLTRIANGLE in .F90
             if __INLINED(SUBG_MF_PDF == 1):
                 if w1 * dt > cf_mf * criaut:
-                    hcf = 1 - 0.5 * (criaut * cf_mf / max(1e-20, w1 * dt)) ** 2
+                    hcf = 1.0 - 0.5 * (criaut * cf_mf / max(1e-20, w1 * dt)) ** 2
                     hr = w1 * dt - (criaut * cf_mf) ** 3 / (
                         3 * max(1e-20, w1 * dt) ** 2
                     )
 
-                elif 2 * w1 * dt <= cf_mf * criaut:
-                    hcf = 0
-                    hr = 0
+                elif 2.0 * w1 * dt <= cf_mf * criaut:
+                    hcf = 0.0
+                    hr = 0.0
 
                 else:
-                    hcf = (2 * w1 * dt - criaut * cf_mf) ** 2 / (
+                    hcf = (2.0 * w1 * dt - criaut * cf_mf) ** 2 / (
                         2.0 * max(1.0e-20, w1 * dt) ** 2
                     )
                     hr = (
@@ -124,7 +118,7 @@ def cloud_fraction(
                     ) / (3 * max(1.0e-20, w1 * dt) ** 2)
 
                 hcf *= cf_mf
-                hlc_hcf = min(1, hlc_hcf + hcf)
+                hlc_hcf = min(1.0, hlc_hcf + hcf)
                 hlc_hrc += hr
 
             # Ice subgrid autoconversion
@@ -136,11 +130,11 @@ def cloud_fraction(
             if __INLINED(SUBG_MF_PDF == 0):
                 if w2 * dt > cf_mf * criaut:
                     hli_hri += w2 * dt
-                    hli_hcf = min(1, hli_hcf + cf_mf)
+                    hli_hcf = min(1.0, hli_hcf + cf_mf)
 
             if __INLINED(SUBG_MF_PDF == 1):
                 if w2 * dt > cf_mf * criaut:
-                    hli_hcf = 1 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
+                    hli_hcf = 1.0 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
                     hli_hri = w2 * dt - (criaut * cf_mf) ** 3 / (3 * (w2 * dt) ** 2)
 
                 elif 2 * w2 * dt <= cf_mf * criaut:
@@ -148,17 +142,17 @@ def cloud_fraction(
                     hli_hri = 0
 
                 else:
-                    hli_hcf = (2 * w2 * dt - criaut * cf_mf) ** 2 / (
+                    hli_hcf = (2.0 * w2 * dt - criaut * cf_mf) ** 2 / (
                         2.0 * (w2 * dt) ** 2
                     )
                     hli_hri = (
                         4.0 * (w2 * dt) ** 3
                         - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
                         + (criaut * cf_mf) ** 3
-                    ) / (3 * (w2 * dt) ** 2)
+                    ) / (3.0 * (w2 * dt) ** 2)
 
                 hli_hcf *= cf_mf
-                hli_hcf = min(1, hli_hcf + hli_hcf)
+                hli_hcf = min(1.0, hli_hcf + hli_hcf)
                 hli_hri += hli_hri
 
     # Translation note : 402 -> 427 (removed pout_x not present )
