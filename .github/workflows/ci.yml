@@ -6,7 +6,6 @@ name: ci
 on:
   push:
     branches:
-      - main
       - dev
 permissions:
   contents: write
