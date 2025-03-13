@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import logging
 from functools import cached_property
-import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
 from ice3_gt4py.components.generic_test_component import TestComponent

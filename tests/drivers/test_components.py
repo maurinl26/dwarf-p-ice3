@@ -1,22 +1,16 @@
 # -*- coding: utf-8 -*-
 import json
-from pathlib import Path
-import subprocess
-import numpy as np
 import typer
 import logging
 import datetime
 import time
 import sys
-import xarray as xr
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
-from drivers.core import core
 from ice3_gt4py.components.aro_adjust import AroAdjust
 from ice3_gt4py.components.ice4_stepping import Ice4Stepping
-from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ice3_gt4py.utils.state_aro_adjust import (
     get_constant_state_aro_adjust,
     aro_adjust_fields_keys,

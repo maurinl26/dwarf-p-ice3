@@ -9,23 +9,11 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
 from drivers.core import core
-from ice3_gt4py.components.aro_adjust import AroAdjust
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
-from ice3_gt4py.components.ice_adjust import IceAdjust
-from ice3_gt4py.components.rain_ice import RainIce
-from ice3_gt4py.utils.state_aro_adjust import (
-    get_constant_state_aro_adjust,
-    aro_adjust_fields_keys,
-)
+
 from ice3_gt4py.utils.state_ice4_tendencies import (
     get_constant_state_ice4_tendencies,
 )
-from ice3_gt4py.utils.state_ice_adjust import (
-    get_state_ice_adjust,
-)
-from ice3_gt4py.initialisation.state_rain_ice import get_state_rain_ice
-from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.utils.reader import NetCDFReader
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()

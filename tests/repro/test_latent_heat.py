@@ -9,7 +9,6 @@ from ice3_gt4py.utils.fields_allocation import (
     compare_input,
     compare_output,
     draw_fields,
-    run_test,
 )
 from ice3_gt4py.components.generic_test_component import TestComponent
 

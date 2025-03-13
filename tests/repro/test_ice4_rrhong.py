@@ -13,7 +13,6 @@ from ice3_gt4py.utils.fields_allocation import (
     compare_input,
     compare_output,
     draw_fields,
-    run_test,
 )
 from ice3_gt4py.components.generic_test_component import TestComponent
 from repro.default_config import phyex, default_epsilon, test_grid, default_gt4py_config
