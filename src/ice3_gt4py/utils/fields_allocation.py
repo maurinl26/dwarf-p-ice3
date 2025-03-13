@@ -4,9 +4,9 @@ import logging
 import numpy as np
 from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.utils.typingx import NDArrayLikeDict
-from utils.array_dict_operations import remove_y_axis, unpack
-from utils.initialize_fields import initialize_field
-from utils.allocate_state import allocate_state
+from ice3_gt4py.utils.array_dict_operations import remove_y_axis, unpack
+from ice3_gt4py.utils.initialize_fields import initialize_field
+from ice3_gt4py.utils.allocate_state import allocate_state
 
 from repro.default_config import test_grid, default_gt4py_config
 
