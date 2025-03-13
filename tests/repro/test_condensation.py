@@ -6,9 +6,9 @@ from ice3_gt4py.phyex_common.tables import src_1d
 from ifs_physics_common.framework.grid import I, J, K
 import unittest
 
-from tests.utils.fields_allocation import run_test
+from ice3_gt4py.utils.fields_allocation import run_test
 from ice3_gt4py.components.generic_test_component import TestComponent
-from utils.allocate_state import allocate_state
+from ice3_gt4py.utils.allocate_state import allocate_state
 from repro.default_config import test_grid, phyex, default_gt4py_config
 
 

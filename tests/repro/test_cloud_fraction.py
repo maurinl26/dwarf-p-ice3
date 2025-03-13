@@ -5,7 +5,7 @@ import unittest
 
 from ifs_physics_common.framework.grid import I, J, K
 
-from utils.fields_allocation import run_test
+from ice3_gt4py.utils.fields_allocation import run_test
 from ice3_gt4py.components.generic_test_component import TestComponent
 from repro.default_config import default_gt4py_config, default_epsilon, phyex, test_grid
 

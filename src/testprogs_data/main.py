@@ -6,7 +6,7 @@ import typer
 from pathlib import Path
 import yaml
 
-from utils import (
+from ice3_gt4py.utils import (
     get_array_double,
     get_array_double,
     get_array_simple,

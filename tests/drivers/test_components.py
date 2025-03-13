@@ -17,14 +17,14 @@ from drivers.core import core
 from ice3_gt4py.components.aro_adjust import AroAdjust
 from ice3_gt4py.components.ice4_stepping import Ice4Stepping
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
-from utils.state_aro_adjust import (
+from ice3_gt4py.utils.state_aro_adjust import (
     get_constant_state_aro_adjust,
     aro_adjust_fields_keys,
 )
-from utils.state_ice4_tendencies import (
+from ice3_gt4py.utils.state_ice4_tendencies import (
     get_constant_state_ice4_tendencies,
 )
-from utils.state_ice4_stepping import (
+from ice3_gt4py.utils.state_ice4_stepping import (
     get_constant_state_ice4_stepping,
 )
 
