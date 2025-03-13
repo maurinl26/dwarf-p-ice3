@@ -9,6 +9,7 @@ from functools import cached_property
 from itertools import repeat
 from typing import Dict
 
+import dace
 import xarray as xr
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -350,6 +351,7 @@ class RainIce(ImplicitTendencyComponent):
         from_line=214,
         to_line=438,
     )
+    @dace.program
     def array_call(
         self,
         state: NDArrayLikeDict,

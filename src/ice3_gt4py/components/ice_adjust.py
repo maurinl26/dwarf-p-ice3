@@ -7,6 +7,7 @@ import sys
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
+import dace
 from gt4py.storage import from_array
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -265,6 +266,7 @@ class IceAdjust(ImplicitTendencyComponent):
             "criaut": {"grid": (I, J, K), "units": ""},
         }
 
+    @dace.program
     def array_call(
         self,
         state: NDArrayLikeDict,

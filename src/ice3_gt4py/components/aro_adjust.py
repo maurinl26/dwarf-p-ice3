@@ -7,6 +7,7 @@ from functools import cached_property
 from itertools import repeat
 from typing import Dict
 
+import dace
 from gt4py.storage import from_array, ones
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
@@ -57,13 +58,13 @@ class AroAdjust(ImplicitTendencyComponent):
     def _input_properties(self) -> PropertyDict:
         # TODO : sort input properties from state
         return {
-            "sigqsat": {"grid": (I, J, K), "dtype": "float","units": ""},
+            "sigqsat": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "exn": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "exnref": {"grid": (I, J, K), "dtype": "float","units": ""},
+            "exnref": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "rhodref": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "pabs": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "sigs": {"grid": (I, J, K), "dtype": "float", "units": ""},
-            "cf_mf": {"grid": (I, J, K), "dtype":"float", "units": ""},
+            "cf_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "rc_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "ri_mf": {"grid": (I, J, K), "dtype": "float", "units": ""},
             "th": {"grid": (I, J, K), "dtype": "float", "fortran_name": "zt"},
@@ -105,6 +106,7 @@ class AroAdjust(ImplicitTendencyComponent):
         # TODO : writout temporaries
         return {}
 
+    @dace.program
     def array_call(
         self,
         state: NDArrayLikeDict,
