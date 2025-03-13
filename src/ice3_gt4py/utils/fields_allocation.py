@@ -96,7 +96,6 @@ def compare_output(
     fortran_fields = unpack(fortran_fields, component.computational_grid)
     gt4py_fields = remove_y_axis(gt4py_state)
 
-    absolute_differences = dict()
     fields_to_compare = {**component.fields_inout, **component.fields_out}
     for field_name, field_attributes in fields_to_compare.items():
         logging.info(f"Field to compare : {field_name}")
@@ -163,6 +162,8 @@ def run_test(component: ComputationalGridComponent):
     gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
 
     logging.info("Compare output fields")
+
+    ## Assertion in compare output
     compare_output(
         component=component,
         fortran_fields=fortran_output_fields,
