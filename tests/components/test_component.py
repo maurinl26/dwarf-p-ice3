@@ -13,7 +13,7 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ice3_gt4py.initialisation.state import allocate_state
 from ice3_gt4py.phyex_common.phyex import Phyex
-from tests.utils.config import BACKEND_LIST
+from ice3_gt4py.utils.config import BACKEND_LIST
 
 if TYPE_CHECKING:
     from ifs_physics_common.framework.config import GT4PyConfig

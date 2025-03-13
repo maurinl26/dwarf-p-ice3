@@ -8,7 +8,7 @@ import numpy as np
 from ifs_physics_common.framework.grid import I, J, K
 
 import ice3_gt4py.stencils
-from utils.fields_allocation import (
+from ice3_gt4py.utils.fields_allocation import (
     allocate_gt4py_fields,
     compare_input,
     compare_output,
