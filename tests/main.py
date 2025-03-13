@@ -7,7 +7,7 @@ import typer
 
 from stencils.test_compile_stencils import STENCIL_COLLECTIONS, build
 from ice3_gt4py.phyex_common.phyex import Phyex
-from components.test_component import build_component
+from tests.components.test_component import build_component
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
