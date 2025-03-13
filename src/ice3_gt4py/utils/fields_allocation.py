@@ -13,14 +13,14 @@ from repro.default_config import test_grid, default_gt4py_config
 
 ####### Field allocation functions #######
 def allocate_gt4py_fields(
-    component: ComputationalGridComponent, fields: dict
+    component: ComputationalGridComponent, fields: NDArrayLikeDict
 ) -> NDArrayLikeDict:
     """Allocate storage for gt4py fields and
     initialize fields with given np arrays
 
     Args:
         component (ComputationalGridComponent): a ComputationalGridComponent with well described fields
-        fields (dict): _description_
+        fields (NDArrayLikeDict): _description_
 
     Returns:
         NDArrayLikeDict: _description_
