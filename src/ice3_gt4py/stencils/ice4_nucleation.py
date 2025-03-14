@@ -10,14 +10,14 @@ from ifs_physics_common.utils.f2py import ported_method
 @stencil_collection("ice4_nucleation")
 def ice4_nucleation(
     ldcompute: Field["bool"],
-    th_t: Field["float"],
-    pabs_t: Field["float"],
+    tht: Field["float"],
+    pabst: Field["float"],
     rhodref: Field["float"],
     exn: Field["float"],
-    ls_fact: Field["float"],
+    lsfact: Field["float"],
     t: Field["float"],
-    rv_t: Field["float"],
-    ci_t: Field["float"],
+    rvt: Field["float"],
+    cit: Field["float"],
     rvheni_mr: Field["float"],
     ssi: Field["float"],
 ):
@@ -25,14 +25,14 @@ def ice4_nucleation(
 
     Args:
         ldcompute (Field[bool]): compuation mask for microphysical sources
-        th_t (Field[float]): potential temperature at t
-        pabs_t (Field[float]): absolute pressure at t
+        tht (Field[float]): potential temperature at t
+        pabst (Field[float]): absolute pressure at t
         rhodref (Field[float]): reference density
         exn (Field[float]): exner pressure at t
-        ls_fact (Field[float]): latent heat of sublimation
+        lsfact (Field[float]): latent heat of sublimation
         t (Field[float]): temperature
-        rv_t (Field[float]): vapour mixing ratio at t
-        ci_t (Field[float]): ice content at t
+        rvt (Field[float]): vapour mixing ratio at t
+        cit (Field[float]): ice content at t
         rvheni_mr (Field[float]): mixing ratio change of vapour
     """
 
@@ -55,104 +55,75 @@ def ice4_nucleation(
         TT,
         V_RTMIN,
     )
+    
+    with computation(PARALLEL), interval(...):
+        usw = 0.0
+        zw = 0.0
 
     # l72
     with computation(PARALLEL), interval(...):
-        if t < TT and rv_t > V_RTMIN and ldcompute:
-            usw = 0
-            w2 = 0
+        if t < TT and rvt > V_RTMIN and ldcompute:
+            zw = log(t)
+            usw = exp(ALPW - BETAW / t - GAMW * zw)
+            zw = exp(ALPI - BETAI / t - GAMI * zw)
 
-        else:
-            w2 = log(t)
-            usw = exp(ALPW - BETAW / t - GAMW * w2)
-            w2 = exp(ALPI - BETAI / t - GAMI * w2)
+    with computation(PARALLEL), interval(...):
+        ssi = 0.0
 
     # l83
     with computation(PARALLEL), interval(...):
-        if t < TT and rv_t > V_RTMIN and ldcompute:
-            ssi = 0
-            w2 = min(pabs_t / 2, w2)
-            ssi = rv_t * (pabs_t - w2) / (EPSILO * w2) - 1
+        if t < TT and rvt > V_RTMIN and ldcompute:
+            zw = min(pabst / 2, zw)
+            ssi = rvt * (pabst - zw) / (EPSILO * zw) - 1
             # supersaturation over ice
 
-            usw = min(pabs_t / 2, usw)
-            usw = (usw / w2) * ((pabs_t - w2) / (pabs_t - usw))
+            usw = min(pabst / 2, usw)
+            usw = (usw / zw) * ((pabst - zw) / (pabst - usw))
             # supersaturation of saturated water vapor over ice
 
             ssi = min(ssi, usw)  # limitation of ssi according to ssw = 0
 
     # l96
     with computation(PARALLEL), interval(...):
-        w2 = 0
-        if t < TT and rv_t > V_RTMIN and ldcompute:
+        zw = 0.0
+        if t < TT and rvt > V_RTMIN and ldcompute:
             if t < TT - 5 and ssi > 0:
-                w2 = NU20 * exp(ALPHA2 * ssi - BETA2)
-            elif t < TT - 2 and t > TT - 5 and ssi > 0:
-                w2 = max(
+                zw = NU20 * exp(ALPHA2 * ssi - BETA2)
+            elif t < TT - 2.0 and t > TT - 5.0 and ssi > 0.0:
+                zw = max(
                     NU20 * exp(-BETA2),
                     NU10 * exp(-BETA1 * (t - TT)) * (ssi / usw) ** ALPHA1,
                 )
 
     # l107
     with computation(PARALLEL), interval(...):
-        w2 = w2 - ci_t
-        w2 = min(w2, 5e4)
+        zw = zw - cit
+        zw = min(zw, 5e4)
 
     # l114
     with computation(PARALLEL), interval(...):
         rvheni_mr = 0
-        if t < TT and rv_t > V_RTMIN and ldcompute:
-            rvheni_mr = max(w2, 0) * MNU0 / rhodref
-            rvheni_mr = min(rv_t, rvheni_mr)
+        if t < TT and rvt > V_RTMIN and ldcompute:
+            rvheni_mr = max(zw, 0.0) * MNU0 / rhodref
+            rvheni_mr = min(rvt, rvheni_mr)
 
     # l122
     with computation(PARALLEL), interval(...):
+        
         if LFEEDBACKT:
             w1 = 0
-            if t < TT and rv_t > V_RTMIN and ldcompute:
-                w1 = min(rvheni_mr, max(0, (TT / exn - th_t)) / ls_fact) / max(
+            if t < TT and rvt > V_RTMIN and ldcompute:
+                w1 = min(rvheni_mr, 
+                         max(0.0, (TT / exn - tht)) / lsfact) / max(
                     rvheni_mr, 1e-20
                 )
 
-            w2 *= w1
             rvheni_mr *= w1
+            zw *= w1
 
     # l134
     with computation(PARALLEL), interval(...):
-        if t < TT and rv_t > V_RTMIN and ldcompute:
-            ci_t = max(w2 + ci_t, ci_t)
+        if t < TT and rvt > V_RTMIN and ldcompute:
+            cit = max(zw + cit, cit)
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=152,
-    to_line=157,
-)
-@stencil_collection("ice4_nucleation_post_processing")
-def ice4_nucleation_post_processing(
-    t: Field["float"],
-    exn: Field["float"],
-    ls_fact: Field["float"],
-    lv_fact: Field["float"],
-    th_t: Field["float"],
-    rv_t: Field["float"],
-    ri_t: Field["float"],
-    rvheni_mr: Field["float"],
-):
-    """adjust mixing ratio with nucleation increments
-
-    Args:
-        t (Field[float]): temperature
-        exn (Field[float]): exner pressure
-        ls_fact (Field[float]): sublimation latent heat over heat capacity
-        th_t (Field[float]): potential temperature
-        rv_t (Field[float]): vapour m.r.
-        ri_t (Field[float]): ice m.r.
-        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
-    """
-
-    with computation(PARALLEL), interval(...):
-        th_t += rvheni_mr * (ls_fact - lv_fact)
-        t = th_t / exn
-        rv_t -= rvheni_mr
-        ri_t += rvheni_mr

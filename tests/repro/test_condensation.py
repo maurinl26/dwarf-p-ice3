@@ -1,122 +1,296 @@
-# -*- coding: utf-8 -*-
-import logging
-import sys
-from functools import cached_property
-from ice3_gt4py.phyex_common.tables import src_1d
-from ifs_physics_common.framework.grid import I, J, K
+from ifs_physics_common.framework.stencil import compile_stencil
+from ifs_physics_common.framework.config import GT4PyConfig
+from ice3_gt4py.phyex_common.phyex import Phyex
+from gt4py.storage import from_array
+import numpy as np
+from numpy.testing import assert_allclose
+from pathlib import Path
+import fmodpy
 import unittest
+from ctypes import c_float
 
-from ice3_gt4py.utils.fields_allocation import run_test
-from ice3_gt4py.components.generic_test_component import TestComponent
-from ice3_gt4py.utils.allocate_state import allocate_state
-from repro.default_config import test_grid, phyex, default_gt4py_config
+import logging
 
+from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logging.getLogger()
-
-
-class Condensation(TestComponent):
-    @cached_property
-    def externals(self):
-        """Filter phyex externals"""
-        return {
-            "xrv": self.phyex_externals["RV"],
-            "xrd": self.phyex_externals["RD"],
-            "xalpi": self.phyex_externals["ALPI"],
-            "xbetai": self.phyex_externals["BETAI"],
-            "xgami": self.phyex_externals["GAMI"],
-            "xalpw": self.phyex_externals["ALPW"],
-            "xbetaw": self.phyex_externals["BETAW"],
-            "xgamw": self.phyex_externals["GAMW"],
-            "hcondens": self.phyex_externals["CONDENS"],
-            "hlambda3": self.phyex_externals["LAMBDA3"],
-            "lstatnw": self.phyex_externals["LSTATNW"],
-            "ouseri": 0,
-            "osigmas": 0,
-            "ocnd2": 0,
-        }
-
-    @cached_property
-    def dims(self) -> dict:
-        nit, njt, nkt = self.computational_grid.grids[(I, J, K)].shape
-        nijt = nit * njt
-        return {
-            "nijt": nijt,
-            "nkt": nkt,
-            "nkte": 0,
-            "nktb": nkt - 1,
-            "nijb": 0,
-            "nije": nijt - 1,
-        }
-
-    @cached_property
-    def array_shape(self) -> dict:
-        return (int(self.dims["nijt"]), int(self.dims["nkt"]))
-
-    @cached_property
-    def fields_in(self):
-        return {
-            "sigqsat": {
-                "grid": (I, J, K),
-                "dtype": "float",
-                "fortran_name": "psigqsat",
-            },
-            "pabs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "ppabs"},
-            "sigs": {"grid": (I, J, K), "dtype": "float", "fortran_name": "psigs"},
-            "t": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pt"},
-            "rv_in": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prv_in"},
-            "ri_in": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri_in"},
-            "rc_in": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc_in"},
-            "cph": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pcph"},
-            "lv": {"grid": (I, J, K), "dtype": "float", "fortran_name": "plv"},
-            "ls": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pls"},
-        }
-
-    @cached_property
-    def fields_out(self):
-        return {
-            "t_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pt_out"},
-            "rv_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prv_out"},
-            "rc_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "prc_out"},
-            "ri_out": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pri_out"},
-            "cldfr": {"grid": (I, J, K), "dtype": "float", "fortran_name": "pcldfr"},
-            "sigrc": {"grid": (I, J, K), "dtype": "float", "fortran_name": "psigrc"},
-        }
-
-    @cached_property
-    def fields_inout(self):
-        return {}
-
-    def call_gt4py_stencil(self, fields: dict):
-        """Call gt4py_stencil from a numpy array"""
-
-        inq1_field = {"inq1": {"grid": (I, J, K), "dtype": "int"}}
-        state = allocate_state(self.computational_grid, self.gt4py_config, inq1_field)
-        fields.update(state)
-        fields.update({"src_1d": src_1d})
-
-        return super().call_gt4py_stencil(fields)
-
-
-class TestCondensation(unittest.TestCase):
-    def setUp(self):
-        self.component = Condensation(
-            computational_grid=test_grid,
-            phyex=phyex,
-            gt4py_config=default_gt4py_config,
-            fortran_script="mode_condensation.F90",
-            fortran_module="mode_condensation",
-            fortran_subroutine="condensation",
-            gt4py_stencil="condensation",
+class TestCloudFraction(unittest.TestCase):
+    
+    def test_cloud_fraction(self):
+        
+        logging.info(f"With backend {BACKEND}")
+        gt4py_config = GT4PyConfig(
+            backend=BACKEND, 
+            rebuild=REBUILD, 
+            validate_args=VALIDATE_ARGS, 
+            verbose=True
         )
 
-    def test_repro_condensation(self):
-        """Assert mean absolute error on inout and out fields
-        are less than epsilon
-        """
-        mean_absolute_errors = run_test(self.component)
-        for field, diff in mean_absolute_errors.items():
-            logging.info(f"Field name : {field}")
-            logging.info(f"Epsilon {default_epsilon}")
-            self.assertLess(diff, default_epsilon)
+        phyex_externals = Phyex("AROME").to_externals()
+        condensation = compile_stencil("condensation", gt4py_config, phyex_externals)
+        
+        sigqsat = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        sigrc = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        pabs = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        sigs = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        t = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        rv_in = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        ri_in = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        rc_in = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        rv_out = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        rc_out = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        ri_out = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        cldfr = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        cph = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        lv = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        ls = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        sigrc = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            )
+        
+        
+        sigqsat_gt4py = from_array(
+            sigqsat,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        pabs_gt4py = from_array(
+            pabs,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        sigs_gt4py = from_array(
+            sigs,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        t_gt4py = from_array(
+            t,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        rv_in_gt4py = from_array(
+            rv_in,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        ri_in_gt4py = from_array(
+            rv_in,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        rc_in_gt4py = from_array(
+            rc_in,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        rv_out_gt4py = from_array(
+            rv_out,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        rc_out_gt4py = from_array(
+            rc_out,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        ri_out_gt4py = from_array(
+            ri_out,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        cldfr_gt4py = from_array(
+            cldfr,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        cph_gt4py = from_array(
+            cph,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        lv_gt4py = from_array(
+            lv,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        ls_gt4py = from_array(
+            ls,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        
+
+        condensation(
+            sigqsat=sigqsat_gt4py,
+            pabs=pabs_gt4py,
+            sigs=sigs_gt4py, 
+            t=t_gt4py,
+            rv_in=rv_in_gt4py,
+            ri_in=ri_in_gt4py,
+            rc_in=rc_in_gt4py,
+            rv_out=rv_out_gt4py,
+            rc_out=rc_out_gt4py,
+            ri_out=ri_out_gt4py,
+            cldfr=cldfr_gt4py,
+            cph=cph_gt4py,
+            lv=lv_gt4py,
+            ls=ls_gt4py,
+        )
+
+        fortran_script = "mode_condensation.F90"
+        current_directory = Path.cwd()
+        root_directory = current_directory
+        stencils_directory = Path(
+            root_directory, "src", "ice3_gt4py", "stencils_fortran"
+        )
+        script_path = Path(stencils_directory, fortran_script)
+
+        logging.info(f"Fortran script path {script_path}")
+        fortran_script = fmodpy.fimport(script_path)
+
+        result = fortran_script.mode_condensation.condensation(
+            nijb=1, 
+            nije=SHAPE[0] * SHAPE[1], 
+            nktb=1, 
+            nkte=SHAPE[2], 
+            nijt=SHAPE[0] * SHAPE[1], 
+            nkt=SHAPE[2],  
+            xrv=phyex_externals["RV"], 
+            xrd=phyex_externals["RD"], 
+            xalpi=phyex_externals["ALPI"], 
+            xbetai=phyex_externals["BETAI"], 
+            xgami=phyex_externals["GAMI"], 
+            xalpw=phyex_externals["ALPW"], 
+            xbetaw=phyex_externals["BETAW"], 
+            xgamw=phyex_externals["GAMW"],
+            osigmas=phyex_externals["LSIGMAS"], 
+            ocnd2=phyex_externals["OCND2"],                                        
+            hcondens=phyex_externals["HCONDENS"], 
+            hlambda3=phyex_externals["LAMBDA3"], 
+            lstatnw=phyex_externals["LSTATNW"],                           
+            ppabs=pabs, 
+            pt=t,                                             
+            pt_out=t, 
+            prv_in=rv_in, 
+            prv_out=rv_out, 
+            prc_in=rc_in, 
+            prc_out=rc_out, 
+            pri_in=ri_in, 
+            pri_out=ri_out,     
+            psigs=sigs, 
+            pcldfr=cldfr, 
+            psigrc=sigrc,                                 
+            psigqsat=sigqsat,                                              
+            plv=lv, 
+            pls=ls, 
+            pcph=cph 
+        )
+        
+        pt_out = result[0]  
+        prv_out = result[1]
+        prc_out = result[2] 
+        pri_out = result[3] 
+        pcldfr_out = result[4]
+        psigrc_out = result[5]
+        
+    
+        logging.info(f"Machine precision {np.finfo(float).eps}")
+        
+        logging.info(f"Mean t_gt4py       {t_gt4py.mean()}")
+        logging.info(f"Mean pt_out        {pt_out.mean()}")
+        logging.info(f"Max abs err t      {max(abs(t_gt4py.ravel() - pt_out) / abs(pt_out))}")
+
+        logging.info(f"Mean rv_gt4py        {rv_out_gt4py.mean()}")
+        logging.info(f"Mean prv_out         {prv_out.mean()}")
+        logging.info(f"Max abs err rv       {max(abs(rv_out_gt4py.ravel() - prv_out) / abs(prv_out))}")
+
+        logging.info(f"Mean rc_out          {rc_out_gt4py.mean()}")
+        logging.info(f"Mean prc_out         {prc_out.mean()}")
+        logging.info(f"Max abs err rc_out   {max(abs(rc_out_gt4py.ravel() - prc_out) / abs(prc_out))}")
+
+        logging.info(f"Mean ri_out_gt4py    {ri_out_gt4py.mean()}")
+        logging.info(f"Mean ri_out          {pri_out.mean()}")
+        logging.info(f"Max abs err ri       {max(abs(ri_out_gt4py.ravel() - pri_out) / abs(pri_out))}")
+
+
+        logging.info(f"Mean ri_out_gt4py    {cldfr_gt4py.mean()}")
+        logging.info(f"Mean ri_out          {pcldfr_out.mean()}")
+        logging.info(f"Max abs err ri       {max(abs(cldfr_gt4py.ravel() - pcldfr_out) / abs(pcldfr_out))}")
+
+
+        logging.info(f"Mean sigrc           {sigrc_gt4py.mean()}")
+        logging.info(f"Mean psigrc          {psigrc_out.mean()}")
+        logging.info(f"Max abs err ri       {max(abs(sigrc_gt4py.ravel() - psigrc_out) / abs(psigrc_out))}")
+
+        assert_allclose(pt_out, t_gt4py.ravel(), rtol=1e-6)
+        assert_allclose(prv_out, rv_out_gt4py.ravel(), rtol=1e-6)
+        assert_allclose(prc_out, rc_out_gt4py.ravel(), rtol=1e-6)
+        assert_allclose(pri_out, ri_out_gt4py.ravel(), rtol=1e-6)
+        
+        assert_allclose(pcldfr_out, cldfr_gt4py.ravel(), rtol=1e-6)
+        assert_allclose(psigrc_out, sigrc_gt4py.ravel(), rtol=1e-6)
+
+
+        

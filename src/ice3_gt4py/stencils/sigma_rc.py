@@ -4,6 +4,9 @@ from gt4py.cartesian.gtscript import (
     PARALLEL,
     computation,
     interval,
+    Field, 
+    GlobalTable, 
+    floor
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 

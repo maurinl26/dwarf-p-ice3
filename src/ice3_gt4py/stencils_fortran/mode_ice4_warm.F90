@@ -1,256 +1,168 @@
-!MNH_LIC Copyright 1994-2021 CNRS, Meteo-France and Universite Paul Sabatier
-!MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
-!MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
-!MNH_LIC for details. version 1.
-!-----------------------------------------------------------------
-MODULE MODE_ICE4_WARM
-    IMPLICIT NONE
-    CONTAINS
+module mode_ice4_warm
+    implicit none
+    contains
     
-    SUBROUTINE ICE4_WARM(KPROMA, KSIZE, LDSOFT, &
-        &XALPW, XBETAW, XGAMW, XEPSILO, &
-        &XLVTT, XCPV, XCL, XTT, XRV, XCPD, &
-        &XTIMAUTC, XCRIAUTC, XFCACCR, XEXCACCR, &
-        &X0EVAR, X1EVAR, XEX0EVAR, XEX1EVAR, &
-        &C_RTMIN, R_RTMIN, XCEXVT, &
-        &LDCOMPUTE, HSUBG_RC_RR_ACCR, HSUBG_RR_EVAP, &
-                        &PRHODREF, PLVFACT, PT, PPRES, PTHT, &
-                        &PLBDAR, PLBDAR_RF, PKA, PDV, PCJ, &
-                        &PHLC_LCF, PHLC_HCF, PHLC_LRC, PHLC_HRC, &
-                        &PCF, PRF, &
-                        &PRVT, PRCT, PRRT, &
-                        &PRCAUTR, PRCACCR, PRREVAV)
-    !!
-    !!**  PURPOSE
-    !!    -------
-    !!      Computes the warm process
-    !!
-    !!    AUTHOR
-    !!    ------
-    !!      S. Riette from the plitting of rain_ice source code (nov. 2014)
-    !!
-    !!    MODIFICATIONS
-    !!    -------------
-    !!
-    !!     R. El Khatib 24-Aug-2021 Optimizations
+    subroutine ice4_warm(kproma, ksize, ldsoft, &
+        &xalpw, xbetaw, xgamw, xepsilo, &
+        &xlvtt, xcpv, xcl, xtt, xrv, xcpd, &
+        &xtimautc, xcriautc, xfcaccr, xexcaccr, &
+        &x0evar, x1evar, xex0evar, xex1evar, &
+        &c_rtmin, r_rtmin, xcexvt, &
+        &ldcompute, hsubg_rr_evap, &
+                        &prhodref, pt, ppres, ptht, &
+                        &plbdar, plbdar_rf, pka, pdv, pcj, &
+                        &phlc_hcf, phlc_hrc, &
+                        &pcf, prf, &
+                        &prvt, prct, prrt, &
+                        &prcautr, prcaccr, prrevav)
+!!
     !
+    implicit none
     !
-    !*      0. DECLARATIONS
-    !          ------------
+    !*       0.1   declarations of dummy arguments :
     !
-    ! USE MODD_CST,            ONLY: CST_t
-    ! USE MODD_RAIN_ICE_DESCR_n, ONLY: RAIN_ICE_DESCR_t
-    ! USE MODD_RAIN_ICE_PARAM_n, ONLY: RAIN_ICE_PARAM_t
-    ! !
-    ! USE MODE_MSG
-    ! USE YOMHOOK , ONLY : LHOOK, DR_HOOK, JPHOOK
-    !
-    IMPLICIT NONE
-    !
-    !*       0.1   Declarations of dummy arguments :
-    !
-    ! TYPE(CST_t),              INTENT(IN)    :: CST
-    ! TYPE(RAIN_ICE_PARAM_t),   INTENT(IN)    :: ICEP
-    ! TYPE(RAIN_ICE_DESCR_t),   INTENT(IN)    :: ICED
-    
-    ! CST
-    real, intent(in) :: XALPW, XBETAW, XGAMW, XEPSILO
-    real, intent(in) :: XLVTT, XCPV, XCL, XTT, XRV, XCPD
+    ! cst
+    real, intent(in) :: xalpw, xbetaw, xgamw, xepsilo
+    real, intent(in) :: xlvtt, xcpv, xcl, xtt, xrv, xcpd
 
-    ! ICEP
-    real, intent(in) :: XTIMAUTC, XCRIAUTC, XFCACCR, XEXCACCR
-    real, intent(in) :: X0EVAR, X1EVAR, XEX0EVAR, XEX1EVAR
+    ! icep
+    real, intent(in) :: xtimautc, xcriautc, xfcaccr, xexcaccr
+    real, intent(in) :: x0evar, x1evar, xex0evar, xex1evar
 
-    ! ICEP
-    real, intent(in) :: C_RTMIN, R_RTMIN, XCEXVT
+    ! icep
+    real, intent(in) :: c_rtmin, r_rtmin, xcexvt
 
 
-    INTEGER,                      INTENT(IN)    :: KPROMA, KSIZE
-    LOGICAL,                      INTENT(IN)    :: LDSOFT
-    LOGICAL, DIMENSION(KPROMA),   INTENT(IN)    :: LDCOMPUTE
-    CHARACTER(LEN=80),            INTENT(IN)    :: HSUBG_RC_RR_ACCR ! subgrid rc-rr accretion
-    CHARACTER(LEN=80),            INTENT(IN)    :: HSUBG_RR_EVAP ! subgrid rr evaporation
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRHODREF ! Reference density
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PLVFACT
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PT       ! Temperature
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PPRES    ! absolute pressure at t
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PTHT     ! Theta at time t
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PLBDAR   ! Slope parameter of the raindrop  distribution
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PLBDAR_RF!like PLBDAR but for the Rain Fraction part
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PKA      ! Thermal conductivity of the air
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PDV      ! Diffusivity of water vapor in the air
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PCJ      ! Function to compute the ventilation coefficient
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PHLC_HCF ! HLCLOUDS : fraction of High Cloud Fraction in grid
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PHLC_LCF ! HLCLOUDS : fraction of Low  Cloud Fraction in grid
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PHLC_HRC ! HLCLOUDS : LWC that is High LWC in grid
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PHLC_LRC ! HLCLOUDS : LWC that is Low  LWC in grid
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PCF      ! Cloud fraction
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRF      ! Rain fraction
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRVT     ! Water vapor m.r. at t
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRCT     ! Cloud water m.r. at t
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRRT     ! Rain water m.r. at t
-    REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRCAUTR   ! Autoconversion of r_c for r_r production
-    REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRCACCR  ! Accretion of r_c for r_r production
-    REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRREVAV  ! Evaporation of r_r
+    integer,                      intent(in)    :: kproma, ksize
+    logical,                      intent(in)    :: ldsoft
+    logical, dimension(kproma),   intent(in)    :: ldcompute
+    character(len=80),            intent(in)    :: hsubg_rr_evap ! subgrid rr evaporation
+    real, dimension(kproma),      intent(in)    :: prhodref ! reference density
+    real, dimension(kproma),      intent(in)    :: pt       ! temperature
+    real, dimension(kproma),      intent(in)    :: ppres    ! absolute pressure at t
+    real, dimension(kproma),      intent(in)    :: ptht     ! theta at time t
+    real, dimension(kproma),      intent(in)    :: plbdar   ! slope parameter of the raindrop  distribution
+    real, dimension(kproma),      intent(in)    :: plbdar_rf!like plbdar but for the rain fraction part
+    real, dimension(kproma),      intent(in)    :: pka      ! thermal conductivity of the air
+    real, dimension(kproma),      intent(in)    :: pdv      ! diffusivity of water vapor in the air
+    real, dimension(kproma),      intent(in)    :: pcj      ! function to compute the ventilation coefficient
+    real, dimension(kproma),      intent(in)    :: phlc_hcf ! hlclouds : fraction of high cloud fraction in grid
+    real, dimension(kproma),      intent(in)    :: phlc_hrc ! hlclouds : lwc that is high lwc in grid
+    real, dimension(kproma),      intent(in)    :: pcf      ! cloud fraction
+    real, dimension(kproma),      intent(in)    :: prf      ! rain fraction
+    real, dimension(kproma),      intent(in)    :: prvt     ! water vapor m.r. at t
+    real, dimension(kproma),      intent(in)    :: prct     ! cloud water m.r. at t
+    real, dimension(kproma),      intent(in)    :: prrt     ! rain water m.r. at t
+    real, dimension(kproma),      intent(inout) :: prcautr   ! autoconversion of r_c for r_r production
+    real, dimension(kproma),      intent(inout) :: prcaccr  ! accretion of r_c for r_r production
+    real, dimension(kproma),      intent(inout) :: prrevav  ! evaporation of r_r
     !
     !*       0.2  declaration of local variables
     !
-    REAL :: ZZW2, ZZW3, ZZW4
-    REAL, DIMENSION(KPROMA) :: ZUSW ! Undersaturation over water
-    REAL, DIMENSION(KPROMA) :: ZTHLT    ! Liquid potential temperature
-    ! REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
-    INTEGER :: JL
-    LOGICAL :: LMASK, LMASK1, LMASK2
-    !-------------------------------------------------------------------------------
+    real :: zzw2, zzw3, zzw4
+    real, dimension(kproma) :: zusw ! undersaturation over water
+    real, dimension(kproma) :: zthlt    ! liquid potential temperature
+    integer :: jl
     !
-    ! IF (LHOOK) CALL DR_HOOK('ICE4_WARM', 0, ZHOOK_HANDLE)
+    !*       4.2    compute the autoconversion of r_c for r_r production: rcautr
     !
-    !
-    !-------------------------------------------------------------------------------
-    !
-    !*       4.2    compute the autoconversion of r_c for r_r production: RCAUTR
-    !
-    DO JL=1, KSIZE
-      IF(PHLC_HRC(JL)>C_RTMIN .AND. PHLC_HCF(JL)>0. .AND. LDCOMPUTE(JL)) THEN
-        IF(.NOT. LDSOFT) THEN
-          !HCF*autoconv(HRC/HCF) with simplification
-          PRCAUTR(JL) = XTIMAUTC*MAX(PHLC_HRC(JL) - PHLC_HCF(JL)*XCRIAUTC/PRHODREF(JL), 0.0)
-        ENDIF
-      ELSE
-        PRCAUTR(JL) = 0.
-      ENDIF
-    ENDDO
+    do jl=1, ksize
+      if(phlc_hrc(jl)>c_rtmin .and. phlc_hcf(jl)>0. .and. ldcompute(jl)) then
+        if(.not. ldsoft) then
+          prcautr(jl) = xtimautc*max(phlc_hrc(jl) - phlc_hcf(jl)*xcriautc/prhodref(jl), 0.0)
+        endif
+      else
+        prcautr(jl) = 0.
+      endif
+    enddo
     !
     !
-    !*       4.3    compute the accretion of r_c for r_r production: RCACCR
+    !*       4.3    compute the accretion of r_c for r_r production: rcaccr
     !
-    IF (HSUBG_RC_RR_ACCR=='NONE') THEN
-      !CLoud water and rain are diluted over the grid box
-      DO JL=1, KSIZE
-        IF(PRCT(JL)>C_RTMIN .AND. PRRT(JL)>R_RTMIN .AND. LDCOMPUTE(JL)) THEN
-          IF(.NOT. LDSOFT) THEN
-            PRCACCR(JL) = XFCACCR * PRCT(JL)                &
-                        & * PLBDAR(JL)**XEXCACCR    &
-                        & * PRHODREF(JL)**(-XCEXVT)
-          ENDIF
-        ELSE
-          PRCACCR(JL) = 0.
-        ENDIF
-      ENDDO
+      !cloud water and rain are diluted over the grid box
+      do jl=1, ksize
+        if(prct(jl)>c_rtmin .and. prrt(jl)>r_rtmin .and. ldcompute(jl)) then
+          if(.not. ldsoft) then
+            prcaccr(jl) = xfcaccr * prct(jl)                &
+                        & * plbdar(jl)**xexcaccr    &
+                        & * prhodref(jl)**(-xcexvt)
+          endif
+        else
+          prcaccr(jl) = 0.
+        endif
+      enddo
+    !
+    !*       4.4    compute the evaporation of r_r: rrevav
+    !
+    if (hsubg_rr_evap=='none') then
+      do jl=1, ksize
+        if(prrt(jl)>r_rtmin .and. prct(jl)<=c_rtmin .and. ldcompute(jl)) then
+          if(.not. ldsoft) then
+            prrevav(jl) = exp(xalpw - xbetaw/pt(jl) - xgamw*alog(pt(jl))) ! es_w
+            zusw(jl) = 1. - prvt(jl)*(ppres(jl)-prrevav(jl)) / (xepsilo * prrevav(jl)) ! undersaturation over water
+            prrevav(jl) = (xlvtt+(xcpv-xcl)*(pt(jl)-xtt) )**2 / (pka(jl)*xrv*pt(jl)**2) &
+                        &+(xrv*pt(jl)) / (pdv(jl)*prrevav(jl))
+            prrevav(jl) = (max(0.,zusw(jl) )/(prhodref(jl)*prrevav(jl)) ) * &
+                        & (x0evar*plbdar(jl)**xex0evar+x1evar*pcj(jl)*plbdar(jl)**xex1evar)
+          endif
+        else
+          prrevav(jl)=0.
+        endif
+      enddo
     
-    ELSEIF (HSUBG_RC_RR_ACCR=='PRFR') THEN
-      !Cloud water is concentrated over its fraction with possibly to parts with high and low content as set for autoconversion
-      !Rain is concentrated over its fraction
-      !Rain in high content area fraction: PHLC_HCF
-      !Rain in low content area fraction:
-      ! if PRF<PCF (rain is entirely falling in cloud): PRF-PHLC_HCF
-      ! if PRF>PCF (rain is falling in cloud and in clear sky): PCF-PHLC_HCF
-      ! => min(PCF, PRF)-PHLC_HCF
-      DO JL=1, KSIZE
-        LMASK = PRCT(JL)>C_RTMIN .AND. PRRT(JL)>R_RTMIN .AND. LDCOMPUTE(JL)
-        LMASK1 = LMASK .AND. PHLC_HRC(JL)>C_RTMIN .AND. PHLC_HCF(JL)>0.
-        LMASK2 = LMASK .AND. PHLC_LRC(JL)>C_RTMIN .AND. PHLC_LCF(JL)>1.E-20
-        IF(LMASK1 .OR. LMASK2) THEN
-          IF(.NOT. LDSOFT) THEN
-            IF(LMASK1) THEN
-              !Accretion due to rain falling in high cloud content
-              !HCF*accretion(HRC/HCF) with simplification
-              PRCACCR(:) = XFCACCR * PHLC_HRC(JL)     &
-                          &*PLBDAR_RF(JL)**XEXCACCR &
-                          &*PRHODREF(JL)**(-XCEXVT)
-            ELSE
-              PRCACCR(JL)=0.
-            ENDIF
-            IF(LMASK2) THEN
-              !We add acrretion due to rain falling in low cloud content
-              PRCACCR(JL) = PRCACCR(JL) + XFCACCR * ( PHLC_LRC(JL)/PHLC_LCF(JL) )     &
-                          &*PLBDAR_RF(JL)**XEXCACCR &
-                          &*PRHODREF(JL)**(-XCEXVT) &
-                          &*(MIN(PCF(JL), PRF(JL))-PHLC_HCF(JL))
-            ENDIF
-          ENDIF
-        ELSE
-          PRCACCR(JL)=0.
-        ENDIF
-      ENDDO
-    ! ELSE
-    !   CALL PRINT_MSG(NVERB_FATAL,'GEN','ICE4_WARM','wrong HSUBG_RC_RR_ACCR case')
-    ENDIF
-    !
-    !*       4.4    compute the evaporation of r_r: RREVAV
-    !
-    IF (HSUBG_RR_EVAP=='NONE') THEN
-      DO JL=1, KSIZE
-        IF(PRRT(JL)>R_RTMIN .AND. PRCT(JL)<=C_RTMIN .AND. LDCOMPUTE(JL)) THEN
-          IF(.NOT. LDSOFT) THEN
-            PRREVAV(JL) = EXP(XALPW - XBETAW/PT(JL) - XGAMW*ALOG(PT(JL))) ! es_w
-            ZUSW(JL) = 1. - PRVT(JL)*(PPRES(JL)-PRREVAV(JL)) / (XEPSILO * PRREVAV(JL)) ! Undersaturation over water
-            PRREVAV(JL) = (XLVTT+(XCPV-XCL)*(PT(JL)-XTT) )**2 / (PKA(JL)*XRV*PT(JL)**2) &
-                        &+(XRV*PT(JL)) / (PDV(JL)*PRREVAV(JL))
-            PRREVAV(JL) = (MAX(0.,ZUSW(JL) )/(PRHODREF(JL)*PRREVAV(JL)) ) * &
-                        & (X0EVAR*PLBDAR(JL)**XEX0EVAR+X1EVAR*PCJ(JL)*PLBDAR(JL)**XEX1EVAR)
-          ENDIF
-        ELSE
-          PRREVAV(JL)=0.
-        ENDIF
-      ENDDO
+    elseif (hsubg_rr_evap=='clfr' .or. hsubg_rr_evap=='prfr') then
+      !attention
+      !il faudrait recalculer les variables pka, pdv, pcj en tenant compte de la température t^u
+      !ces variables devraient être sorties de rain_ice_slow et on mettrait le calcul de t^u, t^s
+      !et plusieurs versions (comme actuellement, en ciel clair, en ciel nuageux) de pka, pdv, pcj dans rain_ice
+      !on utiliserait la bonne version suivant l'option none, clfr... dans l'évaporation et ailleurs
     
-    ELSEIF (HSUBG_RR_EVAP=='CLFR' .OR. HSUBG_RR_EVAP=='PRFR') THEN
-      !ATTENTION
-      !Il faudrait recalculer les variables PKA, PDV, PCJ en tenant compte de la température T^u
-      !Ces variables devraient être sorties de rain_ice_slow et on mettrait le calcul de T^u, T^s
-      !et plusieurs versions (comme actuellement, en ciel clair, en ciel nuageux) de PKA, PDV, PCJ dans rain_ice
-      !On utiliserait la bonne version suivant l'option NONE, CLFR... dans l'évaporation et ailleurs
+      do jl=1, ksize
+        !evaporation in clear sky part
+        !with clfr, rain is diluted over the grid box
+        !with prfr, rain is concentrated in its fraction
+        !use temperature and humidity in clear sky part like bechtold et al. (1993)
+        if (hsubg_rr_evap=='clfr') then
+          zzw4=1. !precipitation fraction
+          zzw3=plbdar(jl)
+        else
+          zzw4=prf(jl) !precipitation fraction
+          zzw3=plbdar_rf(jl)
+        endif
     
-      DO JL=1, KSIZE
-        !Evaporation in clear sky part
-        !With CLFR, rain is diluted over the grid box
-        !With PRFR, rain is concentrated in its fraction
-        !Use temperature and humidity in clear sky part like Bechtold et al. (1993)
-        IF (HSUBG_RR_EVAP=='CLFR') THEN
-          ZZW4=1. !Precipitation fraction
-          ZZW3=PLBDAR(JL)
-        ELSE
-          ZZW4=PRF(JL) !Precipitation fraction
-          ZZW3=PLBDAR_RF(JL)
-        ENDIF
+        if(prrt(jl)>r_rtmin .and. zzw4>pcf(jl) .and. ldcompute(jl)) then
+          if(.not. ldsoft) then
+            ! outside the cloud (environment) the use of t^u (unsaturated) instead of t
+            ! bechtold et al. 1993
+            !
+            ! t_l
+            zthlt(jl) = ptht(jl) - xlvtt*ptht(jl)/xcpd/pt(jl)*prct(jl)
+            !
+            ! t^u = t_l = theta_l * (t/theta)
+            zzw2 =  zthlt(jl) * pt(jl) / ptht(jl)
+            !
+            ! es_w with new t^u
+            prrevav(jl)  = exp(xalpw - xbetaw/zzw2 - xgamw*alog(zzw2))
+            !
+            ! s, undersaturation over water (with new theta^u)
+            zusw(jl) = 1.0 - prvt(jl)*(ppres(jl)-prrevav(jl)) / (xepsilo * prrevav(jl))
+            !
+            prrevav(jl) = (xlvtt+(xcpv-xcl)*(zzw2-xtt))**2 / (pka(jl)*xrv*zzw2**2) &
+                        &+(xrv*zzw2) / (pdv(jl)*prrevav(jl))
+            !
+            prrevav(jl) = max(0., zusw(jl))/(prhodref(jl)*prrevav(jl))  *      &
+                        & (x0evar*zzw3**xex0evar+x1evar*pcj(jl)*zzw3**xex1evar)
+            !
+            prrevav(jl) = prrevav(jl)*(zzw4-pcf(jl))
+          endif
+        else
+          prrevav(jl)=0.
+        endif
+      enddo
     
-        IF(PRRT(JL)>R_RTMIN .AND. ZZW4>PCF(JL) .AND. LDCOMPUTE(JL)) THEN
-          IF(.NOT. LDSOFT) THEN
-            ! outside the cloud (environment) the use of T^u (unsaturated) instead of T
-            ! Bechtold et al. 1993
-            !
-            ! T_l
-            ZTHLT(JL) = PTHT(JL) - XLVTT*PTHT(JL)/XCPD/PT(JL)*PRCT(JL)
-            !
-            ! T^u = T_l = theta_l * (T/theta)
-            ZZW2 =  ZTHLT(JL) * PT(JL) / PTHT(JL)
-            !
-            ! es_w with new T^u
-            PRREVAV(JL)  = EXP(XALPW - XBETAW/ZZW2 - XGAMW*ALOG(ZZW2))
-            !
-            ! S, Undersaturation over water (with new theta^u)
-            ZUSW(JL) = 1.0 - PRVT(JL)*(PPRES(JL)-PRREVAV(JL)) / (XEPSILO * PRREVAV(JL))
-            !
-            PRREVAV(JL) = (XLVTT+(XCPV-XCL)*(ZZW2-XTT))**2 / (PKA(JL)*XRV*ZZW2**2) &
-                        &+(XRV*ZZW2) / (PDV(JL)*PRREVAV(JL))
-            !
-            PRREVAV(JL) = MAX(0., ZUSW(JL))/(PRHODREF(JL)*PRREVAV(JL))  *      &
-                        & (X0EVAR*ZZW3**XEX0EVAR+X1EVAR*PCJ(JL)*ZZW3**XEX1EVAR)
-            !
-            PRREVAV(JL) = PRREVAV(JL)*(ZZW4-PCF(JL))
-          ENDIF
-        ELSE
-          PRREVAV(JL)=0.
-        ENDIF
-      ENDDO
-    
-    ! ELSE
-    !   CALL PRINT_MSG(NVERB_FATAL,'GEN','ICE4_WARM','wrong HSUBG_RR_EVAP case')
-    END IF
+    end if
     !
-    ! IF (LHOOK) CALL DR_HOOK('ICE4_WARM', 1, ZHOOK_HANDLE)
     !
-    END SUBROUTINE ICE4_WARM
-    END MODULE MODE_ICE4_WARM
+    end subroutine ice4_warm
+    end module mode_ice4_warm
     

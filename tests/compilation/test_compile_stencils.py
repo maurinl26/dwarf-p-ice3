@@ -21,7 +21,7 @@ STENCIL_COLLECTIONS = [
     "ice4_fast_rg_pre_processing",
     "ice4_fast_rg",
     "ice4_fast_ri",
-    "ice4_tendencies_update",
+    "ice4_total_tendencies_update",
     "ice4_stepping_tmicro_init",
     "ice4_stepping_tsoft_init",
     "ice4_stepping_heat",

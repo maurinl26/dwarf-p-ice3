@@ -154,5 +154,8 @@ def cloud_fraction(
                 hli_hcf *= cf_mf
                 hli_hcf = min(1.0, hli_hcf + hli_hcf)
                 hli_hri += hli_hri
-
     # Translation note : 402 -> 427 (removed pout_x not present )
+
+
+
+

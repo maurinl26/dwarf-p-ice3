@@ -93,8 +93,8 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
         self.ice4_fast_ri = self.compile_stencil("ice4_fast_ri", externals)
 
-        self.ice4_tendencies_update = self.compile_stencil(
-            "ice4_tendencies_update", externals
+        self.ice4_total_tendencies_update = self.compile_stencil(
+            "ice4_total_tendencies_update", externals
         )
 
         self.ice4_compute_pdf = self.compile_stencil("ice4_compute_pdf", externals)
@@ -711,7 +711,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             self.ice4_fast_ri(ldsoft=ldsoft, **state_fast_ri, **tmps_fast_ri)
 
-            ######################## ice4_tendencies_update #########################
+            ######################## ice4_total_tendencies_update #########################
 
             state_tendencies_update = {
                 **{key: state[key] for key in ["ls_fact", "lv_fact"]},
@@ -765,4 +765,4 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rgmltr": rgmltr,
             }
 
-            self.ice4_tendencies_update(**state_tendencies_update, **tmps_tnd_update)
+            self.ice4_total_tendencies_update(**state_tendencies_update, **tmps_tnd_update)

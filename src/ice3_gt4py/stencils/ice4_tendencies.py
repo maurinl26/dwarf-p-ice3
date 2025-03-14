@@ -17,14 +17,373 @@ from ifs_physics_common.utils.f2py import ported_method
 
 @ported_method(
     from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=129,
+    to_line=134
+)
+@stencil_collection("init_tendencies")
+def init_tendencies(
+    rv_t: Field["float"],
+    rc_t: Field["float"],
+    rr_t: Field["float"],
+    ri_t: Field["float"],
+    rs_t: Field["float"],
+    rg_t: Field["float"],
+    rv_inst: Field["float"],
+    rc_inst: Field["float"],
+    rr_inst: Field["float"],
+    ri_inst: Field["float"],
+    rs_inst: Field["float"],
+    rg_inst: Field["float"],
+    rv_tnd: Field["float"],
+    rc_tnd: Field["float"],
+    rr_tnd: Field["float"],
+    ri_tnd: Field["float"],
+    rs_tnd: Field["float"],
+    rg_tnd: Field["float"]    
+):
+    
+    with computation(PARALLEL), interval(...):
+        
+        rv_t = 0.0
+        rc_t = 0.0
+        rr_t = 0.0
+        ri_t = 0.0
+        rs_t = 0.0
+        rg_t = 0.0
+        rv_inst = 0.0
+        rc_inst = 0.0
+        rr_inst = 0.0
+        ri_inst = 0.0
+        rs_inst = 0.0
+        rg_inst = 0.0
+        rv_tnd = 0.0
+        rc_tnd = 0.0
+        rr_tnd = 0.0
+        ri_tnd = 0.0
+        rs_tnd = 0.0
+        rg_tnd = 0.0
+        
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=136,
+    to_line=140,
+)
+@stencil_collection("mixing_ratio_init")
+def mixing_ratio_init(
+    rvheni_mr: Field["float"],
+    rrhong_mr: Field["float"],
+    rimltc_mr: Field["float"],
+    rsrimcg_mr: Field["float"],
+    ldsoft: "bool"
+):
+    
+    with computation(PARALLEL), interval(...):
+        if ldsoft:
+            rvheni_mr = 0.0
+            rrhong_mr = 0.0
+            rimltc_mr = 0.0
+            rsrimcg_mr = 0.0
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=152,
+    to_line=157,
+)
+@stencil_collection("ice4_nucleation_post_processing")
+def ice4_nucleation_post_processing(
+    t: Field["float"],
+    exn: Field["float"],
+    lsfact: Field["float"],
+    tht: Field["float"],
+    rvt: Field["float"],
+    rit: Field["float"],
+    rvheni_mr: Field["float"],
+):
+    """adjust mixing ratio with nucleation increments
+
+    Args:
+        t (Field[float]): temperature
+        exn (Field[float]): exner pressure
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        th_t (Field[float]): potential temperature
+        rv_t (Field[float]): vapour m.r.
+        ri_t (Field[float]): ice m.r.
+        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
+    """
+
+    with computation(PARALLEL), interval(...):
+        tht += rvheni_mr * lsfact
+        t = tht * exn
+        rvt -= rvheni_mr
+        rit += rvheni_mr
+        
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=166,
+    to_line=171,
+)
+@stencil_collection("ice4_rrhong_post_processing")
+def ice4_rrhong_post_processing(
+    t: Field["float"],
+    exn: Field["float"],
+    lsfact: Field["float"],
+    lvfact: Field["float"],
+    tht: Field["float"],
+    rrt: Field["float"],
+    rgt: Field["float"],
+    rrhong_mr: Field["float"],
+):
+    """adjust mixing ratio with nucleation increments
+
+    Args:
+        t (Field[float]): temperature
+        exn (Field[float]): exner pressure
+        lsfact (Field[float]): sublimation latent heat over heat capacity
+        tht (Field[float]): potential temperature
+        rrt (Field[float]): rain m.r.
+        rg_t (Field[float]): graupel m.r.
+        rrhong (Field[float]): rain m.r. increment due to homogeneous nucleation
+    """
+
+    with computation(PARALLEL), interval(...):
+        tht += rrhong_mr * (lsfact - lvfact)
+        t = tht * exn
+        rrt -= rrhong_mr
+        rgt += rrhong_mr
+        
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=180,
+    to_line=185,
+)
+@stencil_collection("ice4_rimltc_post_processing")
+def ice4_rimltc_post_processing(
+    t: Field["float"],
+    exn: Field["float"],
+    lsfact: Field["float"],
+    lvfact: Field["float"],
+    rimltc_mr: Field["float"],
+    tht: Field["float"],
+    rct: Field["float"],
+    rit: Field["float"],
+):
+    """adjust mixing ratio with riming increments
+
+    Args:
+        t (Field[float]): temperature
+        exn (Field[float]): exner pressure
+        ls_fact (Field[float]): sublimation latent heat over heat capacity
+        tht (Field[float]): potential temperature
+        rr_t (Field[float]): rain m.r.
+        rg_t (Field[float]): graupel m.r.
+        rrhong (Field[float]): rain m.r. increment due to homogeneous nucleation
+    """
+
+    with computation(PARALLEL), interval(...):
+        tht -= rimltc_mr * (lsfact - lvfact)
+        t = tht * exn
+        rct += rimltc_mr
+        rit -= rimltc_mr
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=220,
+    to_line=238,
+)
+@stencil_collection("ice4_increment_update")
+def ice4_increment_update(
+    lsfact: Field["float"],
+    lvfact: Field["float"],
+    theta_increment: Field["float"],
+    rv_increment: Field["float"],
+    rc_increment: Field["float"],
+    rr_increment: Field["float"],
+    ri_increment: Field["float"],
+    rs_increment: Field["float"],
+    rg_increment: Field["float"],
+    rvheni_mr: Field["float"],
+    rimltc_mr: Field["float"],
+    rrhong_mr: Field["float"],
+    rsrimcg_mr: Field["float"],
+):
+    """Update tendencies with fixed increment.
+
+    Args:
+        ls_fact (Field[float]): _description_
+        lv_fact (Field[float]): _description_
+        theta_increment (Field[float]): _description_
+        rv_increment (Field[float]): _description_
+        rc_increment (Field[float]): _description_
+        rr_increment (Field[float]): _description_
+        ri_increment (Field[float]): _description_
+        rs_increment (Field[float]): _description_
+        rg_increment (Field[float]): _description_
+        rvheni_mr (Field[float]): _description_
+        rimltc_mr (Field[float]): _description_
+        rrhong_mr (Field[float]): _description_
+        rsrimcg_mr (Field[float]): _description_
+    """
+
+    # 5.1.6 riming-conversion of the large sized aggregates into graupel
+    # Translation note : l189 to l215 omitted (since CSNOWRIMING = M90 in AROME)
+    with computation(PARALLEL), interval(...):
+        theta_increment += (
+            rvheni_mr * lsfact
+            + rrhong_mr * (lsfact - lvfact)
+            - rimltc_mr * (lsfact - lvfact)
+        )
+
+        rv_increment -= rvheni_mr
+        rc_increment += rimltc_mr
+        rr_increment -= rrhong_mr
+        ri_increment += rvheni_mr - rimltc_mr
+        rs_increment -= rsrimcg_mr
+        rg_increment += rrhong_mr + rsrimcg_mr
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=220,
+    to_line=238,
+)
+@stencil_collection("ice4_derived_fields")
+def ice4_derived_fields(
+    t: Field["float"],
+    rhodref: Field["float"],
+    pres: Field["float"],
+    ssi: Field["float"],
+    ka: Field["float"],
+    dv: Field["float"],
+    ai: Field["float"],
+    cj: Field["float"],
+    rvt: Field["float"],
+    zw: Field["float"]
+):
+
+    from __externals__ import (
+        ALPI,
+        BETAI,
+        GAMI,
+        EPSILO,
+        TT,
+        CI,
+        CPV,
+        RV,
+        P00,
+        LSTT,
+        SCFAC,
+    )
+
+    with computation(PARALLEL), interval(...):
+
+        zw = exp(ALPI - BETAI / t - GAMI * log(t))
+        ssi = rvt * (pres - zw) / (EPSILO * zw) - 1.0 # Supersaturation over ice
+        ka = 2.38e-2 + 7.1e-5 * (t - TT)
+        dv = 2.11e-5 * (t / TT) ** 1.94 * (P00 / pres)
+        ai = (LSTT + (CPV - CI) * (t - TT)) ** 2 / (ka**RV * t**2) + (
+            (RV * t) / (dv * zw)
+        )
+        cj = SCFAC * rhodref**0.3 / sqrt(1.718e-5 + 4.9e-8 * (t - TT))
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+    from_line=285,
+    to_line=329,
+)
+@stencil_collection("ice4_slope_parameters")
+def ice4_slope_parameters(
+    rhodref: Field["float"],
+    t: Field["float"],
+    rrt: Field["float"],
+    rst: Field["float"],
+    rgt: Field["float"],
+    lbdar: Field["float"],
+    lbdar_rf: Field["float"],
+    lbdas: Field["float"],
+    lbdag: Field["float"],
+):
+    """Compute lambda parameters for distributions of falling species (r, s, g)
+
+    Args:
+        rhodref (Field[float]): reference dry density
+        t (Field[float]): temperature
+        rrt (Field[float]): rain m.r. at t
+        rst (Field[float]): snow m.r. at t
+        rgt (Field[float]): graupel m.r. at t
+        lbdar (Field[float]): lambda parameter for rain distribution
+        lbdar_rf (Field[float]): _description_
+        lbdas (Field[float]): lambda parameter for snow distribution
+        lbdag (Field[float]): lambda parameter for graupel distribution
+    """
+
+    from __externals__ import (
+        TRANS_MP_GAMMAS,
+        LBR,
+        LBEXR,
+        R_RTMIN,
+        LSNOW_T,
+        LBDAG_MAX,
+        LBDAS_MIN,
+        LBDAS_MAX,
+        LBDAS_MIN,
+        LBS,
+        LBG,
+        LBEXS,
+        LBEXG,
+        G_RTMIN,
+        R_RTMIN,
+        S_RTMIN,
+    )
+
+    with computation(PARALLEL), interval(...):
+
+        lbdar = LBR * (rhodref * max(rrt, R_RTMIN)) ** LBEXR if rrt > 0 else 0
+        # Translation note : l293 to l298 omitted LLRFR = True (not used in AROME)
+        # Translation note : l299 to l301 kept (used in AROME)
+        lbdar_rf = lbdar
+
+        if __INLINED(LSNOW_T):
+            if rst > 0 and t > 263.15:
+                lbdas = (
+                    max(min(LBDAS_MAX, 10 ** (14.554 - 0.0423 * t)), LBDAS_MIN)
+                    * TRANS_MP_GAMMAS
+                )
+            elif rst > 0 and t <= 263.15:
+                lbdas = (
+                    max(min(LBDAS_MAX, 10 ** (6.226 - 0.0106 * t)), LBDAS_MIN)
+                    * TRANS_MP_GAMMAS
+                )
+            else:
+                lbdas = 0
+        else:
+            lbdas = (
+                min(LBDAS_MAX, LBS * (rhodref * max(rst, S_RTMIN)) ** LBEXS)
+                if rst > 0
+                else 0
+            )
+
+        lbdag = (
+            LBG * (rhodref * max(rgt, G_RTMIN)) ** LBEXG
+            if rgt > 0.0
+            else 0
+        )
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
     from_line=454,
     to_line=559,
 )
-@stencil_collection("ice4_tendencies_update")
-def ice4_tendencies_update(
-    ls_fact: Field["float"],
-    lv_fact: Field["float"],
-    theta_tnd: Field["float"],
+@stencil_collection("ice4_total_tendencies_update")
+def ice4_total_tendencies_update(
+    lsfact: Field["float"],
+    lvfact: Field["float"],
+    th_tnd: Field["float"],
     rv_tnd: Field["float"],
     rc_tnd: Field["float"],
     rr_tnd: Field["float"],
@@ -60,17 +419,15 @@ def ice4_tendencies_update(
     rrdryg: Field["float"],
     rsdryg: Field["float"],
     rgmltr: Field["float"],
-    rvheni_mr: Field["float"],
-    rrhong_mr: Field["float"],
-    rimltc_mr: Field["float"],
-    rsrimcg_mr: Field["float"],
+    rwetgh: Field["float"]
 ):
-    """_summary_
+    """Add contributions of processes to tendencies
+    of microphysical processes.
 
     Args:
-        ls_fact (Field[float]): _description_
-        lv_fact (Field[float]): _description_
-        theta_tnd (Field[float]): _description_
+        lsfact (Field[float]): _description_
+        lvfact (Field[float]): _description_
+        th_tnd (Field[float]): _description_
         rv_tnd (Field[float]): _description_
         rc_tnd (Field[float]): _description_
         rr_tnd (Field[float]): _description_
@@ -106,27 +463,23 @@ def ice4_tendencies_update(
         rrdryg (Field[float]): _description_
         rsdryg (Field[float]): _description_
         rgmltr (Field[float]): _description_
-        rvheni_mr (Field[float]): _description_
-        rrhong_mr (Field[float]): _description_
-        rimltc_mr (Field[float]): _description_
-        rsrimcg_mr (Field[float]): _description_
     """
     with computation(PARALLEL), interval(...):
 
-        theta_tnd += (
-            rvdepg * ls_fact
-            + rchoni * (ls_fact - lv_fact)
-            + rvdeps * ls_fact
-            - rrevav * lv_fact
-            + rcrimss * (ls_fact - lv_fact)
-            + rcrimsg * (ls_fact - lv_fact)
-            + rraccss * (ls_fact - lv_fact)
-            + rraccsg * (ls_fact - lv_fact)
-            + (rrcfrig - ricfrr) * (ls_fact - lv_fact)
-            + (rcwetg + rrwetg) * (ls_fact - lv_fact)
-            + (rcdryg + rrdryg) * (ls_fact - lv_fact)
-            - rgmltr * (ls_fact - lv_fact)
-            + rcberi * (ls_fact - lv_fact)
+        th_tnd += (
+            rvdepg * lsfact
+            + rchoni * (lsfact - lvfact)
+            + rvdeps * lsfact
+            - rrevav * lvfact
+            + rcrimss * (lsfact - lvfact)
+            + rcrimsg * (lsfact - lvfact)
+            + rraccss * (lsfact - lvfact)
+            + rraccsg * (lsfact - lvfact)
+            + (rrcfrig - ricfrr) * (lsfact - lvfact)
+            + (rcwetg + rrwetg) * (lsfact - lvfact)
+            + (rcdryg + rrdryg) * (lsfact - lvfact)
+            - rgmltr * (lsfact - lvfact)
+            + rcberi * (lsfact - lvfact)
         )
 
         # (v)
@@ -169,7 +522,7 @@ def ice4_tendencies_update(
             + riaggs
             + riauts
             + rcrimss
-            - rcrimsg
+            - rsrimcg
             + rraccss
             - rsaccrg
             - rsmltg
@@ -196,186 +549,7 @@ def ice4_tendencies_update(
             + rsdryg
             + rrdryg
             - rgmltr
+            - rwetgh
         )
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=220,
-    to_line=238,
-)
-@stencil_collection("ice4_increment_update")
-def ice4_increment_update(
-    ls_fact: Field["float"],
-    lv_fact: Field["float"],
-    theta_increment: Field["float"],
-    rv_increment: Field["float"],
-    rc_increment: Field["float"],
-    rr_increment: Field["float"],
-    ri_increment: Field["float"],
-    rs_increment: Field["float"],
-    rg_increment: Field["float"],
-    rvheni_mr: Field["float"],
-    rimltc_mr: Field["float"],
-    rrhong_mr: Field["float"],
-    rsrimcg_mr: Field["float"],
-):
-    """Update tendencies with fixed increment.
-
-    Args:
-        ls_fact (Field[float]): _description_
-        lv_fact (Field[float]): _description_
-        theta_increment (Field[float]): _description_
-        rv_increment (Field[float]): _description_
-        rc_increment (Field[float]): _description_
-        rr_increment (Field[float]): _description_
-        ri_increment (Field[float]): _description_
-        rs_increment (Field[float]): _description_
-        rg_increment (Field[float]): _description_
-        rvheni_mr (Field[float]): _description_
-        rimltc_mr (Field[float]): _description_
-        rrhong_mr (Field[float]): _description_
-        rsrimcg_mr (Field[float]): _description_
-    """
-
-    # 5.1.6 riming-conversion of the large sized aggregates into graupel
-    # Translation note : l189 to l215 omitted (since CSNOWRIMING = M90 in AROME)
-    with computation(PARALLEL), interval(...):
-        theta_increment += (
-            rvheni_mr * ls_fact
-            + rrhong_mr * (ls_fact - lv_fact)
-            + rimltc_mr * (ls_fact - lv_fact)
-        )
-
-        rv_increment -= rvheni_mr
-        rc_increment += rimltc_mr
-        rr_increment -= rrhong_mr
-        ri_increment += rvheni_mr - rimltc_mr
-        rs_increment -= rsrimcg_mr
-        rg_increment += rrhong_mr + rsrimcg_mr
-
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=220,
-    to_line=238,
-)
-@stencil_collection("ice4_derived_fields")
-def ice4_derived_fields(
-    t: Field["float"],
-    rhodref: Field["float"],
-    pres: Field["float"],
-    ssi: Field["float"],
-    ka: Field["float"],
-    dv: Field["float"],
-    ai: Field["float"],
-    cj: Field["float"],
-    rv_t: Field["float"],
-):
-
-    from __externals__ import (
-        ALPI,
-        BETAI,
-        GAMI,
-        EPSILO,
-        TT,
-        CI,
-        CPV,
-        RV,
-        P00,
-        LSTT,
-        SCFAC,
-    )
-
-    with computation(PARALLEL), interval(...):
-
-        zw = exp(ALPI - BETAI / t - GAMI * log(t))
-        ssi = rv_t * (pres - zw) / (EPSILO * zw)  # Supersaturation over ice
-        ka = 2.38e-2 + 7.1e-5 * (t - TT)
-        dv = 2.11e-5 * (t / TT) ** 1.94 * (P00 / pres)
-        ai = (LSTT + (CPV - CI) * (t - TT)) ** 2 / (ka**RV * t**2) + (
-            RV * t / (dv * zw)
-        )
-        cj = SCFAC * rhodref**0.3 / sqrt(1.718e-5 + 4.9 - 8 * (t - TT))
-
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=285,
-    to_line=329,
-)
-@stencil_collection("ice4_slope_parameters")
-def ice4_slope_parameters(
-    rhodref: Field["float"],
-    t: Field["float"],
-    rr_t: Field["float"],
-    rs_t: Field["float"],
-    rg_t: Field["float"],
-    lbdar: Field["float"],
-    lbdar_rf: Field["float"],
-    lbdas: Field["float"],
-    lbdag: Field["float"],
-):
-    """Compute lambda parameters for distributions of falling species (r, s, g)
-
-    Args:
-        rhodref (Field[float]): reference dry density
-        t (Field[float]): temperature
-        rr_t (Field[float]): rain m.r. at t
-        rs_t (Field[float]): snow m.r. at t
-        rg_t (Field[float]): graupel m.r. at t
-        lbdar (Field[float]): lambda parameter for rain distribution
-        lbdar_rf (Field[float]): _description_
-        lbdas (Field[float]): lambda parameter for snow distribution
-        lbdag (Field[float]): lambda parameter for graupel distribution
-    """
-
-    from __externals__ import (
-        TRANS_MP_GAMMAS,
-        LBR,
-        LBEXR,
-        R_RTMIN,
-        LSNOW_T,
-        LBDAG_MAX,
-        LBDAS_MIN,
-        LBDAS_MAX,
-        LBDAS_MIN,
-        LBS,
-        LBEXS,
-        G_RTMIN,
-        R_RTMIN,
-        S_RTMIN,
-    )
-
-    with computation(PARALLEL), interval(...):
-
-        lbdar = LBR * (rhodref * max(rr_t, R_RTMIN)) ** LBEXR if rr_t > 0 else 0
-        # Translation note : l293 to l298 omitted LLRFR = True (not used in AROME)
-        # Translation note : l299 to l301 kept (used in AROME)
-        lbdar_rf = lbdar
-
-        if __INLINED(LSNOW_T):
-            if rs_t > 0 and t > 263.15:
-                lbdas = (
-                    max(min(LBDAS_MAX, 10 ** (14.554 - 0.0423 * t)), LBDAS_MIN)
-                    * TRANS_MP_GAMMAS
-                )
-            elif rs_t > 0 and t <= 263.15:
-                lbdas = (
-                    max(min(LBDAS_MAX, 10 ** (6.226 - 0.0106 * t)), LBDAS_MIN)
-                    * TRANS_MP_GAMMAS
-                )
-            else:
-                lbdas = 0
-        else:
-            lbdas = (
-                min(LBDAS_MAX, LBS * (rhodref * max(rs_t, S_RTMIN)) ** LBEXS)
-                if rs_t > 0
-                else 0
-            )
-
-        lbdag = (
-            min(LBDAG_MAX, LBS * (rhodref * max(rg_t, G_RTMIN)) ** LBEXS)
-            if rg_t > 0
-            else 0
-        )

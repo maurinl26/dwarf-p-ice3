@@ -5,12 +5,11 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ifs_physics_common.framework.grid import ComputationalGrid
-    from ifs_physics_common.utils.typingx import NDArrayLikeDict
 
 
 ############# Utils #############
 def absolute_differences(
-    fortran_fields: NDArrayLikeDict, gt4py_fields: NDArrayLikeDict, fields_to_compare
+    fortran_fields, gt4py_fields, fields_to_compare
 ):
     """Compute absolute difference on a list of fields
 
@@ -31,11 +30,11 @@ def absolute_differences(
     }
 
 
-def remove_y_axis(fields: NDArrayLikeDict) -> NDArrayLikeDict:
+def remove_y_axis(fields):
     return {key: np.squeeze(array, axis=1) for key, array in fields.items()}
 
 
-def unpack(fields: NDArrayLikeDict, component_grid: ComputationalGrid):
+def unpack(fields, component_grid):
     """Unpack as a 2d field
 
     Args:

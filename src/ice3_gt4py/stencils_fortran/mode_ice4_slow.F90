@@ -6,7 +6,7 @@ MODULE MODE_ICE4_SLOW
                         &XCEXVT,XTEXAUTI,X0DEPG, X1DEPG, XEX0DEPG, XEX1DEPG,&
                         &XHON, XALPHA3, XBETA3, X0DEPS, X1DEPS, XEX1DEPS, XEX0DEPS, &
                         &KPROMA, KSIZE, LDSOFT, LDCOMPUTE, PRHODREF, PT, &
-                        &PSSI, PLVFACT, PLSFACT, &
+                        &PSSI, &
                         &PRVT, PRCT, PRIT, PRST, PRGT, &
                         &PLBDAS, PLBDAG, &
                         &PAI, PCJ, PHLI_HCF, PHLI_HRI,&
@@ -46,8 +46,6 @@ MODULE MODE_ICE4_SLOW
     REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRHODREF ! Reference density
     REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PT       ! Temperature
     REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PSSI     ! Supersaturation over ice
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PLVFACT
-    REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PLSFACT
     REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRVT
     REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRCT     ! Cloud water m.r. at t
     REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRIT     ! Pristine ice m.r. at t

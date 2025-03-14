@@ -1,85 +1,54 @@
-!MNH_LIC Copyright 1994-2021 CNRS, Meteo-France and Universite Paul Sabatier
-!MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
-!MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
-!MNH_LIC for details. version 1.
-!-----------------------------------------------------------------
-MODULE MODE_ICE4_RIMLTC
-    IMPLICIT NONE
-    CONTAINS
+module mode_ice4_rimltc
+    implicit none
+    contains
     
-    SUBROUTINE ICE4_RIMLTC(KPROMA, KSIZE, &
-                        &XTT, LFEEDBACKT, &
-                        &LDCOMPUTE, &
-                           &PEXN, PLVFACT, PLSFACT, &
-                           &PT, &
-                           &PTHT, PRIT, &
-                           &PRIMLTC_MR)
-    !!
-    !!**  PURPOSE
-    !!    -------
-    !!      Computes the RIMLTC process
-    !!
-    !!    AUTHOR
-    !!    ------
-    !!      S. Riette from the splitting of rain_ice source code (nov. 2014)
-    !!
-    !!    MODIFICATIONS
-    !!    -------------
-    !!
+    subroutine ice4_rimltc(kproma, ksize, &
+                        &xtt, lfeedbackt, &
+                        &ldcompute, &
+                           &pexn, plvfact, plsfact, &
+                           &pt, &
+                           &ptht, prit, &
+                           &primltc_mr)
     !
+    implicit none
     !
-    !*      0. DECLARATIONS
-    !          ------------
-    !
-    ! USE MODD_CST,       ONLY: CST_t
-    ! USE MODD_PARAM_ICE_n, ONLY: PARAM_ICE_t
-    ! USE YOMHOOK , ONLY : LHOOK, DR_HOOK, JPHOOK
-    !
-    IMPLICIT NONE
-    !
-    !*       0.1   Declarations of dummy arguments :
-    !
-    ! TYPE(CST_t),                  INTENT(IN)    :: CST
-    ! TYPE(PARAM_ICE_t),            INTENT(IN)    :: PARAMI
-
-    real, intent(in) :: XTT
-    logical, intent(in) :: LFEEDBACKT
+    !*       0.1   declarations of dummy arguments :
+    real, intent(in) :: xtt
+    logical, intent(in) :: lfeedbackt
 
 
-    INTEGER,                      INTENT(IN)    :: KPROMA, KSIZE
-    LOGICAL, DIMENSION(KPROMA),    INTENT(IN)    :: LDCOMPUTE
-    REAL, DIMENSION(KPROMA),       INTENT(IN)    :: PEXN     ! Exner function
-    REAL, DIMENSION(KPROMA),       INTENT(IN)    :: PLVFACT  ! L_v/(Pi_ref*C_ph)
-    REAL, DIMENSION(KPROMA),       INTENT(IN)    :: PLSFACT  ! L_s/(Pi_ref*C_ph)
-    REAL, DIMENSION(KPROMA),       INTENT(IN)    :: PT       ! Temperature
-    REAL, DIMENSION(KPROMA),       INTENT(IN)    :: PTHT     ! Theta at t
-    REAL, DIMENSION(KPROMA),       INTENT(IN)    :: PRIT     ! Cloud ice at t
-    REAL, DIMENSION(KPROMA),       INTENT(OUT)   :: PRIMLTC_MR ! Mixing ratio change due to cloud ice melting
+    integer,                      intent(in)    :: kproma, ksize
+    logical, dimension(kproma),    intent(in)    :: ldcompute
+    real, dimension(kproma),       intent(in)    :: pexn     ! exner function
+    real, dimension(kproma),       intent(in)    :: plvfact  ! l_v/(pi_ref*c_ph)
+    real, dimension(kproma),       intent(in)    :: plsfact  ! l_s/(pi_ref*c_ph)
+    real, dimension(kproma),       intent(in)    :: pt       ! temperature
+    real, dimension(kproma),       intent(in)    :: ptht     ! theta at t
+    real, dimension(kproma),       intent(in)    :: prit     ! cloud ice at t
+    real, dimension(kproma),       intent(out)   :: primltc_mr ! mixing ratio change due to cloud ice melting
     !
     !*       0.2  declaration of local variables
     !
-    ! REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
-    INTEGER :: JL
+    ! real(kind=jphook) :: zhook_handle
+    integer :: jl
     !
     !-------------------------------------------------------------------------------
-    ! IF (LHOOK) CALL DR_HOOK('ICE4_RIMLTC',0,ZHOOK_HANDLE)
+    ! if (lhook) call dr_hook('ice4_rimltc',0,zhook_handle)
     !
     !*       7.1    cloud ice melting
     !
-    DO JL=1, KSIZE
-      IF(PRIT(JL)>0. .AND. PT(JL)>XTT .AND. LDCOMPUTE(JL)) THEN
-        PRIMLTC_MR(JL)=PRIT(JL)
-        IF(LFEEDBACKT) THEN
-          !Limitation due to 0 crossing of temperature
-          PRIMLTC_MR(JL)=MIN(PRIMLTC_MR(JL), MAX(0., (PTHT(JL)-XTT/PEXN(JL)) / (PLSFACT(JL)-PLVFACT(JL))))
-        ENDIF
-      ELSE
-        PRIMLTC_MR(JL)=0.
-      ENDIF
-    ENDDO
-    
-    ! IF (LHOOK) CALL DR_HOOK('ICE4_RIMLTC', 1, ZHOOK_HANDLE)
+    do jl=1, ksize
+      if(prit(jl)>0. .and. pt(jl)>xtt .and. ldcompute(jl)) then
+        primltc_mr(jl)=prit(jl)
+        if(lfeedbackt) then
+          !limitation due to 0 crossing of temperature
+          primltc_mr(jl)=min(primltc_mr(jl), max(0., (ptht(jl)-xtt/pexn(jl)) / (plsfact(jl)-plvfact(jl))))
+        endif
+      else
+        primltc_mr(jl)=0.
+      endif
+    enddo    
     !
-    END SUBROUTINE ICE4_RIMLTC
-    END MODULE MODE_ICE4_RIMLTC
+    end subroutine ice4_rimltc
+    end module mode_ice4_rimltc
     

@@ -11,7 +11,7 @@ from gt4py.cartesian.gtscript import (
     interval,
     sqrt,
 )
-from gt4py.cartesian import gtscript
+from gt4py.cartesian.gtscript import Field
 from ifs_physics_common.framework.stencil import stencil_collection
 import numpy as np
 

@@ -13,13 +13,11 @@ def ice4_slow(
     rhodref: Field["float"],
     t: Field["float"],
     ssi: Field["float"],
-    lv_fact: Field["float"],
-    ls_fact: Field["float"],
-    rv_t: Field["float"],
-    rc_t: Field["float"],
-    ri_t: Field["float"],
-    rs_t: Field["float"],
-    rg_t: Field["float"],
+    rvt: Field["float"],
+    rct: Field["float"],
+    rit: Field["float"],
+    rst: Field["float"],
+    rgt: Field["float"],
     lbdas: Field["float"],
     lbdag: Field["float"],
     ai: Field["float"],
@@ -42,10 +40,10 @@ def ice4_slow(
         ssi (Field[float]): supersaturation over ice
         lv_fact (Field[float]): vaporisation latent heat over heat capacity
         ls_fact (Field[float]): sublimation latent heat over heat capacity
-        rv_t (Field[float]): vapour mixing ratio at t
-        ri_t (Field[float]): ice m.r. at t
-        rs_t (Field[float]): snow m.r. at t
-        rg_t (Field[float]): graupel m.r. at t
+        rvt (Field[float]): vapour mixing ratio at t
+        rit (Field[float]): ice m.r. at t
+        rst (Field[float]): snow m.r. at t
+        rgt (Field[float]): graupel m.r. at t
         lbdag (Field[float]): slope parameter of the graupel distribution
         lbdas (Field[float]): slope parameter of the snow distribution
         ai (Field[float]): thermodynamical function
@@ -90,9 +88,9 @@ def ice4_slow(
 
     # 3.2 compute the homogeneous nucleation source : RCHONI
     with computation(PARALLEL), interval(...):
-        if t < TT - 35.0 and rc_t > C_RTMIN and ldcompute:
+        if t < TT - 35.0 and rct > C_RTMIN and ldcompute:
             rc_honi_tnd = (
-                min(1000, HON * rhodref * rc_t * exp(ALPHA3 * (t - TT) - BETA3))
+                min(1000, HON * rhodref * rct * exp(ALPHA3 * (t - TT) - BETA3))
                 if not ldsoft
                 else rc_honi_tnd
             )
@@ -103,7 +101,7 @@ def ice4_slow(
     # 3.4 compute the deposition, aggregation and autoconversion sources
     # 3.4.3 compute the deposition on r_s : RVDEPS
     with computation(PARALLEL), interval(...):
-        if rv_t < V_RTMIN and rs_t < S_RTMIN and ldcompute:
+        if rvt < V_RTMIN and rst < S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
             rv_deps_tnd = (
@@ -118,14 +116,14 @@ def ice4_slow(
 
     # 3.4.4 compute the aggregation on r_s: RIAGGS
     with computation(PARALLEL), interval(...):
-        if ri_t > I_RTMIN and rs_t > S_RTMIN and ldcompute:
+        if rit > I_RTMIN and rst > S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l138 to 142 kept
             # Translation note : #else REPRO48 l143 to 150 omitted
             ri_aggs_tnd = (
                 (
                     FIAGGS
                     * exp(COLEXIS * (t - TT))
-                    * ri_t
+                    * rit
                     * lbdas**EXIAGGS
                     * rhodref ** (-CEXVT)
                 )
@@ -153,7 +151,7 @@ def ice4_slow(
 
     # 3.4.6 compute the depsoition on r_g: RVDEPG
     with computation(PARALLEL), interval(...):
-        if rv_t > V_RTMIN and rg_t > G_RTMIN and ldcompute:
+        if rvt > V_RTMIN and rgt > G_RTMIN and ldcompute:
             rv_depg_tnd = (
                 (ssi / (rhodref * ai))
                 * (O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG)
