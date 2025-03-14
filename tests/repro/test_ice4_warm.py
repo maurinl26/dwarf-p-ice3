@@ -26,15 +26,6 @@ class TestICE4Warm(unittest.TestCase):
         phyex_externals = Phyex("AROME").to_externals()
         ice4_warm_gt4py = compile_stencil("ice4_warm", gt4py_config, phyex_externals)
     
-        ldcompute = from_array(
-        data=np.array(
-                    np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
-                    order="F",
-                ),
-        dtype=np.bool_,
-        backend=BACKEND
-    )
         ldcompute= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
@@ -47,7 +38,7 @@ class TestICE4Warm(unittest.TestCase):
         rhodref= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -56,7 +47,7 @@ class TestICE4Warm(unittest.TestCase):
         lv_fact= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -65,7 +56,7 @@ class TestICE4Warm(unittest.TestCase):
         t= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -74,7 +65,7 @@ class TestICE4Warm(unittest.TestCase):
         pres= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -83,7 +74,7 @@ class TestICE4Warm(unittest.TestCase):
         tht= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -92,7 +83,7 @@ class TestICE4Warm(unittest.TestCase):
         lbdar= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -101,7 +92,7 @@ class TestICE4Warm(unittest.TestCase):
         lbdar_rf= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -110,7 +101,7 @@ class TestICE4Warm(unittest.TestCase):
         ka= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -119,7 +110,7 @@ class TestICE4Warm(unittest.TestCase):
         dv= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -128,7 +119,7 @@ class TestICE4Warm(unittest.TestCase):
         cj= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -137,7 +128,7 @@ class TestICE4Warm(unittest.TestCase):
         hlc_hcf= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -146,7 +137,7 @@ class TestICE4Warm(unittest.TestCase):
         hlc_lcf= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -155,7 +146,7 @@ class TestICE4Warm(unittest.TestCase):
         hlc_hrc= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -164,7 +155,7 @@ class TestICE4Warm(unittest.TestCase):
         hlc_lrc= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -173,7 +164,7 @@ class TestICE4Warm(unittest.TestCase):
         cf= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -182,7 +173,7 @@ class TestICE4Warm(unittest.TestCase):
         rf= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -191,7 +182,7 @@ class TestICE4Warm(unittest.TestCase):
         rv_t= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -200,7 +191,7 @@ class TestICE4Warm(unittest.TestCase):
         rc_t= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -209,7 +200,7 @@ class TestICE4Warm(unittest.TestCase):
         rr_t= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -218,7 +209,7 @@ class TestICE4Warm(unittest.TestCase):
         rcautr= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -227,7 +218,7 @@ class TestICE4Warm(unittest.TestCase):
         rcaccr= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
@@ -236,7 +227,7 @@ class TestICE4Warm(unittest.TestCase):
         rrevav= from_array(
         data=np.array(
                     np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                    dtype=bool,
+                    dtype=np.float64,
                     order="F",
                 ),
         dtype=np.float64,
