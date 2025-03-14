@@ -2,6 +2,7 @@
 import logging
 from functools import cached_property
 import unittest
+from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
 from ifs_physics_common.framework.grid import I, J, K
 from ice3_gt4py.utils.fields_allocation import (
@@ -9,11 +10,10 @@ from ice3_gt4py.utils.fields_allocation import (
     compare_input,
     compare_output,
     draw_fields,
-    run_test,
 )
 from ice3_gt4py.components.generic_test_component import TestComponent
 
-from repro.default_config import default_epsilon, default_gt4py_config, test_grid, phyex
+from repro.default_config import default_gt4py_config, test_grid, phyex
 
 
 class LatentHeat(TestComponent):
