@@ -108,9 +108,9 @@ ice4_fast_rg = compile_stencil("ice4_fast_rg", gt4py_config, externals)
 logging.info(f"Compilation for ice4_fast_ri")
 ice4_fast_ri = compile_stencil("ice4_fast_ri", gt4py_config, externals)
 
-logging.info(f"Compilation for ice4_tendencies_update")
-ice4_tendencies_update = compile_stencil(
-    "ice4_tendencies_update", gt4py_config, externals
+logging.info(f"Compilation for ice4_total_tendencies_update")
+ice4_total_tendencies_update = compile_stencil(
+    "ice4_total_tendencies_update", gt4py_config, externals
 )
 
 ################ Global state #################
@@ -666,7 +666,7 @@ state_fast_ri = {
 ice4_fast_ri(ldsoft=False, **state_fast_ri)
 ice4_fast_ri(ldsoft=True, **state_fast_ri)
 
-######################## ice4_tendencies_update #########################
+######################## ice4_total_tendencies_update #########################
 
 state_tendencies_update = {
     **{key: state[key] for key in ["ls_fact", "lv_fact"]},
@@ -710,4 +710,4 @@ state_tendencies_update = {
     },
 }
 
-ice4_tendencies_update(**state_tendencies_update)
+ice4_total_tendencies_update(**state_tendencies_update)

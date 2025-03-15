@@ -10,6 +10,7 @@ from gt4py.cartesian.gtscript import (
     floor,
     interval,
     sqrt,
+    Field
 )
 from gt4py.cartesian import gtscript
 from ifs_physics_common.framework.stencil import stencil_collection
@@ -28,20 +29,20 @@ from ifs_physics_common.utils.f2py import ported_method
 )
 @stencil_collection("condensation")
 def condensation(
-    sigqsat: gtscript.Field["float"],
-    pabs: gtscript.Field["float"],
-    sigs: gtscript.Field["float"],
-    t: gtscript.Field["float"],
-    rv_in: gtscript.Field["float"],
-    ri_in: gtscript.Field["float"],
-    rc_in: gtscript.Field["float"],
-    rv_out: gtscript.Field["float"],
-    rc_out: gtscript.Field["float"],
-    ri_out: gtscript.Field["float"],
-    cldfr: gtscript.Field["float"],
-    cph: gtscript.Field["float"],
-    lv: gtscript.Field["float"],
-    ls: gtscript.Field["float"],
+    sigqsat: Field["float"],
+    pabs: Field["float"],
+    sigs: Field["float"],
+    t: Field["float"],
+    rv_in: Field["float"],
+    ri_in: Field["float"],
+    rc_in: Field["float"],
+    rv_out: Field["float"],
+    rc_out: Field["float"],
+    ri_out: Field["float"],
+    cldfr: Field["float"],
+    cph: Field["float"],
+    lv: Field["float"],
+    ls: Field["float"],
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
@@ -51,7 +52,7 @@ def condensation(
     # Translation note : only the case with LSUBG_COND = True retained (l475 in ice_adjust.F90)
     # sigqsat and sigs must be provided by the user
     with computation(PARALLEL), interval(...):
-        # local gtscript.Fields
+        # local
         # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
         # Translation note : 515 -> 575 skipped (ocnd2 == True)
         prifact = 1  # ocnd2 == False for AROME
@@ -162,7 +163,9 @@ def condensation(
 # TODO : shift stencil compilation
 @stencil_collection("sigrc")
 def sigrc_computation(
-    q1: Field["float"], sigrc: Field["float"], src_1d: GlobalTable["float", (34)]
+    q1: Field["float"], 
+    sigrc: Field["float"], 
+    src_1d: GlobalTable["float", (34)]
 ):
 
     from __externals__ import LAMBDA3
@@ -182,18 +185,18 @@ def sigrc_computation(
 
 @stencil_collection("thermodynamic_fields")
 def thermodynamic_fields(
-    th: gtscript.Field["float"],
-    exn: gtscript.Field["float"],
-    rv: gtscript.Field["float"],
-    rc: gtscript.Field["float"],
-    rr: gtscript.Field["float"],
-    ri: gtscript.Field["float"],
-    rs: gtscript.Field["float"],
-    rg: gtscript.Field["float"],
-    lv: gtscript.Field["float"],
-    ls: gtscript.Field["float"],
-    cph: gtscript.Field["float"],
-    t: gtscript.Field["float"],
+    th: Field["float"],
+    exn: Field["float"],
+    rv: Field["float"],
+    rc: Field["float"],
+    rr: Field["float"],
+    ri: Field["float"],
+    rs: Field["float"],
+    rg: Field["float"],
+    lv: Field["float"],
+    ls: Field["float"],
+    cph: Field["float"],
+    t: Field["float"],
 ):
     from __externals__ import NRR, CPV, CPD, CL, CI
 

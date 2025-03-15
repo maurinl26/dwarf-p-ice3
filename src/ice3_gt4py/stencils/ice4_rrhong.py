@@ -35,46 +35,16 @@ def ice4_rrhong(
 
     # 3.3 compute the spontaneous frezzing source: RRHONG
     with computation(PARALLEL), interval(...):
-        if t < TT - 35.0 and rrt > R_RTMIN and ldcompute:
+        if (
+            t < TT - 35.0 
+            and rrt > R_RTMIN 
+            and ldcompute
+        ):
             # limitation for -35 degrees crossing
-            rrhong_mr = min(
-                    rrhong_mr, max(0, ((TT - 35) / exn - tht) / (lsfact - lvfact))
-                ) if LFEEDBACKT else rrt
+            rrhong_mr = rrt
+            if LFEEDBACKT:
+                rrhong_mr = min(rrhong_mr, max(0., ((TT - 35.) / exn - tht) / (lsfact - lvfact)))
 
         else:
-            rrhong_mr = 0
+            rrhong_mr = 0.0
 
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=166,
-    to_line=171,
-)
-@stencil_collection("ice4_rrhong_post_processing")
-def ice4_rrhong_post_processing(
-    t: Field["float"],
-    exn: Field["float"],
-    lsfact: Field["float"],
-    lvfact: Field["float"],
-    tht: Field["float"],
-    rrt: Field["float"],
-    rg_t: Field["float"],
-    rrhong_mr: Field["float"],
-):
-    """adjust mixing ratio with nucleation increments
-
-    Args:
-        t (Field[float]): temperature
-        exn (Field[float]): exner pressure
-        lsfact (Field[float]): sublimation latent heat over heat capacity
-        tht (Field[float]): potential temperature
-        rrt (Field[float]): rain m.r.
-        rg_t (Field[float]): graupel m.r.
-        rrhong (Field[float]): rain m.r. increment due to homogeneous nucleation
-    """
-
-    with computation(PARALLEL), interval(...):
-        tht += rrhong_mr * (lsfact - lvfact)
-        t = tht / exn
-        rrt -= rrhong_mr
-        rg_t += rrhong_mr

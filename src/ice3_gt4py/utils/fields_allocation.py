@@ -7,9 +7,8 @@ from ifs_physics_common.utils.typingx import NDArrayLikeDict
 from ice3_gt4py.utils.array_dict_operations import remove_y_axis, unpack
 from ice3_gt4py.utils.initialize_fields import initialize_field
 from ice3_gt4py.utils.allocate_state import allocate_state
-
-from repro.default_config import test_grid, default_gt4py_config
-
+from numpy.testing import assert_allclose
+from env import DEFAULT_GT4PY_CONFIG, TEST_GRID
 
 ####### Field allocation functions #######
 def allocate_gt4py_fields(
@@ -31,7 +30,7 @@ def allocate_gt4py_fields(
         **component.fields_out,
         **component.fields_inout,
     }
-    state_gt4py = allocate_state(test_grid, default_gt4py_config, fields_metadata)
+    state_gt4py = allocate_state(TEST_GRID, DEFAULT_GT4PY_CONFIG, fields_metadata)
     for key, field_array in fields.items():
         initialize_field(state_gt4py[key], field_array)
 
@@ -84,7 +83,7 @@ def draw_fields(component: ComputationalGridComponent) -> NDArrayLikeDict:
 
 
 def compare_output(
-    component, fortran_fields: dict, gt4py_state: dict, atol: float = 10e-10
+    component, fortran_fields: dict, gt4py_state: dict, rtol: float = 1e-6
 ) -> None:
     """Compare fortran and gt4py field mean on inout and out fields for a TestComponent
 
@@ -98,18 +97,11 @@ def compare_output(
 
     absolute_differences = dict()
     fields_to_compare = {**component.fields_inout, **component.fields_out}
-    for field_name, field_attributes in fields_to_compare.items():
-        logging.info(f"Field to compare : {field_name}")
-        logging.info(f"Fortran field shape : {fortran_fields[field_name].shape}")
-        logging.info(f"Fortran field mean : {fortran_fields[field_name].mean()}")
-        logging.info(f"gt4py field shape {gt4py_fields[field_name].shape}")
-        logging.info(f"gt4py field mean : {gt4py_fields[field_name].values.mean()}")
-
+    for field_name in fields_to_compare.keys():
+    
         # Removing nijt dimension
         assert gt4py_fields[field_name].shape == fortran_fields[field_name].shape
-        assert np.allclose(
-            a=gt4py_fields[field_name], b=fortran_fields[field_name], atol=atol
-        )
+        assert_allclose(a=gt4py_fields[field_name], b=fortran_fields[field_name], rtol=rtol)
 
 
 def compare_input(
@@ -139,7 +131,7 @@ def compare_input(
         logging.info(f"gt4py field shape {gt4py_field.shape}")
         logging.info(f"gt4py field mean : {gt4py_field.values.mean()}")
 
-        assert np.allclose(a=gt4py_field, b=fortran_field, atol=atol)
+        assert_allclose(a=gt4py_field, b=fortran_field, atol=atol)
 
 
 def run_test(component: ComputationalGridComponent):

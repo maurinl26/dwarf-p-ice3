@@ -1,168 +1,125 @@
-!MNH_LIC Copyright 1994-2021 CNRS, Meteo-France and Universite Paul Sabatier
-!MNH_LIC This is part of the Meso-NH software governed by the CeCILL-C licence
-!MNH_LIC version 1. See LICENSE, CeCILL-C_V1-en.txt and CeCILL-C_V1-fr.txt
-!MNH_LIC for details. version 1.
-!-----------------------------------------------------------------
-MODULE MODE_ICE4_NUCLEATION
-    IMPLICIT NONE
-    CONTAINS
-    SUBROUTINE ICE4_NUCLEATION(KSIZE, ODCOMPUTE, &
-        & XTT, XALPW, XBETAW, XGAMW, XALPI, XBETAI, XGAMI, XEPSILO, &
-        & XNU10, XNU20, XBETA1, XBETA2, XALPHA1, XALPHA2, XMNU0, &
-        & V_RTMIN, LFEEDBACKT,&
-                               PTHT, PPABST, PRHODREF, PEXN, PLSFACT, PT, &
-                               PRVT, &
-                               PCIT, PRVHENI_MR)
-    !!
-    !!**  PURPOSE
-    !!    -------
-    !!      Computes the nucleation
-    !!
-    !!    AUTHOR
-    !!    ------
-    !!      S. Riette from the splitting of rain_ice source code (nov. 2014)
-    !!
-    !!    MODIFICATIONS
-    !!    -------------
-    !!
-    !!     R. El Khatib 24-Aug-2021 Optimizations
-    !
-    !
-    !*      0. DECLARATIONS
-    !          ------------
-    !
-    ! USE MODD_CST,            ONLY: CST_t
-    ! USE MODD_PARAM_ICE_n,      ONLY: PARAM_ICE_t
-    ! USE MODD_RAIN_ICE_DESCR_n, ONLY: RAIN_ICE_DESCR_t
-    ! USE MODD_RAIN_ICE_PARAM_n, ONLY: RAIN_ICE_PARAM_t
-    ! USE YOMHOOK , ONLY : LHOOK, DR_HOOK, JPHOOK
-    !
-    IMPLICIT NONE
-    !
-    !*       0.1   Declarations of dummy arguments :
-    !
-    ! TYPE(CST_t),              INTENT(IN)    :: CST
-    ! TYPE(PARAM_ICE_t),        INTENT(IN)    :: PARAMI
-    ! TYPE(RAIN_ICE_PARAM_t),   INTENT(IN)    :: ICEP
-    ! TYPE(RAIN_ICE_DESCR_t),   INTENT(IN)    :: ICED
+module mode_ice4_nucleation
+   implicit none
+contains
+   subroutine ice4_nucleation(ksize, &
+                              kproma, &
+                              xtt, v_rtmin, xalpw, xbetaw, xgamw, &
+                              xalpi, xbetai, xgami, xepsilo, &
+                              xnu10, xnu20, xalpha1, xalpha2, xbeta1, xbeta2, &
+                              xmnu0, &
+                              lfeedbackt, &
+                              ldcompute, &
+                              ptht, ppabst, prhodref, pexn, plsfact, pt, &
+                              prvt, &
+                              pcit, prvheni_mr)
+      !
+      implicit none
+      !
+      real, intent(in) :: xtt, v_rtmin, xalpw, xbetaw, xgamw
+      real, intent(in) :: xalpi, xbetai, xgami, xepsilo
+      real, intent(in) :: xnu10, xnu20, xalpha1, xalpha2, xbeta1, xbeta2
+      real, intent(in) :: xmnu0
+      logical, intent(in) :: lfeedbackt
+      integer, intent(in)    :: ksize, kproma
+      logical, dimension(kproma), intent(in)    :: ldcompute
+      real, dimension(kproma), intent(in)    :: ptht    ! theta at t
+      real, dimension(kproma), intent(in)    :: ppabst  ! absolute pressure at t
+      real, dimension(kproma), intent(in)    :: prhodref! reference density
+      real, dimension(kproma), intent(in)    :: pexn    ! exner function
+      real, dimension(kproma), intent(in)    :: plsfact
+      real, dimension(kproma), intent(in)    :: pt      ! temperature at time t
+      real, dimension(kproma), intent(in)    :: prvt    ! water vapor m.r. at t
+      real, dimension(kproma), intent(inout) :: pcit    ! pristine ice n.c. at t
+      real, dimension(size(pt)), intent(out)   :: prvheni_mr ! mixing ratio change due to the heterogeneous nucleation
+      !
+      !*       0.2  declaration of local variables
+      !
+      real, dimension(kproma) :: zw ! work array
+      logical, dimension(kproma) :: gnegt  ! test where to compute the hen process
+      real, dimension(kproma)  :: zzw, & ! work array
+                                 zusw, & ! undersaturation over water
+                                 zssi        ! supersaturation over ice
+      integer :: ji
+      !-------------------------------------------------------------------------------
+      !
+      do ji = 1, ksize
+         if (ldcompute(ji)) then
+            gnegt(ji) = pt(ji) < xtt .and. prvt(ji) > v_rtmin
+         else
+            gnegt(ji) = .false.
+         end if
+      end do
 
-    real, intent(in) :: XTT, XALPW, XBETAW, XGAMW, XALPI, XBETAI, XGAMI, XEPSILO
-    real, intent(in) :: XNU10, XNU20, XBETA1, XBETA2, XALPHA1, XALPHA2, XMNU0
-    real, intent(in) :: V_RTMIN
-    logical, intent(in) :: LFEEDBACKT
+      zusw(:) = 0.
+      zzw(:) = 0.
+      do ji = 1, ksize
+         if (gnegt(ji)) then
+            zzw(ji) = alog(pt(ji))
+            zusw(ji) = exp(xalpw - xbetaw/pt(ji) - xgamw*zzw(ji))          ! es_w
+            zzw(ji) = exp(xalpi - xbetai/pt(ji) - xgami*zzw(ji))           ! es_i
+         end if
+      end do
 
-    
+      zssi(:) = 0.
+      do ji = 1, ksize
+         if (gnegt(ji)) then
+            zzw(ji) = min(ppabst(ji)/2., zzw(ji))             ! safety limitation
+            zssi(ji) = prvt(ji)*(ppabst(ji) - zzw(ji))/(xepsilo*zzw(ji)) - 1.0
+            ! supersaturation over ice
+            zusw(ji) = min(ppabst(ji)/2., zusw(ji))            ! safety limitation
+            zusw(ji) = (zusw(ji)/zzw(ji))*((ppabst(ji) - zzw(ji))/(ppabst(ji) - zusw(ji))) - 1.0
+            ! supersaturation of saturated water vapor over ice
+            !
+            !*       3.1     compute the heterogeneous nucleation source rvheni
+            !
+            !*       3.1.1   compute the cloud ice concentration
+            !
+            zssi(ji) = min(zssi(ji), zusw(ji)) ! limitation of ssi according to ssw=0
+         end if
+      end do
 
+      zzw(:) = 0.
+      do ji = 1, ksize
+         if (gnegt(ji)) then
+            if (pt(ji) < xtt - 5.0 .and. zssi(ji) > 0.0) then
+               zzw(ji) = xnu20*exp(xalpha2*zssi(ji) - xbeta2)
+            elseif (pt(ji) <= xtt - 2.0 .and. pt(ji) >= xtt - 5.0 .and. zssi(ji) > 0.0) then
+               zzw(ji) = max(xnu20*exp(-xbeta2), &
+                             xnu10*exp(-xbeta1*(pt(ji) - xtt))*(zssi(ji)/zusw(ji))**xalpha1)
+            end if
+         end if
+      end do
+      do ji = 1, ksize
+         if (gnegt(ji)) then
+            zzw(ji) = zzw(ji) - pcit(ji)
+            zzw(ji) = min(zzw(ji), 50.e3) ! limitation provisoire a 50 l^-1
+         end if
+      end do
 
-    INTEGER,                  INTENT(IN)    :: KSIZE
-    LOGICAL, DIMENSION(KSIZE),INTENT(IN)    :: ODCOMPUTE
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PTHT    ! Theta at t
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PPABST  ! absolute pressure at t
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PRHODREF! Reference density
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PEXN    ! Exner function
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PLSFACT
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PT      ! Temperature at time t
-    REAL, DIMENSION(KSIZE),   INTENT(IN)    :: PRVT    ! Water vapor m.r. at t
-    REAL, DIMENSION(KSIZE),   INTENT(INOUT) :: PCIT    ! Pristine ice n.c. at t
-    REAL, DIMENSION(KSIZE),   INTENT(OUT)   :: PRVHENI_MR ! Mixing ratio change due to the heterogeneous nucleation
-    !
-    !*       0.2  declaration of local variables
-    !
-    REAL, DIMENSION(KSIZE) :: ZW ! work array
-    ! REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
-    LOGICAL, DIMENSION(KSIZE) :: GNEGT  ! Test where to compute the HEN process
-    REAL, DIMENSION(KSIZE)  :: ZZW,      & ! Work array
-                               ZUSW,     & ! Undersaturation over water
-                               ZSSI        ! Supersaturation over ice
-    INTEGER :: JI
-    !-------------------------------------------------------------------------------
-    !
-    ! IF (LHOOK) CALL DR_HOOK('ICE4_NUCLEATION', 0, ZHOOK_HANDLE)!
-    !
-    DO JI=1,KSIZE 
-      IF(ODCOMPUTE(JI))THEN
-        GNEGT(JI)=PT(JI)<XTT .AND. PRVT(JI)>V_RTMIN
-      ELSE
-        GNEGT(JI)=.FALSE.
-      ENDIF
-    ENDDO
-    
-    ZUSW(:)=0.
-    ZZW(:)=0.
-    DO JI=1,KSIZE 
-      IF(GNEGT(JI))THEN
-        ZZW(JI)=ALOG(PT(JI))
-        ZUSW(JI)=EXP(XALPW - XBETAW/PT(JI) - XGAMW*ZZW(JI))          ! es_w
-        ZZW(JI)=EXP(XALPI - XBETAI/PT(JI) - XGAMI*ZZW(JI))           ! es_i
-      ENDIF
-    ENDDO
-    
-    ZSSI(:)=0.
-    DO JI=1,KSIZE 
-      IF(GNEGT(JI))THEN
-        ZZW(JI)=MIN(PPABST(JI)/2., ZZW(JI))             ! safety limitation
-        ZSSI(JI)=PRVT(JI)*(PPABST(JI)-ZZW(JI)) / (XEPSILO*ZZW(JI)) - 1.0
-                                                   ! Supersaturation over ice
-        ZUSW(JI)=MIN(PPABST(JI)/2., ZUSW(JI))            ! safety limitation
-        ZUSW(JI)=(ZUSW(JI)/ZZW(JI))*((PPABST(JI)-ZZW(JI))/(PPABST(JI)-ZUSW(JI))) - 1.0
-                                 ! Supersaturation of saturated water vapor over ice
+      prvheni_mr(:) = 0.
+      do ji = 1, ksize
+         if (gnegt(ji)) then
+            prvheni_mr(ji) = max(zzw(ji), 0.0)*xmnu0/prhodref(ji)
+            prvheni_mr(ji) = min(prvt(ji), prvheni_mr(ji))
+         end if
+      end do
+      if (lfeedbackt) then
+         zw(:) = 0.
+         do ji = 1, ksize
+            if (gnegt(ji)) then
+               zw(ji) = min(prvheni_mr(ji), &
+                            max(0., (xtt/pexn(ji) - ptht(ji))/plsfact(ji)))/ &
+                        max(prvheni_mr(ji), 1.e-20)
+            end if
+            prvheni_mr(ji) = prvheni_mr(ji)*zw(ji)
+            zzw(ji) = zzw(ji)*zw(ji)
+         end do
+      end if
+      do ji = 1, ksize
+         if (gnegt(ji)) then
+            pcit(ji) = max(zzw(ji) + pcit(ji), pcit(ji))
+         end if
+      end do
       !
-      !*       3.1     compute the heterogeneous nucleation source RVHENI
-      !
-      !*       3.1.1   compute the cloud ice concentration
-      !
-        ZSSI(JI)=MIN(ZSSI(JI), ZUSW(JI)) ! limitation of SSi according to SSw=0
-      ENDIF
-    ENDDO
-    
-    ZZW(:)=0.
-    DO JI=1,KSIZE
-      IF(GNEGT(JI)) THEN
-        IF(PT(JI)<XTT-5.0 .AND. ZSSI(JI)>0.0) THEN
-          ZZW(JI)=XNU20*EXP(XALPHA2*ZSSI(JI)-XBETA2)
-        ELSEIF(PT(JI)<=XTT-2.0 .AND. PT(JI)>=XTT-5.0 .AND. ZSSI(JI)>0.0) THEN
-          ZZW(JI)=MAX(XNU20*EXP(-XBETA2 ), &                                                                                       
-                      XNU10*EXP(-XBETA1*(PT(JI)-XTT))*(ZSSI(JI)/ZUSW(JI))**XALPHA1)
-        ENDIF
-      ENDIF
-    ENDDO
-    DO JI=1,KSIZE 
-      IF(GNEGT(JI))THEN
-        ZZW(JI)=ZZW(JI)-PCIT(JI)
-        ZZW(JI)=MIN(ZZW(JI), 50.E3) ! limitation provisoire a 50 l^-1
-      ENDIF
-    ENDDO
-    
-    PRVHENI_MR(:)=0.
-    DO JI=1,KSIZE 
-      IF(GNEGT(JI))THEN
-      !
-      !*       3.1.2   update the r_i and r_v mixing ratios
-      !
-        PRVHENI_MR(JI)=MAX(ZZW(JI), 0.0)*XMNU0/PRHODREF(JI)
-        PRVHENI_MR(JI)=MIN(PRVT(JI), PRVHENI_MR(JI))
-      ENDIF
-    ENDDO
-    !Limitation due to 0 crossing of temperature
-    IF(LFEEDBACKT) THEN
-      ZW(:)=0.
-      DO JI=1,KSIZE 
-        IF(GNEGT(JI))THEN
-          ZW(JI)=MIN(PRVHENI_MR(JI), &
-          MAX(0., (XTT/PEXN(JI)-PTHT(JI))/PLSFACT(JI))) / &
-          MAX(PRVHENI_MR(JI), 1.E-20)
-        ENDIF
-        PRVHENI_MR(JI)=PRVHENI_MR(JI)*ZW(JI)
-        ZZW(JI)=ZZW(JI)*ZW(JI)
-      ENDDO
-    ENDIF
-    DO JI=1,KSIZE 
-      IF(GNEGT(JI))THEN
-        PCIT(JI)=MAX(ZZW(JI)+PCIT(JI), PCIT(JI))
-      ENDIF
-    ENDDO
-    !
-    ! IF (LHOOK) CALL DR_HOOK('ICE4_NUCLEATION', 1, ZHOOK_HANDLE)
-    END SUBROUTINE ICE4_NUCLEATION
-    END MODULE MODE_ICE4_NUCLEATION
-    
+   end subroutine ice4_nucleation
+end module mode_ice4_nucleation
