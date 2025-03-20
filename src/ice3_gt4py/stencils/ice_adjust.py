@@ -26,71 +26,71 @@ from ice3_gt4py.functions.tiwmx import e_sat_i, e_sat_w
 
 @stencil_collection("ice_adjust")
 def ice_adjust(
-    sigqsat: gtscript.Field["float"],
-    exnref: gtscript.Field["float"],
-    exn: gtscript.Field["float"],
-    rhodref: gtscript.Field["float"],
-    pabs: gtscript.Field["float"],
-    sigs: gtscript.Field["float"],
-    cf_mf: gtscript.Field["float"],
-    rc_mf: gtscript.Field["float"],
-    ri_mf: gtscript.Field["float"],
-    th: gtscript.Field["float"],
-    rv: gtscript.Field["float"],
-    rc: gtscript.Field["float"],
-    ri: gtscript.Field["float"],
-    rr: gtscript.Field["float"],
-    rs: gtscript.Field["float"],
-    rg: gtscript.Field["float"],
-    ths: gtscript.Field["float"],
-    rvs: gtscript.Field["float"],
-    rcs: gtscript.Field["float"],
-    ris: gtscript.Field["float"],
-    cldfr: gtscript.Field["float"],
-    ifr: gtscript.Field["float"],
-    hlc_hrc: gtscript.Field["float"],
-    hlc_hcf: gtscript.Field["float"],
-    hli_hri: gtscript.Field["float"],
-    hli_hcf: gtscript.Field["float"],
-    sigrc: gtscript.Field["float"],
-    cph: gtscript.Field["float"],
-    lv: gtscript.Field["float"],
-    ls: gtscript.Field["float"],
-    criaut: gtscript.Field["float"],
-    inq1: gtscript.Field[np.int64],
-    src_1d: gtscript.GlobalTable[("float", (34))],
+    sigqsat:  Field["float"],
+    exnref:  Field["float"],
+    exn:  Field["float"],
+    rhodref:  Field["float"],
+    pabs:  Field["float"],
+    sigs:  Field["float"],
+    cf_mf:  Field["float"],
+    rc_mf:  Field["float"],
+    ri_mf:  Field["float"],
+    th:  Field["float"],
+    rv:  Field["float"],
+    rc:  Field["float"],
+    ri:  Field["float"],
+    rr:  Field["float"],
+    rs:  Field["float"],
+    rg:  Field["float"],
+    ths:  Field["float"],
+    rvs:  Field["float"],
+    rcs:  Field["float"],
+    ris:  Field["float"],
+    cldfr:  Field["float"],
+    ifr:  Field["float"],
+    hlc_hrc:  Field["float"],
+    hlc_hcf:  Field["float"],
+    hli_hri:  Field["float"],
+    hli_hcf:  Field["float"],
+    sigrc:  Field["float"],
+    cph:  Field["float"],
+    lv:  Field["float"],
+    ls:  Field["float"],
+    criaut:  Field["float"],
+    inq1:  Field[np.int64],
+    src_1d:  GlobalTable[("float", (34))],
     dt: "float",
 ):
     """Microphysical adjustments for specific contents due to condensation.
 
     Args:
-        sigqsat (gtscript.Field[float]): external qsat variance contribution
-        exnref (gtscript.Field[float]): reference exner pressure
-        exn (gtscript.Field[float]): true exner pressure
-        rhodref (gtscript.Field[float]): reference density
-        pabs (gtscript.Field[float]): absolute pressure at time t
-        sigs (gtscript.Field[float]): standard dev for sub-grid saturation       (from turbulence scheme)
-        cf_mf (gtscript.Field[float]): convective mass flux cloud fraction       (from shallow convection)
-        rc_mf (gtscript.Field[float]): convective mass flux liquid mixing ratio  (from shallow convection)
-        ri_mf (gtscript.Field[float]): convective mass flux ice mixing ratio     (from shallow convection)
-        th (gtscript.Field[float]): potential temperature
-        rv (gtscript.Field[float]): water vapour m.r. to adjust
-        rc (gtscript.Field[float]): cloud water m.r. to adjust
-        ri (gtscript.Field[float]): cloud ice m.r. to adjust
-        rr (gtscript.Field[float]): rain water m.r. to adjust
-        rs (gtscript.Field[float]): snow m.r. to adjust
-        rg (gtscript.Field[float]): graupel m.r. to adjust
-        ths (gtscript.Field[float]): potential temperature source
-        rvs (gtscript.Field[float]): water vapour source
-        rcs (gtscript.Field[float]): cloud droplets source
-        ris (gtscript.Field[float]): ice source
-        cldfr (gtscript.Field[float]): cloud fraction
-        ifr (gtscript.Field[float]): ratio cloud ice moist part to dry part
-        hlc_hrc (gtscript.Field[float]): high liquid content droplet m.r.
-        hlc_hcf (gtscript.Field[float]): high liquid content cloud fraction
-        hli_hri (gtscript.Field[float]): high liquid content ice m.r.
-        hli_hcf (gtscript.Field[float]): high liquid content cloud fraction
-        sigrc (gtscript.Field[float]): _description_
+        sigqsat ( Field[float]): external qsat variance contribution
+        exnref ( Field[float]): reference exner pressure
+        exn ( Field[float]): true exner pressure
+        rhodref ( Field[float]): reference density
+        pabs ( Field[float]): absolute pressure at time t
+        sigs ( Field[float]): standard dev for sub-grid saturation       (from turbulence scheme)
+        cf_mf ( Field[float]): convective mass flux cloud fraction       (from shallow convection)
+        rc_mf ( Field[float]): convective mass flux liquid mixing ratio  (from shallow convection)
+        ri_mf ( Field[float]): convective mass flux ice mixing ratio     (from shallow convection)
+        th ( Field[float]): potential temperature
+        rv ( Field[float]): water vapour m.r. to adjust
+        rc ( Field[float]): cloud water m.r. to adjust
+        ri ( Field[float]): cloud ice m.r. to adjust
+        rr ( Field[float]): rain water m.r. to adjust
+        rs ( Field[float]): snow m.r. to adjust
+        rg ( Field[float]): graupel m.r. to adjust
+        ths ( Field[float]): potential temperature source
+        rvs ( Field[float]): water vapour source
+        rcs ( Field[float]): cloud droplets source
+        ris ( Field[float]): ice source
+        cldfr ( Field[float]): cloud fraction
+        ifr ( Field[float]): ratio cloud ice moist part to dry part
+        hlc_hrc ( Field[float]): high liquid content droplet m.r.
+        hlc_hcf ( Field[float]): high liquid content cloud fraction
+        hli_hri ( Field[float]): high liquid content ice m.r.
+        hli_hcf ( Field[float]): high liquid content cloud fraction
+        sigrc ( Field[float]): _description_
         dt (float): time step
     """
 
@@ -151,7 +151,7 @@ def ice_adjust(
         cldfr = 0
         sigrc = 0
 
-        # local gtscript.Fields
+        # local  Fields
         # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
         # Translation note : 515 -> 575 skipped (ocnd2 == True)
         prifact = 1  # ocnd2 == False for AROME
