@@ -42,68 +42,68 @@ def aro_filter(
 
     # 3.1. Remove negative values
     with computation(PARALLEL), interval(...):
-        rrs[0, 0, 0] = max(0, rrs[0, 0, 0])
-        rss[0, 0, 0] = max(0, rss[0, 0, 0])
-        rgs[0, 0, 0] = max(0, rgs[0, 0, 0])
+        rrs  = max(0, rrs )
+        rss  = max(0, rss )
+        rgs  = max(0, rgs )
 
     # 3.2. Adjustment for solid and liquid cloud
     with computation(PARALLEL), interval(...):
-        t = tht[0, 0, 0] * exnref[0, 0, 0]
+        t = tht  * exnref 
         ls = sublimation_latent_heat(t)
         lv = vaporisation_latent_heat(t)
         cph = constant_pressure_heat_capacity(rvs, rcs, ris, rrs, rss, rgs)
 
     with computation(PARALLEL), interval(...):
-        if ris[0, 0, 0] > 0:
-            rvs[0, 0, 0] = rvs[0, 0, 0] + ris[0, 0, 0]
-            ths[0, 0, 0] = (
-                ths[0, 0, 0]
-                - ris[0, 0, 0] * ls[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
+        if ris  > 0:
+            rvs  = rvs  + ris 
+            ths  = (
+                ths 
+                - ris  * ls  / cph  / exnref 
             )
-            ris[0, 0, 0] = 0
+            ris  = 0
 
     with computation(PARALLEL), interval(...):
-        if rcs[0, 0, 0] < 0:
-            rvs[0, 0, 0] = rvs[0, 0, 0] + rcs[0, 0, 0]
-            ths[0, 0, 0] = (
-                ths[0, 0, 0]
-                - rcs[0, 0, 0] * lv[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
+        if rcs  < 0:
+            rvs  = rvs  + rcs 
+            ths  = (
+                ths 
+                - rcs  * lv  / cph  / exnref 
             )
-            rcs[0, 0, 0] = 0
+            rcs  = 0
 
     # cloud droplets
     with computation(PARALLEL), interval(...):
         cor = (
-            min(-rvs[0, 0, 0], rcs[0, 0, 0])
-            if rvs[0, 0, 0] < 0 and rcs[0, 0, 0] > 0
+            min(-rvs , rcs )
+            if rvs  < 0 and rcs  > 0
             else 0
         )
-        rvs[0, 0, 0] = rvs[0, 0, 0] + cor[0, 0, 0]
-        ths[0, 0, 0] = (
-            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
+        rvs  = rvs  + cor 
+        ths  = (
+            ths  - cor  * lv  / cph  / exnref 
         )
-        rcs[0, 0, 0] = rcs[0, 0, 0] - cor[0, 0, 0]
+        rcs  = rcs  - cor 
 
     # ice
     with computation(PARALLEL), interval(...):
         cor = (
-            min(-rvs[0, 0, 0], ris[0, 0, 0])
-            if rvs[0, 0, 0] < 0 and ris[0, 0, 0] > 0
+            min(-rvs , ris )
+            if rvs  < 0 and ris  > 0
             else 0
         )
-        rvs[0, 0, 0] = rvs[0, 0, 0] + cor[0, 0, 0]
-        ths[0, 0, 0] = (
-            ths[0, 0, 0] - cor[0, 0, 0] * lv[0, 0, 0] / cph[0, 0, 0] / exnref[0, 0, 0]
+        rvs  = rvs  + cor 
+        ths  = (
+            ths  - cor  * lv  / cph  / exnref 
         )
-        ris[0, 0, 0] = ris[0, 0, 0] - cor[0, 0, 0]
+        ris  = ris  - cor 
 
     # 9. Transform sources to tendencies (*= 2 dt)
     with computation(PARALLEL), interval(...):
-        rvs[0, 0, 0] = rvs[0, 0, 0] * 2 * dt
-        rcs[0, 0, 0] = rcs[0, 0, 0] * 2 * dt
-        rrs[0, 0, 0] = rrs[0, 0, 0] * 2 * dt
-        ris[0, 0, 0] = ris[0, 0, 0] * 2 * dt
-        rss[0, 0, 0] = rss[0, 0, 0] * 2 * dt
-        rgs[0, 0, 0] = rgs[0, 0, 0] * 2 * dt
+        rvs  = rvs  * 2 * dt
+        rcs  = rcs  * 2 * dt
+        rrs  = rrs  * 2 * dt
+        ris  = ris  * 2 * dt
+        rss  = rss  * 2 * dt
+        rgs  = rgs  * 2 * dt
 
     # (Call ice_adjust - saturation adjustment - handled by AroAdjust ImplicitTendencyComponent + ice_adjust stencil)

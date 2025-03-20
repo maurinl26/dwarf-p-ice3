@@ -7,17 +7,22 @@ from pathlib import Path
 import fmodpy
 import unittest
 from numpy.testing import assert_allclose
-from ctypes import c_float, c_int
+from ctypes import c_float
 
 import logging
-from .env import DEFAULT_GT4PY_CONFIG, SHAPE, BACKEND
+from .env import REBUILD, SHAPE, BACKEND, VALIDATE_ARGS
 
 
 class TestICE4Slow(unittest.TestCase):
     def test_ice4_slow(self):
+        
+        logging.info(f"With backend {BACKEND}")
+        gt4py_config = GT4PyConfig(
+            backend=BACKEND, rebuild=REBUILD, validate_args=VALIDATE_ARGS, verbose=True
+        )
 
         phyex_externals = Phyex("AROME").to_externals()
-        ice4_slow_gt4py = compile_stencil("ice4_slow", DEFAULT_GT4PY_CONFIG, phyex_externals)
+        ice4_slow_gt4py = compile_stencil("ice4_slow", gt4py_config, phyex_externals)
 
         ldcompute = np.array(
                 np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
