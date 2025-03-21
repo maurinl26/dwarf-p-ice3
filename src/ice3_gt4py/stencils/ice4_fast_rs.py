@@ -19,6 +19,7 @@ from ice3_gt4py.functions.interp_micro import (
     index_micro2d_acc_r,
     index_micro2d_acc_s,
 )
+from ice3_gt4py.phyex_common.tables import KER_RACCS, KER_RACCSS, KER_SACCRG
 from ice3_gt4py.functions.sign import sign
 
 
@@ -28,8 +29,6 @@ def ice4_fast_rs(
     ldsoft: "bool",
     ldcompute: Field["bool"],
     rhodref: Field["float"],
-    lv_fact: Field["float"],
-    ls_fact: Field["float"],
     pres: Field["float"],
     dv: Field["float"],
     ka: Field["float"],
@@ -37,11 +36,10 @@ def ice4_fast_rs(
     lbdar: Field["float"],
     lbdas: Field["float"],
     t: Field["float"],
-    rv_t: Field["float"],
-    rc_t: Field["float"],
-    rr_t: Field["float"],
-    rs_t: Field["float"],
-    riaggs: Field["float"],
+    rvt: Field["float"],
+    rct: Field["float"],
+    rrt: Field["float"],
+    rst: Field["float"],
     rcrimss: Field["float"],
     rcrimsg: Field["float"],
     rsrimcg: Field["float"],
@@ -77,8 +75,8 @@ def ice4_fast_rs(
         lv_fact (Field[float]): latent heat of vapourisation over heat capacity
         ls_fact (Field[float]): latent heat of sublimation over heat capacity
         pres (Field[float]): absolute pressure
-        rr_t (Field[float]): rain m.r. at t
-        rs_t (Field[float]): snow m.r. at t
+        rrt (Field[float]): rain m.r. at t
+        rst (Field[float]): snow m.r. at t
         riaggs (Field[float]): ice aggregation to snow
         rsrimcg (Field[float]): snow riming over graupel
         rraccss (Field[float]): accretion of rain and aggregates
@@ -151,8 +149,8 @@ def ice4_fast_rs(
     # 5.0 maximum freezing rate
     with computation(PARALLEL), interval(...):
         # Translation note l106 removed not LDSOFT
-        if rs_t < S_RTMIN and ldcompute:
-            rs_freez1_tnd = rv_t * pres / (EPSILO + rv_t)
+        if rst < S_RTMIN and ldcompute:
+            rs_freez1_tnd = rvt * pres / (EPSILO + rvt)
             if LEVLIMIT:
                 rs_freez1_tnd = min(
                     rs_freez1_tnd, exp(ALPI - BETAI / t - GAMI * log(t))
@@ -182,7 +180,7 @@ def ice4_fast_rs(
 
     # 5.1 cloud droplet riming of the aggregates
     with computation(PARALLEL), interval(...):
-        if rc_t > C_RTMIN and rs_t > S_RTMIN and ldcompute:
+        if rct > C_RTMIN and rst > S_RTMIN and ldcompute:
             zw_tmp = lbdas
 
             # Translation note : l144 kept
@@ -221,7 +219,7 @@ def ice4_fast_rs(
             # Translation note : #ifdef REPRO48 l170 to l172 kept
             #                                   l174 to l178 removed
             rs_rcrimss_tnd = (
-                CRIMSS * zw1_tmp * rc_t * lbdas**EXCRIMSS * rhodref ** (-CEXVT)
+                CRIMSS * zw1_tmp * rct * lbdas**EXCRIMSS * rhodref ** (-CEXVT)
             )
 
     # 5.1.6 riming convesion of the large size aggregates
@@ -229,7 +227,7 @@ def ice4_fast_rs(
         if grim_tmp:
             # Translation note : #ifdef REPRO48 l189 to l191 kept
             #                                   l193 to l197 removed
-            rs_rcrims_tnd = CRIMSG * rc_t * lbdas**EXCRIMSG * rhodref ** (-CEXVT)
+            rs_rcrims_tnd = CRIMSG * rct * lbdas**EXCRIMSG * rhodref ** (-CEXVT)
 
     # if parami  csnowriming == M90
     with computation(PARALLEL), interval(...):
@@ -279,7 +277,7 @@ def ice4_fast_rs(
 
     # 5.2. rain accretion onto the aggregates
     with computation(PARALLEL), interval(...):
-        if rr_t > R_RTMIN and rs_t > S_RTMIN and ldcompute:
+        if rrt > R_RTMIN and rst > S_RTMIN and ldcompute:
             gacc_tmp = True
         else:
             gacc_tmp = False
@@ -381,9 +379,9 @@ def ice4_fast_rs(
 
     # 5.3 Conversion-Melting of the aggregates
     with computation(PARALLEL), interval(...):
-        if rs_t < S_RTMIN and t > TT and ldcompute:
+        if rst < S_RTMIN and t > TT and ldcompute:
             if not ldsoft:
-                rs_mltg_tnd = rv_t * pres / (EPSILO + rv_t)
+                rs_mltg_tnd = rvt * pres / (EPSILO + rvt)
                 if LEVLIMIT:
                     rs_mltg_tnd = min(
                         rs_mltg_tnd, exp(ALPW - BETAW / t - GAMW * log(t))
