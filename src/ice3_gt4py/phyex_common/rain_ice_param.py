@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from math import gamma, log
-from typing import Tuple
+from typing import Literal, Tuple
 from numpy.typing import NDArray
 import logging
 
@@ -122,7 +122,7 @@ class RainIceParam:
     parami: ParamIce
 
     # Parameters for microphysical sources and transformations
-    FSEDC_1: float = field(init=False) # Constants for sedimentation fluxes of C
+    FSEDC_1: float = field(init=False)  # Constants for sedimentation fluxes of C
     FSEDC_2: float = field(init=False)
     FSEDR: float = field(init=False)  # Constants for sedimentation
     EXSEDR: float = field(init=False)
@@ -357,11 +357,11 @@ class RainIceParam:
         # if self.parami.LRED:
         self.EXSEDS = self.rid.DS - self.rid.BS
         self.FSEDS = (
-                self.rid.CS
-                * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + self.rid.DS)
-                / momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
-                * rho00**self.rid.CEXVT
-            )
+            self.rid.CS
+            * momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS + self.rid.DS)
+            / momg(self.rid.ALPHAS, self.rid.NUS, self.rid.BS)
+            * rho00**self.rid.CEXVT
+        )
 
         self.EXSEDG = (self.rid.BG + self.rid.DG - self.rid.CXG) / (
             self.rid.BG - self.rid.CXG
@@ -742,8 +742,9 @@ class RainIceParam:
         )
 
         try:
-
-            logging.info(f"a factor {self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS}, GAMINC * zrate = {self.GAMINC_BOUND_MIN * zrate}")
+            logging.info(
+                f"a factor {self.rid.NUS + (2 + self.rid.DS) / self.rid.ALPHAS}, GAMINC * zrate = {self.GAMINC_BOUND_MIN * zrate}"
+            )
 
             GAMINC_RIM1 = np.array(
                 [
@@ -774,7 +775,9 @@ class RainIceParam:
             )
 
         except ValueError as e:
-            logging.info(f"Value error while computing generalized_incomplete_gamma : {e}")
+            logging.info(
+                f"Value error while computing generalized_incomplete_gamma : {e}"
+            )
             GAMINC_RIM1 = np.ones(80)
             GAMINC_RIM2 = np.ones(80)
             GAMINC_RIM4 = np.ones(80)
@@ -784,7 +787,9 @@ class RainIceParam:
             self.GAMINC_RIM2 = GAMINC_RIM2
             self.GAMINC_RIM4 = GAMINC_RIM4
 
-    def get_kernel(self, kernel):
+    def get_kernel(
+        self, kernel: str
+    ):
         """Load kernels for convolutions as numpy arrays
 
         Args:
@@ -798,30 +803,29 @@ class RainIceParam:
         """
 
         if kernel == "saccrg":
-            from ice3_gt4py.phyex_common.xker_raccs import ker_saccrg
+            from ice3_gt4py.phyex_common.xker_raccs import KER_SACCRG
 
-            return ker_saccrg[1:, 1:]
+            return KER_SACCRG[1:, 1:]
 
         elif kernel == "raccs":
-            from ice3_gt4py.phyex_common.xker_raccs import ker_raccs
+            from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS
 
-            return ker_raccs[1:, 1:]
+            return KER_RACCS[1:, 1:]
 
         elif kernel == "raccss":
-            from ice3_gt4py.phyex_common.xker_raccs import ker_raccss
+            from ice3_gt4py.phyex_common.xker_raccs import KER_RACCSS
 
-            return ker_raccss[1:, 1:]
+            return KER_RACCSS[1:, 1:]
 
         elif kernel == "rdryg":
+            from ice3_gt4py.phyex_common.xker_rdryg import KER_RDRYG
 
-            from ice3_gt4py.phyex_common.xker_rdryg import ker_rdryg
-
-            return ker_rdryg[1:, 1:]
+            return KER_RDRYG[1:, 1:]
 
         elif kernel == "sdryg":
-            from ice3_gt4py.phyex_common.xker_sdryg import ker_sdryg
+            from ice3_gt4py.phyex_common.xker_sdryg import KER_SDRYG
 
-            return ker_sdryg[1:, 1:]
+            return KER_SDRYG[1:, 1:]
 
         else:
             raise KeyError(f"{kernel} not found in GlobalTables")

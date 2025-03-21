@@ -19,7 +19,7 @@ from ice3_gt4py.functions.interp_micro import (
     index_micro2d_acc_r,
     index_micro2d_acc_s,
 )
-from ice3_gt4py.phyex_common.tables import KER_RACCS, KER_RACCSS, KER_SACCRG
+from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 from ice3_gt4py.functions.sign import sign
 
 
