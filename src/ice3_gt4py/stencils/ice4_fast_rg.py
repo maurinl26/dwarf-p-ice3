@@ -28,13 +28,13 @@ def ice4_fast_rg(
     t: Field["float"],
     rhodref: Field["float"],
     pres: Field["float"],
-    rv_t: Field["float"],
-    rr_t: Field["float"],
-    ri_t: Field["float"],
-    rg_t: Field["float"],
-    rc_t: Field["float"],
-    rs_t: Field["float"],
-    ci_t: Field["float"],
+    rvt: Field["float"],
+    rrt: Field["float"],
+    rit: Field["float"],
+    rgt: Field["float"],
+    rct: Field["float"],
+    rst: Field["float"],
+    cit: Field["float"],
     ka: Field["float"],
     dv: Field["float"],
     cj: Field["float"],
@@ -65,12 +65,12 @@ def ice4_fast_rg(
         ldcompute (Field[int]): switch to compute microphysical processes on column
         t (Field[float]): temperature
         rhodref (Field[float]): reference density
-        ri_t (Field[float]): ice mixing ratio at t
+        rit (Field[float]): ice mixing ratio at t
 
-        rg_t (Field[float]): graupel m.r. at t
-        rc_t (Field[float]): cloud droplets m.r. at t
-        rs_t (Field[float]): snow m.r. at t
-        ci_t (Field[float]): _description_
+        rgt (Field[float]): graupel m.r. at t
+        rct (Field[float]): cloud droplets m.r. at t
+        rst (Field[float]): snow m.r. at t
+        cit (Field[float]): _description_
         dv (Field[float]): diffusivity of water vapor
         ka (Field[float]): thermal conductivity of the air
         cj (Field[float]): function to compute the ventilation coefficient
@@ -139,11 +139,11 @@ def ice4_fast_rg(
 
     # 6.1 rain contact freezing
     with computation(PARALLEL), interval(...):
-        if ri_t > I_RTMIN and rr_t > R_RTMIN and ldcompute:
+        if rit > I_RTMIN and rrt > R_RTMIN and ldcompute:
             # not LDSOFT : compute the tendencies
             if not ldsoft:
-                ricfrrg = ICFRR * ri_t * lbdar**EXICFRR * rhodref ** (-CEXVT)
-                rrcfrig = RCFRI * ci_t * lbdar**EXRCFRI * rhodref ** (-CEXVT)
+                ricfrrg = ICFRR * rit * lbdar**EXICFRR * rhodref ** (-CEXVT)
+                rrcfrig = RCFRI * cit * lbdar**EXRCFRI * rhodref ** (-CEXVT)
 
                 if LCRFLIMIT:
                     zw0d = max(
@@ -169,18 +169,18 @@ def ice4_fast_rg(
 
     # 6.3 compute graupel growth
     with computation(PARALLEL), interval(...):
-        if rg_t > G_RTMIN and rc_t > R_RTMIN and ldcompute:
+        if rgt > G_RTMIN and rct > R_RTMIN and ldcompute:
             if not ldsoft:
                 rg_rcdry_tnd = lbdag ** (CXG - DG - 2.0) * rhodref ** (-CEXVT)
-                rg_rcdry_tnd = rg_rcdry_tnd * FCDRYG * rc_t
+                rg_rcdry_tnd = rg_rcdry_tnd * FCDRYG * rct
 
         else:
             rg_rcdry_tnd = 0
 
-        if rg_t > G_RTMIN and ri_t > I_RTMIN and ldcompute:
+        if rgt > G_RTMIN and rit > I_RTMIN and ldcompute:
             if not ldsoft:
                 rg_ridry_tnd = lbdag ** (CXG - DG - 2.0) * rhodref ** (-CEXVT)
-                rg_ridry_tnd = FIDRYG * exp(COLEXIG * (t - TT)) * ri_t * rg_ridry_tnd
+                rg_ridry_tnd = FIDRYG * exp(COLEXIG * (t - TT)) * rit * rg_ridry_tnd
                 rg_riwet_tnd = rg_ridry_tnd / (COLIG * exp(COLEXIG * (t - TT)))
 
         else:
@@ -190,7 +190,7 @@ def ice4_fast_rg(
     # 6.2.1 wet and dry collection of rs on graupel
     # Translation note : l171 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
-        if rs_t > S_RTMIN and rg_t > G_RTMIN and ldcompute:
+        if rst > S_RTMIN and rgt > G_RTMIN and ldcompute:
             gdry = True  # GDRY is a boolean field in f90
 
         else:
@@ -232,7 +232,7 @@ def ice4_fast_rg(
 
     # 6.2.6 accreation of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
-        if rr_t < R_RTMIN and rg_t < G_RTMIN and ldcompute:
+        if rrt < R_RTMIN and rgt < G_RTMIN and ldcompute:
             gdry = True
         else:
             gdry = False
@@ -275,10 +275,10 @@ def ice4_fast_rg(
     # Freezing rate and growth mode
     # Translation note : l251 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
-        if rg_t > G_RTMIN and ldcompute:
+        if rgt > G_RTMIN and ldcompute:
             # Duplicated code with ice4_fast_rs
             if not ldsoft:
-                rg_freez1_tnd = rv_t * pres / (EPSILO + rv_t)
+                rg_freez1_tnd = rvt * pres / (EPSILO + rvt)
                 if LEVLIMIT:
                     rg_freez1_tnd = min(
                         rg_freez1_tnd, exp(ALPI - BETAI / t - GAMI * log(t))
@@ -365,9 +365,9 @@ def ice4_fast_rg(
 
     # 6.5 Melting of the graupel
     with computation(PARALLEL), interval(...):
-        if rg_t > G_RTMIN and t > TT and ldcompute:
+        if rgt > G_RTMIN and t > TT and ldcompute:
             if not ldsoft:
-                rgmltr = rv_t * pres / (EPSILO + rv_t)
+                rgmltr = rvt * pres / (EPSILO + rvt)
                 if LEVLIMIT:
                     rgmltr = min(rgmltr, exp(ALPW - BETAW / t - GAMW * log(t)))
 
@@ -387,26 +387,3 @@ def ice4_fast_rg(
         else:
             rgmltr = 0
 
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=386,
-    to_line=390,
-)
-@stencil_collection("ice4_fast_rg_pre_processing")
-def ice4_fast_rg_pre_post_processing(
-    rgsi: Field["float"],
-    rgsi_mr: Field["float"],
-    rvdepg: Field["float"],
-    rsmltg: Field["float"],
-    rraccsg: Field["float"],
-    rsaccrg: Field["float"],
-    rcrimsg: Field["float"],
-    rsrimcg: Field["float"],
-    rrhong_mr: Field["float"],
-    rsrimcg_mr: Field["float"],
-):
-
-    with computation(PARALLEL), interval(...):
-        rgsi = rvdepg + rsmltg + rraccsg + rsaccrg + rcrimsg + rsrimcg
-        rgsi_mr = rrhong_mr + rsrimcg_mr
