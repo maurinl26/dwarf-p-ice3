@@ -13,6 +13,8 @@ from ice3_gt4py.functions.ice_adjust import (
 )
 from ice3_gt4py.functions.temperature import theta2temperature
 from ice3_gt4py.functions.sign import sign
+from ice3_gt4py.functions.stepping import mixing_ratio_step_limiter
+
 
 
 @ported_method(
@@ -288,16 +290,6 @@ def mixing_ratio_step_limiter(
         if r_b_max > MRSTEP:
             delta_t_micro = 0
             ldcompute = False
-
-
-# -*- coding: utf-8 -*-
-from __future__ import annotations
-
-from gt4py.cartesian.gtscript import Field, computation, PARALLEL, interval
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
-
-from ice3_gt4py.functions.stepping import mixing_ratio_step_limiter
 
 
 @ported_method(
