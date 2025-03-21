@@ -527,6 +527,141 @@ class TestIce4Tendencies(unittest.TestCase):
         assert_allclose(rit_out, rit_gt4py.ravel(),  rtol=1e-3)
         
     
+    def test_ice4_fast_rg_pre_processing(self):
+        
+        logging.info(f"With backend {BACKEND}")
+        gt4py_config = GT4PyConfig(
+            backend=BACKEND, rebuild=REBUILD, validate_args=VALIDATE_ARGS, verbose=True
+        )
+
+        phyex_externals = Phyex("AROME").to_externals()
+        ice4_rimltc_post_processing_gt4py = compile_stencil(
+            "ice4_rimltc_post_processing", 
+            gt4py_config, 
+            phyex_externals
+        )
+         
+        rgsi = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rgsi_mr = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rvdepg = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rsmltg = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rraccsg = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rsaccrg = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rcrimsg = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rsrimcg = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rrhong_mr = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        rsrimcg_mr = np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=np.float64,
+                order="F",
+            ) 
+        
+        rgsi_gt4py  = from_array(rgsi, dtype=np.float64, backend=BACKEND)
+        rgsi_mr_gt4py  = from_array(rgsi_mr, dtype=np.float64, backend=BACKEND)
+        rvdepg_gt4py  = from_array(rvdepg, dtype=np.float64, backend=BACKEND)
+        rsmltg_gt4py  = from_array(rsmltg, dtype=np.float64, backend=BACKEND)
+        rraccsg_gt4py  = from_array(rraccsg, dtype=np.float64, backend=BACKEND)
+        rsaccrg_gt4py  = from_array(rsaccrg, dtype=np.float64, backend=BACKEND)
+        rcrimsg_gt4py  = from_array(rcrimsg, dtype=np.float64, backend=BACKEND)
+        rsrimcg_gt4py  = from_array(rsrimcg, dtype=np.float64, backend=BACKEND)
+        rrhong_mr_gt4py  = from_array(rrhong_mr, dtype=np.float64, backend=BACKEND)
+        rsrimcg_mr_gt4py  = from_array(rsrimcg_mr, dtype=np.float64, backend=BACKEND)
+        
+        ice4_rimltc_post_processing_gt4py(
+            rgsi=rgsi_gt4py,
+            rgsi_mr=rgsi_mr_gt4py,
+            rvdepg=rvdepg_gt4py,
+            rsmltg=rsmltg_gt4py,
+            rraccsg=rraccsg_gt4py,
+            rsaccrg=rsaccrg_gt4py,
+            rcrimsg=rcrimsg_gt4py,
+            rsrimcg=rsrimcg_gt4py,
+            rrhong_mr=rrhong_mr_gt4py,
+            rsrimcg_mr=rsrimcg_mr_gt4py,
+        )
+        
+        fortran_script = "mode_ice4_tendencies.F90"
+        current_directory = Path.cwd()
+        root_directory = current_directory
+        stencils_directory = Path(
+            root_directory, 
+            "src", 
+            "ice3_gt4py", 
+            "stencils_fortran"
+        )
+        script_path = Path(stencils_directory, fortran_script)
+
+        logging.info(f"Fortran script path {script_path}")
+        fortran_script = fmodpy.fimport(script_path)
+        
+        result = fortran_script.mode_ice4_tendencies.ice4_fast_rg_pre_processing(
+            kproma=SHAPE[0]*SHAPE[1]*SHAPE[2],
+            ksize=SHAPE[0]*SHAPE[1]*SHAPE[2],
+            rvdepg=rvdepg, 
+            rsmltg=rsmltg, 
+            rraccsg=rraccsg, 
+            rsaccrg=rsaccrg, 
+            rcrimsg=rcrimsg, 
+            rsrimcg=rsrimcg,
+            rrhong_mr=rrhong_mr, 
+            rsrimcg_mr=rsrimcg,
+            zgrsi=rgsi, 
+            zrgsi_mr=rgsi_mr
+        )
+
+        zrgsi_out = result[0]
+        zrgsi_mr_out = result[1]
+        
+        logging.info(f"Mean zrgsi_gt4py {rgsi_gt4py.mean()}")
+        logging.info(f"Mean zrgsi_out   {zrgsi_out.mean()}")
+        logging.info(f"Max abs rtol     {max(abs(rgsi_gt4py.ravel() - zrgsi_out) / abs(zrgsi_out))}")
+        
+        logging.info(f"Mean rgsi_mr_gt4py   {rgsi_gt4py.mean()}")
+        logging.info(f"Mean rgsi_mr_out     {zrgsi_mr_out.mean()}")
+        logging.info(f"Max abs rtol {max(abs(rgsi_mr_gt4py.ravel() - zrgsi_mr_out) / abs(zrgsi_mr_out))}")
+        
+        logging.info(f"Machine precision {np.finfo(np.float64).eps}")
+
+        assert_allclose(zrgsi_out, rgsi_gt4py.ravel(),  rtol=1e-3)
+        assert_allclose(zrgsi_mr_out, rgsi_mr_gt4py.ravel(),  rtol=1e-3)
+      
+    
     def test_ice4_increment_update(self):
         
         logging.info(f"With backend {BACKEND}")
