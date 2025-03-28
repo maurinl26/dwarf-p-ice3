@@ -7,7 +7,6 @@ from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
-import dace
 from gt4py.storage import from_array
 import numpy as np
 from ice3_gt4py.phyex_common.xker_raccs import ker_raccs, ker_raccss, ker_saccrg
@@ -165,7 +164,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
     def _temporaries(self) -> PropertyDict:
         return {}
 
-    @dace.program
     def array_call(
         self,
         ldsoft: bool,

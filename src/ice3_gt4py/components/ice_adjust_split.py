@@ -7,7 +7,6 @@ import sys
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
-import dace
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
@@ -289,7 +288,6 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             "cph": {"grid": (I, J, K), "units": ""},
         }
 
-    @dace.program
     def array_call(
         self,
         state: NDArrayLikeDict,

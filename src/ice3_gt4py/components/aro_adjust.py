@@ -7,7 +7,6 @@ from functools import cached_property
 from itertools import repeat
 from typing import Dict
 
-import dace
 from gt4py.storage import from_array, ones
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
@@ -106,7 +105,6 @@ class AroAdjust(ImplicitTendencyComponent):
         # TODO : writout temporaries
         return {}
 
-    @dace.program
     def array_call(
         self,
         state: NDArrayLikeDict,
