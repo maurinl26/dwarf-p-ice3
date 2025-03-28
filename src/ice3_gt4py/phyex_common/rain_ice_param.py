@@ -788,7 +788,7 @@ class RainIceParam:
             self.GAMINC_RIM4 = GAMINC_RIM4
 
     def get_kernel(
-        self, kernel: Literal["saccrg", "raccs", "raccss", "rdryg", "sdryg"]
+        self, kernel: str
     ):
         """Load kernels for convolutions as numpy arrays
 
