@@ -1,5 +1,5 @@
 from ifs_physics_common.framework.stencil import compile_stencil
-from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.config import GT4PyConfig, DataTypes
 from ice3_gt4py.phyex_common.phyex import Phyex
 from gt4py.storage import from_array
 import numpy as np
@@ -22,7 +22,11 @@ class TestThermo(unittest.TestCase):
             backend=BACKEND, 
             rebuild=REBUILD, 
             validate_args=VALIDATE_ARGS, 
-            verbose=True
+            verbose=True,
+            dtypes=DataTypes(
+                bool=bool, 
+                float=np.float32, 
+                int=np.int32)
         )
 
         phyex_externals = Phyex("AROME").to_externals()
@@ -92,7 +96,7 @@ class TestThermo(unittest.TestCase):
             )
         
         th_gt4py = from_array(
-            th_gt4py,
+            th,
             dtype=np.float32,
             backend=BACKEND
         )
@@ -151,9 +155,6 @@ class TestThermo(unittest.TestCase):
             dtype=np.float32,
             backend=BACKEND
         )
-        
-        
-        
 
         thermo_fields(
             th=th_gt4py,
@@ -184,9 +185,9 @@ class TestThermo(unittest.TestCase):
         result = fortran_script.mode_thermo.latent_heat(
             nkt=SHAPE[2], 
             nijt=SHAPE[0] * SHAPE[1], 
-            nktb=0, 
+            nktb=1, 
             nkte=SHAPE[2], 
-            nijb=0, 
+            nijb=1, 
             nije=SHAPE[0] * SHAPE[1],
             xlvtt=phyex_externals["LVTT"], 
             xlstt=phyex_externals["LSTT"],
@@ -196,18 +197,18 @@ class TestThermo(unittest.TestCase):
             xtt=phyex_externals["TT"], 
             xcpd=phyex_externals["CPD"], 
             krr=6,
-            prv_in=rv, 
-            prc_in=rc, 
-            pri_in=ri, 
-            prr=rr, 
-            prs=rs, 
-            prg=rg,
-            pth=th, 
-            pexn=exn,
-            zt=t, 
-            zls=ls, 
-            zlv=lv, 
-            zcph=cph
+            prv=rv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prc=rc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pri=ri.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prr=rr.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prs=rs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prg=rg.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            pth=th.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pexn=exn.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            zt=t.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            zls=ls.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            zlv=lv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            zcph=cph.reshape(SHAPE[0]*SHAPE[1], SHAPE[2])
         )
         
         zt_out = result[0]
@@ -219,24 +220,19 @@ class TestThermo(unittest.TestCase):
         
         logging.info(f"Mean t_gt4py         {t_gt4py.mean()}")
         logging.info(f"Mean zt_out          {zt_out.mean()}")
-        logging.info(f"Max abs err zt       {max(abs(t_gt4py.ravel() - zt_out) / abs(zt_out))}")
 
         logging.info(f"Mean lv_gt4py        {lv_gt4py.mean()}")
         logging.info(f"Mean zlv_out         {zlv_out.mean()}")
-        logging.info(f"Max abs err rcautr   {max(abs(lv_gt4py.ravel() - zlv_out) / abs(zlv_out))}")
 
         logging.info(f"Mean ls_gt4py        {ls_gt4py.mean()}")
         logging.info(f"Mean zls_out         {zls_out.mean()}")
-        logging.info(f"Max abs err ls       {max(abs(ls_gt4py.ravel() - zls_out) / abs(zls_out))}")
 
         logging.info(f"Mean cph_gt4py       {cph_gt4py.mean()}")
         logging.info(f"Mean cph_out         {zcph_out.mean()}")
-        logging.info(f"Max abs err ris      {max(abs(cph_gt4py.ravel() - zcph_out) / abs(zcph_out))}")
 
-
-        assert_allclose(zt_out, t_gt4py, rtol=1e-6)
-        assert_allclose(zlv_out, lv_gt4py, rtol=1e-6)
-        assert_allclose(zls_out, ls_gt4py, rtol=1e-6)
-        assert_allclose(zcph_out, cph_gt4py, rtol=1e-6)
+        assert_allclose(zt_out, t_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(zlv_out, lv_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(zls_out, ls_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(zcph_out, cph_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
         
         
