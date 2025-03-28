@@ -8,7 +8,7 @@ from pathlib import Path
 import fmodpy
 import unittest
 from ctypes import c_float, c_int
-from ice3_gt4py.phyex_common.tables import KER_RACCS, KER_RACCSS, KER_SACCRG
+from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 
 
 import logging
@@ -264,14 +264,14 @@ class TestIce4FastRG(unittest.TestCase):
             gaminc_rim2=gaminc_rim2_gt4py,
             gaminc_rim4=gaminc_rim4_gt4py,
             ker_raccs=KER_RACCS,
-            ker_raccs=KER_RACCSS,
+            ker_raccss=KER_RACCSS,
             ker_saccrg=KER_SACCRG,
             index_floor=index_floor_gt4py,
             index_floor_r=index_floor_r_gt4py,
             index_floor_s=index_floor_s_gt4py,
         )
 
-        fortran_script = "mode_ice4_fast_rs.F90"
+        fortran_script = "mode_ice4_fast_rg.F90"
         current_directory = Path.cwd()
         root_directory = current_directory
         stencils_directory = Path(

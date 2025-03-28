@@ -8,7 +8,7 @@ from pathlib import Path
 import fmodpy
 import unittest
 from ctypes import c_float, c_int
-from ice3_gt4py.phyex_common.tables import KER_RACCS, KER_RACCSS, KER_SACCRG
+from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 
 
 import logging
