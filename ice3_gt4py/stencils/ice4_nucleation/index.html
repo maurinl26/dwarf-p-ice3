@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>ice4_nucleation - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "ice4_nucleation";
+        var mkdocs_page_input_path = "ice3_gt4py/stencils/ice4_nucleation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/compare/">compare</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/config/">config</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3_gt4py</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >stencils</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../aro_filter/">aro_filter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">ice_adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_compute_pdf/">ice4_compute_pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_correct_negativities/">ice4_correct_negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rg/">ice4_fast_rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rs/">ice4_fast_rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_ri/">ice4_fast_ri</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">ice4_nucleation</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rimltc/">ice4_rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rrhong/">ice4_rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_slow/">ice4_slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_stepping/">ice4_stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">ice4_tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_warm/">ice4_warm</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../mixing_ratio_step_limiter.md">mixing_ratio_limiter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../statistical_sedimentation/">statistical_sedimentation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../step_limiter/">step_limiter</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../upwind_sedimentation/">upwind_sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/aro_adjust/">aro_adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">ice_adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/aro_rain_ice/">aro_rain_ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_stepping/">ice4_stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">ice4_tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">rain_ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../functions/backup">backup</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/compute_ice_frac">compute_ice_frac</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/condensation_src_1d">condensation_src_1d</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/erf">erf</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/gamma">gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/ice_adjust">ice_adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/ice4_sedimentation_stat">ice4_sedimentation_stat</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/icecloud">icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/sign">sign</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/subgrid_mf">subgrid_mf</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/temperature">temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../functions/tiwmx">tiwmx</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/budget">budget</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/constants">constants</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/dimphyex">dimphyex</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/nebn">nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/param_ice">param_ice</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/phyex">phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/rain_ice_descr">rain_ice_descr</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/rain_ice_param">rain_ice_param</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/gamma_inc">gamma_inc</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/tables">tables</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/xker_raccs">xker_raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/xker_rdryg">xker_rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../phyex_common/xker_sdryg">xker_sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="" href="../../initialisation/utils">utils</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../initialisation/state">state</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../initialisation/state_ice_adjust">state_ice_adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../initialisation/state_rain_ice">state_rain_ice</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3_gt4py</li>
+          <li class="breadcrumb-item">stencils</li>
+      <li class="breadcrumb-item active">ice4_nucleation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3_gt4py.stencils.ice4_nucleation"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3_gt4py.stencils.ice4_nucleation.ice4_nucleation" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_nucleation</span><span class="p">(</span><span class="n">ldcompute</span><span class="p">,</span> <span class="n">th_t</span><span class="p">,</span> <span class="n">pabs_t</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">exn</span><span class="p">,</span> <span class="n">ls_fact</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">rv_t</span><span class="p">,</span> <span class="n">ci_t</span><span class="p">,</span> <span class="n">rvheni_mr</span><span class="p">,</span> <span class="n">ssi</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute nucleation</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>ldcompute</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="bool">bool</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>compuation mask for microphysical sources</p>
+              </div>
+            </li>
+            <li>
+              <b><code>th_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>potential temperature at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>pabs_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>absolute pressure at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rhodref</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>reference density</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exn</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>exner pressure at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ls_fact</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>latent heat of sublimation</p>
+              </div>
+            </li>
+            <li>
+              <b><code>t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>temperature</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rv_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>vapour mixing ratio at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ci_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>ice content at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rvheni_mr</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>mixing ratio change of vapour</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/ice3_gt4py/stencils/ice4_nucleation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@ported_method</span><span class="p">(</span><span class="n">from_file</span><span class="o">=</span><span class="s2">&quot;PHYEX/src/common/micro/ice4_nucleation.func.h&quot;</span><span class="p">)</span>
+<span class="nd">@stencil_collection</span><span class="p">(</span><span class="s2">&quot;ice4_nucleation&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ice4_nucleation</span><span class="p">(</span>
+    <span class="n">ldcompute</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;bool&quot;</span><span class="p">],</span>
+    <span class="n">th_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">pabs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">exn</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ls_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ci_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rvheni_mr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ssi</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute nucleation</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ldcompute (Field[bool]): compuation mask for microphysical sources</span>
+<span class="sd">        th_t (Field[float]): potential temperature at t</span>
+<span class="sd">        pabs_t (Field[float]): absolute pressure at t</span>
+<span class="sd">        rhodref (Field[float]): reference density</span>
+<span class="sd">        exn (Field[float]): exner pressure at t</span>
+<span class="sd">        ls_fact (Field[float]): latent heat of sublimation</span>
+<span class="sd">        t (Field[float]): temperature</span>
+<span class="sd">        rv_t (Field[float]): vapour mixing ratio at t</span>
+<span class="sd">        ci_t (Field[float]): ice content at t</span>
+<span class="sd">        rvheni_mr (Field[float]): mixing ratio change of vapour</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">ALPHA1</span><span class="p">,</span>
+        <span class="n">ALPHA2</span><span class="p">,</span>
+        <span class="n">ALPI</span><span class="p">,</span>
+        <span class="n">ALPW</span><span class="p">,</span>
+        <span class="n">BETA1</span><span class="p">,</span>
+        <span class="n">BETA2</span><span class="p">,</span>
+        <span class="n">BETAI</span><span class="p">,</span>
+        <span class="n">BETAW</span><span class="p">,</span>
+        <span class="n">EPSILO</span><span class="p">,</span>
+        <span class="n">GAMI</span><span class="p">,</span>
+        <span class="n">GAMW</span><span class="p">,</span>
+        <span class="n">LFEEDBACKT</span><span class="p">,</span>
+        <span class="n">MNU0</span><span class="p">,</span>
+        <span class="n">NU10</span><span class="p">,</span>
+        <span class="n">NU20</span><span class="p">,</span>
+        <span class="n">TT</span><span class="p">,</span>
+        <span class="n">V_RTMIN</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># l72</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">rv_t</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">usw</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">w2</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">w2</span> <span class="o">=</span> <span class="n">log</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="n">usw</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">ALPW</span> <span class="o">-</span> <span class="n">BETAW</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">GAMW</span> <span class="o">*</span> <span class="n">w2</span><span class="p">)</span>
+            <span class="n">w2</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">ALPI</span> <span class="o">-</span> <span class="n">BETAI</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">GAMI</span> <span class="o">*</span> <span class="n">w2</span><span class="p">)</span>
+
+    <span class="c1"># l83</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">rv_t</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">ssi</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">w2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pabs_t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">w2</span><span class="p">)</span>
+            <span class="n">ssi</span> <span class="o">=</span> <span class="n">rv_t</span> <span class="o">*</span> <span class="p">(</span><span class="n">pabs_t</span> <span class="o">-</span> <span class="n">w2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">EPSILO</span> <span class="o">*</span> <span class="n">w2</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="c1"># supersaturation over ice</span>
+
+            <span class="n">usw</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">pabs_t</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">usw</span><span class="p">)</span>
+            <span class="n">usw</span> <span class="o">=</span> <span class="p">(</span><span class="n">usw</span> <span class="o">/</span> <span class="n">w2</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">pabs_t</span> <span class="o">-</span> <span class="n">w2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">pabs_t</span> <span class="o">-</span> <span class="n">usw</span><span class="p">))</span>
+            <span class="c1"># supersaturation of saturated water vapor over ice</span>
+
+            <span class="n">ssi</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">ssi</span><span class="p">,</span> <span class="n">usw</span><span class="p">)</span>  <span class="c1"># limitation of ssi according to ssw = 0</span>
+
+    <span class="c1"># l96</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">w2</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">rv_t</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="o">-</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">ssi</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">w2</span> <span class="o">=</span> <span class="n">NU20</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="n">ALPHA2</span> <span class="o">*</span> <span class="n">ssi</span> <span class="o">-</span> <span class="n">BETA2</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="o">-</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">TT</span> <span class="o">-</span> <span class="mi">5</span> <span class="ow">and</span> <span class="n">ssi</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">w2</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                    <span class="n">NU20</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">BETA2</span><span class="p">),</span>
+                    <span class="n">NU10</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">BETA1</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">ssi</span> <span class="o">/</span> <span class="n">usw</span><span class="p">)</span> <span class="o">**</span> <span class="n">ALPHA1</span><span class="p">,</span>
+                <span class="p">)</span>
+
+    <span class="c1"># l107</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">w2</span> <span class="o">=</span> <span class="n">w2</span> <span class="o">-</span> <span class="n">ci_t</span>
+        <span class="n">w2</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span> <span class="mf">5e4</span><span class="p">)</span>
+
+    <span class="c1"># l114</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rvheni_mr</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">rv_t</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">rvheni_mr</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">MNU0</span> <span class="o">/</span> <span class="n">rhodref</span>
+            <span class="n">rvheni_mr</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rv_t</span><span class="p">,</span> <span class="n">rvheni_mr</span><span class="p">)</span>
+
+    <span class="c1"># l122</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">LFEEDBACKT</span><span class="p">:</span>
+            <span class="n">w1</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">rv_t</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+                <span class="n">w1</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">rvheni_mr</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">TT</span> <span class="o">/</span> <span class="n">exn</span> <span class="o">-</span> <span class="n">th_t</span><span class="p">))</span> <span class="o">/</span> <span class="n">ls_fact</span><span class="p">)</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span>
+                    <span class="n">rvheni_mr</span><span class="p">,</span> <span class="mf">1e-20</span>
+                <span class="p">)</span>
+
+            <span class="n">w2</span> <span class="o">*=</span> <span class="n">w1</span>
+            <span class="n">rvheni_mr</span> <span class="o">*=</span> <span class="n">w1</span>
+
+    <span class="c1"># l134</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">rv_t</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">ci_t</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">w2</span> <span class="o">+</span> <span class="n">ci_t</span><span class="p">,</span> <span class="n">ci_t</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3_gt4py.stencils.ice4_nucleation.ice4_nucleation_post_processing" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_nucleation_post_processing</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">exn</span><span class="p">,</span> <span class="n">ls_fact</span><span class="p">,</span> <span class="n">lv_fact</span><span class="p">,</span> <span class="n">th_t</span><span class="p">,</span> <span class="n">rv_t</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">rvheni_mr</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>adjust mixing ratio with nucleation increments</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>temperature</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exn</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>exner pressure</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ls_fact</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>sublimation latent heat over heat capacity</p>
+              </div>
+            </li>
+            <li>
+              <b><code>th_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>potential temperature</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rv_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>vapour m.r.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ri_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>ice m.r.</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rvheni_mr</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>vapour m.r. increment due to HENI (heteroegenous nucleation over ice)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/ice3_gt4py/stencils/ice4_nucleation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@ported_method</span><span class="p">(</span>
+    <span class="n">from_file</span><span class="o">=</span><span class="s2">&quot;PHYEX/src/common/micro/mode_ice4_tendencies.F90&quot;</span><span class="p">,</span>
+    <span class="n">from_line</span><span class="o">=</span><span class="mi">152</span><span class="p">,</span>
+    <span class="n">to_line</span><span class="o">=</span><span class="mi">157</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nd">@stencil_collection</span><span class="p">(</span><span class="s2">&quot;ice4_nucleation_post_processing&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ice4_nucleation_post_processing</span><span class="p">(</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">exn</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ls_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lv_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">th_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rvheni_mr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;adjust mixing ratio with nucleation increments</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t (Field[float]): temperature</span>
+<span class="sd">        exn (Field[float]): exner pressure</span>
+<span class="sd">        ls_fact (Field[float]): sublimation latent heat over heat capacity</span>
+<span class="sd">        th_t (Field[float]): potential temperature</span>
+<span class="sd">        rv_t (Field[float]): vapour m.r.</span>
+<span class="sd">        ri_t (Field[float]): ice m.r.</span>
+<span class="sd">        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">th_t</span> <span class="o">+=</span> <span class="n">rvheni_mr</span> <span class="o">*</span> <span class="p">(</span><span class="n">ls_fact</span> <span class="o">-</span> <span class="n">lv_fact</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">th_t</span> <span class="o">/</span> <span class="n">exn</span>
+        <span class="n">rv_t</span> <span class="o">-=</span> <span class="n">rvheni_mr</span>
+        <span class="n">ri_t</span> <span class="o">+=</span> <span class="n">rvheni_mr</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ice4_fast_ri/" class="btn btn-neutral float-left" title="ice4_fast_ri"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ice4_rimltc/" class="btn btn-neutral float-right" title="ice4_rimltc">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ice4_fast_ri/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ice4_rimltc/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
