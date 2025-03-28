@@ -3,20 +3,19 @@ module mode_ice4_warm
     contains
     
     subroutine ice4_warm(kproma, ksize, ldsoft, &
-        &xalpw, xbetaw, xgamw, xepsilo, &
-        &xlvtt, xcpv, xcl, xtt, xrv, xcpd, &
-        &xtimautc, xcriautc, xfcaccr, xexcaccr, &
-        &x0evar, x1evar, xex0evar, xex1evar, &
-        &c_rtmin, r_rtmin, xcexvt, &
-        &ldcompute, hsubg_rr_evap, &
-                        &prhodref, pt, ppres, ptht, &
-                        &plbdar, plbdar_rf, pka, pdv, pcj, &
-                        &phlc_hcf, phlc_hrc, &
-                        &pcf, prf, &
-                        &prvt, prct, prrt, &
-                        &prcautr, prcaccr, prrevav)
-!!
-    !
+          &xalpw, xbetaw, xgamw, xepsilo, &
+          &xlvtt, xcpv, xcl, xtt, xrv, xcpd, &
+          &xtimautc, xcriautc, xfcaccr, xexcaccr, &
+          &x0evar, x1evar, xex0evar, xex1evar, &
+          &c_rtmin, r_rtmin, xcexvt, &
+          &ldcompute, hsubg_rr_evap, &
+          &prhodref, pt, ppres, ptht, &
+          &plbdar, plbdar_rf, pka, pdv, pcj, &
+          &phlc_hcf, phlc_hrc, &
+          &pcf, prf, &
+          &prvt, prct, prrt, &
+          &prcautr, prcaccr, prrevav)
+
     implicit none
     !
     !*       0.1   declarations of dummy arguments :

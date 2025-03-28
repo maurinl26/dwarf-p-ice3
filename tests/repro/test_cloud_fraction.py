@@ -303,24 +303,24 @@ class TestCloudFraction(unittest.TestCase):
             xtt=phyex_externals["TT"],
             csubg_mf_pdf=phyex_externals["CSUBG_MF_PDF"],
             ptstep=dt,
-            zrc=rc_tmp, 
-            zri=ri_tmp,
-            pexnref=exnref, 
-            prhodref=rhodref,
-            pcf_mf=cf_mf,   
-            prc_mf=rc_mf,   
-            pri_mf=ri_mf,   
-            prc=rc,    
-            pri=ri,  
-            prvs=rvs,    
-            prcs=rcs,    
-            pths=ths,    
-            pris=ris, 
-            pcldfr=cldfr, 
-            phlc_hrc=hlc_hrc,
-            phlc_hcf=hlc_hcf,
-            phli_hri=hli_hri,
-            phli_hcf=hli_hcf
+            zrc=rc_tmp.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            zri=ri_tmp.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            pexnref=exnref.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prhodref=rhodref.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            pcf_mf=cf_mf.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),   
+            prc_mf=rc_mf.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),   
+            pri_mf=ri_mf.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),   
+            prc=rc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),    
+            pri=ri.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),  
+            prvs=rvs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),    
+            prcs=rcs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),    
+            pths=ths.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),    
+            pris=ris.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pcldfr=cldfr.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            phlc_hrc=hlc_hrc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            phlc_hcf=hlc_hcf.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            phli_hri=hli_hri.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
+            phli_hcf=hli_hcf.reshape(SHAPE[0]*SHAPE[1], SHAPE[2])
         )
         
         pths_out = result[0] 
@@ -336,45 +336,45 @@ class TestCloudFraction(unittest.TestCase):
         
         logging.info(f"Mean ths_gt4py       {ths_gt4py.mean()}")
         logging.info(f"Mean pths_out        {pths_out.mean()}")
-        logging.info(f"Max abs err rcautr   {max(abs(ths_gt4py.ravel() - pths_out) / abs(pths_out))}")
+        logging.info(f"Max abs err rcautr   {max(abs(ths_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - pths_out) / abs(pths_out))}")
 
         logging.info(f"Mean rvs_gt4py       {rvs_gt4py.mean()}")
         logging.info(f"Mean prvs_out        {prvs_out.mean()}")
-        logging.info(f"Max abs err rcautr   {max(abs(rvs_gt4py.ravel() - prvs_out) / abs(prvs_out))}")
+        logging.info(f"Max abs err rcautr   {max(abs(rvs_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - prvs_out) / abs(prvs_out))}")
 
         logging.info(f"Mean rcs_gt4py       {rcs_gt4py.mean()}")
         logging.info(f"Mean prcs_out        {prcs_out.mean()}")
-        logging.info(f"Max abs err rcautr   {max(abs(rcs_gt4py.ravel() - prcs_out) / abs(prcs_out))}")
+        logging.info(f"Max abs err rcautr   {max(abs(rcs_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - prcs_out) / abs(prcs_out))}")
 
         logging.info(f"Mean ris_gt4py       {ris_gt4py.mean()}")
         logging.info(f"Mean pris_out        {pris_out.mean()}")
-        logging.info(f"Max abs err ris      {max(abs(ris_gt4py.ravel() - pris_out) / abs(pris_out))}")
+        logging.info(f"Max abs err ris      {max(abs(ris_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - pris_out) / abs(pris_out))}")
 
         logging.info(f"Mean hlc_hrc_gt4py       {hlc_hrc_gt4py.mean()}")
         logging.info(f"Mean phlc_hrc_out        {phlc_hrc_out.mean()}")
-        logging.info(f"Max abs err phlc_hrc     {max(abs(phlc_hrc_out.ravel() - phlc_hrc_out) / abs(phlc_hrc_out))}")
+        logging.info(f"Max abs err phlc_hrc     {max(abs(phlc_hrc_out.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - phlc_hrc_out) / abs(phlc_hrc_out))}")
 
         logging.info(f"Mean hlc_hcf_gt4py       {hlc_hcf_gt4py.mean()}")
         logging.info(f"Mean phlc_hcf_out        {phlc_hcf_out.mean()}")
-        logging.info(f"Max abs err phlc_hrc     {max(abs(hlc_hcf_gt4py.ravel() - phlc_hcf_out) / abs(phlc_hcf_out))}")
+        logging.info(f"Max abs err phlc_hrc     {max(abs(hlc_hcf_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - phlc_hcf_out) / abs(phlc_hcf_out))}")
 
         logging.info(f"Mean hli_hri_gt4py       {hli_hri_gt4py.mean()}")
         logging.info(f"Mean phli_hri_out        {phli_hri_out.mean()}")
-        logging.info(f"Max abs err phlc_hrc     {max(abs(hli_hri_gt4py.ravel() - phli_hri_out) / abs(phli_hri_out))}")
+        logging.info(f"Max abs err phlc_hrc     {max(abs(hli_hri_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - phli_hri_out) / abs(phli_hri_out))}")
 
         logging.info(f"Mean hli_hcf_gt4py       {hli_hcf_gt4py.mean()}")
         logging.info(f"Mean phli_hcf_out        {phli_hcf_out.mean()}")
-        logging.info(f"Max abs err phlc_hrc     {max(abs(hli_hcf_gt4py.ravel() - phli_hcf_out) / abs(phli_hcf_out))}")
+        logging.info(f"Max abs err phlc_hrc     {max(abs(hli_hcf_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - phli_hcf_out) / abs(phli_hcf_out))}")
 
 
-        assert_allclose(pths_out, ths_gt4py.ravel(), rtol=1e-6)
-        assert_allclose(prvs_out, rvs_gt4py.ravel(), rtol=1e-6)
-        assert_allclose(prcs_out, rcs_gt4py.ravel(), rtol=1e-6)
-        assert_allclose(pris_out, ris_gt4py.ravel(), rtol=1e-6)
+        assert_allclose(pths_out, ths_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(prvs_out, rvs_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(prcs_out, rcs_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(pris_out, ris_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
         
-        assert_allclose(phlc_hrc_out, hlc_hrc_gt4py.ravel(), rtol=1e-6)
-        assert_allclose(phlc_hcf_out, hlc_hcf_gt4py.ravel(), rtol=1e-6)
-        assert_allclose(phli_hri_out, hli_hri_gt4py.ravel(), rtol=1e-6)
-        assert_allclose(phli_hcf_out, hli_hcf_gt4py.ravel(), rtol=1e-6)
+        assert_allclose(phlc_hrc_out, hlc_hrc_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(phlc_hcf_out, hlc_hcf_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(phli_hri_out, hli_hri_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(phli_hcf_out, hli_hcf_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
 
         

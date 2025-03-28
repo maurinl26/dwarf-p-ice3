@@ -13,9 +13,9 @@ import logging
 
 from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
-class TestCloudFraction(unittest.TestCase):
+class TestCondensation(unittest.TestCase):
     
-    def test_cloud_fraction(self):
+    def test_condensation(self):
         
         logging.info(f"With backend {BACKEND}")
         gt4py_config = GT4PyConfig(
@@ -29,7 +29,7 @@ class TestCloudFraction(unittest.TestCase):
         condensation = compile_stencil("condensation", gt4py_config, phyex_externals)
         
         sigqsat = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                np.random.rand(SHAPE[0], SHAPE[1]),
                 dtype=c_float,
                 order="F",
             )
@@ -103,11 +103,7 @@ class TestCloudFraction(unittest.TestCase):
                 dtype=c_float,
                 order="F",
             )
-        sigrc = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
+
         
         
         sigqsat_gt4py = from_array(
@@ -180,6 +176,11 @@ class TestCloudFraction(unittest.TestCase):
             dtype=np.float32,
             backend=BACKEND
         )
+        sigrc_gt4py = from_array(
+            sigrc,
+            dtype=np.float32,
+            backend=BACKEND
+        )
         
 
         condensation(
@@ -230,22 +231,22 @@ class TestCloudFraction(unittest.TestCase):
             hcondens=phyex_externals["HCONDENS"], 
             hlambda3=phyex_externals["LAMBDA3"], 
             lstatnw=phyex_externals["LSTATNW"],                           
-            ppabs=pabs, 
-            pt=t,                                             
-            pt_out=t, 
-            prv_in=rv_in, 
-            prv_out=rv_out, 
-            prc_in=rc_in, 
-            prc_out=rc_out, 
-            pri_in=ri_in, 
-            pri_out=ri_out,     
-            psigs=sigs, 
-            pcldfr=cldfr, 
-            psigrc=sigrc,                                 
-            psigqsat=sigqsat,                                              
-            plv=lv, 
-            pls=ls, 
-            pcph=cph 
+            ppabs=pabs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pt=t.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),                                             
+            pt_out=t.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prv_in=rv_in.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prv_out=rv_out.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prc_in=rc_in.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prc_out=rc_out.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pri_in=ri_in.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pri_out=ri_out.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),     
+            psigs=sigs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pcldfr=cldfr.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            psigrc=sigrc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),                                 
+            psigqsat=sigqsat.reshape(SHAPE[0]*SHAPE[1]),                                              
+            plv=lv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pls=ls.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pcph=cph.reshape(SHAPE[0]*SHAPE[1], SHAPE[2])
         )
         
         pt_out = result[0]  
@@ -260,29 +261,29 @@ class TestCloudFraction(unittest.TestCase):
         
         logging.info(f"Mean t_gt4py       {t_gt4py.mean()}")
         logging.info(f"Mean pt_out        {pt_out.mean()}")
-        logging.info(f"Max abs err t      {max(abs(t_gt4py.ravel() - pt_out) / abs(pt_out))}")
+        logging.info(f"Max abs err t      {max(abs(t_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - pt_out) / abs(pt_out))}")
 
         logging.info(f"Mean rv_gt4py        {rv_out_gt4py.mean()}")
         logging.info(f"Mean prv_out         {prv_out.mean()}")
-        logging.info(f"Max abs err rv       {max(abs(rv_out_gt4py.ravel() - prv_out) / abs(prv_out))}")
+        logging.info(f"Max abs err rv       {max(abs(rv_out_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - prv_out) / abs(prv_out))}")
 
         logging.info(f"Mean rc_out          {rc_out_gt4py.mean()}")
         logging.info(f"Mean prc_out         {prc_out.mean()}")
-        logging.info(f"Max abs err rc_out   {max(abs(rc_out_gt4py.ravel() - prc_out) / abs(prc_out))}")
+        logging.info(f"Max abs err rc_out   {max(abs(rc_out_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - prc_out) / abs(prc_out))}")
 
         logging.info(f"Mean ri_out_gt4py    {ri_out_gt4py.mean()}")
         logging.info(f"Mean ri_out          {pri_out.mean()}")
-        logging.info(f"Max abs err ri       {max(abs(ri_out_gt4py.ravel() - pri_out) / abs(pri_out))}")
+        logging.info(f"Max abs err ri       {max(abs(ri_out_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - pri_out) / abs(pri_out))}")
 
 
         logging.info(f"Mean ri_out_gt4py    {cldfr_gt4py.mean()}")
         logging.info(f"Mean ri_out          {pcldfr_out.mean()}")
-        logging.info(f"Max abs err ri       {max(abs(cldfr_gt4py.ravel() - pcldfr_out) / abs(pcldfr_out))}")
+        logging.info(f"Max abs err ri       {max(abs(cldfr_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - pcldfr_out) / abs(pcldfr_out))}")
 
 
         logging.info(f"Mean sigrc           {sigrc_gt4py.mean()}")
         logging.info(f"Mean psigrc          {psigrc_out.mean()}")
-        logging.info(f"Max abs err ri       {max(abs(sigrc_gt4py.ravel() - psigrc_out) / abs(psigrc_out))}")
+        logging.info(f"Max abs err ri       {max(abs(sigrc_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - psigrc_out) / abs(psigrc_out))}")
 
         assert_allclose(pt_out, t_gt4py.ravel(), rtol=1e-6)
         assert_allclose(prv_out, rv_out_gt4py.ravel(), rtol=1e-6)

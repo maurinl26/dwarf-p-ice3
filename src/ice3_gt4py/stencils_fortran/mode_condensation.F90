@@ -14,58 +14,57 @@ module mode_condensation
         &psigqsat,                                              &
         &plv, pls, pcph                                                                 &
     )
-    USE ISO_FORTRAN_ENV, ONLY: REAL64, INT32 ! <- Get a float64 type.
 
     implicit none
 
-    integer(kind=int32), intent(in) :: nijb, nije, nktb, nkte, nijt, nkt
-    real(kind=real64), intent(in) :: xrv, xrd, xalpi, xbetai, xgami, xalpw, xbetaw, xgamw
+    integer, intent(in) :: nijb, nije, nktb, nkte, nijt, nkt
+    real, intent(in) :: xrv, xrd, xalpi, xbetai, xgami, xalpw, xbetaw, xgamw
     integer,             intent(in)    :: hcondens
     integer,             intent(in)    :: hlambda3 ! formulation for lambda3 coeff
     logical, intent(in) :: lstatnw
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: ppabs  ! pressure (pa)
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: pt     ! grid scale t  (k)
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: prv_in ! grid scale water vapor mixing ratio (kg/kg) in input
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: prc_in ! grid scale r_c mixing ratio (kg/kg) in input
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: pri_in ! grid scale r_i (kg/kg) in input
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: psigs  ! sigma_s from turbulence scheme
+    real, dimension(nijt,nkt), intent(in)    :: ppabs  ! pressure (pa)
+    real, dimension(nijt,nkt), intent(in)    :: pt     ! grid scale t  (k)
+    real, dimension(nijt,nkt), intent(in)    :: prv_in ! grid scale water vapor mixing ratio (kg/kg) in input
+    real, dimension(nijt,nkt), intent(in)    :: prc_in ! grid scale r_c mixing ratio (kg/kg) in input
+    real, dimension(nijt,nkt), intent(in)    :: pri_in ! grid scale r_i (kg/kg) in input
+    real, dimension(nijt,nkt), intent(in)    :: psigs  ! sigma_s from turbulence scheme
 
 
     logical, intent(in)                         :: ouseri ! logical switch to compute both liquid and solid condensate (ouseri=.true.)or only solid condensate (ouseri=.false.)
     logical, intent(in)                         :: osigmas! use present global sigma_s values or that from turbulence scheme
     logical, intent(in)                         :: ocnd2  ! logical switch to sparate liquid and ice more rigid (defalt value : .false.)
-    real(kind=real64), dimension(nijt),       intent(in)    :: psigqsat ! use an extra "qsat" variance contribution (osigmas case) multiplied by psigqsat
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: plv    ! latent heat l_v
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: pls    ! latent heat l_s
-    real(kind=real64), dimension(nijt,nkt), intent(in)    :: pcph   ! specific heat c_ph
+    real, dimension(nijt),       intent(in)    :: psigqsat ! use an extra "qsat" variance contribution (osigmas case) multiplied by psigqsat
+    real, dimension(nijt,nkt), intent(in)    :: plv    ! latent heat l_v
+    real, dimension(nijt,nkt), intent(in)    :: pls    ! latent heat l_s
+    real, dimension(nijt,nkt), intent(in)    :: pcph   ! specific heat c_ph
 
     ! out
-    real(kind=real64), dimension(:,:), intent(out)   :: pt_out
-    real(kind=real64), dimension(:,:), intent(out)   :: prv_out! grid scale water vapor mixing ratio (kg/kg) in output
-    real(kind=real64), dimension(:,:), intent(out)   :: prc_out! grid scale r_c mixing ratio (kg/kg) in output
-    real(kind=real64), dimension(:,:), intent(out)   :: pri_out! grid scale r_i (kg/kg) in output
-    real(kind=real64), dimension(:,:), intent(out)   :: pcldfr ! cloud fraction
-    real(kind=real64), dimension(:,:), intent(out)   :: psigrc ! s r_c / sig_s^2
+    real, dimension(:,:), intent(out)   :: pt_out
+    real, dimension(:,:), intent(out)   :: prv_out! grid scale water vapor mixing ratio (kg/kg) in output
+    real, dimension(:,:), intent(out)   :: prc_out! grid scale r_c mixing ratio (kg/kg) in output
+    real, dimension(:,:), intent(out)   :: pri_out! grid scale r_i (kg/kg) in output
+    real, dimension(:,:), intent(out)   :: pcldfr ! cloud fraction
+    real, dimension(:,:), intent(out)   :: psigrc ! s r_c / sig_s^2
 !
 !
 !*       0.2   declarations of local variables :
 !
 integer :: jij, jk
-real(kind=real64), dimension(nijt,nkt) :: zrt     ! work arrays for t_l and total water mixing ratio
-real(kind=real64) :: zlvs                                      ! thermodynamics
-real(kind=real64), dimension(nijt) :: zpv, zpiv, zqsl, zqsi ! thermodynamics
-real(kind=real64) :: zah
-real(kind=real64), dimension(nijt) :: za, zb, zsbar, zsigma, zq1 ! related to computation of sig_s
-real(kind=real64), dimension(nijt) :: zcond
-real(kind=real64), dimension(nijt) :: zfrac           ! ice fraction
+real, dimension(nijt,nkt) :: zrt     ! work arrays for t_l and total water mixing ratio
+real :: zlvs                                      ! thermodynamics
+real, dimension(nijt) :: zpv, zpiv, zqsl, zqsi ! thermodynamics
+real :: zah
+real, dimension(nijt) :: za, zb, zsbar, zsigma, zq1 ! related to computation of sig_s
+real, dimension(nijt) :: zcond
+real, dimension(nijt) :: zfrac           ! ice fraction
 integer  :: inq1
-real(kind=real64) :: zinc
+real :: zinc
 ! related to ocnd2 noise check :
-real(kind=real64) :: zprifact
+real :: zprifact
 ! end ocnd2
 
 ! lhgt_qs:
-real(kind=real64) :: zdzfact
+real :: zdzfact
 ! lhgt_qs end
 !
 !
@@ -73,7 +72,7 @@ real(kind=real64) :: zdzfact
 !
 !-------------------------------------------------------------------------------
 
-real(kind=real64), dimension(-22:11),parameter :: zsrc_1d = (/                         &
+real, dimension(-22:11),parameter :: zsrc_1d = (/                         &
 0.           ,  0.           ,  2.0094444e-04,   0.316670e-03,    &
 4.9965648e-04,  0.785956e-03 ,  1.2341294e-03,   0.193327e-02,    &
 3.0190963e-03,  0.470144e-02 ,  7.2950651e-03,   0.112759e-01,    &

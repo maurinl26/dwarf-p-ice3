@@ -182,7 +182,11 @@ def sigrc_computation(
         if __INLINED(LAMBDA3 == 0):
             sigrc *= min(3, max(1, 1 - q1))
 
-
+@ported_method(
+    from_file="PHYEX/src/common/micro/condensation.F90",
+    from_line=450,
+    to_line=473
+)
 @stencil_collection("thermodynamic_fields")
 def thermodynamic_fields(
     th: Field["float"],
