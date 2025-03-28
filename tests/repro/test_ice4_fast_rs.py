@@ -264,7 +264,7 @@ class TestIce4FastRS(unittest.TestCase):
             gaminc_rim2=gaminc_rim2_gt4py,
             gaminc_rim4=gaminc_rim4_gt4py,
             ker_raccs=KER_RACCS,
-            ker_raccs=KER_RACCSS,
+            ker_raccss=KER_RACCSS,
             ker_saccrg=KER_SACCRG,
             index_floor=index_floor_gt4py,
             index_floor_r=index_floor_r_gt4py,
