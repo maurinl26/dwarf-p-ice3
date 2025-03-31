@@ -185,9 +185,9 @@ class TestThermo(unittest.TestCase):
         result = fortran_script.mode_thermo.latent_heat(
             nkt=SHAPE[2], 
             nijt=SHAPE[0] * SHAPE[1], 
-            nktb=0, 
+            nktb=1, 
             nkte=SHAPE[2], 
-            nijb=0, 
+            nijb=1, 
             nije=SHAPE[0] * SHAPE[1],
             xlvtt=phyex_externals["LVTT"], 
             xlstt=phyex_externals["LSTT"],
@@ -197,9 +197,9 @@ class TestThermo(unittest.TestCase):
             xtt=phyex_externals["TT"], 
             xcpd=phyex_externals["CPD"], 
             krr=6,
-            prv_in=rv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            prc_in=rc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            pri_in=ri.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prv=rv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            prc=rc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
+            pri=ri.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
             prr=rr.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
             prs=rs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
             prg=rg.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
@@ -220,23 +220,19 @@ class TestThermo(unittest.TestCase):
         
         logging.info(f"Mean t_gt4py         {t_gt4py.mean()}")
         logging.info(f"Mean zt_out          {zt_out.mean()}")
-        logging.info(f"Max abs err zt       {max(abs(t_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - zt_out) / abs(zt_out))}")
 
         logging.info(f"Mean lv_gt4py        {lv_gt4py.mean()}")
         logging.info(f"Mean zlv_out         {zlv_out.mean()}")
-        logging.info(f"Max abs err rcautr   {max(abs(lv_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - zlv_out) / abs(zlv_out))}")
 
         logging.info(f"Mean ls_gt4py        {ls_gt4py.mean()}")
         logging.info(f"Mean zls_out         {zls_out.mean()}")
-        logging.info(f"Max abs err ls       {max(abs(ls_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - zls_out) / abs(zls_out))}")
 
         logging.info(f"Mean cph_gt4py       {cph_gt4py.mean()}")
         logging.info(f"Mean cph_out         {zcph_out.mean()}")
-        logging.info(f"Max abs err ris      {max(abs(cph_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]) - zcph_out) / abs(zcph_out))}")
 
-        assert_allclose(zt_out, t_gt4py, rtol=1e-6)
-        assert_allclose(zlv_out, lv_gt4py, rtol=1e-6)
-        assert_allclose(zls_out, ls_gt4py, rtol=1e-6)
-        assert_allclose(zcph_out, cph_gt4py, rtol=1e-6)
+        assert_allclose(zt_out, t_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(zlv_out, lv_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(zls_out, ls_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
+        assert_allclose(zcph_out, cph_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
         
         

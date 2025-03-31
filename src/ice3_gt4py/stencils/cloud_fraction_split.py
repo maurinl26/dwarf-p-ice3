@@ -5,19 +5,69 @@ from gt4py.cartesian.gtscript import PARALLEL, computation, interval, Field, __I
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
+from ice3_gt4py.functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
+
+
+@ported_method(
+    from_file="PHYEX/src/common/micro/ice_adjust.F90",
+    from_line=450,
+    to_line=473
+)
+@stencil_collection("thermodynamic_fields")
+def thermodynamic_fields(
+    th: Field["float"],
+    exn: Field["float"],
+    rv: Field["float"],
+    rc: Field["float"],
+    rr: Field["float"],
+    ri: Field["float"],
+    rs: Field["float"],
+    rg: Field["float"],
+    lv: Field["float"],
+    ls: Field["float"],
+    cph: Field["float"],
+    t: Field["float"],
+):
+    from __externals__ import NRR, CPV, CPD, CL, CI
+
+    # 2.3 Compute the variation of mixing ratio
+    with computation(PARALLEL), interval(...):
+        t = th * exn
+        lv = vaporisation_latent_heat(t)
+        ls = sublimation_latent_heat(t)
+
+    # Translation note : in Fortran, ITERMAX = 1, DO JITER =1,ITERMAX
+    # Translation note : version without iteration is kept (1 iteration)
+    #                   IF jiter = 1; CALL ITERATION()
+    # jiter > 0
+
+    # numer of moist variables fixed to 6 (without hail)
+
+    # Translation note :
+    # 2.4 specific heat for moist air at t+1
+    with computation(PARALLEL), interval(...):
+        # Translation note : case(7) removed because hail is not taken into account
+        # Translation note : l453 to l456 removed
+        if __INLINED(NRR == 6):
+            cph = CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs + rg)
+        if __INLINED(NRR == 5):
+            cph = CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs)
+        if __INLINED(NRR == 4):
+            cph = CPD + CPV * rv + CL * (rc + rr)
+        if __INLINED(NRR == 2):
+            cph = CPD + CPV * rv + CL * rc + CI * ri
+
 
 @ported_method(
     from_file="PHYEX/src/common/micro/ice_adjust.F90",
     from_line=278,
-    to_line=419
+    to_line=312
 )
-@stencil_collection("cloud_fraction")
-def cloud_fraction(
+@stencil_collection("cloud_fraction_1")
+def cloud_fraction_1(
     lv: Field["float"],
     ls: Field["float"],
-    t: Field["float"],
     cph: Field["float"],
-    rhodref: Field["float"],
     exnref: Field["float"],
     rc: Field["float"],
     ri: Field["float"],
@@ -25,37 +75,11 @@ def cloud_fraction(
     rvs: Field["float"],
     rcs: Field["float"],
     ris: Field["float"],
-    rc_mf: Field["float"],
-    ri_mf: Field["float"],
-    cf_mf: Field["float"],
-    cldfr: Field["float"],
     rc_tmp: Field["float"],
     ri_tmp: Field["float"],
-    hlc_hrc: Field["float"],
-    hlc_hcf: Field["float"],
-    hli_hri: Field["float"],
-    hli_hcf: Field["float"],
     dt: "float",
 ):
     """Cloud fraction computation (after condensation loop)"""
-
-    from __externals__ import (
-        LSUBG_COND,
-        CRIAUTC,
-        SUBG_MF_PDF,
-        CRIAUTI,
-        ACRIAUTI,
-        BCRIAUTI,
-        TT,
-    )
-    
-    # CB02
-    with computation(PARALLEL), interval(...):
-        hlc_hcf = 0.0
-        hlc_hrc = 0.0
-        hli_hcf = 0.0
-        hli_hri = 0.0
-
     # l274 in ice_adjust.F90
     ##### 5.     COMPUTE THE SOURCES AND STORES THE CLOUD FRACTION #####
     with computation(PARALLEL), interval(...):
@@ -73,8 +97,50 @@ def cloud_fraction(
         rvs -= w2
         ris += w2
         ths += w2 * ls / (cph * exnref)
+        
+        #### split
+    
+@ported_method(
+    from_file="PHYEX/src/common/micro/ice_adjust.F90",
+    from_line=313,
+    to_line=419
+)
+@stencil_collection("cloud_fraction_2")        
+def cloud_fraction_2(
+    rhodref: Field["float"],
+    exnref: Field["float"],
+    t: Field["float"],
+    cph: Field["float"],
+    lv: Field["float"],
+    ls: Field["float"],
+    ths: Field["float"],
+    rvs: Field["float"],
+    rcs: Field["float"],
+    ris: Field["float"],
+    rc_mf: Field["float"],
+    ri_mf: Field["float"],
+    cf_mf: Field["float"],
+    cldfr: Field["float"],
+    hlc_hrc: Field["float"],
+    hlc_hcf: Field["float"],
+    hli_hri: Field["float"],
+    hli_hcf: Field["float"],
+    dt: "float"
+):
+      
+    from __externals__ import (
+        LSUBG_COND,
+        SUBG_MF_PDF,
+        CRIAUTC,
+        CRIAUTI,
+        ACRIAUTI,
+        BCRIAUTI,
+        TT
+    )
 
-        # 5.2  compute the cloud fraction cldfr
+    # 5.2  compute the cloud fraction cldfr
+    with computation(PARALLEL), interval(...):
+        
         if __INLINED(not LSUBG_COND):
             cldfr = 1.0 if ((rcs + ris)*dt > 1e-12) else 0.0
         # Translation note : OCOMPUTE_SRC is taken False
@@ -168,7 +234,4 @@ def cloud_fraction(
                 hli_hcf = min(1.0, hli_hcf + hcf)
                 hli_hri += hri
     # Translation note : 402 -> 427 (removed pout_x not present )
-
-
-
 

@@ -5,9 +5,9 @@ module mode_thermo
 
     subroutine latent_heat(nkt, nijt, nktb, nkte, nijb, nije, &
         &xlvtt, xlstt, xcpv, xci, xcl, xtt, xcpd, krr, &
-        &prv_in, prc_in, pri_in, prr, prs, prg,&
+        &prv, prc, pri, prr, prs, prg,&
         &pth, pexn,&
-        &zt, zls, zlv, zcph)
+        &zt, zlv, zls, zcph)
 
     implicit none
 
@@ -16,9 +16,9 @@ module mode_thermo
 
     real, dimension(nijt, nkt), intent(in) :: pth
     real, dimension(nijt, nkt), intent(in) :: pexn
-    real, dimension(nijt, nkt), intent(in) :: prv_in
-    real, dimension(nijt, nkt), intent(in) :: prc_in
-    real, dimension(nijt, nkt), intent(in) :: pri_in
+    real, dimension(nijt, nkt), intent(in) :: prv
+    real, dimension(nijt, nkt), intent(in) :: prc
+    real, dimension(nijt, nkt), intent(in) :: pri
     real, dimension(nijt, nkt), intent(in) :: prr
     real, dimension(nijt, nkt), intent(in) :: prs
     real, dimension(nijt, nkt), intent(in) :: prg
@@ -42,19 +42,19 @@ module mode_thermo
     do jij=nijb,nije
       select case(krr)
         case(6)
-          zcph(jij,jk) = xcpd + xcpv * prv_in(jij,jk)                             &
-                                  + xcl  * (prc_in(jij,jk) + prr(jij,jk))             &
-                                  + xci  * (pri_in(jij,jk) + prs(jij,jk) + prg(jij,jk))
+          zcph(jij,jk) = xcpd + xcpv * prv(jij,jk)                             &
+                                  + xcl  * (prc(jij,jk) + prr(jij,jk))             &
+                                  + xci  * (pri(jij,jk) + prs(jij,jk) + prg(jij,jk))
         case(5)
-          zcph(jij,jk) = xcpd + xcpv * prv_in(jij,jk)                             &
-                                  + xcl  * (prc_in(jij,jk) + prr(jij,jk))             &
-                                  + xci  * (pri_in(jij,jk) + prs(jij,jk))
+          zcph(jij,jk) = xcpd + xcpv * prv(jij,jk)                             &
+                                  + xcl  * (prc(jij,jk) + prr(jij,jk))             &
+                                  + xci  * (pri(jij,jk) + prs(jij,jk))
         case(3)
-          zcph(jij,jk) = xcpd + xcpv * prv_in(jij,jk)               &
-                                  + xcl  * (prc_in(jij,jk) + prr(jij,jk))
+          zcph(jij,jk) = xcpd + xcpv * prv(jij,jk)               &
+                                  + xcl  * (prc(jij,jk) + prr(jij,jk))
         case(2)
-          zcph(jij,jk) = xcpd + xcpv * prv_in(jij,jk) &
-                                  + xcl  * prc_in(jij,jk)
+          zcph(jij,jk) = xcpd + xcpv * prv(jij,jk) &
+                                  + xcl  * prc(jij,jk)
       end select
     enddo
   enddo
