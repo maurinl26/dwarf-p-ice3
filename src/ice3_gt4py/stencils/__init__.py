@@ -8,13 +8,11 @@ import ice3_gt4py.stencils.ice4_rimltc
 import ice3_gt4py.stencils.ice4_rrhong
 import ice3_gt4py.stencils.ice4_slow
 import ice3_gt4py.stencils.ice4_warm
-import ice3_gt4py.stencils.ice_adjust
-import ice3_gt4py.stencils.ice_adjust_split
+import ice3_gt4py.stencils.condensation_split
 import ice3_gt4py.stencils.sedimentation
 import ice3_gt4py.stencils.ice4_tendencies
 import ice3_gt4py.stencils.ice4_stepping
 import ice3_gt4py.stencils.ice4_correct_negativities
 import ice3_gt4py.stencils.ice4_stepping
 import ice3_gt4py.stencils.multiply_ab2c
-import ice3_gt4py.stencils.cloud_fraction
 import ice3_gt4py.stencils.cloud_fraction_split

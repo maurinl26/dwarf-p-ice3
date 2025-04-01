@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-src_1d = np.array(
+SRC_1D = np.array(
     [
         0.0,
         0.0,
