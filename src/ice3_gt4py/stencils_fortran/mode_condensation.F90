@@ -10,7 +10,8 @@ contains
        &psigs,                                                 &
        &psigqsat,                                              &
        &plv, pls, pcph,                                        &
-       &pt_out, prv_out, prc_out, pri_out, pcldfr, zq1)
+       &pt_out, prv_out, prc_out, pri_out, pcldfr, zq1,        &
+       &zpv, zpiv, zfrac, zqsl, zqsi, zsigma, zcond, za, zb, zsbar)
 
       implicit none
 
@@ -41,6 +42,18 @@ contains
       real, dimension(nijt, nkt), intent(out)   :: pri_out! grid scale r_i (kg/kg) in output
       real, dimension(nijt, nkt), intent(out)   :: pcldfr ! cloud fraction
       real, dimension(nijt, nkt), intent(out)   :: zq1
+
+      ! Temporaries out 
+      real, dimension(nijt, nkt), intent(out)   :: zpv
+      real, dimension(nijt, nkt), intent(out)   :: zpiv
+      real, dimension(nijt, nkt), intent(out)   :: zfrac 
+      real, dimension(nijt, nkt), intent(out)   :: zqsl
+      real, dimension(nijt, nkt), intent(out)   :: zqsi
+      real, dimension(nijt, nkt), intent(out)   :: zsigma
+      real, dimension(nijt, nkt), intent(out)   :: zcond
+      real, dimension(nijt, nkt), intent(out)   :: za
+      real, dimension(nijt, nkt), intent(out)   :: zb
+      real, dimension(nijt, nkt), intent(out)   :: zsbar
 !
 !
 !*       0.2   declarations of local variables :
@@ -48,28 +61,17 @@ contains
       integer :: jij, jk
       real, dimension(nijt, nkt) :: zrt     ! work arrays for t_l and total water mixing ratio
       real :: zlvs                                      ! thermodynamics
-      real, dimension(nijt) :: zpv, zpiv, zqsl, zqsi ! thermodynamics
+      ! real, dimension(nijt) :: zpv, zpiv, 
+      ! real, dimension(nijt) :: zqsl, zqsi ! thermodynamics
       real :: zah
-      real, dimension(nijt) :: za, zb, zsbar, zsigma ! related to computation of sig_s
-      real, dimension(nijt) :: zcond
-      real, dimension(nijt) :: zfrac           ! ice fraction
+      ! real, dimension(nijt, nkt) :: za, zb, zsbar
+      ! real, dimension(nijt) :: zsigma ! related to computation of sig_s
+      ! real, dimension(nijt) :: zcond
+      ! real, dimension(nijt) :: zfrac           ! ice fraction
       real :: zprifact
-!
-!
-!*       0.3  definition of constants :
-!
-!-------------------------------------------------------------------------------
 
-      real, dimension(-22:11), parameter :: ZSRC_1D = (/ &
-                                            0., 0., 2.0094444e-04, 0.316670e-03, &
-                                            4.9965648e-04, 0.785956e-03, 1.2341294e-03, 0.193327e-02, &
-                                            3.0190963e-03, 0.470144e-02, 7.2950651e-03, 0.112759e-01, &
-                                            1.7350994e-02, 0.265640e-01, 4.0427860e-02, 0.610997e-01, &
-                                            9.1578111e-02, 0.135888e+00, 0.1991484, 0.230756e+00, &
-                                            0.2850565, 0.375050e+00, 0.5000000, 0.691489e+00, &
-                                            0.8413813, 0.933222e+00, 0.9772662, 0.993797e+00, &
-                                            0.9986521, 0.999768e+00, 0.9999684, 0.999997e+00, &
-                                            1.0000000, 1.000000/)
+      zprifact = 1   ! ocnd2 False for Arome
+      zfrac(:,:) = 0 ! l340 in source file condensation.F90
 !
 !-------------------------------------------------------------------------------
       pcldfr(:, :) = 0. ! initialize values
@@ -93,40 +95,40 @@ contains
             ! latent heats
             ! saturated water vapor mixing ratio over liquid water and ice
             do jij = nijb, nije
-               zpv(jij) = min(exp(xalpw - xbetaw/pt(jij, jk) - xgamw*log(pt(jij, jk))), .99*ppabs(jij, jk))
-               zpiv(jij) = min(exp(xalpi - xbetai/pt(jij, jk) - xgami*log(pt(jij, jk))), .99*ppabs(jij, jk))
+               zpv(jij, jk) = min(exp(xalpw - xbetaw/pt(jij, jk) - xgamw*log(pt(jij, jk))), .99*ppabs(jij, jk))
+               zpiv(jij, jk) = min(exp(xalpi - xbetai/pt(jij, jk) - xgami*log(pt(jij, jk))), .99*ppabs(jij, jk))
             end do
          end if
 
          if (ouseri .and. .not. ocnd2) then
             do jij = nijb, nije
                if (prc_in(jij, jk) + pri_in(jij, jk) > 1.e-20) then
-                  zfrac(jij) = pri_in(jij, jk)/(prc_in(jij, jk) + pri_in(jij, jk))
+                  zfrac(jij, jk)= pri_in(jij, jk)/(prc_in(jij, jk) + pri_in(jij, jk))
                end if
             end do
             do jij = nijb, nije
                if (hfrac_ice == 3) then
-                  zfrac(jij) = max(0., min(1., zfrac(jij)))
+                  zfrac(jij, jk)= max(0., min(1., zfrac(jij, jk)))
                else if (hfrac_ice == 0 ) then
-                  zfrac(jij) = max(0., min(1., (xtmaxmix - pt(jij, jk)) / (xtmaxmix - xtminmix)))
+                  zfrac(jij, jk)= max(0., min(1., (xtmaxmix - pt(jij, jk)) / (xtmaxmix - xtminmix)))
                end if
             end do
          end if
 
          do jij = nijb, nije
-            zqsl(jij) = xrd/xrv*zpv(jij)/(ppabs(jij, jk) - zpv(jij))
-            zqsi(jij) = xrd/xrv*zpiv(jij)/(ppabs(jij, jk) - zpiv(jij))
+            zqsl(jij, jk) = xrd/xrv*zpv(jij, jk)/(ppabs(jij, jk) - zpv(jij, jk))
+            zqsi(jij, jk) = xrd/xrv*zpiv(jij, jk)/(ppabs(jij, jk) - zpiv(jij, jk))
 
             ! interpolate between liquid and solid as function of temperature
-            zqsl(jij) = (1.-zfrac(jij))*zqsl(jij) + zfrac(jij)*zqsi(jij)
-            zlvs = (1.-zfrac(jij))*plv(jij, jk) + &
-            & zfrac(jij)*pls(jij, jk)
+            zqsl(jij, jk) = (1.-zfrac(jij, jk))*zqsl(jij, jk) + zfrac(jij, jk)*zqsi(jij, jk)
+            zlvs = (1.-zfrac(jij, jk))*plv(jij, jk) + &
+            & zfrac(jij, jk)*pls(jij, jk)
 
             ! coefficients a and b
-            zah = zlvs*zqsl(jij)/(xrv*pt(jij, jk)**2)*(xrv*zqsl(jij)/xrd + 1.)
-            za(jij) = 1./(1.+zlvs/pcph(jij, jk)*zah)
-            zb(jij) = zah*za(jij)
-            zsbar(jij) = za(jij)*(zrt(jij, jk) - zqsl(jij) + &
+            zah = zlvs*zqsl(jij, jk)/(xrv*pt(jij, jk)**2)*(xrv*zqsl(jij, jk)/xrd + 1.)
+            za(jij, jk) = 1./(1.+zlvs/pcph(jij, jk)*zah)
+            zb(jij, jk) = zah*za(jij, jk)
+            zsbar(jij, jk) = za(jij, jk)*(zrt(jij, jk) - zqsl(jij, jk) + &
             & zah*zlvs*(prc_in(jij, jk) + pri_in(jij, jk)*zprifact)/pcph(jij, jk))
          end do
 
@@ -134,20 +136,20 @@ contains
             do jij = nijb, nije
                if (psigqsat(jij) /= 0.) then
                   if (.not. lstatnw) then
-                     zsigma(jij) = sqrt((2*psigs(jij, jk))**2 + (psigqsat(jij)*zqsl(jij)*za(jij))**2)
+                     zsigma(jij, jk) = sqrt((2*psigs(jij, jk))**2 + (psigqsat(jij)*zqsl(jij, jk)*za(jij, jk))**2)
                   end if
                else
                   if (.not. lstatnw) then
-                     zsigma(jij) = 2*psigs(jij, jk)
+                     zsigma(jij, jk) = 2*psigs(jij, jk)
                   end if
                end if
             end do
          end if
 
          do jij = nijb, nije
-            zsigma(jij) = max(1.e-10, zsigma(jij))
+            zsigma(jij, jk) = max(1.e-10, zsigma(jij, jk))
             ! normalized saturation deficit
-            zq1(jij, jk) = zsbar(jij)/zsigma(jij)
+            zq1(jij, jk) = zsbar(jij, jk)/zsigma(jij, jk)
          end do
 
          ! 0 is for "cb02"
@@ -156,30 +158,30 @@ contains
             do jij = nijb, nije
                !total condensate
                if (zq1(jij, jk) > 0. .and. zq1(jij, jk) <= 2) then
-                  zcond(jij) = min(exp(-1.) + .66*zq1(jij, jk) + .086*zq1(jij, jk)**2, 2.) ! we use the min function for continuity
+                  zcond(jij, jk) = min(exp(-1.) + .66*zq1(jij, jk) + .086*zq1(jij, jk)**2, 2.) ! we use the min function for continuity
                else if (zq1(jij, jk) > 2.) then
-                  zcond(jij) = zq1(jij, jk)
+                  zcond(jij, jk) = zq1(jij, jk)
                else
-                  zcond(jij) = exp(1.2*zq1(jij, jk) - 1.)
+                  zcond(jij, jk) = exp(1.2*zq1(jij, jk) - 1.)
                end if
-               zcond(jij) = zcond(jij)*zsigma(jij)
+               zcond(jij, jk) = zcond(jij, jk)*zsigma(jij, jk)
 
                !cloud fraction
-               if (zcond(jij) < 1.e-12) then
+               if (zcond(jij, jk) < 1.e-12) then
                   pcldfr(jij, jk) = 0.
                else
                   pcldfr(jij, jk) = max(0., min(1., 0.5 + 0.36*atan(1.55*zq1(jij, jk))))
                end if
                if (pcldfr(jij, jk) == 0.) then
-                  zcond(jij) = 0.
+                  zcond(jij, jk) = 0.
                end if
             end do
          end if !hcondens
 
          if (.not. ocnd2) then
             do jij = nijb, nije
-               prc_out(jij, jk) = (1.-zfrac(jij))*zcond(jij) ! liquid condensate
-               pri_out(jij, jk) = zfrac(jij)*zcond(jij)   ! solid condensate
+               prc_out(jij, jk) = (1.-zfrac(jij, jk))*zcond(jij, jk) ! liquid condensate
+               pri_out(jij, jk) = zfrac(jij, jk)*zcond(jij, jk)   ! solid condensate
                pt_out(jij, jk) = pt(jij, jk) + ((prc_out(jij, jk) - prc_in(jij, jk))*plv(jij, jk) + &
                     &(pri_out(jij, jk) - pri_in(jij, jk))*pls(jij, jk)) &
                   & /pcph(jij, jk)
