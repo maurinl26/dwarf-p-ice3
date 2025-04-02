@@ -2,7 +2,7 @@ from ifs_physics_common.framework.stencil import compile_stencil
 from ifs_physics_common.framework.config import GT4PyConfig, DataTypes
 from ice3_gt4py.phyex_common.tables import SRC_1D
 from ice3_gt4py.phyex_common.phyex import Phyex
-from gt4py.storage import from_array
+from gt4py.storage import from_array, ones
 import numpy as np
 from numpy.testing import assert_allclose
 from pathlib import Path
@@ -16,10 +16,18 @@ from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 class TestCondensation(unittest.TestCase):
     
-    def test_condensation(self):
+    def setUp(self):
+        self.fortran_shapes = {
+            "nijb": 1,
+            "nije": SHAPE[0] * SHAPE[1],
+            "nijt": SHAPE[0] * SHAPE[1],
+            "nktb": 1,
+            "nkte": SHAPE[2],
+            "nkt": SHAPE[2],
+        }
         
         logging.info(f"With backend {BACKEND}")
-        gt4py_config = GT4PyConfig(
+        self.gt4py_config = GT4PyConfig(
             backend=BACKEND, 
             rebuild=REBUILD, 
             validate_args=VALIDATE_ARGS, 
@@ -29,11 +37,26 @@ class TestCondensation(unittest.TestCase):
                 float=np.float32, 
                 int=np.int32)
         )
+        
+        self.phyex_externals = Phyex("AROME").to_externals()
+        
+        # Defining fortran routine to catch
+        fortran_script = "mode_condensation.F90"
+        current_directory = Path.cwd()
+        root_directory = current_directory
+        stencils_directory = Path(
+            root_directory, "src", "ice3_gt4py", "stencils_fortran"
+        )
+        script_path = Path(stencils_directory, fortran_script)
 
-        phyex_externals = Phyex("AROME").to_externals()
-        phyex_externals.update({"OCND2": False})
-        logging.info(f"OCND2 : {phyex_externals['OCND2']}")
-        condensation = compile_stencil("condensation", gt4py_config, phyex_externals)
+        logging.info(f"Fortran script path {script_path}")
+        self.fortran_script = fmodpy.fimport(script_path)
+    
+    def test_condensation(self):
+        
+        self.phyex_externals.update({"OCND2": False})
+        logging.info(f"OCND2 : {self.phyex_externals['OCND2']}")
+        condensation = compile_stencil("condensation", self.gt4py_config, self.phyex_externals)
         
         sigqsat = np.array(
                 np.random.rand(SHAPE[0], SHAPE[1]),
@@ -290,49 +313,31 @@ class TestCondensation(unittest.TestCase):
             sbar=sbar_gt4py
         )
 
-        fortran_script = "mode_condensation.F90"
-        current_directory = Path.cwd()
-        root_directory = current_directory
-        stencils_directory = Path(
-            root_directory, "src", "ice3_gt4py", "stencils_fortran"
-        )
-        script_path = Path(stencils_directory, fortran_script)
-
-        logging.info(f"Fortran script path {script_path}")
-        fortran_script = fmodpy.fimport(script_path)
         
-        shapes = {
-            "nijb": 1,
-            "nije": SHAPE[0] * SHAPE[1],
-            "nijt": SHAPE[0] * SHAPE[1],
-            "nktb": 1,
-            "nkte": SHAPE[2],
-            "nkt": SHAPE[2],
-        }
         
         logical_keys = {
-            "osigmas":phyex_externals["LSIGMAS"], 
-            "ocnd2":phyex_externals["OCND2"],      
+            "osigmas":self.phyex_externals["LSIGMAS"], 
+            "ocnd2":self.phyex_externals["OCND2"],      
             "ouseri":True,
-            "hfrac_ice":phyex_externals["FRAC_ICE_ADJUST"],                                  
-            "hcondens":phyex_externals["CONDENS"], 
-            "lstatnw":phyex_externals["LSTATNW"],
+            "hfrac_ice":self.phyex_externals["FRAC_ICE_ADJUST"],                                  
+            "hcondens":self.phyex_externals["CONDENS"], 
+            "lstatnw":self.phyex_externals["LSTATNW"],
         }
         
         constant_def = {
-            "xrv":phyex_externals["RV"], 
-            "xrd":phyex_externals["RD"], 
-            "xalpi":phyex_externals["ALPI"], 
-            "xbetai":phyex_externals["BETAI"], 
-            "xgami":phyex_externals["GAMI"], 
-            "xalpw":phyex_externals["ALPW"], 
-            "xbetaw":phyex_externals["BETAW"], 
-            "xgamw":phyex_externals["GAMW"],
-            "xtmaxmix":phyex_externals["TMAXMIX"],
-            "xtminmix":phyex_externals["TMINMIX"],
+            "xrv":self.phyex_externals["RV"], 
+            "xrd":self.phyex_externals["RD"], 
+            "xalpi":self.phyex_externals["ALPI"], 
+            "xbetai":self.phyex_externals["BETAI"], 
+            "xgami":self.phyex_externals["GAMI"], 
+            "xalpw":self.phyex_externals["ALPW"], 
+            "xbetaw":self.phyex_externals["BETAW"], 
+            "xgamw":self.phyex_externals["GAMW"],
+            "xtmaxmix":self.phyex_externals["TMAXMIX"],
+            "xtminmix":self.phyex_externals["TMINMIX"],
         }
 
-        result = fortran_script.mode_condensation.condensation(                         
+        result = self.fortran_script.mode_condensation.condensation(                         
             ppabs=pabs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
             pt=t.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),                                             
             prv_in=rv_in.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
@@ -360,9 +365,9 @@ class TestCondensation(unittest.TestCase):
             za=a.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]),
             zb=b.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]),
             zsbar=sbar.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]),
-            **shapes,
             **logical_keys,
-            **constant_def
+            **constant_def,
+            **self.fortran_shapes,
         )
         
         pt_out = result[0]  
@@ -385,6 +390,7 @@ class TestCondensation(unittest.TestCase):
         zb_out = result[14]
         zsbar_out = result[15]
         
+        logging.info(f"Temporary outputs")
         logging.info(f"Mean pv_gt4py      {pv_gt4py.mean()}")
         logging.info(f"Mean pv_out        {pv_out.mean()}")
 
@@ -414,12 +420,8 @@ class TestCondensation(unittest.TestCase):
         
         logging.info(f"Mean sbar_gt4py      {sbar_gt4py.mean()}")
         logging.info(f"Mean zsbar_out       {zsbar_out.mean()}")
-        
-        # assert_allclose(pv_out, pv_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-5)
-        # assert_allclose(piv_out, piv_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-5)
-        # assert_allclose(zqsl_out, qsl_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-5)
-        # assert_allclose(zqsi_out, qsi_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-5)
-    
+
+        logging.info(f"\n Ouput fields")
         logging.info(f"Machine precision {np.finfo(float).eps}")
         
         logging.info(f"Mean t_gt4py       {t_gt4py.mean()}")
@@ -448,99 +450,85 @@ class TestCondensation(unittest.TestCase):
         assert_allclose(pcldfr_out, cldfr_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
         assert_allclose(zq1_out, q1_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
         
-    # def test_sigrc_computation(self):
+    def test_sigrc_computation(self):
         
-    #     logging.info(f"With backend {BACKEND}")
-    #     gt4py_config = GT4PyConfig(
-    #         backend=BACKEND, 
-    #         rebuild=REBUILD, 
-    #         validate_args=VALIDATE_ARGS, 
-    #         verbose=True
-    #     )
         
+        logging.info(f"HLAMBDA3 {self.phyex_externals['LAMBDA3']}")
 
-    #     phyex_externals = Phyex("AROME").to_externals()
-    #     logging.info(f"HLAMBDA3 {phyex_externals['LAMBDA3']}")
+        sigrc_computation = compile_stencil("sigrc_diagnostic", self.gt4py_config, self.phyex_externals)
+        
+        IJK_Fields_Names = ["q1", "sigrc"]
+        IJK_Fields = {
+            name: np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            ) for name in IJK_Fields_Names
+        }
+        
+        GT4Py_IJK_Fields = {
+            name: from_array(
+            field,
+            dtype=np.float32,
+            backend=BACKEND
+        ) for name, field in IJK_Fields.items()
+        }
+        
+        inq1_gt4py = ones(
+            (SHAPE[0], SHAPE[1], SHAPE[2]), 
+            dtype=np.int32, 
+            backend=BACKEND)
+        src_1d_gt4py = from_array(
+            SRC_1D,
+            dtype=np.float32,
+            backend=BACKEND
+        )
+        
+        sigrc_computation(
+            src_1d=src_1d_gt4py,
+            inq1=inq1_gt4py,
+            **GT4Py_IJK_Fields
+        )
+        
+        F2GT4Py_Keys = {
+            "zq1": "q1",
+            "psigrc": "sigrc"
+        }
+        
+        IJK_FFields = {
+            fortran_name: IJK_Fields[gt4py_name].reshape(SHAPE[0]*SHAPE[1], SHAPE[2])
+            for fortran_name, gt4py_name in F2GT4Py_Keys.items()
+        }
 
-    #     sigrc_computation = compile_stencil("sigrc", gt4py_config, phyex_externals)
+        result = self.fortran_script.mode_condensation.sigrc_computation(
+            inq1=np.ones((SHAPE[0]*SHAPE[1], SHAPE[2])),
+            hlambda3=self.phyex_externals["LAMBDA3"],
+            **IJK_FFields,
+            **self.fortran_shapes
+        )
         
-    #     q1 = np.array(
-    #             np.random.rand(SHAPE[0], SHAPE[1]),
-    #             dtype=c_float,
-    #             order="F",
-    #         )
+        psigrc_out = result[0]  
+        inq1_out = result[1]
         
-    #     sigrc = np.array(
-    #         np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-    #         dtype=c_float,
-    #         order="F"
-    #     )
-        
-    #     inq1 = np.ones(
-    #         (SHAPE[1], SHAPE[2]),
-    #         dtype=np.int32,
-    #         order="F"
-    #     )
-    #     inq1_gt4py = from_array(
-    #         inq1, dtype=np.int32, backend=BACKEND
-    #     )
-        
-       
-        
-    #     q1_gt4py = from_array(
-    #         q1,
-    #         dtype=np.float32,
-    #         backend=BACKEND
-    #     )
-    #     sigrc_gt4py = from_array(
-    #         sigrc,
-    #         dtype=np.float32,
-    #         backend=BACKEND
-    #     )
-    #     src_1d_gt4py = from_array(
-    #         SRC_1D,
-    #         dtype=np.float32,
-    #         backend=BACKEND
-    #     )
-        
-    #     sigrc_computation(
-    #         q1=q1_gt4py,
-    #         sigrc=sigrc_gt4py,
-    #         src_1d=src_1d_gt4py,
-    #         inq1=inq1_gt4py,
-    #     )
-
-    #     fortran_script = "mode_condensation.F90"
-    #     current_directory = Path.cwd()
-    #     root_directory = current_directory
-    #     stencils_directory = Path(
-    #         root_directory, "src", "ice3_gt4py", "stencils_fortran"
-    #     )
-    #     script_path = Path(stencils_directory, fortran_script)
-
-    #     logging.info(f"Fortran script path {script_path}")
-    #     fortran_script = fmodpy.fimport(script_path)
-
-    #     result = fortran_script.mode_condensation.sigrc_computation(
-    #         nijb=1, 
-    #         nije=SHAPE[0] * SHAPE[1], 
-    #         nktb=1, 
-    #         nkte=SHAPE[2], 
-    #         nijt=SHAPE[0] * SHAPE[1], 
-    #         nkt=SHAPE[2], 
-    #         hlambda3=phyex_externals["LAMBDA3"],
-    #         zq1=q1,
-    #         src_1d=SRC_1D,
-    #     )
-        
-    #     psigrc_out = result[0]  
+        logging.info("\n Temporaries")
+        logging.info(f"Mean inq1_gt4py    {inq1_gt4py.mean()}")
+        logging.info(f"Mean inq1_out      {inq1_out.mean()}")
     
-    #     logging.info(f"Machine precision {np.finfo(float).eps}")
+        logging.info("\n Outputs")
+        logging.info(f"Machine precision {np.finfo(float).eps}")
+        logging.info(f"Mean sigrc_gt4py     {GT4Py_IJK_Fields["sigrc"].mean()}")
+        logging.info(f"Mean psigrc_out      {psigrc_out.mean()}")
+
+        assert_allclose(psigrc_out, GT4Py_IJK_Fields["sigrc"].reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), rtol=1e-6)
+
         
-    #     logging.info(f"Mean sigrc_gt4py     {sigrc_gt4py.mean()}")
-    #     logging.info(f"Mean psi             {psigrc_out.mean()}")
-
-    #     assert_allclose(psigrc_out, sigrc_gt4py.ravel(), rtol=1e-6)
-
-
+    def test_global_table(self):
         
+        global_table = np.ones((34), dtype=np.float32)
+        global_table_out = self.fortran_script.mode_condensation.global_table(out_table=global_table)
+        
+        logging.info(f"GlobalTable[0] : {global_table_out[0]}")
+        logging.info(f"GlobalTable[5] : {global_table_out[5]}")
+        logging.info(f"GlobalTable[33] : {global_table_out[33]}")
+        
+        assert_allclose(global_table_out, SRC_1D, rtol=1e-5)

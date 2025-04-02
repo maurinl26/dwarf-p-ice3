@@ -190,9 +190,9 @@ def condensation(
     from_line=186,
     to_line=189
 )
-@stencil_collection("sigrc")
+@stencil_collection("sigrc_diagnostic")
 def sigrc_computation(
-    q1: Field[IJ, "float"], 
+    q1: Field["float"], 
     sigrc: Field["float"], 
     inq1: Field["int"],
     src_1d: GlobalTable["float", (34)]
@@ -202,11 +202,11 @@ def sigrc_computation(
 
     with computation(PARALLEL), interval(...):
 
-        inq1 = floor(
-            min(10, max(-22, min(-100, 2 * floor(q1))))
-        )  # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
+        inq1 = floor(min(100., max(-100., 2 * q1)))
+        inq2 = min(max(-22, inq1), 10)
+        # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
         inc = 2 * q1 - inq1
-        sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
+        sigrc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
 
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
         if __INLINED(LAMBDA3 == 0):

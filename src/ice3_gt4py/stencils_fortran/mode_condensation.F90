@@ -21,7 +21,7 @@ contains
       integer, intent(in)     :: hfrac_ice
       integer, intent(in)     :: hcondens
       logical, intent(in)     :: lstatnw
-       logical, intent(in)    :: ouseri ! logical switch to compute both liquid and solid condensate (ouseri=.true.)or only solid condensate (ouseri=.false.)
+      logical, intent(in)    :: ouseri ! logical switch to compute both liquid and solid condensate (ouseri=.true.)or only solid condensate (ouseri=.false.)
       logical, intent(in)     :: osigmas! use present global sigma_s values or that from turbulence scheme
       logical, intent(in)     :: ocnd2  ! logical switch to sparate liquid and ice more rigid (defalt value : .false.)
       real, dimension(nijt, nkt), intent(in)    :: ppabs  ! pressure (pa)
@@ -43,10 +43,10 @@ contains
       real, dimension(nijt, nkt), intent(out)   :: pcldfr ! cloud fraction
       real, dimension(nijt, nkt), intent(out)   :: zq1
 
-      ! Temporaries out 
+      ! Temporaries out
       real, dimension(nijt, nkt), intent(out)   :: zpv
       real, dimension(nijt, nkt), intent(out)   :: zpiv
-      real, dimension(nijt, nkt), intent(out)   :: zfrac 
+      real, dimension(nijt, nkt), intent(out)   :: zfrac
       real, dimension(nijt, nkt), intent(out)   :: zqsl
       real, dimension(nijt, nkt), intent(out)   :: zqsi
       real, dimension(nijt, nkt), intent(out)   :: zsigma
@@ -61,7 +61,7 @@ contains
       integer :: jij, jk
       real, dimension(nijt, nkt) :: zrt     ! work arrays for t_l and total water mixing ratio
       real :: zlvs                                      ! thermodynamics
-      ! real, dimension(nijt) :: zpv, zpiv, 
+      ! real, dimension(nijt) :: zpv, zpiv,
       ! real, dimension(nijt) :: zqsl, zqsi ! thermodynamics
       real :: zah
       ! real, dimension(nijt, nkt) :: za, zb, zsbar
@@ -71,7 +71,7 @@ contains
       real :: zprifact
 
       zprifact = 1   ! ocnd2 False for Arome
-      zfrac(:,:) = 0 ! l340 in source file condensation.F90
+      zfrac(:, :) = 0 ! l340 in source file condensation.F90
 !
 !-------------------------------------------------------------------------------
       pcldfr(:, :) = 0. ! initialize values
@@ -103,14 +103,14 @@ contains
          if (ouseri .and. .not. ocnd2) then
             do jij = nijb, nije
                if (prc_in(jij, jk) + pri_in(jij, jk) > 1.e-20) then
-                  zfrac(jij, jk)= pri_in(jij, jk)/(prc_in(jij, jk) + pri_in(jij, jk))
+                  zfrac(jij, jk) = pri_in(jij, jk)/(prc_in(jij, jk) + pri_in(jij, jk))
                end if
             end do
             do jij = nijb, nije
                if (hfrac_ice == 3) then
-                  zfrac(jij, jk)= max(0., min(1., zfrac(jij, jk)))
-               else if (hfrac_ice == 0 ) then
-                  zfrac(jij, jk)= max(0., min(1., (xtmaxmix - pt(jij, jk)) / (xtmaxmix - xtminmix)))
+                  zfrac(jij, jk) = max(0., min(1., zfrac(jij, jk)))
+               else if (hfrac_ice == 0) then
+                  zfrac(jij, jk) = max(0., min(1., (xtmaxmix - pt(jij, jk))/(xtmaxmix - xtminmix)))
                end if
             end do
          end if
@@ -192,34 +192,95 @@ contains
 
    end subroutine condensation
 
-   ! subroutine sigrc_computation(nijt, nkt, nkte, nktb, nije, nijb, hlambda3, zq1, src_1d, psigrc)
+   subroutine sigrc_computation(nijt, nkt, nkte, nktb, nije, nijb, hlambda3, zq1, psigrc, inq1)
 
-   !    integer, intent(in) :: nijt, nkt
-   !    integer, intent(in) :: nije, nijb
-   !    integer, intent(in) :: nkte, nktb
-   !    real, dimension(nijt, nkt), intent(in) :: zq1
-   !    real, dimension(nijt, nkt), intent(out) :: psigrc
-   !    real, dimension(34), intent(in) :: src_1d
+      integer, intent(in) :: nijt, nkt
+      integer, intent(in) :: nije, nijb
+      integer, intent(in) :: nkte, nktb
+      integer, intent(in) :: hlambda3
 
-   !    integer, dimension(nijt, nkt) :: inq1
-   !    real, dimension(nijt, nkt) ::  zinc
+      real, dimension(nijt, nkt), intent(in) :: zq1
+      real, dimension(nijt, nkt), intent(out) :: psigrc
 
-   !    character(len=6), intent(in) :: hlambda3
+      integer, dimension(nijt, nkt), intent(out)  :: inq1
+      integer, dimension(nijt, nkt) :: inq2
 
-   !    do jk = nkte, nktb
-   !       do jij = nijb, nije
 
-   !          inq1 = min(max(-22, floor(min(100., max(-100., 2*zq1(jij, jk))))), 10)  !inner min/max prevents sigfpe when 2*zq1 does not fit into an int
-   !          zinc = 2.*zq1(jij, jk) - inq1
-   !          psigrc(jij, jk) = min(1., (1.-zinc)*ZSRC_1D(inq1) + zinc*ZSRC_1D(inq1 + 1))
+      real, dimension(-22:11), parameter :: zsrc_1d = (/ &
+                                            0., 0., 2.0094444e-04, 0.316670e-03, &
+                                            4.9965648e-04, 0.785956e-03, 1.2341294e-03, 0.193327e-02, &
+                                            3.0190963e-03, 0.470144e-02, 7.2950651e-03, 0.112759e-01, &
+                                            1.7350994e-02, 0.265640e-01, 4.0427860e-02, 0.610997e-01, &
+                                            9.1578111e-02, 0.135888e+00, 0.1991484, 0.230756e+00, &
+                                            0.2850565, 0.375050e+00, 0.5000000, 0.691489e+00, &
+                                            0.8413813, 0.933222e+00, 0.9772662, 0.993797e+00, &
+                                            0.9986521, 0.999768e+00, 0.9999684, 0.999997e+00, &
+                                            1.0000000, 1.000000/)
 
-   !          if (hlambda3 == "CB") then
-   !             psigrc(jij, jk) = psigrc(jij, jk)*min(3., max(1., 1.-zq1(jij, jk)))
-   !          end if
+      real     ::  zinc
 
-   !       end do
-   !    end do
 
-   ! end subroutine sigrc_computation
+      do jk = nkte, nktb
+         do jij = nijb, nije
+
+            inq1(jij, jk) = floor(min(100., max(-100., 2*zq1(jij, jk))))
+            inq2(jij, jk) = min(max(-22, inq1(jij, jk)), 10)  !inner min/max prevents sigfpe when 2*zq1 does not fit into an int
+            zinc = 2.*zq1(jij, jk) - inq2(jij, jk)
+            psigrc(jij, jk) = min(1., (1.-zinc)*zsrc_1d(inq2(jij, jk)) + zinc*zsrc_1d(inq2(jij, jk) + 1))
+
+            ! hlambda3 == CB
+            if (hlambda3 == 0) then
+               psigrc(jij, jk) = psigrc(jij, jk)*min(3., max(1., 1.-zq1(jij, jk)))
+            end if
+
+         end do
+      end do
+
+   end subroutine sigrc_computation
+
+   subroutine global_table(out_table)
+      implicit none
+
+      real, dimension(34), intent(out) :: out_table
+
+      real, dimension(-22:11), parameter :: zsrc_1d = (/ &
+                                            0., &
+                                            0., &
+                                            2.0094444e-04, &
+                                            0.316670e-03, &
+                                            4.9965648e-04, &
+                                            0.785956e-03, &
+                                            1.2341294e-03, &
+                                            0.193327e-02, &
+                                            3.0190963e-03, &
+                                            0.470144e-02, &
+                                            7.2950651e-03, &
+                                            0.112759e-01, &
+                                            1.7350994e-02, &
+                                            0.265640e-01, &
+                                            4.0427860e-02, &
+                                            0.610997e-01, &
+                                            9.1578111e-02, &
+                                            0.135888e+00, &
+                                            0.1991484, &
+                                            0.230756e+00, &
+                                            0.2850565, &
+                                            0.375050e+00, &
+                                            0.5000000, &
+                                            0.691489e+00, &
+                                            0.8413813, &
+                                            0.933222e+00, &
+                                            0.9772662, &
+                                            0.993797e+00, &
+                                            0.9986521, &
+                                            0.999768e+00, &
+                                            0.9999684, &
+                                            0.999997e+00, &
+                                            1.0000000, &
+                                            1.000000/)
+
+      out_table(:) = zsrc_1d(:)
+
+   end subroutine global_table
 
 end module mode_condensation
