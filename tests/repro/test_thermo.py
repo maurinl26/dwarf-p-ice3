@@ -7,13 +7,12 @@ import pytest
 
 import logging
 
-from .conftest import NX, NY, NZ
 from .conftest import compile_fortran_stencil
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", ["numpy", "gt:cpu_ifirst", "gt:cpu_kfirst"])
-def test_thermo(gt4py_config, externals, fortran_dims, precision, backend):
+def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid):
     
     # Setting backend and precision
     gt4py_config.backend = backend
@@ -63,7 +62,7 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend):
     # Generating random numpy arrays
     FloatFieldsIJK = {
         name: np.array(
-            np.random.rand(NX, NY, NZ),
+            np.random.rand(*grid.shape),
             dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
             order="F",
         )

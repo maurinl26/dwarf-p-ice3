@@ -1,11 +1,11 @@
 from ifs_physics_common.framework.config import GT4PyConfig
+from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from pathlib import Path
 import fmodpy 
 import logging
 import pytest
-import numpy as np
 
-from ifs_physics_common.framework.config import GT4PyConfig, DataTypes
+from ifs_physics_common.framework.config import GT4PyConfig
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 # TODO : rework as fixtures
@@ -13,7 +13,8 @@ BACKEND = "gt:cpu_ifirst"
 REBUILD = True
 VALIDATE_ARGS = True
 SHAPE = (50, 50, 15)
-NX, NY, NZ = SHAPE
+
+DEFAULT_GRID = ComputationalGrid(*SHAPE)
 
 DEFAULT_GT4PY_CONFIG = GT4PyConfig(
             backend=BACKEND, 
@@ -47,15 +48,13 @@ def compile_fortran_stencil(
     return getattr(mode, fortran_stencil)
 
 # fixtures
+@pytest.fixture(name="grid", scope="module")
+def grid_fixture():
+    return DEFAULT_GRID.grids[(I, J, K)]
+
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
-    return GT4PyConfig(
-        backend=BACKEND,
-        rebuild=REBUILD,
-        validate_args=VALIDATE_ARGS,
-        verbose=True,
-        dtypes=DataTypes(bool=bool, float=np.float32, int=np.int32),
-    )
+    return DEFAULT_GT4PY_CONFIG
 
 
 @pytest.fixture(name="externals", scope="module")
@@ -64,12 +63,19 @@ def externals_fixture():
 
 
 @pytest.fixture(name="fortran_dims", scope="module")
-def fortran_dims_fixture():
+def fortran_dims_fixture(grid):
     return {
-        "nkt": NZ,
-        "nijt": NX * NY,
+        "nkt": grid.shape[2],
+        "nijt": grid.shape[0] * grid.shape[1],
         "nktb": 1,
-        "nkte": NZ,
+        "nkte": grid.shape[2],
         "nijb": 1,
-        "nije": NX * NY,
+        "nije": grid.shape[0] * grid.shape[1],
+    }
+    
+@pytest.fixture(name="packed_dims", scope="module")
+def packed_dims_fixture(grid):
+    return {
+        "kproma": grid.shape[0] * grid.shape[1] * grid.shape[2],
+        "ksize": grid.shape[0] * grid.shape[1] * grid.shape[2]
     }
