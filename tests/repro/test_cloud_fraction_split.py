@@ -23,136 +23,138 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid)
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
         logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
+        
+        F2Py_Mapping = {
+            "prv":"rv", 
+            "prc":"rc", 
+            "pri":"ri", 
+            "prr":"rr", 
+            "prs":"rs", 
+            "prg":"rg",
+            "pth":"th", 
+            "pexn":"exn",
+            "zt":"t", 
+            "zls":"ls", 
+            "zlv":"lv", 
+            "zcph":"cph",
+        }
+        
+        Py2F_Mapping =  dict(map(reversed, F2Py_Mapping.items()))
 
+        externals_mapping = {
+            "xlvtt":"LVTT", 
+            "xlstt":"LSTT",
+            "xcpv":"CPV", 
+            "xci":"CI", 
+            "xcl":"CL", 
+            "xtt":"TT", 
+            "xcpd":"CPD",
+        }
+        
+        fortran_externals = {
+            fname: externals[pyname]
+            for fname, pyname in externals_mapping.items()
+        }
+        
+        
         # Compilation of both gt4py and fortran stencils
         fortran_stencil = compile_fortran_stencil(
         "mode_thermo.F90", "mode_thermo", "latent_heat"
         )
         thermo_fields = compile_stencil("thermodynamic_fields", gt4py_config, externals)
         
-        logging.info(f"Grid shape {grid.shape}")
+        
+        FloatFieldsIJK_Names = [
+            "th",
+        "exn",
+        "rv",
+        "rc",
+        "rr",
+        "ri",
+        "rs",
+        "rg",
+        "lv",
+        "ls",
+        "cph",
+        "t", 
+        ]
+        
+        FloatFieldsIJK = {
+            name: np.array(
+                np.random.rand(*grid.shape),
+                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+                order="F",
+            ) for name in FloatFieldsIJK_Names
+        }
+        
+        
 
-        th = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        exn = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        rv = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        rc = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        rr = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        ri = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        rs = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        rg = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        lv = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        ls = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        cph = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
-        t = np.array(
-                np.random.rand(*grid.shape),
-                dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-                order="F",
-            )
         
         th_gt4py = from_array(
-            th,
+            FloatFieldsIJK["th"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         exn_gt4py = from_array(
-            exn,
+            FloatFieldsIJK["exn"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         rv_gt4py = from_array(
-            rv,
+            FloatFieldsIJK["rv"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         rc_gt4py = from_array(
-            rc,
+            FloatFieldsIJK["rc"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         rr_gt4py = from_array(
-            rr,
+            FloatFieldsIJK["rr"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         ri_gt4py = from_array(
-            ri,
+            FloatFieldsIJK["ri"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         rs_gt4py = from_array(
-            rs,
+            FloatFieldsIJK["rs"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         rg_gt4py = from_array(
-            rg,
+            FloatFieldsIJK["rg"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         lv_gt4py = from_array(
-            lv,
+            FloatFieldsIJK["lv"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         ls_gt4py = from_array(
-            ls,
+            FloatFieldsIJK["ls"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         cph_gt4py = from_array(
-            cph,
+            FloatFieldsIJK["cph"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
         t_gt4py = from_array(
-            t,
+            FloatFieldsIJK["t"],
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
+        
+        Fortran_FloatFieldsIJK = {
+            Py2F_Mapping[name]: field.reshape(grid.shape[0]*grid.shape[1], grid.shape[2])
+            for name, field in FloatFieldsIJK.items()
+        }
 
         thermo_fields(
             th=th_gt4py,
@@ -169,64 +171,38 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid)
             t=t_gt4py,
         )
 
-        fortran_script = "mode_thermo.F90"
-        current_directory = Path.cwd()
-        root_directory = current_directory
-        stencils_directory = Path(
-            root_directory, "src", "ice3_gt4py", "stencils_fortran"
-        )
-        script_path = Path(stencils_directory, fortran_script)
-
-        logging.info(f"Fortran script path {script_path}")
-        fortran_script = fmodpy.fimport(script_path)
 
         result = fortran_stencil(
-            xlvtt=externals["LVTT"], 
-            xlstt=externals["LSTT"],
-            xcpv=externals["CPV"], 
-            xci=externals["CI"], 
-            xcl=externals["CL"], 
-            xtt=externals["TT"], 
-            xcpd=externals["CPD"], 
             krr=6,
-            prv=rv.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            prc=rc.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            pri=ri.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            prr=rr.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            prs=rs.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            prg=rg.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]),
-            pth=th.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            pexn=exn.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]),
-            zt=t.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            zls=ls.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            zlv=lv.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), 
-            zcph=cph.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]),
+            **Fortran_FloatFieldsIJK,
+            **fortran_externals,
             **fortran_dims
         )
         
-        zt_out = result[0]
-        zlv_out = result[1]
-        zls_out = result[2]
-        zcph_out = result[3]
+        Fields_OutNames = ['zt', 'zlv', 'zls', 'zcph']
+        Fields_Out = {
+            name: result[i] for i, name in enumerate(Fields_OutNames)
+        }
         
         logging.info(f"Machine precision {np.finfo(float).eps}")
+                    
         
         logging.info(f"Mean t_gt4py         {t_gt4py.mean()}")
-        logging.info(f"Mean zt_out          {zt_out.mean()}")
+        logging.info(f"Mean zt_out          {Fields_Out[Py2F_Mapping['t']].mean()}")
 
         logging.info(f"Mean lv_gt4py        {lv_gt4py.mean()}")
-        logging.info(f"Mean zlv_out         {zlv_out.mean()}")
+        logging.info(f"Mean zlv_out         {Fields_Out['zlv'].mean()}")
 
         logging.info(f"Mean ls_gt4py        {ls_gt4py.mean()}")
-        logging.info(f"Mean zls_out         {zls_out.mean()}")
+        logging.info(f"Mean zls_out         {Fields_Out['zls'].mean()}")
 
         logging.info(f"Mean cph_gt4py       {cph_gt4py.mean()}")
-        logging.info(f"Mean cph_out         {zcph_out.mean()}")
+        logging.info(f"Mean cph_out         {Fields_Out['zcph'].mean()}")
 
-        assert_allclose(zt_out, t_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(zlv_out, lv_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(zls_out, ls_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(zcph_out, cph_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zt'], t_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zlv'], lv_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zls'], ls_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zcph'], cph_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
 
 class TestCloudFraction(unittest.TestCase):
     
