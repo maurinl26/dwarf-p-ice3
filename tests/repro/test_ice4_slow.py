@@ -10,7 +10,7 @@ from numpy.testing import assert_allclose
 from ctypes import c_float
 
 import logging
-from .env import REBUILD, SHAPE, BACKEND, VALIDATE_ARGS
+from .conftest import REBUILD, SHAPE, BACKEND, VALIDATE_ARGS
 
 
 class TestICE4Slow(unittest.TestCase):

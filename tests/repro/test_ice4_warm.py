@@ -10,7 +10,7 @@ from numpy.testing import assert_allclose
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from .conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 
 class TestIce4Warm(unittest.TestCase):

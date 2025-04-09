@@ -13,7 +13,7 @@ from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from .conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 
 class TestIce4FastRS(unittest.TestCase):

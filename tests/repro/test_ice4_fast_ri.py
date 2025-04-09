@@ -11,7 +11,7 @@ from ctypes import c_float
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from .conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 
 class TestIce4Fast(unittest.TestCase):

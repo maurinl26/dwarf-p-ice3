@@ -8,7 +8,7 @@ import fmodpy
 import unittest
 from numpy.testing import assert_allclose
 import logging
-from .env import BACKEND, VALIDATE_ARGS, REBUILD, SHAPE
+from .conftest import BACKEND, VALIDATE_ARGS, REBUILD, SHAPE
 
 
 class TestIce4Nucleation(unittest.TestCase):

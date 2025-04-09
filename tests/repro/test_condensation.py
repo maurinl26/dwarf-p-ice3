@@ -12,7 +12,7 @@ from ctypes import c_float
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from tests.repro.conftest import REBUILD, VALIDATE_ARGS, SHAPE
 
 class TestCondensation(unittest.TestCase):
     
@@ -26,9 +26,9 @@ class TestCondensation(unittest.TestCase):
             "nkt": SHAPE[2],
         }
         
-        logging.info(f"With backend {BACKEND}")
+        logging.info(f"With backend {self.gt4py_config.backend}")
         self.gt4py_config = GT4PyConfig(
-            backend=BACKEND, 
+            backend=self.gt4py_config.backend, 
             rebuild=REBUILD, 
             validate_args=VALIDATE_ARGS, 
             verbose=False,
@@ -57,284 +57,143 @@ class TestCondensation(unittest.TestCase):
         self.phyex_externals.update({"OCND2": False})
         logging.info(f"OCND2 : {self.phyex_externals['OCND2']}")
         condensation = compile_stencil("condensation", self.gt4py_config, self.phyex_externals)
-        
-        sigqsat = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1]),
-                dtype=c_float,
-                order="F",
-            )
-        sigrc = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        pabs = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        sigs = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        t = 300 * np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rv_in = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        ri_in = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rc_in = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        t_out = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rv_out = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rc_out = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        ri_out = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        cldfr = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        cph = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        lv = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        ls = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        q1 = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
 
+        FloatFieldsIJK_List = [
+            "sigqsat",
+            "sigrc", 
+            "pabs",
+            "sigs", 
+            "t",
+            "rv_in",
+            "ri_in",
+            "rc_in",
+            "t_out",
+            "rv_out",
+            "rc_out",
+            "ri_out",
+            "cldfr",
+            "cph",
+            "lv",
+            "ls",
+            "q1",
+        ]
         
-        sigqsat_gt4py = from_array(
-            sigqsat,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        pabs_gt4py = from_array(
-            pabs,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        sigs_gt4py = from_array(
-            sigs,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        t_gt4py = from_array(
-            t,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rv_in_gt4py = from_array(
-            rv_in,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        ri_in_gt4py = from_array(
-            rv_in,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rc_in_gt4py = from_array(
-            rc_in,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rv_out_gt4py = from_array(
-            rv_out,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rc_out_gt4py = from_array(
-            rc_out,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        ri_out_gt4py = from_array(
-            ri_out,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        cldfr_gt4py = from_array(
-            cldfr,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        cph_gt4py = from_array(
-            cph,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        lv_gt4py = from_array(
-            lv,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        ls_gt4py = from_array(
-            ls,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        q1_gt4py = from_array(
-            q1,
-            dtype=np.float32,
-            backend=BACKEND
-        )
+        FloatFieldsIJK = {
+            name: np.array(
+                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                dtype=c_float,
+                order="F",
+            ) for name in FloatFieldsIJK_List
+        }
         
+        FloatFieldsIJK["t"] += 300
         
-        # Temporaries 
-        pv = np.zeros(
+        GT4Py_FloatFields_IJK = {
+            name: from_array(
+            field,
+            dtype=np.float32,
+            backend=self.gt4py_config.backend
+        ) for name, field in FloatFieldsIJK.items()
+        }
+        
+        Temporary_FloatFields_Names = [
+            "pv",
+            "piv",
+            "piv",
+            "frac_tmp",
+            "qsl",
+            "qsi", 
+            "sigma",
+            "cond_tmp",
+            "a",
+            "b",
+            "sbar" 
+        ]
+        
+        Temporary_FloatFieldsIJK = {
+            name: np.zeros(
                 (SHAPE[0], SHAPE[1], SHAPE[2]),
                 dtype=c_float,
                 order="F",
-            )
-        piv = np.zeros(
-                (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        frac_tmp = np.zeros(
-                (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        qsl = np.zeros(
-                (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        qsi = np.zeros(
-                (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            ) 
-        sigma = np.zeros(
-            (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-        )
-        cond_tmp = np.zeros(
-            (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-        )
-        a = np.zeros(
-            (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F"
-                )
-        b = np.zeros(
-            (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F"
-                )
-        sbar = np.zeros(
-            (SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F"
-                )
-        pv_gt4py = from_array(pv, dtype=np.float32, backend=BACKEND)
-        piv_gt4py = from_array(piv, dtype=np.float32, backend=BACKEND)
-        frac_tmp_gt4py = from_array(frac_tmp, dtype=np.float32, backend=BACKEND)
-        qsl_gt4py = from_array(qsl, dtype=np.float32, backend=BACKEND)
-        qsi_gt4py = from_array(qsi, dtype=np.float32, backend=BACKEND)
-        sigma_gt4py = from_array(sigma, dtype=np.float32, backend=BACKEND)
-        cond_tmp_gt4py = from_array(cond_tmp, dtype=np.float32, backend=BACKEND)
-        a_gt4py = from_array(a, dtype=np.float32, backend=BACKEND)
-        b_gt4py = from_array(b, dtype=np.float32, backend=BACKEND)
-        sbar_gt4py = from_array(sbar, dtype=np.float32, backend=BACKEND)        
+            ) for name in Temporary_FloatFields_Names
+        }
+        
+        GT4Py_Temporary_FieldsIJK = {
+            name: from_array(field, dtype=np.float32, backend=self.gt4py_config.backend)
+            for name, field in Temporary_FloatFieldsIJK.items()
+        }
         
         condensation(
-            sigqsat=sigqsat_gt4py,
-            pabs=pabs_gt4py,
-            sigs=sigs_gt4py, 
-            t=t_gt4py,
-            rv_in=rv_in_gt4py,
-            ri_in=ri_in_gt4py,
-            rc_in=rc_in_gt4py,
-            rv_out=rv_out_gt4py,
-            rc_out=rc_out_gt4py,
-            ri_out=ri_out_gt4py,
-            cldfr=cldfr_gt4py,
-            cph=cph_gt4py,
-            lv=lv_gt4py,
-            ls=ls_gt4py,
-            q1=q1_gt4py,
-            # Temporaries
-            pv=pv_gt4py,
-            piv=piv_gt4py,
-            frac_tmp=frac_tmp_gt4py,
-            qsl=qsl_gt4py,
-            qsi=qsi_gt4py,
-            sigma=sigma_gt4py,
-            cond_tmp=cond_tmp_gt4py,
-            a=a_gt4py,
-            b=b_gt4py,
-            sbar=sbar_gt4py
+            **GT4Py_FloatFields_IJK,
+            **GT4Py_Temporary_FieldsIJK
         )
-
         
+        self.phyex_externals.update({"OUSERI": True})
+        
+        keys_mapping = {
+            "osigmas":"LSIGMAS", 
+            "ocnd2":"OCND2",      
+            "ouseri":"OUSERI",
+            "hfrac_ice":"FRAC_ICE_ADJUST",                                  
+            "hcondens":"CONDENS", 
+            "lstatnw":"LSTATNW",
+        }
         
         logical_keys = {
-            "osigmas":self.phyex_externals["LSIGMAS"], 
-            "ocnd2":self.phyex_externals["OCND2"],      
-            "ouseri":True,
-            "hfrac_ice":self.phyex_externals["FRAC_ICE_ADJUST"],                                  
-            "hcondens":self.phyex_externals["CONDENS"], 
-            "lstatnw":self.phyex_externals["LSTATNW"],
+            fkey: self.phyex_externals[pykey]
+            for fkey, pykey in keys_mapping.items()
+        }
+
+        kst_mapping = {
+            "xrv":"RV", 
+            "xrd":"RD", 
+            "xalpi":"ALPI", 
+            "xbetai":"BETAI", 
+            "xgami":"GAMI", 
+            "xalpw":"ALPW", 
+            "xbetaw":"BETAW", 
+            "xgamw":"GAMW",
+            "xtmaxmix":"TMAXMIX",
+            "xtminmix":"TMINMIX",
         }
         
         constant_def = {
-            "xrv":self.phyex_externals["RV"], 
-            "xrd":self.phyex_externals["RD"], 
-            "xalpi":self.phyex_externals["ALPI"], 
-            "xbetai":self.phyex_externals["BETAI"], 
-            "xgami":self.phyex_externals["GAMI"], 
-            "xalpw":self.phyex_externals["ALPW"], 
-            "xbetaw":self.phyex_externals["BETAW"], 
-            "xgamw":self.phyex_externals["GAMW"],
-            "xtmaxmix":self.phyex_externals["TMAXMIX"],
-            "xtminmix":self.phyex_externals["TMINMIX"],
+            fname: self.phyex_externals[pyname]
+            for fname, pyname in kst_mapping.items()
+        }
+        
+        Py2F_Mapping = {
+            "ppabs":"pabs", 
+            "pt":"t",                                             
+            "prv_in":"rv_in", 
+            "prc_in":"rc_in", 
+            "pri_in":"ri_in", 
+            "psigs":"sigs", 
+            "psigqsat":"sigqsat",                                              
+            "plv":"lv", 
+            "pls":"ls", 
+            "pcph":"cph",
+            "pt_out":"t", 
+            "prv_out":"rv_out", 
+            "prc_out":"rc_out", 
+            "pri_out":"ri_out",     
+            "pcldfr":"cldfr", 
+            "zq1":"q1",
+            "zpv":"pv",
+            "zpiv":"piv",
+            "zfrac":"frac_tmp",
+            "zqsl":"qsl",
+            "zqsi":"qsi",
+            "zsigma":"sigma",
+            "zcond":"cond_tmp",
+            "za":"a",
+            "zb":"b",
+            "zsbar":"sbar",
+        }
+        
+        Fortran_FloatFields_IJK = {
+            name: field.reshape(SHAPE[0]*SHAPE[1], SHAPE[2])
+            for name, field in FloatFieldsIJK.items()
         }
 
         result = self.fortran_script.mode_condensation.condensation(                         
@@ -470,18 +329,18 @@ class TestCondensation(unittest.TestCase):
             name: from_array(
             field,
             dtype=np.float32,
-            backend=BACKEND
+            backend=self.gt4py_config.backend
         ) for name, field in IJK_Fields.items()
         }
         
         inq1_gt4py = ones(
             (SHAPE[0], SHAPE[1], SHAPE[2]), 
             dtype=np.int32, 
-            backend=BACKEND)
+            backend=self.gt4py_config.backend)
         src_1d_gt4py = from_array(
             SRC_1D,
             dtype=np.float32,
-            backend=BACKEND
+            backend=self.gt4py_config.backend
         )
         
         sigrc_computation(

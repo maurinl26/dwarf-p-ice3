@@ -1,238 +1,118 @@
 from ifs_physics_common.framework.stencil import compile_stencil
-from ifs_physics_common.framework.config import GT4PyConfig, DataTypes
-from ice3_gt4py.phyex_common.phyex import Phyex
 from gt4py.storage import from_array
 import numpy as np
 from numpy.testing import assert_allclose
-from pathlib import Path
-import fmodpy
-import unittest
-from ctypes import c_float
+from ctypes import c_float, c_double
+import pytest
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from .conftest import NX, NY, NZ
+from .conftest import compile_fortran_stencil
 
-class TestThermo(unittest.TestCase):
+
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", ["numpy", "gt:cpu_ifirst", "gt:cpu_kfirst"])
+def test_thermo(gt4py_config, externals, fortran_dims, precision, backend):
     
-    def test_thermo(self):
-        
-        logging.info(f"With backend {BACKEND}")
-        gt4py_config = GT4PyConfig(
-            backend=BACKEND, 
-            rebuild=REBUILD, 
-            validate_args=VALIDATE_ARGS, 
-            verbose=True,
-            dtypes=DataTypes(
-                bool=bool, 
-                float=np.float32, 
-                int=np.int32)
-        )
+    # Setting backend and precision
+    gt4py_config.backend = backend
+    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
+    logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
 
-        phyex_externals = Phyex("AROME").to_externals()
-        thermo_fields = compile_stencil("thermodynamic_fields", gt4py_config, phyex_externals)
-        
-        dt = 50.0
-        
-        th = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        exn = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rv = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rc = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rr = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        ri = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rs = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        rg = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        lv = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        ls = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        cph = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        t = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-                dtype=c_float,
-                order="F",
-            )
-        
-        th_gt4py = from_array(
-            th,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        exn_gt4py = from_array(
-            exn,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rv_gt4py = from_array(
-            rv,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rc_gt4py = from_array(
-            rc,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rr_gt4py = from_array(
-            rr,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        ri_gt4py = from_array(
-            ri,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rs_gt4py = from_array(
-            rs,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        rg_gt4py = from_array(
-            rg,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        lv_gt4py = from_array(
-            lv,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        ls_gt4py = from_array(
-            ls,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        cph_gt4py = from_array(
-            cph,
-            dtype=np.float32,
-            backend=BACKEND
-        )
-        t_gt4py = from_array(
-            t,
-            dtype=np.float32,
-            backend=BACKEND
-        )
+    # Compilation of both gt4py and fortran stencils
+    fortran_stencil = compile_fortran_stencil(
+        "mode_thermo.F90", "mode_thermo", "latent_heat"
+    )
+    gt4py_stencil = compile_stencil("thermodynamic_fields", gt4py_config, externals)
 
-        thermo_fields(
-            th=th_gt4py,
-            exn=exn_gt4py,
-            rv=rv_gt4py,
-            rc=rc_gt4py,
-            rr=rr_gt4py,
-            ri=ri_gt4py,
-            rs=rs_gt4py,
-            rg=rg_gt4py,
-            lv=lv_gt4py,
-            ls=ls_gt4py,
-            cph=cph_gt4py,
-            t=t_gt4py,
+    # setting external names with doctor norm
+    keys_map = {
+        "LVTT": "xlvtt",
+        "LSTT": "xlstt",
+        "CPV": "xcpv",
+        "CI": "xci",
+        "CL": "xcl",
+        "TT": "xtt",
+        "CPD": "xcpd",
+    }
+    
+    externals = {fname: externals[pyname] for pyname, fname in keys_map.items()}
+
+    # setting field names with doctor norm
+    Py2F_Names = {
+        "rv": "prv",
+        "rc": "prc",
+        "rr": "prr",
+        "th": "pth",
+        "ri": "pri",
+        "rs": "prs",
+        "rg": "prg",
+        "exn": "pexn",
+        "t": "zt",
+        "ls": "zls",
+        "lv": "zlv",
+        "cph": "zcph",
+    }
+    
+    # intent(out) fields from fortran subroutine
+    FieldsNames_Out = ["zt", "zlv", "zls", "zcph"]
+    
+    F2Py_Names = dict(map(reversed, Py2F_Names.items()))
+
+    # Generating random numpy arrays
+    FloatFieldsIJK = {
+        name: np.array(
+            np.random.rand(NX, NY, NZ),
+            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            order="F",
         )
+        for name in Py2F_Names.keys()
+    }
 
-        fortran_script = "mode_thermo.F90"
-        current_directory = Path.cwd()
-        root_directory = current_directory
-        stencils_directory = Path(
-            root_directory, "src", "ice3_gt4py", "stencils_fortran"
+    # Buffer for GT4Py stencil (using gt4py.storage.from_array)
+    GT4Py_FloatFieldsIJK = {
+        name: from_array(
+            field, dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend
         )
-        script_path = Path(stencils_directory, fortran_script)
+        for name, field in FloatFieldsIJK.items()
+    }
 
-        logging.info(f"Fortran script path {script_path}")
-        fortran_script = fmodpy.fimport(script_path)
 
-        result = fortran_script.mode_thermo.latent_heat(
-            nkt=SHAPE[2], 
-            nijt=SHAPE[0] * SHAPE[1], 
-            nktb=1, 
-            nkte=SHAPE[2], 
-            nijb=1, 
-            nije=SHAPE[0] * SHAPE[1],
-            xlvtt=phyex_externals["LVTT"], 
-            xlstt=phyex_externals["LSTT"],
-            xcpv=phyex_externals["CPV"], 
-            xci=phyex_externals["CI"], 
-            xcl=phyex_externals["CL"], 
-            xtt=phyex_externals["TT"], 
-            xcpd=phyex_externals["CPD"], 
-            krr=6,
-            prv=rv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            prc=rc.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            pri=ri.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            prr=rr.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            prs=rs.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            prg=rg.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
-            pth=th.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            pexn=exn.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]),
-            zt=t.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            zls=ls.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            zlv=lv.reshape(SHAPE[0]*SHAPE[1], SHAPE[2]), 
-            zcph=cph.reshape(SHAPE[0]*SHAPE[1], SHAPE[2])
+    # Reshaping fields for fortran subroutine (I, J, K) to (IJ, K)
+    Fortran_Fields = {
+        Py2F_Names[pyname]: FloatFieldsIJK[pyname].reshape(
+            fortran_dims["nijt"], fortran_dims["nkt"]
         )
-        
-        zt_out = result[0]
-        zlv_out = result[1]
-        zls_out = result[2]
-        zcph_out = result[3]
-        
-        logging.info(f"Machine precision {np.finfo(float).eps}")
-        
-        logging.info(f"Mean t_gt4py         {t_gt4py.mean()}")
-        logging.info(f"Mean zt_out          {zt_out.mean()}")
+        for pyname in Py2F_Names.keys()
+    }
+    
+    # Calling stencils
+    gt4py_stencil(**FloatFieldsIJK)
 
-        logging.info(f"Mean lv_gt4py        {lv_gt4py.mean()}")
-        logging.info(f"Mean zlv_out         {zlv_out.mean()}")
+    fortran_output = fortran_stencil(
+        krr=6, **Fortran_Fields, **fortran_dims, **externals
+    )
 
-        logging.info(f"Mean ls_gt4py        {ls_gt4py.mean()}")
-        logging.info(f"Mean zls_out         {zls_out.mean()}")
+    # Unzip output tuple from fmodpy
+    Fields_Out = {
+        F2Py_Names[name]: fortran_output[i] for i, name in enumerate(FieldsNames_Out)
+    }
 
-        logging.info(f"Mean cph_gt4py       {cph_gt4py.mean()}")
-        logging.info(f"Mean cph_out         {zcph_out.mean()}")
+    # Comparing output means
+    logging.info(f"Machine precision {np.finfo(float).eps}")
+    for name in Fields_Out.keys():
+        logging.info(f"{name} :: Mean gt4py   {GT4Py_FloatFieldsIJK[name][...].mean()}")
+        logging.info(f"{name} :: Mean fortran {Fields_Out[name].mean()}")
 
-        assert_allclose(zt_out, t_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
-        assert_allclose(zlv_out, lv_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
-        assert_allclose(zls_out, ls_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
-        assert_allclose(zcph_out, cph_gt4py.reshape(SHAPE[0] * SHAPE[1], SHAPE[2]), rtol=1e-6)
-        
-        
+    # Checking tolerance on output fields
+    assert all(
+        assert_allclose(
+            Fields_Out[key],
+            GT4Py_FloatFieldsIJK[key].reshape(
+                fortran_dims["nijt"], fortran_dims["nkt"]
+            ),
+            rtol=1e-6,
+        )
+        for key in Fields_Out.keys()
+    )

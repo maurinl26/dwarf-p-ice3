@@ -10,7 +10,7 @@ import unittest
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from .conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 
 class TestIce4Rimltc(unittest.TestCase):
