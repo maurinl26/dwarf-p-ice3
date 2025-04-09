@@ -6,11 +6,11 @@ import numpy as np
 from pathlib import Path
 import fmodpy
 import unittest
-from numpy.testing import assert_allclose, assert_allclose
+from numpy.testing import assert_allclose
 
 import logging
 
-from .env import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from .conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 
 class TestIce4Tendencies(unittest.TestCase):
