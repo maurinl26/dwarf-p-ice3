@@ -17,11 +17,18 @@ SHAPE = (50, 50, 15)
 DEFAULT_GRID = ComputationalGrid(*SHAPE)
 
 DEFAULT_GT4PY_CONFIG = GT4PyConfig(
-            backend=BACKEND, 
-            rebuild=REBUILD, 
-            validate_args=VALIDATE_ARGS, 
+            backend="gt:cpu_ifirst", 
+            rebuild=True, 
+            validate_args=True, 
             verbose=True
         )
+
+def get_backends(gpu: bool = False):
+    backends = ["numpy", "gt:cpu_ifirst", "gt:cpu_kfirst", "dace:cpu"]
+    if gpu:
+        backends += ["gt:gpu","dace:gpu"]
+    return backends
+    
 
 def compile_fortran_stencil(
     fortran_script: str, fortran_module: str, fortran_stencil: str
@@ -51,6 +58,10 @@ def compile_fortran_stencil(
 @pytest.fixture(name="grid", scope="module")
 def grid_fixture():
     return DEFAULT_GRID.grids[(I, J, K)]
+
+@pytest.fixture(name="origin", scope="module")
+def origin_fixture():
+    return (0, 0, 0) 
 
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
