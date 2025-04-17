@@ -1,5 +1,7 @@
 module mode_condensation
+
 contains
+
    subroutine condensation(nijb, nije, nktb, nkte, nijt, nkt,  &
        &xrv, xrd, xalpi, xbetai, xgami, xalpw, xbetaw, xgamw,  &
        &xtmaxmix, xtminmix,                                    &
