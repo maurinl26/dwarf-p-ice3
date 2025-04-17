@@ -205,7 +205,7 @@ def sigrc_computation(
         inq1 = floor(min(100., max(-100., 2 * q1)))
         inq2 = min(max(-22, inq1), 10)
         # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1 - inq1
+        inc = 2 * q1 - inq2
         sigrc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
 
         # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
