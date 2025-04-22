@@ -6,6 +6,8 @@ src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
 src/testprogs_data/main_ice_adjust
 
+src/drivers/build
+
 dwarf-p-ice3
 dwarf_p_ice3.egg-info
 

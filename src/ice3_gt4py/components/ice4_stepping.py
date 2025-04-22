@@ -69,42 +69,80 @@ class Ice4Stepping(ImplicitTendencyComponent):
             "exn": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "cf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "sigma_rc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ci_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # "ai": {"grid": (I, J, K), "units": ""},
-            # "cj": {"grid": (I, J, K), "units": ""},
-            # "ssi": {"grid": (I, J, K), "units": ""},      zssi (mode_ice4_stepping.F90)
-            "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # "hlc_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},  cf = hlc_hcf + hlc_lcf /// hlc_lcf is the proportion of low cloud fraction in the grid
-            "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # "hlc_lrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},  rc = hlc_hrc + hlc_lrc /// Low LWC in the grid
-            "hli_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # "hli_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},  for iceclouds
-            "hli_hri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # "hli_lri": {"grid": (I, J, K), "dtype": "float", "unit": ""},  for ice content
-            # "fr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "th_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "ls_fact": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "lv_fact": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+        }
+
+    @cached_property
+    def _tendency_properties(self) -> PropertyDict:
+        return {
+
+        }
+
+    @cached_property
+    def _diagnostic_properties(self) -> PropertyDict:
+        return {
+            "ci_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "th_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rv_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rc_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rr_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "ri_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rs_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rg_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hli_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hli_hri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
         }
 
     @cached_property
-    def _tendency_properties(self) -> PropertyDict:
-        return {}
-
-    @cached_property
-    def _diagnostic_properties(self) -> PropertyDict:
-        return {}
-
-    @cached_property
     def _temporaries(self) -> PropertyDict:
-        return {}
+        return {
+            "ldcompute": {"grid": (I, J, K), "dtype": "bool", "unit": ""},
+            "ai": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "cj": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ssi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hlc_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hlc_lrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hli_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "hli_lri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "fr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # intial mixing ratios
+            "rc_0r_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rr_0r_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_0r_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_0r_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_0r_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # increments
+            "theta_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rv_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rr_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_b": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # tnd update
+            "theta_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rv_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rr_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_a_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # tendances externes
+            "theta_ext_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_ext_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rr_ext_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_ext_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_ext_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_ext_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # timing
+            "t_micro": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "delta_t_micro": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "time_threshold_tmp": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+        }
 
     @ported_method(
         from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
@@ -180,7 +218,12 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
             state_tmicro_init = {"ldmicro": state["ldmicro"], "t_micro": t_micro}
 
-            self.tmicro_init(**state_tmicro_init)
+            self.tmicro_init(
+                **state_tmicro_init,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             outerloop_counter = 0
             max_outerloop_iterations = 10
@@ -224,7 +267,13 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         ]
                     }
 
-                    self.ice4_stepping_heat(**state_stepping_heat)
+                    self.ice4_stepping_heat(
+                        **state_stepping_heat,
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
+                        )
 
                     ####### tendencies #######
                     state_ice4_tendencies = {
@@ -299,7 +348,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     }
 
                     _, _ = self.ice4_tendencies(
-                        ldsoft=True, state=state_tendencies_xr, timestep=timestep
+                        ldsoft=True, 
+                        state=state_tendencies_xr, 
+                        timestep=timestep
                     )
 
                     # Translation note : l277 to l283 omitted, no external tendencies in AROME
@@ -336,7 +387,14 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         "rg_b": rg_b,
                     }
 
-                    self.ice4_step_limiter(**state_step_limiter, **tmps_step_limiter)
+                    self.ice4_step_limiter(
+                        **state_step_limiter, 
+                        **tmps_step_limiter,
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
+                    )
 
                     # l346 to l388
                     ############ ice4_mixing_ratio_step_limiter ############
@@ -370,6 +428,10 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     self.ice4_mixing_ratio_step_limiter(
                         **state_mixing_ratio_step_limiter,
                         **temporaries_mixing_ratio_step_limiter,
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
                     )
 
                     # l394 to l404
@@ -406,7 +468,14 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         "t_micro": t_micro,
                     }
 
-                    self.ice4_state_update(**state_state_update, **tmps_state_update)
+                    self.ice4_state_update(
+                        **state_state_update, 
+                        **tmps_state_update,
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
+                    )
 
                     # TODO : next loop
                     lsoft = True
@@ -440,5 +509,10 @@ class Ice4Stepping(ImplicitTendencyComponent):
             }
 
             self.external_tendencies_update(
-                **state_external_tendencies_update, **tmps_external_tendencies_update
+                **state_external_tendencies_update, 
+                **tmps_external_tendencies_update,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )

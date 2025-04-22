@@ -121,13 +121,11 @@ class RainIce(ImplicitTendencyComponent):
             "exn": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "dzz": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PDZZ",
                 "dtype": "float",
             },
             "t": {"grid": (I, J, K), "units": "", "dtype": "float"},
@@ -135,133 +133,113 @@ class RainIce(ImplicitTendencyComponent):
             "rhodj": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRHODJ",
                 "dtype": "float",
             },
             "rhodref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRHODREF",
                 "dtype": "float",
             },
             "pabs_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PPABSM",
                 "dtype": "float",
             },
             "exnref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "ci_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PCIT",
                 "dtype": "float",
             },
             "cldfr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PCLDFR",
                 "dtype": "float",
             },
             "th_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PTHT",
                 "dtype": "float",
             },
             "rv_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRT",
                 "irr": 0,
                 "dtype": "float",
             },
             "rc_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRT",
                 "irr": 1,
                 "dtype": "float",
             },
             "rr_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRT",
                 "irr": 2,
                 "dtype": "float",
             },
             "ri_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRT",
                 "irr": 3,
                 "dtype": "float",
             },
             "rs_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRT",
                 "irr": 4,
                 "dtype": "float",
             },
             "rg_t": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRT",
                 "irr": 5,
                 "dtype": "float",
             },
             "ths": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PTHS",
                 "irr": 0,
                 "dtype": "float",
             },
             "rvs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
                 "irr": 0,
                 "dtype": "float",
             },
             "rcs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
                 "irr": 1,
                 "dtype": "float",
             },
             "rrs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
                 "irr": 2,
                 "dtype": "float",
             },
             "ris": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
                 "irr": 3,
                 "dtype": "float",
             },
             "rss": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
                 "irr": 4,
                 "dtype": "float",
             },
             "rgs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
                 "irr": 5,
                 "dtype": "float",
             },
@@ -280,20 +258,17 @@ class RainIce(ImplicitTendencyComponent):
             "sigs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PSIGS",
                 "dtype": "float",
             },
             "pthvrefzikb": {"grid": (I, J, K), "units": "", "dtype": "float"},
             "hlc_hcf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PHLC_HRC",
                 "dtype": "float",
             },
             "hlc_lcf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PHLC_HCF",
                 "dtype": "float",
             },
             "hlc_hrc": {"grid": (I, J, K), "units": "", "dtype": "float"},
@@ -301,14 +276,12 @@ class RainIce(ImplicitTendencyComponent):
             "hli_hcf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PHLI_HCF",
                 "dtype": "float",
             },
             "hli_lcf": {"grid": (I, J, K), "units": "", "dtype": "float"},
             "hli_hri": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PHLI_HRI",
                 "dtype": "float",
             },
             "hli_lri": {"grid": (I, J, K), "units": "", "dtype": "float"},
@@ -316,19 +289,16 @@ class RainIce(ImplicitTendencyComponent):
             "fpr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "sea": {
                 "grid": (I, J),
                 "units": "",
-                "fortran_name": "PSEA",
                 "dtype": "float",
             },
             "town": {
                 "grid": (I, J),
                 "units": "",
-                "fortran_name": "PTOWN",
                 "dtype": "float",
             },
         }
@@ -344,6 +314,100 @@ class RainIce(ImplicitTendencyComponent):
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {}
+
+    @cached_property
+    def _fortran_names(self) -> PropertyDict:
+        return {
+        "exn": {"fortran_name": "PEXNREF"},
+        "dzz": {"fortran_name": "PDZZ"},
+        "t": {"fortran_name": "PT"},
+        "ssi": {"fortran_name": "PSSI"},
+        "rhodj": {"fortran_name": "PRHODJ"},
+        "rhodref": {"fortran_name": "PRHODREF"},
+        "pabs_t": {"fortran_name": "PPABSM"},
+        "exnref": {"fortran_name": "PEXNREF"},
+        "ci_t": {"fortran_name": "PCIT"},
+        "cldfr": {"fortran_name": "PCLDFR"},
+        "th_t": {"fortran_name": "PTHT"},
+        "rv_t": {
+            "fortran_name": "PRT",
+            "irr": 0,
+        },
+        "rc_t": {
+            "fortran_name": "PRT",
+            "irr": 1,
+        },
+        "rr_t": {
+            "fortran_name": "PRT",
+            "irr": 2,
+        },
+        "ri_t": {
+            "fortran_name": "PRT",
+            "irr": 3,
+        },
+        "rs_t": {
+            "fortran_name": "PRT",
+            "irr": 4,
+        },
+        "rg_t": {
+            "fortran_name": "PRT",
+            "irr": 5,
+        },
+        "ths": {
+            "fortran_name": "PTHS",
+            "irr": 0,
+        },
+        "rvs": {
+            "fortran_name": "PRS",
+            "irr": 0,
+        },
+        "rcs": {
+            "fortran_name": "PRS",
+            "irr": 1,
+        },
+        "rrs": {
+            "fortran_name": "PRS",
+            "irr": 2,
+        },
+        "ris": {
+            "fortran_name": "PRS",
+            "irr": 3,
+        },
+        "rss": {
+            "fortran_name": "PRS",
+            "irr": 4,
+        },
+        "rgs": {
+            "fortran_name": "PRS",
+            "irr": 5,
+        },
+        "fpr_c": {"fortran_name": "fpr"},
+        "fpr_r": {"fortran_name": "fpr"},
+        "fpr_i": {"grid": (I, J, K), "units": "", "dtype": "float"},
+        "fpr_s": {"grid": (I, J, K), "units": "", "dtype": "float"},
+        "fpr_g": {"grid": (I, J, K), "units": "", "dtype": "float"},
+        "inprc": {"grid": (I, J), "units": "", "dtype": "float"},
+        "inprr": {"grid": (I, J), "units": "", "dtype": "float"},
+        "inprs": {"grid": (I, J), "units": "", "dtype": "float"},
+        "inprg": {"grid": (I, J), "units": "", "dtype": "float"},
+        "evap3d": {"grid": (I, J, K), "units": "", "dtype": "float"},
+        "indep": {"grid": (I, J, K), "units": "", "dtype": "float"},
+        "rainfr": {"grid": (I, J, K), "units": "", "dtype": "float"},
+        "sigs": {"fortran_name": "PSIGS"},
+        "pthvrefzikb": {"fortran_name": "pthvrefzikb"},
+        "hlc_hcf": {"fortran_name": "PHLC_HRC"},
+        "hlc_lcf": {"fortran_name": "PHLC_HCF",},
+        "hlc_hrc": {"fortran_name": "PHLC_HRC"},
+        "hlc_lrc": {"fortran_name": "PHLC_LRC"},
+        "hli_hcf": {"fortran_name": "PHLI_HCF",},
+        "hli_lcf": {"fortran_name": "PHL_HCF"},
+        "hli_hri": {"fortran_name": "PHLI_HRI",},
+        "hli_lri": {"fortran_name": "PHLI_LRI"},
+        # Optional
+        "fpr": {"fortran_name": None,},
+        "sea": {"fortran_name": "PSEA",},
+        "town": {"fortran_name": "PTOWN",},
+        }
 
     @ported_method(
         from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
@@ -418,7 +482,12 @@ class RainIce(ImplicitTendencyComponent):
                     "lv_fact": lv_fact,
                 },
             }
-            self.rain_ice_init(**state_rain_ice_init)
+            self.rain_ice_init(
+                **state_rain_ice_init,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             # 2. Compute the sedimentation source
             state_sed = {
@@ -450,7 +519,13 @@ class RainIce(ImplicitTendencyComponent):
             tmps_sedim = {"inpri": inpri}
 
             if not LSEDIM_AFTER:
-                self.sedimentation(**state_sed, **tmps_sedim)
+                self.sedimentation(
+                    **state_sed, 
+                    **tmps_sedim,
+                    origin=(0, 0, 0),
+                    domain=self.computational_grid.grids[I, J, K].shape,
+                    validate_args=self.gt4py_config.validate_args,
+                    exec_info=self.gt4py_config.exec_info,)
 
             state_initial_values_saving = {
                 key: state[key]
@@ -476,7 +551,12 @@ class RainIce(ImplicitTendencyComponent):
                 "wr_g": wr_g,
             }
             self.initial_values_saving(
-                **state_initial_values_saving, **tmps_initial_values_saving
+                **state_initial_values_saving, 
+                **tmps_initial_values_saving,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )
 
             # 4.1 Slow cold processes outside of ldmicro
@@ -502,7 +582,13 @@ class RainIce(ImplicitTendencyComponent):
                 "ls_fact": ls_fact,
                 "rvheni_mr": rvheni,
             }
-            self.ice4_nucleation(**state_nuc, **tmps_nuc)
+            self.ice4_nucleation(
+                **state_nuc, 
+                **tmps_nuc,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
             self.rain_ice_nucleation_post_processing(rvs=state["rvs"], rvheni=rvheni)
 
             # 4.2 Computes precipitation fraction
@@ -541,7 +627,12 @@ class RainIce(ImplicitTendencyComponent):
                         "hli_lcf": hli_lcf,
                     }
 
-                    self.ice4_precipitation_fraction_liquid_content(**state_lc)
+                    self.ice4_precipitation_fraction_liquid_content(
+                        **state_lc,
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,)
 
                 state_compute_pdf = {
                     **{
@@ -567,7 +658,12 @@ class RainIce(ImplicitTendencyComponent):
                     "ldmicro": ldmicro,
                 }
 
-                self.ice4_compute_pdf(**state_compute_pdf)
+                self.ice4_compute_pdf(
+                    **state_compute_pdf,
+                    origin=(0, 0, 0),
+                    domain=self.computational_grid.grids[I, J, K].shape,
+                    validate_args=self.gt4py_config.validate_args,
+                    exec_info=self.gt4py_config.exec_info,)
 
                 state_rainfr_vert = {
                     **{
@@ -582,7 +678,12 @@ class RainIce(ImplicitTendencyComponent):
                     "wr_s": wr_s,
                     "wr_g": wr_g,
                 }
-                self.ice4_rainfr_vert(**state_rainfr_vert)
+                self.ice4_rainfr_vert(
+                    **state_rainfr_vert,
+                    origin=(0, 0, 0),
+                    domain=self.computational_grid.grids[I, J, K].shape,
+                    validate_args=self.gt4py_config.validate_args,
+                    exec_info=self.gt4py_config.exec_info,)
 
             # 5. Tendencies computation
             # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
@@ -672,7 +773,13 @@ class RainIce(ImplicitTendencyComponent):
                 "wr_g": wr_g,
             }
 
-            self.total_tendencies(**state_total_tendencies, **tmps_total_tendencies)
+            self.total_tendencies(
+                **state_total_tendencies, 
+                **tmps_total_tendencies,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             # 8.2 Negative corrections
             state_neg = {
@@ -688,7 +795,13 @@ class RainIce(ImplicitTendencyComponent):
                 ]
             }
             tmps_neg = {"lv_fact": lv_fact, "ls_fact": ls_fact}
-            self.ice4_correct_negativities(**state_neg, **tmps_neg)
+            self.ice4_correct_negativities(
+                **state_neg, 
+                **tmps_neg,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             # 9. Compute the sedimentation source
             if LSEDIM_AFTER:
@@ -701,7 +814,12 @@ class RainIce(ImplicitTendencyComponent):
                 self.rain_fraction_sedimentation(**state_frac_sed)
 
                 state_rainfr = {**{key: state[key] for key in ["prfr", "rr_t", "rs_t"]}}
-                self.ice4_rainfr_vert(**state_rainfr)
+                self.ice4_rainfr_vert(
+                    **state_rainfr,
+                    origin=(0, 0, 0),
+                    domain=self.computational_grid.grids[I, J, K].shape,
+                    validate_args=self.gt4py_config.validate_args,
+                    exec_info=self.gt4py_config.exec_info,)
 
             # 10 Compute the fog deposition
             if LDEPOSC:
@@ -709,4 +827,9 @@ class RainIce(ImplicitTendencyComponent):
                     key: state[key]
                     for key in ["rcs", "rc_t", "rhodref", "dzz", "inprc"]
                 }
-                self.fog_deposition(**state_fog)
+                self.fog_deposition(
+                    **state_fog,
+                    origin=(0, 0, 0),
+                    domain=self.computational_grid.grids[I, J, K].shape,
+                    validate_args=self.gt4py_config.validate_args,
+                    exec_info=self.gt4py_config.exec_info,)

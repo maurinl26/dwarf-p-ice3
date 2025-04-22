@@ -103,7 +103,27 @@ class AroAdjust(ImplicitTendencyComponent):
     @cached_property
     def _temporaries(self) -> PropertyDict:
         # TODO : writout temporaries
-        return {}
+        return {
+            "rt": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "pv": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "piv": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "qsl": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "qsi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "frac_tmp": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "cond_tmp": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "a": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "sbar": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "sigma":{"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "q1": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "lv": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ls": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "cph": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "criaut": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rv_tmp": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_tmp": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_tmp": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "inq1":{"grid": (I, J, K), "dtype": "int", "unit": ""},
+        }
 
     def array_call(
         self,
@@ -115,7 +135,7 @@ class AroAdjust(ImplicitTendencyComponent):
     ) -> None:
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 21),
+            *repeat(((I, J, K), "float"), 22),
             ((I, J, K), "int"),
             gt4py_config=self.gt4py_config,
         ) as (
@@ -137,6 +157,7 @@ class AroAdjust(ImplicitTendencyComponent):
             rv_tmp,
             ri_tmp,
             rc_tmp,
+            t_tmp,
             inq1,
         ):
 

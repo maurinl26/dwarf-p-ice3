@@ -3,7 +3,7 @@ from gt4py.storage import from_array
 import numpy as np
 from numpy.testing import assert_allclose
 import logging
-from .conftest import compile_fortran_stencil, get_backends
+from conftest import compile_fortran_stencil, get_backends
 import pytest
 from ctypes import c_float, c_double, c_int
 

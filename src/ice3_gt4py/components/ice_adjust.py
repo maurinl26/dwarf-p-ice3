@@ -15,7 +15,7 @@ from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
 from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.phyex_common.tables import src_1d
+from ice3_gt4py.phyex_common.tables import SRC_1D
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -55,195 +55,120 @@ class IceAdjust(ImplicitTendencyComponent):
             "sigqsat": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "exn": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "exnref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "rhodref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRHODREF",
                 "dtype": "float",
             },
             "pabs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PPABSM",
                 "dtype": "float",
             },
             "sigs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PSIGS",
                 "dtype": "float",
             },
             "cf_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PCF_MF",
                 "dtype": "float",
             },
             "rc_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRC_MF",
                 "dtype": "float",
             },
             "ri_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRI_MF",
                 "dtype": "float",
             },
             "th": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 0,
                 "dtype": "float",
             },
             "rv": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 1,
                 "dtype": "float",
             },
             "rc": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 2,
                 "dtype": "float",
             },
             "rr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 3,
                 "dtype": "float",
             },
             "ri": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 4,
                 "dtype": "float",
             },
             "rs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 5,
                 "dtype": "float",
             },
             "rg": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 6,
-                "dtype": "float",
-            },
-            "cldfr": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "ifr": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hlc_hrc": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hlc_hcf": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hli_hri": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hli_hcf": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "sigrc": {
                 "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "ths": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 0,
                 "dtype": "float",
             },
             "rcs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 1,
                 "dtype": "float",
             },
             "rrs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 2,
                 "dtype": "float",
             },
             "ris": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 3,
                 "dtype": "float",
             },
             "rss": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 4,
                 "dtype": "float",
             },
             "rvs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 5,
                 "dtype": "float",
             },
             "rgs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRS",
-                "irr": 6,
                 "dtype": "float",
             },
         }
@@ -254,7 +179,38 @@ class IceAdjust(ImplicitTendencyComponent):
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
-        return {}
+        return {
+            "cldfr": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "ifr": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hlc_hrc": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hlc_hcf": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hli_hri": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hli_hcf": {
+                "grid": (I, J, K),
+                "dtype": "float",
+            },
+        }
+
 
     @cached_property
     def _temporaries(self) -> PropertyDict:
@@ -263,6 +219,115 @@ class IceAdjust(ImplicitTendencyComponent):
             "ls": {"grid": (I, J, K), "units": ""},
             "cph": {"grid": (I, J, K), "units": ""},
             "criaut": {"grid": (I, J, K), "units": ""},
+        }
+
+    @cached_property
+    def fortran_mapping(self):
+        return {
+            "sigqsat": {
+                "fortran_name": None,
+            },
+            "exn": {
+                "fortran_name": "PEXNREF",
+            },
+            "exnref": {
+                "fortran_name": "PEXNREF",
+            },
+            "rhodref": {
+                "fortran_name": "PRHODREF",
+            },
+            "pabs": {
+                "fortran_name": "PPABSM",
+            },
+            "sigs": {
+                "fortran_name": "PSIGS",
+            },
+            "cf_mf": {
+                "fortran_name": "PCF_MF",
+            },
+            "rc_mf": {
+                "fortran_name": "PRC_MF",
+            },
+            "ri_mf": {
+                "fortran_name": "PRI_MF",
+            },
+            "th": {
+                "fortran_name": "ZRS",
+                "irr": 0,
+            },
+            "rv": {
+                "fortran_name": "ZRS",
+                "irr": 1,
+            },
+            "rc": {
+                "fortran_name": "ZRS",
+                "irr": 2,
+            },
+            "rr": {
+                "fortran_name": "ZRS",
+                "irr": 3,
+            },
+            "ri": {
+                "fortran_name": "ZRS",
+                "irr": 4,
+            },
+            "rs": {
+                "fortran_name": "ZRS",
+                "irr": 5,
+            },
+            "rg": {
+                "fortran_name": "ZRS",
+                "irr": 6,
+            },
+            "cldfr": {
+                "fortran_name": None,
+            },
+            "ifr": {
+                "fortran_name": None,
+            },
+            "hlc_hrc": {
+                "fortran_name": None,
+            },
+            "hlc_hcf": {
+                "fortran_name": None,
+            },
+            "hli_hri": {
+                "fortran_name": None,
+            },
+            "hli_hcf": {
+                "fortran_name": None,
+            },
+            "sigrc": {
+                "fortran_name": None,
+            },
+            "ths": {
+                "fortran_name": "PRS",
+                "irr": 0,
+            },
+            "rcs": {
+                "fortran_name": "PRS",
+                "irr": 1,
+            },
+            "rrs": {
+                "fortran_name": "PRS",
+                "irr": 2,
+            },
+            "ris": {
+                "fortran_name": "PRS",
+                "irr": 3,
+            },
+            "rss": {
+                "fortran_name": "PRS",
+                "irr": 4,
+            },
+            "rvs": {
+                "fortran_name": "PRS",
+                "irr": 5,
+            },
+            "rgs": {
+                "fortran_name": "PRS",
+                "irr": 6,
+            },
         }
 
     def array_call(
@@ -328,7 +393,7 @@ class IceAdjust(ImplicitTendencyComponent):
 
             # Global Table
             logging.info("Loading src_1d GlobalTable")
-            src_1D = from_array(src_1d, backend=self.gt4py_config.backend)
+            src_1D = from_array(SRC_1D, backend=self.gt4py_config.backend)
 
             # Timestep
             logging.info("Launching ice_adjust")

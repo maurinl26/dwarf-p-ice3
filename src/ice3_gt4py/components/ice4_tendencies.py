@@ -117,14 +117,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ssi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "th_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # PVART in f90
-            "rv_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rc_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rr_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ri_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # A in f90
+        }
+
+    @cached_property
+    def _tendency_properties(self) -> PropertyDict:
+        return {
+            # Tendencies
             "theta_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rv_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rc_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
@@ -132,7 +130,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ri_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rs_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # B in f90 TODO : in diagnostics
+        }
+
+    @cached_property
+    def _diagnostic_properties(self) -> PropertyDict:
+        return {
+            # Diagnosis for microphysical species
             "theta_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rv_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rc_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
@@ -140,7 +143,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "ri_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rs_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rg_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # others
+            # Mixing ratio at t + dt
+            "rv_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rr_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # High and Low cloud contents
             "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "hlc_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
@@ -149,20 +159,84 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "hli_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "hli_hri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "hli_lri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # Rain Fraction
             "fr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
         }
 
     @cached_property
-    def _tendency_properties(self) -> PropertyDict:
-        return {}
-
-    @cached_property
-    def _diagnostic_properties(self) -> PropertyDict:
-        return {}
-
-    @cached_property
     def _temporaries(self) -> PropertyDict:
-        return {}
+        return {
+            "rvheni_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rrhong_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rimltc_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rgsi_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rsrimcg_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # slopes
+            "lbdar": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "lbdar_rf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "lbdas": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "lbdag": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # tnd
+            "rc_honi_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rv_deps_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_aggs_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "ri_auts_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rv_depg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_mltg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_mltsr_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_rcrims_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_rcrimss_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_rsrimcg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_rraccs_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_rraccss_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_rsaccrg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_freez1_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rs_freez2_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_rcdry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_ridry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_rsdry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_rrdry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_riwet_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_rswet_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_freez1_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rg_freez2_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rc_beri_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            # transfos
+            "rgsi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rchoni": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rvdeps": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "riaggs": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "riauts": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rvdepg": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rcautr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rcaccr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rrevav": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rcberi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rsmltg": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rcmltsr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
+            "rraccss": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 13
+            "rraccsg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 14
+            "rsaccrg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 15
+            "rcrimss": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 16
+            "rcrimsg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 17
+            "rsrimcg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 18
+            "ricfrrg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 19
+            "rrcfrig": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 20
+            "ricfrr": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 21
+            "rcwetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 22
+            "riwetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 23
+            "rrwetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 24
+            "rswetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 25
+            "rcdryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 26
+            "ridryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 27
+            "rrdryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 28
+            "rsdryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 29
+            "rgmltr": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 31
+            "index_floor": {"grid": (I, J, K), "dtype": "int", "unit": ""},
+            "index_floor_r": {"grid": (I, J, K), "dtype": "int", "unit": ""},
+            "index_floor_s": {"grid": (I, J, K), "dtype": "int", "unit": ""},
+            "index_floor_g": {"grid": (I, J, K), "dtype": "int", "unit": ""},
+        }
 
     def array_call(
         self,
@@ -276,7 +350,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             }
 
             # timestep
-            self.ice4_nucleation(**state_nucleation, **temporaries_nucleation)
+            self.ice4_nucleation(
+                **state_nucleation, 
+                **temporaries_nucleation,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
+                )
 
             ############## ice4_nucleation_post_processing ####################
 
@@ -299,7 +380,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             # Timestep
             self.ice4_nucleation_post_processing(
-                **state_nucleation_pp, **tmps_nucleation_pp
+                **state_nucleation_pp, 
+                **tmps_nucleation_pp,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )
 
             ########################### ice4_rrhong #################################
@@ -313,7 +399,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             tmps_rrhong = {"rrhong_mr": rrhong_mr}
 
-            self.ice4_rrhong(**state_rrhong, **rrhong_mr)
+            self.ice4_rrhong(
+                **state_rrhong, 
+                **rrhong_mr,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
+                )
 
             ########################### ice4_rrhong_post_processing #################
             state_rrhong_pp = {
@@ -331,7 +424,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 },
             }
 
-            self.ice4_rrhong_post_processing(**state_rrhong_pp, **tmps_rrhong)
+            self.ice4_rrhong_post_processing(
+                **state_rrhong_pp, 
+                **tmps_rrhong,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ########################## ice4_rimltc ##################################
             state_rimltc = {
@@ -351,7 +450,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             tmps_rimltc = {"rimltc_mr": rimltc_mr}
 
-            self.ice4_rimltc(**state_rimltc, **tmps_rimltc)
+            self.ice4_rimltc(
+                **state_rimltc, 
+                **tmps_rimltc,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ####################### ice4_rimltc_post_processing #####################
 
@@ -370,7 +475,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 },
             }
 
-            self.ice4_rimltc_post_processing(**state_rimltc_pp, **tmps_rimltc)
+            self.ice4_rimltc_post_processing(
+                **state_rimltc_pp, 
+                **tmps_rimltc,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_increment_update ##########################
             state_increment_update = {
@@ -397,7 +508,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             }
 
             self.ice4_increment_update(
-                **state_increment_update, **tmps_increment_update
+                **state_increment_update, 
+                **tmps_increment_update,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )
 
             ######################## ice4_compute_pdf ###############################
@@ -423,7 +539,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 ]
             }
 
-            self.ice4_compute_pdf(**state_compute_pdf)
+            self.ice4_compute_pdf(
+                **state_compute_pdf,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             # l263 to l278 omitted because LLRFR is False in AROME
 
@@ -443,7 +564,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 ]
             }
 
-            self.ice4_derived_fields(**state_derived_fields)
+            self.ice4_derived_fields(
+                **state_derived_fields,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_slope_parameters ##########################
             state_slope_parameters = {
@@ -457,7 +583,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "lbdag": lbdag,
             }
 
-            self.ice4_slope_parameters(**state_slope_parameters, **tmps_slopes)
+            self.ice4_slope_parameters(
+                **state_slope_parameters, 
+                **tmps_slopes,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_slow ######################################
             state_slow = {
@@ -493,7 +625,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rv_depg_tnd": rv_depg_tnd,
             }
 
-            self.ice4_slow(ldsoft=ldsoft, **state_slow, **tmps_slow)
+            self.ice4_slow(
+                ldsoft=ldsoft, 
+                **state_slow, 
+                **tmps_slow,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_warm ######################################
             state_warm = {
@@ -530,7 +669,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rrevav": rrevav,
             }
 
-            self.ice4_warm(ldsoft=ldsoft, **state_warm, **tmps_warm)
+            self.ice4_warm(
+                ldsoft=ldsoft, 
+                **state_warm, 
+                **tmps_warm,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_fast_rs ###################################
             state_fast_rs = {
@@ -605,6 +751,10 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 ker_saccrg=ker_saccrg,
                 **state_fast_rs,
                 **temporaries_fast_rs,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )
 
             ######################## ice4_fast_rg_pre_processing ####################
@@ -629,7 +779,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rsrimcg_mr": rsrimcg_mr,
             }
 
-            self.ice4_fast_rg_pre_processing(**state_fast_rg_pp, **tmps_fast_rg_pp)
+            self.ice4_fast_rg_pre_processing(
+                **state_fast_rg_pp, 
+                **tmps_fast_rg_pp,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_fast_rg ###################################
             state_fast_rg = {
@@ -684,6 +840,10 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 ker_rdryg=ker_rdryg,
                 **state_fast_rg,
                 **temporaries_fast_rg,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )
 
             ######################## ice4_fast_ri ###################################
@@ -709,7 +869,14 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rc_beri_tnd": rc_beri_tnd,
             }
 
-            self.ice4_fast_ri(ldsoft=ldsoft, **state_fast_ri, **tmps_fast_ri)
+            self.ice4_fast_ri(
+                ldsoft=ldsoft, 
+                **state_fast_ri, 
+                **tmps_fast_ri,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_total_tendencies_update #########################
 
@@ -765,4 +932,10 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "rgmltr": rgmltr,
             }
 
-            self.ice4_total_tendencies_update(**state_tendencies_update, **tmps_tnd_update)
+            self.ice4_total_tendencies_update(
+                **state_tendencies_update, 
+                **tmps_tnd_update,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
