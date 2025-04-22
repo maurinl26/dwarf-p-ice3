@@ -315,6 +315,7 @@ class RainIce(ImplicitTendencyComponent):
     def _temporaries(self) -> PropertyDict:
         return {}
 
+    @cached_property
     def _fortran_names(self) -> PropertyDict:
         return {
         "exn": {"fortran_name": "PEXNREF"},

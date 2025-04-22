@@ -218,7 +218,12 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
             state_tmicro_init = {"ldmicro": state["ldmicro"], "t_micro": t_micro}
 
-            self.tmicro_init(**state_tmicro_init)
+            self.tmicro_init(
+                **state_tmicro_init,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             outerloop_counter = 0
             max_outerloop_iterations = 10

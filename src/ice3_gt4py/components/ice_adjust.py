@@ -209,6 +209,7 @@ class IceAdjust(ImplicitTendencyComponent):
                 "grid": (I, J, K),
                 "dtype": "float",
             },
+        }
 
 
     @cached_property
@@ -220,7 +221,7 @@ class IceAdjust(ImplicitTendencyComponent):
             "criaut": {"grid": (I, J, K), "units": ""},
         }
 
-    @property
+    @cached_property
     def fortran_mapping(self):
         return {
             "sigqsat": {

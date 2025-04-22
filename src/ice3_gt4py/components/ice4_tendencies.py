@@ -380,7 +380,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
             # Timestep
             self.ice4_nucleation_post_processing(
-                **state_nucleation_pp, **tmps_nucleation_pp
+                **state_nucleation_pp, 
+                **tmps_nucleation_pp,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
             )
 
             ########################### ice4_rrhong #################################
@@ -419,7 +424,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 },
             }
 
-            self.ice4_rrhong_post_processing(**state_rrhong_pp, **tmps_rrhong)
+            self.ice4_rrhong_post_processing(
+                **state_rrhong_pp, 
+                **tmps_rrhong,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ########################## ice4_rimltc ##################################
             state_rimltc = {
@@ -572,7 +583,13 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "lbdag": lbdag,
             }
 
-            self.ice4_slope_parameters(**state_slope_parameters, **tmps_slopes)
+            self.ice4_slope_parameters(
+                **state_slope_parameters, 
+                **tmps_slopes,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,)
 
             ######################## ice4_slow ######################################
             state_slow = {
