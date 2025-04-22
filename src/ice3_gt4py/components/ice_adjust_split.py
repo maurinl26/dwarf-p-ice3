@@ -322,12 +322,6 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             temporaries_thermo = {"cph": cph, "lv": lv, "ls": ls, "t": t}
 
             logging.info("Launching thermo")
-            # logging.debug(f"Thermo __externals__ : {
-            #     self.externals["NRR"],
-            #     self.externals["CPV"],
-            #     self.externals["CPD"],
-            #     self.externals["CL"],
-            #     self.externals["CI"]}")
 
             self.thermo(
                 **state_thermo,
