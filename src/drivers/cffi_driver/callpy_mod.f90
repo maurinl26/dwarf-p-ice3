@@ -10,16 +10,15 @@ module callpy_mod
          use iso_c_binding
          character(c_char) :: tag
          real(c_double) t(nx, ny, nz)
-         int(c_int) :: nx, ny, nz
-         int(c_int) :: y
+         integer(c_int) :: nx, ny, nz
+         integer(c_int) :: y
       end function set_state_py
 
       function get_state_py(tag, t, n) result(y) bind(c)
          use iso_c_binding
          character(c_char) :: tag
-         real(c_double) t(nx, ny, nz)
-         integer(c_int) :: nx, ny, nz
-         integer(c_int) :: y
+         real(c_double) t(n)
+         integer(c_int) :: n, y
       end function get_state_py
 
    end interface
@@ -33,6 +32,17 @@ module callpy_mod
       module procedure set_state_float_1d
       module procedure set_state_integer_1d
       module procedure set_state_char
+   end interface
+
+   interface get_state
+      module procedure get_state_float_3d
+      module procedure get_state_float_2d
+      module procedure get_state_float_1d
+      module procedure get_state_double_3d
+      module procedure get_state_double_2d
+      module procedure get_state_double_1d
+      module procedure get_state_integer_1d
+      module procedure get_state_char
    end interface
 
    public :: get_state, set_state, &
