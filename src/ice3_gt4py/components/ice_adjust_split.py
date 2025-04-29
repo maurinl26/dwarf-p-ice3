@@ -79,122 +79,148 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             "sigqsat": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "exn": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "exnref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "rhodref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRHODREF",
                 "dtype": "float",
             },
             "pabs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PPABSM",
                 "dtype": "float",
             },
             "sigs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PSIGS",
                 "dtype": "float",
             },
             "cf_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PCF_MF",
                 "dtype": "float",
             },
             "rc_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRC_MF",
                 "dtype": "float",
             },
             "ri_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRI_MF",
                 "dtype": "float",
             },
             "th": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 0,
                 "dtype": "float",
             },
             "rv": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 1,
                 "dtype": "float",
             },
             "rc": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 2,
                 "dtype": "float",
             },
             "rr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 3,
                 "dtype": "float",
             },
             "ri": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 4,
                 "dtype": "float",
             },
             "rs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 5,
                 "dtype": "float",
             },
             "rg": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 6,
                 "dtype": "float",
             },
             "cldfr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "ifr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
+
+            "sigrc": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+
+        }
+
+    @cached_property
+    def _tendency_properties(self) -> PropertyDict:
+        return {
+            "ths": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rcs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rrs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "ris": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rss": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rvs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rgs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+        }
+
+    @cached_property
+    def _diagnostic_properties(self) -> PropertyDict:
+        return {
             "hlc_hrc": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "hlc_hcf": {
@@ -206,79 +232,14 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             "hli_hri": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "hli_hcf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "sigrc": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "ths": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 0,
-                "dtype": "float",
-            },
-            "rcs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 1,
-                "dtype": "float",
-            },
-            "rrs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 2,
-                "dtype": "float",
-            },
-            "ris": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 3,
-                "dtype": "float",
-            },
-            "rss": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 4,
-                "dtype": "float",
-            },
-            "rvs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 5,
-                "dtype": "float",
-            },
-            "rgs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 6,
                 "dtype": "float",
             },
         }
-
-    @cached_property
-    def _tendency_properties(self) -> PropertyDict:
-        return {}
-
-    @cached_property
-    def _diagnostic_properties(self) -> PropertyDict:
-        return {}
 
     @cached_property
     def _temporaries(self) -> PropertyDict:
