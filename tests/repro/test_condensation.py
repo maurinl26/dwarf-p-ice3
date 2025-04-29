@@ -32,8 +32,8 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
                 dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
                 order="F",
             )
-        
-        
+
+
         FloatFieldsIJK_Names = [
             "sigrc",
             "pabs",
@@ -52,7 +52,7 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
             "ls",
             "q1",
         ]
-        
+
         FloatFieldsIJK = {
             name: np.array(
                 np.random.rand(*grid.shape),
@@ -60,10 +60,10 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
                 order="F",
             ) for name in FloatFieldsIJK_Names
         }
-        
+
         # Updating temperature
         FloatFieldsIJK["t"] += 300
-        
+
         sigqsat_gt4py = from_array(
             sigqsat,
             dtype=gt4py_config.dtypes.float,
@@ -139,20 +139,20 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
-        
+
         temporary_FloatFieldsIJK_Names = [
             "pv",
             "piv",
             "frac_tmp",
             "qsl",
-            "qsi", 
+            "qsi",
             "sigma",
             "cond_tmp",
             "a",
             "b",
             "sbar"
         ]
-        
+
         temporary_FloatFieldsIJK = {
             name: np.zeros(
                 grid.shape,
@@ -160,8 +160,8 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
                 order="F",
             ) for name in temporary_FloatFieldsIJK_Names
         }
-        
-    
+
+
         pv_gt4py = from_array(temporary_FloatFieldsIJK["pv"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
         piv_gt4py = from_array(temporary_FloatFieldsIJK["piv"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
         frac_tmp_gt4py = from_array(temporary_FloatFieldsIJK["frac_tmp"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
@@ -171,12 +171,12 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
         cond_tmp_gt4py = from_array(temporary_FloatFieldsIJK["cond_tmp"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
         a_gt4py = from_array(temporary_FloatFieldsIJK["a"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
         b_gt4py = from_array(temporary_FloatFieldsIJK["b"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
-        sbar_gt4py = from_array(temporary_FloatFieldsIJK["sbar"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)        
-        
+        sbar_gt4py = from_array(temporary_FloatFieldsIJK["sbar"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+
         condensation(
             sigqsat=sigqsat_gt4py,
             pabs=pabs_gt4py,
-            sigs=sigs_gt4py, 
+            sigs=sigs_gt4py,
             t=t_gt4py,
             rv=rv_in_gt4py,
             ri=ri_in_gt4py,
@@ -431,6 +431,11 @@ def test_sigrc_computation(
     assert_allclose(
         FieldsOut["psigrc"],
         FloatFieldsIJK["sigrc"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        rtol=1e-6,
+    )
+    assert_allclose(
+        FieldsOut["psigrc"],
+        sigrc_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
         rtol=1e-6,
     )
 

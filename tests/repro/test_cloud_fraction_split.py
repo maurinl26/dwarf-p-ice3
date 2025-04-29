@@ -350,17 +350,17 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
         
         logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
-        externals["LSUBG_COND"] = True 
+        externals["LSUBG_COND"] = True
         externals.update({
             "SUBG_MF_PDF": 0
-        })      
-        
+        })
+
         # Fortran and GT4Py stencils compilation
         cloud_fraction_2 = compile_stencil("cloud_fraction_2", gt4py_config, externals)
         fortran_stencil = compile_fortran_stencil("mode_cloud_fraction_split.F90", "mode_cloud_fraction_split", "cloud_fraction_2")
-        
+
         dt = gt4py_config.dtypes.float(50.0)
-        
+
         FloatFieldsIJK_Names = [
             "rhodref",
             "exnref",
@@ -381,7 +381,7 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
             "hli_hri",
             "hli_hcf",
         ]
-        
+
         FloatFieldsIJK = {
             name: np.array(
                 np.random.rand(*grid.shape),
@@ -389,7 +389,7 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
                 order="F",
             ) for name in FloatFieldsIJK_Names
         }
-        
+
         rhodref_gt4py = from_array(FloatFieldsIJK["rhodref"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
         exnref_gt4py = from_array(FloatFieldsIJK["exnref"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
         t_gt4py = from_array(FloatFieldsIJK["t"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
@@ -408,7 +408,7 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         hlc_hcf_gt4py = from_array(FloatFieldsIJK["hlc_hcf"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
         hli_hri_gt4py = from_array(FloatFieldsIJK["hli_hri"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
         hli_hcf_gt4py = from_array(FloatFieldsIJK["hli_hcf"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
-        
+
         cloud_fraction_2(
             rhodref=rhodref_gt4py,
             exnref=exnref_gt4py,
@@ -432,27 +432,27 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
             domain=grid.shape,
             origin=origin
         )
-        
+
         logging.info(f"SUBG_MF_PDF  : {externals["SUBG_MF_PDF"]}")
         logging.info(f"LSUBG_COND   : {externals["LSUBG_COND"]}")
-        
+
         keys_mapping = {
-            "xcriautc":"CRIAUTC", 
-            "xcriauti":"CRIAUTI", 
-            "xacriauti":"ACRIAUTI", 
-            "xbcriauti":"BCRIAUTI", 
+            "xcriautc":"CRIAUTC",
+            "xcriauti":"CRIAUTI",
+            "xacriauti":"ACRIAUTI",
+            "xbcriauti":"BCRIAUTI",
             "xtt":"TT",
-            "csubg_mf_pdf":"SUBG_MF_PDF", 
+            "csubg_mf_pdf":"SUBG_MF_PDF",
             "lsubg_cond":"LSUBG_COND",
         }
-        
+
         fortran_externals = {
             key: externals[value]
             for key, value in keys_mapping.items()
         }
-        
+
         logging.info(f"csubg_mf_pdf : {fortran_externals['csubg_mf_pdf']}")
-        
+
         from ice3_gt4py.phyex_common.param_ice import SubGridMassFluxPDF
         logging.info(f"csubg_mf_pdf : {SubGridMassFluxPDF(fortran_externals['csubg_mf_pdf'])}")
         logging.info(f"lsubg_cond   : {fortran_externals['lsubg_cond']}")
@@ -497,15 +497,15 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         prvs_out = result[1]
         prcs_out = result[2]
         pris_out = result[3]
-        
-        pcldfr_out = result[4] 
-        phlc_hrc_out = result[5] 
+
+        pcldfr_out = result[4]
+        phlc_hrc_out = result[5]
         phlc_hcf_out = result[6]
         phli_hri_out = result[7]
         phli_hcf_out = result[8]
-        
+
         logging.info(f"Machine precision {np.finfo(float).eps}")
-        
+
         logging.info(f"Mean cldfr_gt4py     {cldfr_gt4py.mean()}")
         logging.info(f"Mean pcldfr_out      {pcldfr_out.mean()}")
 

@@ -3,45 +3,19 @@ name = "dwarf-ice3-gt4py"
 version = "0.1.0"
 description = "ICE3-GT4Py"
 readme = "README.md"
-requires-python = ">=3.10"
-authors = [
-    {email = 'loic.maurin@meteo.fr'}, {name = 'Loïc Maurin - Meteo France'}
-]
-license = {text = "Apache-2.0"}
-keywords = ["gt4py", "microphysics"]
-
-classifiers = [
-  'Development Status :: 3 - Alpha',
-  'Intended Audience :: Science/Research',
-  'License :: OSI Approved :: Apache Software License',
-  'Operating System :: POSIX',
-  'Programming Language :: Python',
-  'Programming Language :: Python :: 3',
-  'Programming Language :: Python :: 3 :: Only',
-  'Programming Language :: Python :: 3.10',
-  'Programming Language :: Python :: 3.11',
-  'Programming Language :: Python :: Implementation :: CPython',
-  'Topic :: Scientific/Engineering :: Atmospheric Science',
-  'Topic :: Scientific/Engineering :: Mathematics',
-  'Topic :: Scientific/Engineering :: Physics'
-]
-
+requires-python = ">=3.12"
 dependencies = [
-    "gt4py",
-    "netcdf4>=1.7.2",
+    "fmodpy>=1.7.4",
+    "fprettify>=0.3.7",
+    "ifs-physics-common",
     "numpy<2.0",
-    "pyyaml>=6.0.2",
+    "pytest>=8.3.5",
+    "ruff>=0.10.0",
     "typer>=0.15.2",
-    "xarray>=2025.4.0",
 ]
 
-[project.urls]
-Documentation = "https://maurinl26.github.io/dwarf-p-ice3/"
-Repository = "https://github.com/maurinl26/dwarf-p-ice3"
-
-[project.scripts]
-testprogs-data = "testprogs_data.main:app"
-standalone-model = "drivers.cli:app"
+[tool.uv.sources]
+ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
 
 [build-system]
 build-backend = 'setuptools.build_meta'
@@ -50,21 +24,6 @@ requires = ['setuptools>=65.5.0', 'wheel']
 [dependency-groups]
 dev = [
     "isort>=6.0.1",
-    "pytest-coverage>=0.0",
-    "ruff>=0.11.11",
-]
-
-gpu = [
-    "cupy==14.0.0a1",
-    "cupy-xarray>=0.1.4",
-]
-
-tests = [
+    "prettify>=0.1.1",
     "pytest>=8.3.5",
 ]
-fortran = [
-    "fprettify>=0.3.7",
-]
-
-[tool.uv.sources]
-gt4py = { git = "https://github.com/GridTools/gt4py.git", tag = "icon4py_staging_20250324" }
