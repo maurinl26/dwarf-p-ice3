@@ -1,4 +1,5 @@
 version = 1
+revision = 1
 requires-python = ">=3.12"
 
 [[package]]
@@ -381,6 +382,8 @@ dependencies = [
 dev = [
     { name = "isort" },
     { name = "prettify" },
+    { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -398,6 +401,8 @@ requires-dist = [
 dev = [
     { name = "isort", specifier = ">=6.0.1" },
     { name = "prettify", specifier = ">=0.1.1" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "ruff", specifier = ">=0.10.0" },
 ]
 
 [[package]]
