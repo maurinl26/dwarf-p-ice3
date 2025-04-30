@@ -10,8 +10,8 @@ from gt4py.cartesian.gtscript import (
 from ifs_physics_common.framework.stencil import stencil_collection
 
 
-@stencil_collection("multiply_ab2c")
-def multiply_ab2c(
+@stencil_collection("multiply")
+def multiply(
     a: Field["float"],
     b: Field["float"],
     c: Field["float"]
