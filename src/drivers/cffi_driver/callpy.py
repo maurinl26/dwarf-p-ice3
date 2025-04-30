@@ -113,3 +113,45 @@ def call_function(module_name, function_name):
     fun(STATE)
     
     return 0
+
+
+# TODO : orchestrate
+from ifs_physics_common.framework.config import GT4PyConfig
+from ice3_gt4py.stencils.multiply import multiply
+    
+from gt4py.cartesian.gtscript import stencil
+    
+gt4py_config = GT4PyConfig(
+            backend="gt:cpu_ifirst", 
+            rebuild=True, 
+            validate_args=True, 
+            verbose=True
+        )
+    
+domain = (50, 50, 15)
+    
+dtypes = {
+        float: np.float64,
+        int: np.int64
+    }
+    
+multiply_stencil = stencil(
+        name="multiply",
+        definition=multiply,
+        backend="numpy",
+        dtypes=dtypes,
+        rebuild=False
+    )
+
+@ffi.def_extern(error=1)
+def call_stencil(stencil_name):
+    
+    stencil_name = ffi.string(stencil_name).decode("UTF-8")
+    
+    # TODO: call stencil in call mode
+    multiply_stencil(
+        **STATE,
+        domain=domain,
+        origin=(0, 0, 0)
+        ) 
+    

@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.4)
-enable_language(Fortran)
 
 project(callpy)
+
+enable_language(Fortran)
 
 include(CTest)
 

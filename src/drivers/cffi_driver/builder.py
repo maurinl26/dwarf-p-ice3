@@ -13,6 +13,7 @@ extern int get_state_py(char *, double *, int*);
 extern int set_state_1d(char *, double *, int*);
 extern int set_state_scalar(char *, double *);
 extern int call_function(char *, char *);
+extern int call_stencil(char *);
 """
 
 with open("plugin.h", "w") as f:

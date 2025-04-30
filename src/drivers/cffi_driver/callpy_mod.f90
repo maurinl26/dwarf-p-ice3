@@ -46,7 +46,8 @@ module callpy_mod
    end interface
 
    public :: get_state, set_state, &
-             call_function, set_state_scalar
+             call_function, set_state_scalar, &
+             call_stencil
 
 contains
 
@@ -69,6 +70,32 @@ contains
       call check(call_function_py(mod_name_c, fun_name_c))
 
    end subroutine call_function
+
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   !!!!!!!!!!!!!!!!!! Adaptation to GT4PY !!!!!!!!!!!!!!!!!!!!!!!!!
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+   subroutine call_stencil(stencil_name)
+      interface
+      ! interface vers la fonction c (cffi call python)
+         function call_stencil_py(stencil_name_c) &
+            result(y) bind(c, name='call_stencil')
+            use iso_c_binding
+            character(kind=c_char) stencil_name_c
+            integer(c_int) :: y
+         end function call_stencil_py
+      end interface
+
+      character(len=*) :: stencil_name
+      character(kind=c_char, len=256) :: stencil_name_c
+
+      ! string fortran to string c
+      stencil_name_c = trim(stencil_name)//char(0)
+
+      ! check execution
+      call check(call_stencil_py(stencil_name_c))
+
+   end subroutine call_stencil
+   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    subroutine set_state_integer_1d(tag, t)
       character(len=*) :: tag
