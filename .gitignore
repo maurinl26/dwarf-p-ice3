@@ -4,7 +4,9 @@ data
 namelists
 src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
-src/testprogs_data/main_ice_adjust
+src/testprogs_data/
+src/dwarf_ice3_gt4py.egg-info/
+.idea/
 
 src/drivers/build
 
