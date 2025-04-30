@@ -1,29 +1,15 @@
-from ifs_physics_common.framework.stencil import compile_stencil
-from ifs_physics_common.framework.config import GT4PyConfig, DataTypes
-from ice3_gt4py.phyex_common.tables import SRC_1D
-from ice3_gt4py.phyex_common.phyex import Phyex
-from gt4py.storage import from_array
-import numpy as np
-from numpy.testing import assert_allclose
-from pathlib import Path
-import fmodpy
-import unittest
-from ctypes import c_float
-from gt4py.cartesian.gtscript import from_array, ones
 import logging
+from ctypes import c_double, c_float
 
-from .conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
-
-from ifs_physics_common.framework.stencil import compile_stencil
-from gt4py.storage import from_array
 import numpy as np
-from numpy.testing import assert_allclose
 import pytest
-from ctypes import c_float, c_double
+from gt4py.storage import from_array, ones
+from ifs_physics_common.framework.stencil import compile_stencil
+from numpy.testing import assert_allclose
 
-import logging 
+from ice3_gt4py.phyex_common.tables import SRC_1D
 
-from .conftest import compile_fortran_stencil, get_backends 
+from conftest import compile_fortran_stencil, get_backends
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -42,7 +28,7 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
         fortran_stencil = compile_fortran_stencil("mode_condensation.F90", "mode_condensation", "condensation")
         
         sigqsat = np.array(
-                np.random.rand(SHAPE[0], SHAPE[1]),
+                np.random.rand(grid.shape[0], grid.shape[1]),
                 dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
                 order="F",
             )
@@ -153,7 +139,6 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
-        
         
         temporary_FloatFieldsIJK_Names = [
             "pv",
@@ -398,7 +383,7 @@ def test_sigrc_computation(gt4py_config, externals, fortran_dims, precision, bac
     FloatFieldsIJK_Names = ["q1", "sigrc"]
     FloatFieldsIJK = {
         name: np.array(
-                np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+                np.random.rand(*grid.shape),
                 dtype=c_float,
                 order="F",
             ) for name in FloatFieldsIJK_Names

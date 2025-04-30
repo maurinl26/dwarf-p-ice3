@@ -16,7 +16,7 @@ from ctypes import c_float
 
 import logging
 
-from tests.repro.conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
+from tests.conftest import BACKEND, REBUILD, VALIDATE_ARGS, SHAPE
 
 class TestTranscendentalFunctions(unittest.TestCase):
     

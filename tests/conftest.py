@@ -54,7 +54,22 @@ def compile_fortran_stencil(
     mode = getattr(fortran_script, fortran_module)
     return getattr(mode, fortran_stencil)
 
+
 # fixtures
+@pytest.fixture(name="computational_grid", scope="module")
+def computational_grid_fixture():
+    return DEFAULT_GRID
+
+@pytest.fixture(name="gt4py_config", scope="module")
+def gt4py_config_fixture():
+    return GT4PyConfig(
+            backend="gt:cpu_ifirst", 
+            rebuild=True, 
+            validate_args=True, 
+            verbose=True
+        )
+
+
 @pytest.fixture(name="grid", scope="module")
 def grid_fixture():
     return DEFAULT_GRID.grids[(I, J, K)]

@@ -7,7 +7,7 @@ import pytest
 
 import logging
 
-from .conftest import compile_fortran_stencil
+from conftest import compile_fortran_stencil
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])

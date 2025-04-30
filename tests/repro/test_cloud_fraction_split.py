@@ -7,7 +7,7 @@ from ctypes import c_float, c_double
 
 import logging 
 
-from .conftest import compile_fortran_stencil, get_backends 
+from conftest import compile_fortran_stencil, get_backends 
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
