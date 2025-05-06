@@ -459,7 +459,7 @@ def test_sigrc_computation(gt4py_config, externals, fortran_dims, precision, bac
     assert_allclose(FieldsOut["psigrc"], sigrc_gt4py.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), rtol=1e-6)
 
 
-def test_global_table(self):
+def test_global_table():
     
     fortran_global_table = compile_fortran_stencil(
         "mode_condensation.F90", 

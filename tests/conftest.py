@@ -44,8 +44,7 @@ def compile_fortran_stencil(
         _type_: _description_
     """
     #### Fortran subroutine
-    file_path = Path(__file__)
-    root_directory = file_path.parent.parent.parent
+    root_directory = Path(__file__).parent.parent
     stencils_directory = Path(root_directory, "src", "ice3_gt4py", "stencils_fortran")
     script_path = Path(stencils_directory, fortran_script)
 
