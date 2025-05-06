@@ -92,7 +92,7 @@ contains
         integer, intent(in) :: nijb, nije
         logical, intent(in) :: lsubg_cond
         real, intent(in) :: xcriautc, xcriauti, xacriauti, xbcriauti, xtt
-        character(len=80), intent(in) :: csubg_mf_pdf
+        integer, intent(in) :: csubg_mf_pdf
 
         real, intent(in)   :: ptstep    ! double time step
         real, dimension(nijt, nkt), intent(in)    ::  pexnref ! reference exner function
@@ -136,15 +136,17 @@ contains
                 end do
             else
 
-                llnone = csubg_mf_pdf == 'none'
-                lltriangle = csubg_mf_pdf == 'triangle'
+                llnone = csubg_mf_pdf == 0
+                lltriangle = csubg_mf_pdf == 1
                 do jij = nijb, nije
                     zw1 = prc_mf(jij, jk) / ptstep
                     zw2 = pri_mf(jij, jk) / ptstep
+
                     if (zw1 + zw2 > prvs(jij, jk)) then
                         zw1 = zw1 * prvs(jij, jk) / (zw1 + zw2)
                         zw2 = prvs(jij, jk) - zw1
                     end if
+
                     pcldfr(jij, jk) = min(1., pcldfr(jij, jk) + pcf_mf(jij, jk))
                     prcs(jij, jk) = prcs(jij, jk) + zw1
                     pris(jij, jk) = pris(jij, jk) + zw2
@@ -159,12 +161,12 @@ contains
                             phlc_hrc(jij, jk) = phlc_hrc(jij, jk) + zw1 * ptstep
                             phlc_hcf(jij, jk) = min(1., phlc_hcf(jij, jk) + pcf_mf(jij, jk))
                         end if
-                    elseif (lltriangle) then
+                    else if (lltriangle) then
                         if (zw1 * ptstep > pcf_mf(jij, jk) * zcriaut) then
                             zhcf = 1.-.5 * (zcriaut * pcf_mf(jij, jk) / max(1.e-20, zw1 * ptstep)) ** 2
                             zhr = zw1 * ptstep - (zcriaut * pcf_mf(jij, jk)) ** 3 / &
                                 &(3 * max(1.e-20, zw1 * ptstep) ** 2)
-                        elseif (2.* zw1 * ptstep <= pcf_mf(jij, jk) * zcriaut) then
+                        else if (2.* zw1 * ptstep <= pcf_mf(jij, jk) * zcriaut) then
                             zhcf = 0.
                             zhr = 0.
                         else
@@ -187,11 +189,11 @@ contains
                             phli_hri(jij, jk) = phli_hri(jij, jk) + zw2 * ptstep
                             phli_hcf(jij, jk) = min(1., phli_hcf(jij, jk) + pcf_mf(jij, jk))
                         end if
-                    elseif (lltriangle) then
+                    else if (lltriangle) then
                         if (zw2 * ptstep > pcf_mf(jij, jk) * zcriaut) then
                             zhcf = 1.-.5 * (zcriaut * pcf_mf(jij, jk) / (zw2 * ptstep)) ** 2
                             zhr = zw2 * ptstep - (zcriaut * pcf_mf(jij, jk)) ** 3 / (3 * (zw2 * ptstep) ** 2)
-                        elseif (2.* zw2 * ptstep <= pcf_mf(jij, jk) * zcriaut) then
+                        else if (2.* zw2 * ptstep <= pcf_mf(jij, jk) * zcriaut) then
                             zhcf = 0.
                             zhr = 0.
                         else

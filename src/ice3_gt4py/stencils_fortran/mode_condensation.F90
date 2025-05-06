@@ -1,7 +1,6 @@
 module mode_condensation
-
+   implicit none
 contains
-
    subroutine condensation(nijb, nije, nktb, nkte, nijt, nkt,  &
        &xrv, xrd, xalpi, xbetai, xgami, xalpw, xbetaw, xgamw,  &
        &xtmaxmix, xtminmix,                                    &

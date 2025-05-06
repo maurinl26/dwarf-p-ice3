@@ -341,16 +341,20 @@ def test_cloud_fraction_1(gt4py_config, externals, fortran_dims, precision, back
         assert_allclose(FieldsOut["pris"], ris_gt4py.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), rtol=1e-6)
         
 
+@pytest.mark.parametrize("subg_mf_pdf", [0, 1])
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
-def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
+def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, backend, grid, origin, subg_mf_pdf):
         
         # Setting backend and precision
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
         
         logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
-        externals["LSUBG_COND"] = True       
+        externals["LSUBG_COND"] = True 
+        externals.update({
+            "SUBG_MF_PDF": subg_mf_pdf
+        })      
         
         # Fortran and GT4Py stencils compilation
         cloud_fraction_2 = compile_stencil("cloud_fraction_2", gt4py_config, externals)
@@ -429,8 +433,6 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
             domain=grid.shape,
             origin=origin
         )
-
-        
         
         logging.info(f"SUBG_MF_PDF  : {externals["SUBG_MF_PDF"]}")
         logging.info(f"LSUBG_COND   : {externals["LSUBG_COND"]}")
@@ -449,6 +451,12 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
             key: externals[value]
             for key, value in keys_mapping.items()
         }
+        
+        logging.info(f"csubg_mf_pdf : {fortran_externals['csubg_mf_pdf']}")
+        
+        from ice3_gt4py.phyex_common.param_ice import SubGridMassFluxPDF
+        logging.info(f"csubg_mf_pdf : {SubGridMassFluxPDF(fortran_externals['csubg_mf_pdf'])}")
+        logging.info(f"lsubg_cond   : {fortran_externals['lsubg_cond']}")
         
         F2Py_Mapping = {
             "pexnref":"exnref", 
@@ -473,7 +481,6 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         
         Py2F_Mapping =  dict(map(reversed, F2Py_Mapping.items()))
 
-        
         Fortran_FloatFieldsIJK = {
             Py2F_Mapping[name]: field.reshape(grid.shape[0]*grid.shape[1], grid.shape[2])
             for name, field in FloatFieldsIJK.items()
@@ -487,16 +494,21 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
             **fortran_externals
         )
         
-        pcldfr_out = result[0] 
-        phlc_hrc_out = result[1] 
-        phlc_hcf_out = result[2]
-        phli_hri_out = result[3]
-        phli_hcf_out = result[4]
+        pths_out = result[0]
+        prvs_out = result[1]
+        prcs_out = result[2]
+        pris_out = result[3]
+        
+        pcldfr_out = result[4] 
+        phlc_hrc_out = result[5] 
+        phlc_hcf_out = result[6]
+        phli_hri_out = result[7]
+        phli_hcf_out = result[8]
         
         logging.info(f"Machine precision {np.finfo(float).eps}")
         
         logging.info(f"Mean cldfr_gt4py     {cldfr_gt4py.mean()}")
-        logging.info(f"Mean pthpcldfr_out   {pcldfr_out.mean()}")
+        logging.info(f"Mean pcldfr_out      {pcldfr_out.mean()}")
 
         logging.info(f"Mean hlc_hrc_gt4py   {hlc_hrc_gt4py.mean()}")
         logging.info(f"Mean phlc_hrc_out    {phlc_hrc_out.mean()}")
