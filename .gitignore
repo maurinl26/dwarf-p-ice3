@@ -25,6 +25,8 @@ src/ice3_gt4py/drivers/tests.py
 src/ice3_gt4py/stencils/ice4*
 src/testprogs_data/fortran/
 src/ice3_gt4py/stencils_fortran/ref
+src/drivers/cffi_driver
+src
 output/
 dist/
 venv*
