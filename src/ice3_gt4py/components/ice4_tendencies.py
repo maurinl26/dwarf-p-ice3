@@ -1,17 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import logging
-from dataclasses import asdict
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
 from gt4py.storage import from_array
-import numpy as np
-from ice3_gt4py.phyex_common.xker_raccs import ker_raccs, ker_raccss, ker_saccrg
-from ice3_gt4py.phyex_common.xker_sdryg import ker_sdryg
-from ice3_gt4py.phyex_common.xker_rdryg import ker_rdryg
+from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
+from ice3_gt4py.phyex_common.xker_sdryg import KER_SDRYG
+from ice3_gt4py.phyex_common.xker_rdryg import KER_RDRYG
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
@@ -47,11 +44,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         self.gaminc_rim2 = phyex.rain_ice_param.GAMINC_RIM2
         self.gaminc_rim4 = phyex.rain_ice_param.GAMINC_RIM4
 
-        self.ker_raccs = phyex.rain_ice_param.ker_raccs
-        self.ker_raccss = phyex.rain_ice_param.ker_raccss
-        self.ker_saccrg = phyex.rain_ice_param.ker_saccrg
-        self.ker_sdryg = phyex.rain_ice_param.ker_sdryg
-        self.ker_rdryg = phyex.rain_ice_param.ker_rdryg
 
         # Tendencies
         self.ice4_nucleation = self.compile_stencil("ice4_nucleation", externals)
@@ -102,7 +94,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
-            "ldcompute": {"grid": (I, J, K), "dtype": "bool", "unit": ""},
+            "ldcompute": {"grid": (I, J, K), "dtype":"bool", "unit": ""},
             "pres": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "rhodref": {"grid": (I, J, K), "dtype": "float", "unit": ""},
             "exn": {"grid": (I, J, K), "dtype": "float", "unit": ""},
@@ -735,11 +727,11 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 self.gaminc_rim4, backend=self.gt4py_config.backend
             )
 
-            ker_raccs = from_array(self.ker_raccs, backend=self.gt4py_config.backend)
+            ker_raccs = from_array(KER_RACCS, backend=self.gt4py_config.backend)
             ker_raccss = from_array(
-                self.ker_raccss, backend=self.gt4py_config.backendEND
+                KER_RACCSS, backend=self.gt4py_config.backend
             )
-            ker_saccrg = from_array(self.ker_saccrg, backend=self.gt4py_config.backend)
+            ker_saccrg = from_array(KER_SACCRG, backend=self.gt4py_config.backend)
 
             self.ice4_fast_rs(
                 ldsoft=ldsoft,
@@ -831,8 +823,8 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "index_floor_r": index_floor_r,
             }
 
-            ker_sdryg = from_array(self.ker_sdryg, backend=self.gt4py_config.backend)
-            ker_rdryg = from_array(self.ker_rdryg, backend=self.gt4py_config.backend)
+            ker_sdryg = from_array(KER_SDRYG, backend=self.gt4py_config.backend)
+            ker_rdryg = from_array(KER_RDRYG, backend=self.gt4py_config.backend)
 
             self.ice4_fast_rg(
                 ldsoft=ldsoft,
