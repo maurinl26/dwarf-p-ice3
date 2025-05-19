@@ -121,6 +121,46 @@ def test_ice4_nucleation(
         origin=origin,
     )
 
+    externals_mapping = {
+        "xtt": "TT",
+        "v_rtmin": "V_RTMIN",
+        "xalpw": "ALPW",
+        "xbetaw": "BETAW",
+        "xgamw": "GAMW",
+        "xalpi": "ALPI",
+        "xbetai": "BETAI",
+        "xgami": "GAMI",
+        "xepsilo": "EPSILO",
+        "xnu10": "NU10",
+        "xnu20": "NU20",
+        "xalpha1": "ALPHA1",
+        "xalpha2": "ALPHA2",
+        "xbeta1": "BETA1",
+        "xbeta2": "BETA2",
+        "xmnu0": "MNU0",
+        "lfeedbackt": "LFEEDBACKT",
+    }
+
+    fortran_externals = {
+        fkey: externals[pykey] for fkey, pykey in externals_mapping.items()
+    }
+
+    f2py_mapping = {
+        "ptht": "tht",
+        "ppabst": "pabst",
+        "prhodref": "rhodref",
+        "pexn": "exn",
+        "plsfact": "lsfact",
+        "pt": "t",
+        "prvt": "rvt",
+        "pcit": "cit",
+        "prvheni_mr": "rvheni_mr",
+    }
+
+    fortran_FloatFieldsIJK = {
+        name: FloatFieldsIJK[value].ravel() for name, value in f2py_mapping.items()
+    }
+
     result = fortran_stencil(
         ldcompute=ldcompute.ravel(),
         **fortran_FloatFieldsIJK,
@@ -134,13 +174,13 @@ def test_ice4_nucleation(
     logging.info(f"Machine precision {np.finfo(float).eps}")
 
     logging.info(f"Mean cit_out     {cit_out.mean()}")
-    logging.info(f"Mean cit_gt4py   {GT4Py_FloatFieldsIJK['cit'].mean()}")
+    logging.info(f"Mean cit_gt4py   {cit_gt4py.mean()}")
 
     logging.info(f"Mean rvheni_mr_out     {rvheni_mr_out.mean()}")
-    logging.info(f"Mean rvheni_mr_gt4py   {GT4Py_FloatFieldsIJK['rvheni_mr'].mean()}")
+    logging.info(f"Mean rvheni_mr_gt4py   {rvheni_mr_gt4py.mean()}")
 
-    assert_allclose(cit_out, GT4Py_FloatFieldsIJK['cit'].ravel(), 10e-6)
-    assert_allclose(rvheni_mr_out, GT4Py_FloatFieldsIJK['rvheni_mr'].ravel(), 10e-6)
+    assert_allclose(cit_out, cit_gt4py.ravel(), 10e-6)
+    assert_allclose(rvheni_mr_out, rvheni_mr_gt4py.ravel(), 10e-6)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -163,7 +203,7 @@ def test_ice4_rimltc(
         order="F",
     )
 
-    FloatFieldsIJK_Names = [
+    FloatFieldsIJK_names = [
         "t",
         "exn",
         "lvfact",
@@ -173,10 +213,54 @@ def test_ice4_rimltc(
         "rimltc_mr",
     ]
 
-    FloatFieldsIJK = draw_fields(
-        FloatFieldsIJK_Names,
-        gt4py_config,
-        grid
+    FloatFieldsIJK = {
+        name: np.array(
+            np.random.rand(*grid.shape),
+            dtype=float,
+            order="F",
+        )
+        for name in FloatFieldsIJK_names
+    }
+
+    ldcompute_gt4py = from_array(
+        ldcompute,
+        dtype=bool,
+        backend=gt4py_config.backend,
+    )
+    t_gt4py = from_array(
+        FloatFieldsIJK["t"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
+    )
+    exn_gt4py = from_array(
+        FloatFieldsIJK["exn"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
+    )
+    lvfact_gt4py = from_array(
+        FloatFieldsIJK["lvfact"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
+    )
+    lsfact_gt4py = from_array(
+        FloatFieldsIJK["lsfact"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
+    )
+    tht_gt4py = from_array(
+        FloatFieldsIJK["tht"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
+    )  # theta at time t
+    rit_gt4py = from_array(
+        FloatFieldsIJK["rit"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
+    )  # rain water mixing ratio at t
+    rimltc_mr_gt4py = from_array(
+        FloatFieldsIJK["rimltc_mr"],
+        dtype=gt4py_config.dtypes.float,
+        backend=gt4py_config.backend,
     )
 
     GT4Py_FloatFieldsIJK = allocate_gt4py_fields(
@@ -427,7 +511,7 @@ def test_ice4_warm(
         order="F",
     )
 
-    FloatFieldsIJK_Names = [
+    FloatFieldsIJK_names = [
         "rhodref",
         "t",
         "pres",
@@ -452,27 +536,34 @@ def test_ice4_warm(
     FloatFieldsIJK = {
         name: np.array(
             np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            dtype=c_float,
             order="F",
         )
-        for name in FloatFieldsIJK_Names
+        for name in FloatFieldsIJK_names
     }
-
-    GT4Py_FloatFieldsIJK = {
-        name: gt4py.storage.zeros(
-            shape=grid.shape,
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        for name in FloatFieldsIJK_Names
-    }
-
-    # Allocate
-    for name in GT4Py_FloatFieldsIJK.keys():
-        GT4Py_FloatFieldsIJK[name] = FloatFieldsIJK[name]
 
 
     ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
+    rhodref_gt4py = from_array(FloatFieldsIJK["rhodref"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    pres_gt4py = from_array(FloatFieldsIJK["pres"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    lbdar_gt4py = from_array(FloatFieldsIJK["lbdar"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    lbdar_rf_gt4py = from_array(FloatFieldsIJK["lbdar_rf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    ka_gt4py = from_array(FloatFieldsIJK["ka"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    dv_gt4py = from_array(FloatFieldsIJK["dv"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    cj_gt4py = from_array(FloatFieldsIJK["cj"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    hlc_hcf_gt4py = from_array(FloatFieldsIJK["hlc_hcf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    hlc_hrc_gt4py = from_array(FloatFieldsIJK["hlc_hrc"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    cf_gt4py = from_array(FloatFieldsIJK["cf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rf_gt4py = from_array(FloatFieldsIJK["rf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rvt_gt4py = from_array(FloatFieldsIJK["rvt"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rct_gt4py = from_array(FloatFieldsIJK["rct"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rrt_gt4py = from_array(FloatFieldsIJK["rrt"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rcautr_gt4py = from_array(FloatFieldsIJK["rcautr"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rcaccr_gt4py = from_array(FloatFieldsIJK["rcaccr"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rrevav_gt4py = from_array(FloatFieldsIJK["rrevav"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+
     ldsoft = False
 
     ice4_warm_gt4py(

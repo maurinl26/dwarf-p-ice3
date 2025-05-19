@@ -40,8 +40,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
         externals = phyex.to_externals()
 
-        # Switch between numpy and cupy
-
         # Stencil collections
         self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
         self.ice4_step_limiter = self.compile_stencil("ice4_step_limiter", externals)
@@ -80,9 +78,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
-        return {
-
-        }
+        return {}
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:

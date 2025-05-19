@@ -1,11 +1,6 @@
 import pytest
-
-from tests.conftest import get_backends, compile_fortran_stencil
+from conftest import get_backends, compile_fortran_stencil
 from ifs_physics_common.framework.stencil import compile_stencil
-from tests.allocate_random_fields import draw_fields, allocate_fields, allocate_gt4py_fields, allocate_fortran_fields, \
-    get_fields
-
-from numpy.testing import assert_allclose
 
 @pytest.mark.skip("Not Implemented")
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -19,7 +14,7 @@ def test_ice4_stepping_heat(
 
     ice4_stepping_heat = compile_stencil("ice4_stepping_heat", gt4py_config, externals)
     fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_stepping.F90", "mode_ice4_stepping", "ice4_stepping_heat"
+        "mode_ice4_rimltc.F90", "mode_ice4_rimltc", "ice4_rimltc"
     )
 
     FloatFieldsIJK_names = [
@@ -35,52 +30,61 @@ def test_ice4_stepping_heat(
         "t"
     ]
 
-    f2py_names = {
-        "prvt":"rv_t",
-        "prct":"rc_t",
-        "prrt":"rr_t",
-        "prst":"rs_t",
-        "prgt":"rg_t",
-        "pexn":"exn",
-        "ptht":"th_t",
-        "zlsfact":"ls_fact",
-        "zlvfact":"lv_fact",
-        "zzt":"t"
-    }
+    ...
 
-    fexternals = {
-        fname: externals[pyname]
-        for fname, pyname in {
-        "xcpd":"CPD",
-        "xcpv":"CPV",
-        "xcl":"CL",
-        "xci":"CI",
-        "xtt":"TT",
-        "xlvtt":"LVTT",
-        "xlstt":"LSTT"
-        }.items()
-    }
+@pytest.mark.skip("Not Implemented")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_ice4_step_limiter(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
 
-    # Get random fields + gt4py buffer + fortran reshaping
-    GT4Py_FloatFieldsIJK, Fortran_FloatFieldsIJK = get_fields(FloatFieldsIJK_names, f2py_names, gt4py_config, grid)
+@pytest.mark.skip("Not Implemented")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_ice4_mixing_ratio_step_limiter(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
 
-    ice4_stepping_heat(
-        **GT4Py_FloatFieldsIJK,
-        domain=grid.shape,
-        origin=origin
-        )
+@pytest.mark.skip("Not Implemented")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_ice4_state_update(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
 
-    result = fortran_stencil(
-        **Fortran_FloatFieldsIJK,
-        **fortran_packed_dims,
-        **fexternals
-    )
+@pytest.mark.skip("Not Implemented")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_external_tendencies_update(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
 
-    zzt = result[0]
-    zlsfact = result[1]
-    zlvfact = result[2]
+@pytest.mark.skip("Not Implemented")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_tmicro_init(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
 
-    assert_allclose(zzt, GT4Py_FloatFieldsIJK["t"])
-    assert_allclose(zlsfact, GT4Py_FloatFieldsIJK["ls_fact"])
-    assert_allclose(zlvfact, GT4Py_FloatFieldsIJK["lv_fact"])
+@pytest.mark.skip("Variable initialization")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_tsoft_init(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
+
+@pytest.mark.skip("Not Implemented")
+@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("backend", get_backends())
+def test_ldcompute_init(
+    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+):
+    ...
 

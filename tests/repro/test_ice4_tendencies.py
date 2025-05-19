@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 import pytest
-from tests.conftest import get_backends, compile_fortran_stencil
+from conftest import get_backends, compile_fortran_stencil
 from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
@@ -143,7 +143,7 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
 
         FloatFieldsIJK =  {
             name: np.array(
-                np.random.rand(*grid.shape),
+                np.random.rand(*grid),
                 dtype=gt4py_config.dtypes.float,
                 order="F",
             ) for name in FloatFieldsIJK_names
@@ -254,7 +254,7 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
 
         FloatFieldsIJK = {
             name: np.array(
-            np.random.rand(*grid.shape),
+            np.random.rand(*grid),
             dtype=gt4py_config.dtypes.float,
             order="F",
         ) for name in FloatFieldsIJK_names
