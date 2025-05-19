@@ -1,14 +1,9 @@
 import logging
-import unittest
-from pathlib import Path
 
-import fmodpy
 import numpy as np
 import pytest
-from conftest import backend, REBUILD, SHAPE, VALIDATE_ARGS
 from conftest import get_backends, compile_fortran_stencil
 from gt4py.storage import from_array
-from ifs_physics_common.framework.config import DataTypes, GT4PyConfig
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
@@ -46,17 +41,14 @@ def test_ice4_nucleation_post_processing(
         order="F",
     ) for name in FloatFieldsIJK_names
     }
-    
-  
-    
 
-    t_gt4py = from_array(FloatFieldsIJK, dtype=gt4py_config.dtypes.float, backend=backend)
-    exn_gt4py = from_array(exn, dtype=gt4py_config.dtypes.float, backend=backend)
-    lsfact_gt4py = from_array(lsfact, dtype=gt4py_config.dtypes.float, backend=backend)
-    tht_gt4py = from_array(tht, dtype=gt4py_config.dtypes.float, backend=backend)
-    rvt_gt4py = from_array(rvt, dtype=gt4py_config.dtypes.float, backend=backend)
-    rit_gt4py = from_array(rit, dtype=gt4py_config.dtypes.float, backend=backend)
-    rvheni_mr_gt4py = from_array(rvheni_mr, dtype=gt4py_config.dtypes.float, backend=backend)
+    t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=backend)
+    exn_gt4py = from_array(FloatFieldsIJK["exn"], dtype=gt4py_config.dtypes.float, backend=backend)
+    lsfact_gt4py = from_array(FloatFieldsIJK["lsfact"], dtype=gt4py_config.dtypes.float, backend=backend)
+    tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=backend)
+    rvt_gt4py = from_array(FloatFieldsIJK["rvt"], dtype=gt4py_config.dtypes.float, backend=backend)
+    rit_gt4py = from_array(FloatFieldsIJK["rit"], dtype=gt4py_config.dtypes.float, backend=backend)
+    rvheni_mr_gt4py = from_array(FloatFieldsIJK["rvheni_mr"], dtype=gt4py_config.dtypes.float, backend=backend)
 
     ice4_nucleation_post_processing_gt4py(
         t=t_gt4py,
@@ -70,15 +62,23 @@ def test_ice4_nucleation_post_processing(
         origin=(0, 0, 0)
     )
 
+    f2py_mapping = {
+        "plsfact": "lsfact",
+        "pexn": "exn",
+        "ptht": "tht",
+        "prit": "rit",
+        "prvt": "rvt",
+        "zt": "t",
+        "prvheni_mr": "rvheni_mr"
+    }
 
-    result = fortran_script.mode_ice4_tendencies.ice4_nucleation_post_processing(
-        plsfact=lsfact.ravel(),
-        pexn=exn.ravel(),
-        tht=tht.ravel(),
-        prit=rit.ravel(),
-        prvt=rvt.ravel(),
-        zt=t.ravel(),
-        rvheni_mr=rvheni_mr.ravel(),
+    fortran_FloatFieldsIJK = {
+        name: FloatFieldsIJK[value].ravel()
+        for name, value in f2py_mapping.items()
+    }
+
+    result = fortran_stencil(
+        **fortran_FloatFieldsIJK,
         **fortran_packed_dims
     )
 
@@ -120,6 +120,7 @@ def test_ice4_nucleation_post_processing(
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
 def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin):
+
         # Setting backend and precision
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
@@ -129,59 +130,33 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
         "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_rrhong_post_processing"
         )
 
-        ice4_rrhong_post_processing_gt4py = compile_stencil(
-            "ice4_rrhong_post_processing", gt4py_config, externals
-        )
+        FloatFieldsIJK_names = [
+            "t",
+            "exn",
+            "lsfact",
+            "lvfact",
+            "tht",
+            "rrt",
+            "rgt",
+            "rrhong_mr"
+        ]
 
-        t = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        exn = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        lsfact = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        lvfact = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        tht = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rrt = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rgt = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rrhong_mr = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
+        FloatFieldsIJK =  {
+            name: np.array(
+                np.random.rand(*grid),
+                dtype=gt4py_config.dtypes.float,
+                order="F",
+            ) for name in FloatFieldsIJK_names
+        }
 
-        t_gt4py = from_array(t, dtype=gt4py_config.dtypes.float, backend=backend)
-        exn_gt4py = from_array(exn, dtype=gt4py_config.dtypes.float, backend=backend)
-        lsfact_gt4py = from_array(lsfact, dtype=gt4py_config.dtypes.float, backend=backend)
-        lvfact_gt4py = from_array(lvfact, dtype=gt4py_config.dtypes.float, backend=backend)
-        tht_gt4py = from_array(tht, dtype=gt4py_config.dtypes.float, backend=backend)
-        rrt_gt4py = from_array(rrt, dtype=gt4py_config.dtypes.float, backend=backend)
-        rgt_gt4py = from_array(rgt, dtype=gt4py_config.dtypes.float, backend=backend)
-        rrhong_mr_gt4py = from_array(rrhong_mr, dtype=gt4py_config.dtypes.float, backend=backend)
+        t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=backend)
+        exn_gt4py = from_array(FloatFieldsIJK["exn"], dtype=gt4py_config.dtypes.float, backend=backend)
+        lsfact_gt4py = from_array(FloatFieldsIJK["lsfact"], dtype=gt4py_config.dtypes.float, backend=backend)
+        lvfact_gt4py = from_array(FloatFieldsIJK["lvfact"], dtype=gt4py_config.dtypes.float, backend=backend)
+        tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=backend)
+        rrt_gt4py = from_array(FloatFieldsIJK["rrt"], dtype=gt4py_config.dtypes.float, backend=backend)
+        rgt_gt4py = from_array(FloatFieldsIJK["rgt"], dtype=gt4py_config.dtypes.float, backend=backend)
+        rrhong_mr_gt4py = from_array(FloatFieldsIJK["rrhong_mr"], dtype=gt4py_config.dtypes.float, backend=backend)
 
         ice4_rrhong_post_processing_gt4py(
             t=t_gt4py,
@@ -196,15 +171,26 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
             origin=(0, 0, 0)
         )
 
+        f2py_mapping = {
+            "p"+name: name for name in [
+                "lsfact",
+                "lvfact",
+                "exn",
+                "rrhong_mr",
+                "tht",
+                "t",
+                "rrt",
+                "rgt"
+            ]
+        }
+
+        fortran_FloatFieldsIJK = {
+            name: FloatFieldsIJK[value].ravel()
+            for name, value in f2py_mapping.items()
+        }
+
         result = fortran_stencil(
-            plsfact=lsfact.ravel(),
-            plvfact=lvfact.ravel(),
-            pexn=exn.ravel(),
-            prrhong_mr=rrhong_mr.ravel(),
-            ptht=tht.ravel(),
-            pt=t.ravel(),
-            prrt=rrt.ravel(),
-            prgt=rgt.ravel(),
+            **fortran_FloatFieldsIJK,
             **fortran_packed_dims
         )
 
@@ -237,10 +223,10 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
 
         logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
 
-        assert_allclose(tht_out, tht_gt4py[...].ravel(), rtol=1e-3)
-        assert_allclose(t_out, t_gt4py[...].ravel(), rtol=1e-3)
-        assert_allclose(rrt_out, rrt_gt4py[...].ravel(), rtol=1e-3)
-        assert_allclose(rgt_out, rgt_gt4py[...].ravel(), rtol=1e-3)
+        assert_allclose(tht_out, tht_gt4py.ravel(), rtol=1e-3)
+        assert_allclose(t_out, t_gt4py.ravel(), rtol=1e-3)
+        assert_allclose(rrt_out, rrt_gt4py.ravel(), rtol=1e-3)
+        assert_allclose(rgt_out, rgt_gt4py.ravel(), rtol=1e-3)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -255,61 +241,33 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
         "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_rimltc_post_processing"
         )
 
+        FloatFieldsIJK_names = [
+            "t",
+            "exn",
+            "lsfact",
+            "lvfact",
+            "rimltc_mr",
+            "tht",
+            "rct",
+            "rit",
+        ]
 
-        ice4_rimltc_post_processing_gt4py = compile_stencil(
-            "ice4_rimltc_post_processing", gt4py_config, externals
-        )
+        FloatFieldsIJK = {
+            name: np.array(
+            np.random.rand(*grid),
+            dtype=gt4py_config.dtypes.float,
+            order="F",
+        ) for name in FloatFieldsIJK_names
+        }
 
-        t = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-
-        exn = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        lsfact = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        lvfact = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rimltc_mr = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        tht = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rct = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rit = np.array(
-            np.random.rand(*grid),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-
-        t_gt4py = from_array(t, dtype=gt4py_config.dtypes.float, backend=backend)
-        exn_gt4py = from_array(exn, dtype=gt4py_config.dtypes.float, backend=backend)
-        lsfact_gt4py = from_array(lsfact, dtype=gt4py_config.dtypes.float, backend=backend)
-        lvfact_gt4py = from_array(lvfact, dtype=gt4py_config.dtypes.float, backend=backend)
-        tht_gt4py = from_array(tht, dtype=gt4py_config.dtypes.float, backend=backend)
-        rimltc_mr_gt4py = from_array(rimltc_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-        rct_gt4py = from_array(rct, dtype=gt4py_config.dtypes.float, backend=backend)
-        rit_gt4py = from_array(rit, dtype=gt4py_config.dtypes.float, backend=backend)
+        t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=backend)
+        exn_gt4py = from_array(FloatFieldsIJK["exn"], dtype=gt4py_config.dtypes.float, backend=backend)
+        lsfact_gt4py = from_array(FloatFieldsIJK["lsfact"], dtype=gt4py_config.dtypes.float, backend=backend)
+        lvfact_gt4py = from_array(FloatFieldsIJK["lvfact"], dtype=gt4py_config.dtypes.float, backend=backend)
+        tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=backend)
+        rimltc_mr_gt4py = from_array(FloatFieldsIJK["rimltc_mr"], dtype=gt4py_config.dtypes.float, backend=backend)
+        rct_gt4py = from_array(FloatFieldsIJK["rct"], dtype=gt4py_config.dtypes.float, backend=backend)
+        rit_gt4py = from_array(FloatFieldsIJK["rit"], dtype=gt4py_config.dtypes.float, backend=backend)
 
         ice4_rimltc_post_processing_gt4py(
             t=t_gt4py,
@@ -324,15 +282,26 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
             origin=(0, 0, 0)
         )
 
+        f2py_mapping = {
+            "p"+name: name for name in [
+                "lsfact",
+                "lvfact",
+                "exn",
+                "rimltc_mr",
+                "tht",
+                "t",
+                "rit",
+                "rct",
+            ]
+        }
+
+        fortran_FloatFieldsIJK = {
+            name: FloatFieldsIJK[value].ravel()
+            for name, value in f2py_mapping.items()
+        }
+
         result = fortran_stencil(
-            plsfact=lsfact.ravel(),
-            plvfact=lvfact.ravel(),
-            pexn=exn.ravel(),
-            primltc_mr=rimltc_mr.ravel(),
-            ptht=tht.ravel(),
-            pt=t.ravel(),
-            prit=rit.ravel(),
-            prct=rct.ravel(),
+            **fortran_FloatFieldsIJK,
             **fortran_packed_dims
         )
 
@@ -355,10 +324,10 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
 
         logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
 
-        assert_allclose(tht_out, tht_gt4py[...].ravel(), rtol=1e-3)
-        assert_allclose(t_out, t_gt4py[...].ravel(), rtol=1e-3)
-        assert_allclose(rct_out, rct_gt4py[...].ravel(), rtol=1e-3)
-        assert_allclose(rit_out, rit_gt4py[...].ravel(), rtol=1e-3)
+        assert_allclose(tht_out, tht_gt4py.ravel(), rtol=1e-3)
+        assert_allclose(t_out, t_gt4py.ravel(), rtol=1e-3)
+        assert_allclose(rct_out, rct_gt4py.ravel(), rtol=1e-3)
+        assert_allclose(rit_out, rit_gt4py.ravel(), rtol=1e-3)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -368,7 +337,6 @@ def test_ice4_fast_rg_pre_processing(gt4py_config, externals, fortran_packed_dim
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
 
-        ice4_nucleation_post_processing_gt4py = compile_stencil("ice4_fast_rg_pre_processing", gt4py_config, externals)
         fortran_stencil = compile_fortran_stencil(
         "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_fast_rg_pre_processing"
         )
@@ -376,6 +344,8 @@ def test_ice4_fast_rg_pre_processing(gt4py_config, externals, fortran_packed_dim
         ice4_fast_rg_pre_processing_gt4py = compile_stencil(
             "ice4_fast_rg_pre_processing", gt4py_config, externals
         )
+
+
 
         rgsi = np.array(
             np.random.rand(*grid),
@@ -496,7 +466,6 @@ def test_ice4_increment_update(gt4py_config, externals, fortran_packed_dims, pre
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
 
-        ice4_nucleation_post_processing_gt4py = compile_stencil("ice4_increment_update", gt4py_config, externals)
         fortran_stencil = compile_fortran_stencil(
             "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_increment_update"
         )
@@ -671,7 +640,6 @@ def test_ice4_derived_fields(gt4py_config, externals, fortran_packed_dims, preci
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
 
-        ice4_nucleation_post_processing_gt4py = compile_stencil("ice4_derived_fields", gt4py_config, externals)
         fortran_stencil = compile_fortran_stencil(
         "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_derived_fields"
         )
@@ -849,10 +817,6 @@ def test_ice4_slope_parameters(gt4py_config, externals, fortran_packed_dims, pre
         "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_slope_parameters"
         )
 
-        ice4_slope_parameters = compile_stencil(
-            "ice4_slope_parameters", gt4py_config, externals
-        )
-
         rhodref = np.array(
             np.random.rand(*grid),
             dtype=gt4py_config.dtypes.float,
@@ -992,7 +956,6 @@ def test_ice4_total_tendencies_update(gt4py_config, externals, fortran_packed_di
         gt4py_config.backend = backend
         gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
 
-        ice4_total_tendencies_update_gt4py = compile_stencil("ice4_total_tendencies_update", gt4py_config, externals)
         fortran_stencil = compile_fortran_stencil(
             "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_total_tendencies_update"
         )

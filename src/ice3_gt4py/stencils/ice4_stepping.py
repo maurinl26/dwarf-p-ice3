@@ -367,28 +367,27 @@ def step_limiter(
                 delta_t_micro = min(delta_t_micro, delta_t_tmp)
 
     # Tendencies adjustment if a speci disappears
-    # (c)
     with computation(PARALLEL), interval(...):
+        # (c)
         delta_t_micro = mixing_ratio_step_limiter(
             rc_a_tnd, rc_b, rc_t, delta_t_micro, C_RTMIN, MNH_TINY
         )
-    # (r)
-    with computation(PARALLEL), interval(...):
+        # (r)
         delta_t_micro = mixing_ratio_step_limiter(
-            rr_a_tnd, rr_b, rr_t, delta_t_micro, R_RTMIN, MNH_TINY
-        )
-    # (i)
-    with computation(PARALLEL), interval(...):
+        rr_a_tnd, rr_b, rr_t, delta_t_micro, R_RTMIN, MNH_TINY
+    )
+
+        # (i)
         delta_t_micro = mixing_ratio_step_limiter(
             ri_a_tnd, ri_b, ri_t, delta_t_micro, I_RTMIN, MNH_TINY
         )
-    # (s)
-    with computation(PARALLEL), interval(...):
+
+        # (s)
         delta_t_micro = mixing_ratio_step_limiter(
             rs_a_tnd, rs_b, rs_t, delta_t_micro, S_RTMIN, MNH_TINY
         )
-    # (g)
-    with computation(PARALLEL), interval(...):
+
+        # (g)
         delta_t_micro = mixing_ratio_step_limiter(
             rg_a_tnd, rg_b, rg_t, delta_t_micro, G_RTMIN, MNH_TINY
         )
@@ -499,15 +498,15 @@ def external_tendencies_update(
     rs_tnd_ext: Field["float"],
     rg_tnd_ext: Field["float"],
     ldmicro: Field["bool"],
+    dt: "float"
 ):
-    from __externals__ import TSTEP
 
     with computation(PARALLEL), interval(...):
         if ldmicro:
-            th_t -= theta_tnd_ext * TSTEP
-            rc_t -= rc_tnd_ext * TSTEP
-            rr_t -= rr_tnd_ext * TSTEP
-            ri_t -= ri_tnd_ext * TSTEP
-            rs_t -= rs_tnd_ext * TSTEP
-            rg_t -= rg_tnd_ext * TSTEP
+            th_t -= theta_tnd_ext * dt
+            rc_t -= rc_tnd_ext * dt
+            rr_t -= rr_tnd_ext * dt
+            ri_t -= ri_tnd_ext * dt
+            rs_t -= rs_tnd_ext * dt
+            rg_t -= rg_tnd_ext * dt
 

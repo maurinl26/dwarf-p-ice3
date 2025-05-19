@@ -44,7 +44,8 @@ def compile_fortran_stencil(
         _type_: _description_
     """
     #### Fortran subroutine
-    root_directory = Path(__file__).parent.parent
+    file_path = Path(__file__)
+    root_directory = file_path.parent.parent
     stencils_directory = Path(root_directory, "src", "ice3_gt4py", "stencils_fortran")
     script_path = Path(stencils_directory, fortran_script)
 
@@ -62,9 +63,9 @@ def computational_grid_fixture():
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
     return GT4PyConfig(
-            backend="gt:cpu_ifirst", 
-            rebuild=True, 
-            validate_args=True, 
+            backend="gt:cpu_ifirst",
+            rebuild=True,
+            validate_args=True,
             verbose=True
         )
 
@@ -87,8 +88,8 @@ def phyex_fixture():
     return Phyex("AROME")
 
 @pytest.fixture(name="externals", scope="module")
-def externals_fixture(phyex):
-    return phyex.to_externals()
+def externals_fixture():
+    return Phyex("AROME").to_externals()
 
 
 @pytest.fixture(name="fortran_dims", scope="module")
@@ -102,8 +103,8 @@ def fortran_dims_fixture(grid):
         "nije": grid.shape[0] * grid.shape[1],
     }
     
-@pytest.fixture(name="packed_dims", scope="module")
-def packed_dims_fixture(grid):
+@pytest.fixture(name="fortran_packed_dims", scope="module")
+def fortran_packed_dims_fixture(grid):
     return {
         "kproma": grid.shape[0] * grid.shape[1] * grid.shape[2],
         "ksize": grid.shape[0] * grid.shape[1] * grid.shape[2]

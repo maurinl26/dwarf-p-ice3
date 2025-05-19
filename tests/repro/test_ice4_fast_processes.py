@@ -144,6 +144,7 @@ def test_ice4_fast_ri(
 
     result = fortran_stencil(
         ldsoft=ldsoft,
+        ldcompute=ldcompute,
         **fortran_FloatFieldsIJK,
         **fortran_externals,
         **fortran_packed_dims,
