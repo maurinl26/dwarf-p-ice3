@@ -3,14 +3,12 @@ from ctypes import c_double, c_float, c_int
 
 import numpy as np
 import pytest
-from tests.conftest import compile_fortran_stencil, get_backends
+from conftest import compile_fortran_stencil, get_backends
 from gt4py.storage import from_array
-import gt4py
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
 from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
-from tests.allocate_random_fields import draw_fields, allocate_gt4py_fields, allocate_fortran_fields, allocate_fields
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -176,7 +174,7 @@ def test_ice4_fast_rs(
 
     ice4_fast_rs = compile_stencil("ice4_fast_rs", gt4py_config, externals)
     fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_processes.F90", "mode_ice4_fast_processes", "ice4_fast_rs"
+        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
     )
 
     logging.info(f"Machine precision {np.finfo(np.float32).eps}")
@@ -441,6 +439,9 @@ def test_ice4_fast_rs(
         origin=origin,
     )
 
+    fortran_stencil = compile_fortran_stencil(
+        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
+    )
 
     externals_mapping = {
         "ngaminc": "NGAMINC",
@@ -513,47 +514,31 @@ def test_ice4_fast_rs(
         "xaccintp2r": externals["ACCINTP2R"],
     }
 
-    f2py_mapping = {
-        "prhodref": "rhodref",
-        "ppres": "pres",
-        "pdv": "dv",
-        "pka":"ka",
-        "pcj": "cj",
-        "plbdar": "lbdar",
-        "plbdas": "lbdas",
-        "pt": "t",
-        "prvt": "rvt",
-        "prct": "rct",
-        "prrt": "rrt",
-        "prst": "rst",
-        "priaggs": "riaggs",
-        "prcrimss": "rcrimss",
-        "prcrimsg": "rcrimsg",
-        "prsrimcg": "rsrimcg",
-        "prraccss": "rraccss",
-        "prraccsg": "rraccsg",
-        "prsaccrg": "rsaccrg",
-        "prsmltg": "rsmltg",
-        "prcmltsr": "rcmltsr",
-        "rs_rcrims_tend": "rs_rcrims_tnd",
-        "rs_rcrimss_tend": "rs_rcrimss_tnd",
-        "rs_rsrimcg_tend": "rs_rsrimcg_tnd",
-        "rs_rraccs_tend": "rs_rraccs_tnd",
-        "rs_rraccss_tend": "rs_rraccss_tnd",
-        "rs_rsaccrg_tend": "rs_rsaccrg_tnd",
-        "rs_freez1_tend": "rs_freez1_tnd",
-        "rs_freez2_tend": "rs_freez2_tnd",
-    }
-
-    fortran_FloatFieldsIJK = {
-        fname: FloatFieldsIJK[pyname]
-        for fname, pyname in f2py_mapping.items()
-    }
-
     result = fortran_stencil(
         ldsoft=ldsoft,
         ldcompute=ldcompute,
-        **fortran_FloatFieldsIJK,
+        prhodref=rhodref_gt4py,
+        ppres=pres_gt4py,
+        pdv=dv_gt4py,
+        pka=ka_gt4py,
+        pcj=cj_gt4py,
+        plbdar=lbdar_gt4py,
+        plbdas=lbdas_gt4py,
+        pt=t_gt4py,
+        prvt=rvt_gt4py,
+        prct=rct_gt4py,
+        prrt=rrt_gt4py,
+        prst=rst_gt4py,
+        priaggs=riaggs_gt4py,
+        prcrimss=rcrimss_gt4py,
+        prcrimsg=rcrimsg_gt4py,
+        prsrimcg=rsrimcg_gt4py,
+        prraccss=rraccss_gt4py,
+        prraccsg=rraccsg_gt4py,
+        prsaccrg=rsaccrg_gt4py,
+        prsmltg=rs_mltg_tnd_gt4py,
+        prcmltsr=rc_mltsr_tnd_gt4py,
+        prs_tend=rst_gt4py,
         **fortran_packed_dims,
         **fortran_externals,
         **fortran_lookup_tables,
@@ -858,6 +843,10 @@ def test_ice4_fast_rg(
         index_floor_s=index_floor_s_gt4py,
         domain=grid.shape,
         origin=origin,
+    )
+
+    fortran_stencil = compile_fortran_stencil(
+        "mode_ice4_fast_rg.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
     )
 
     fortran_externals = {

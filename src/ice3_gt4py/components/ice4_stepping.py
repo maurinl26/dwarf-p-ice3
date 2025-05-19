@@ -61,7 +61,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
             self.computational_grid, self.gt4py_config, phyex
         )
 
-
     @cached_property
     def _input_properties(self) -> PropertyDict:
         return {
@@ -230,8 +229,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             lsoft = False
 
             # l223 in f90
-            _np_t_micro = to_numpy(t_micro)
-            while (_np_t_micro < dt).any():
+            while np.any(t_micro[...] < dt):
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
@@ -244,7 +242,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                while ldcompute.any():
+                while np.any(ldcompute[...]):
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
