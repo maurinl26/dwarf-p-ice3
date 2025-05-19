@@ -148,7 +148,7 @@ def test_ice4_nucleation(
         fkey: externals[pykey] for fkey, pykey in externals_mapping.items()
     }
 
-    F2Py_Mapping = {
+    f2py_mapping = {
         "ptht": "tht",
         "ppabst": "pabst",
         "prhodref": "rhodref",
@@ -157,12 +157,11 @@ def test_ice4_nucleation(
         "pt": "t",
         "prvt": "rvt",
         "pcit": "cit",
+        "prvheni_mr": "rvheni_mr",
     }
 
-    Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
-
     fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.ravel() for name, field in FloatFieldsIJK.items()
+        name: FloatFieldsIJK[value].ravel() for name, value in f2py_mapping.items()
     }
 
     result = fortran_stencil(
@@ -176,6 +175,12 @@ def test_ice4_nucleation(
     rvheni_mr_out = result[1]
 
     logging.info(f"Machine precision {np.finfo(float).eps}")
+
+    logging.info(f"Mean cit_out     {cit_out.mean()}")
+    logging.info(f"Mean cit_gt4py   {cit_gt4py.mean()}")
+
+    logging.info(f"Mean rvheni_mr_out     {rvheni_mr_out.mean()}")
+    logging.info(f"Mean rvheni_mr_gt4py   {rvheni_mr_gt4py.mean()}")
 
     assert_allclose(cit_out, cit_gt4py.ravel(), 10e-6)
     assert_allclose(rvheni_mr_out, rvheni_mr_gt4py.ravel(), 10e-6)
@@ -201,7 +206,7 @@ def test_ice4_rimltc(
         order="F",
     )
 
-    FloatFieldsIJK_Names = [
+    FloatFieldsIJK_names = [
         "t",
         "exn",
         "lvfact",
@@ -217,7 +222,7 @@ def test_ice4_rimltc(
             dtype=float,
             order="F",
         )
-        for name in FloatFieldsIJK_Names
+        for name in FloatFieldsIJK_names
     }
 
     ldcompute_gt4py = from_array(
@@ -320,7 +325,7 @@ def test_ice4_slow(
     )
 
     ldcompute = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+        np.random.rand(*grid.shape),
         dtype=bool,
         order="F",
     )
@@ -613,127 +618,63 @@ def test_ice4_warm(
     logging.info(f"SUBG_RR_EVAP {externals['SUBG_RR_EVAP']}")
 
     ldcompute = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
+        np.random.rand(*grid.shape),
         dtype=bool,
         order="F",
     )
-    rhodref = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
 
-    t = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    pres = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    tht = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    lbdar = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    lbdar_rf = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    ka = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    dv = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    cj = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    hlc_hcf = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    hlc_hrc = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    cf = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rf = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rvt = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rct = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rrt = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rcautr = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rcaccr = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
-    rrevav = np.array(
-        np.random.rand(SHAPE[0], SHAPE[1], SHAPE[2]),
-        dtype=float,
-        order="F",
-    )
+    FloatFieldsIJK_names = [
+        "rhodref",
+        "t",
+        "pres",
+        "tht",
+        "lbdar",
+        "lbdar_rf",
+        "ka",
+        "dv",
+        "cj",
+        "hlc_hcf",
+        "hlc_hrc",
+        "cf",
+        "rf",
+        "rvt",
+        "rct",
+        "rrt",
+        "rcautr",
+        "rcaccr",
+        "rrevav"
+    ]
+
+    FloatFieldsIJK = {
+        name: np.array(
+            np.random.rand(*grid.shape),
+            dtype=c_float,
+            order="F",
+        )
+        for name in FloatFieldsIJK_names
+    }
+
 
     ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
-    rhodref_gt4py = from_array(rhodref, dtype=float, backend=gt4py_config.backend)
-    t_gt4py = from_array(t, dtype=float, backend=gt4py_config.backend)
-    pres_gt4py = from_array(pres, dtype=float, backend=gt4py_config.backend)
-    tht_gt4py = from_array(tht, dtype=float, backend=gt4py_config.backend)
-    lbdar_gt4py = from_array(lbdar, dtype=float, backend=gt4py_config.backend)
-    lbdar_rf_gt4py = from_array(lbdar_rf, dtype=float, backend=gt4py_config.backend)
-    ka_gt4py = from_array(ka, dtype=float, backend=gt4py_config.backend)
-    dv_gt4py = from_array(dv, dtype=float, backend=gt4py_config.backend)
-    cj_gt4py = from_array(cj, dtype=float, backend=gt4py_config.backend)
-    hlc_hcf_gt4py = from_array(hlc_hcf, dtype=float, backend=gt4py_config.backend)
-    hlc_hrc_gt4py = from_array(hlc_hrc, dtype=float, backend=gt4py_config.backend)
-    cf_gt4py = from_array(cf, dtype=float, backend=gt4py_config.backend)
-    rf_gt4py = from_array(rf, dtype=float, backend=gt4py_config.backend)
-    rvt_gt4py = from_array(rvt, dtype=float, backend=gt4py_config.backend)
-    rct_gt4py = from_array(rct, dtype=float, backend=gt4py_config.backend)
-    rrt_gt4py = from_array(rrt, dtype=float, backend=gt4py_config.backend)
-    rcautr_gt4py = from_array(rcautr, dtype=float, backend=gt4py_config.backend)
-    rcaccr_gt4py = from_array(rcaccr, dtype=float, backend=gt4py_config.backend)
-    rrevav_gt4py = from_array(rrevav, dtype=float, backend=gt4py_config.backend)
+    rhodref_gt4py = from_array(FloatFieldsIJK["rhodref"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    pres_gt4py = from_array(FloatFieldsIJK["pres"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    lbdar_gt4py = from_array(FloatFieldsIJK["lbdar"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    lbdar_rf_gt4py = from_array(FloatFieldsIJK["lbdar_rf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    ka_gt4py = from_array(FloatFieldsIJK["ka"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    dv_gt4py = from_array(FloatFieldsIJK["dv"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    cj_gt4py = from_array(FloatFieldsIJK["cj"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    hlc_hcf_gt4py = from_array(FloatFieldsIJK["hlc_hcf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    hlc_hrc_gt4py = from_array(FloatFieldsIJK["hlc_hrc"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    cf_gt4py = from_array(FloatFieldsIJK["cf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rf_gt4py = from_array(FloatFieldsIJK["rf"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rvt_gt4py = from_array(FloatFieldsIJK["rvt"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rct_gt4py = from_array(FloatFieldsIJK["rct"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rrt_gt4py = from_array(FloatFieldsIJK["rrt"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rcautr_gt4py = from_array(FloatFieldsIJK["rcautr"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rcaccr_gt4py = from_array(FloatFieldsIJK["rcaccr"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
+    rrevav_gt4py = from_array(FloatFieldsIJK["rrevav"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
 
     ldsoft = False
 
@@ -785,29 +726,39 @@ def test_ice4_warm(
         "xcexvt": externals["CEXVT"],
     }
 
+    f2py_mapping =  {
+        "prhodref":"rhodref",
+        "pt":"t",
+        "ppres":"pres",
+        "ptht":"tht",
+        "plbdar":"lbdar",
+        "plbdar_rf":"lbdar_rf",
+        "pka":"ka",
+        "pdv":"dv",
+        "pcj":"cj",
+        "phlc_hcf":"hlc_hcf",
+        "phlc_hrc":"hlc_hrc",
+        "pcf":"cf",
+        "prf":"rf",
+        "prvt":"rvt",
+        "prct":"rct",
+        "prrt":"rrt",
+        "prcautr":"rcautr",
+        "prcaccr":"rcaccr",
+        "prrevav":"rrevav",
+    }
+
+    fortran_FloatFieldsIJK = {
+        name: FloatFieldsIJK[value].ravel()
+        for name, value in f2py_mapping.items()
+    }
+
+
     result = fortran_stencil(
         ldsoft=ldsoft,
         ldcompute=ldcompute,
         hsubg_rr_evap="none",
-        prhodref=rhodref.ravel(),
-        pt=t.ravel(),
-        ppres=pres.ravel(),
-        ptht=tht.ravel(),
-        plbdar=lbdar.ravel(),
-        plbdar_rf=lbdar_rf.ravel(),
-        pka=ka.ravel(),
-        pdv=dv.ravel(),
-        pcj=cj.ravel(),
-        phlc_hcf=hlc_hcf.ravel(),
-        phlc_hrc=hlc_hrc.ravel(),
-        pcf=cf.ravel(),
-        prf=rf.ravel(),
-        prvt=rvt.ravel(),
-        prct=rct.ravel(),
-        prrt=rrt.ravel(),
-        prcautr=rcautr.ravel(),
-        prcaccr=rcaccr.ravel(),
-        prrevav=rrevav.ravel(),
+        **fortran_FloatFieldsIJK,
         **fortran_externals,
         **fortran_packed_dims,
     )

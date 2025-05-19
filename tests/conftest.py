@@ -45,7 +45,7 @@ def compile_fortran_stencil(
     """
     #### Fortran subroutine
     file_path = Path(__file__)
-    root_directory = file_path.parent.parent.parent
+    root_directory = file_path.parent.parent
     stencils_directory = Path(root_directory, "src", "ice3_gt4py", "stencils_fortran")
     script_path = Path(stencils_directory, fortran_script)
 
@@ -84,8 +84,8 @@ def fortran_dims_fixture(grid):
         "nije": grid.shape[0] * grid.shape[1],
     }
     
-@pytest.fixture(name="packed_dims", scope="module")
-def packed_dims_fixture(grid):
+@pytest.fixture(name="fortran_packed_dims", scope="module")
+def fortran_packed_dims_fixture(grid):
     return {
         "kproma": grid.shape[0] * grid.shape[1] * grid.shape[2],
         "ksize": grid.shape[0] * grid.shape[1] * grid.shape[2]
