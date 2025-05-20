@@ -28,7 +28,7 @@ default_python_config = PythonConfig(
 )
 
 default_fortran_config = FortranConfig(
-    build_dir=".",
+    build_dir="..",
     precision="double",
     variant="fortran",
     nproma=32,
