@@ -19,7 +19,6 @@ add_library(sdfg_wrapper STATIC)
 
 target_sources(sdfg_wrapper
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/add_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/call_sdfg.f90
 )
 

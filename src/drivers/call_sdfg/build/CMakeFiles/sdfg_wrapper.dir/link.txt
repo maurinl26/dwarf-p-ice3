@@ -1,2 +1,2 @@
-/usr/bin/ar qc libsdfg_wrapper.a CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o
+/usr/bin/ar qc libsdfg_wrapper.a CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o
 /usr/bin/ranlib libsdfg_wrapper.a

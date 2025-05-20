@@ -69,23 +69,9 @@ include CMakeFiles/sdfg_wrapper.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/sdfg_wrapper.dir/flags.make
 
-CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o: CMakeFiles/sdfg_wrapper.dir/flags.make
-CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o: /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/add_main.cpp
-CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o: CMakeFiles/sdfg_wrapper.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o -MF CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o.d -o CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o -c /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/add_main.cpp
-
-CMakeFiles/sdfg_wrapper.dir/add_main.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/sdfg_wrapper.dir/add_main.cpp.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/add_main.cpp > CMakeFiles/sdfg_wrapper.dir/add_main.cpp.i
-
-CMakeFiles/sdfg_wrapper.dir/add_main.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/sdfg_wrapper.dir/add_main.cpp.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/add_main.cpp -o CMakeFiles/sdfg_wrapper.dir/add_main.cpp.s
-
 CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o: CMakeFiles/sdfg_wrapper.dir/flags.make
 CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o: /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/call_sdfg.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building Fortran object CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building Fortran object CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o"
 	/usr/bin/gfortran $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/call_sdfg.f90 -o CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o
 
 CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.i: cmake_force
@@ -98,17 +84,15 @@ CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.s: cmake_force
 
 # Object files for target sdfg_wrapper
 sdfg_wrapper_OBJECTS = \
-"CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o" \
 "CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o"
 
 # External object files for target sdfg_wrapper
 sdfg_wrapper_EXTERNAL_OBJECTS =
 
-libsdfg_wrapper.a: CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o
 libsdfg_wrapper.a: CMakeFiles/sdfg_wrapper.dir/call_sdfg.f90.o
 libsdfg_wrapper.a: CMakeFiles/sdfg_wrapper.dir/build.make
 libsdfg_wrapper.a: CMakeFiles/sdfg_wrapper.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library libsdfg_wrapper.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking Fortran static library libsdfg_wrapper.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/sdfg_wrapper.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/sdfg_wrapper.dir/link.txt --verbose=$(VERBOSE)
 

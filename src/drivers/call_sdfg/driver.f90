@@ -4,9 +4,9 @@ program driver
 
    integer :: I, J, K
 
-   I = 50
-   J = 50
-   K = 15
+   I = 5
+   J = 5
+   K = 1
 
    call call_sdfg(I, J, K)
 

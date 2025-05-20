@@ -142,33 +142,6 @@ sdfg_driver/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_driver.dir/build.make CMakeFiles/sdfg_driver.dir/build
 .PHONY : sdfg_driver/fast
 
-add_main.o: add_main.cpp.o
-.PHONY : add_main.o
-
-# target to build an object file
-add_main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_wrapper.dir/build.make CMakeFiles/sdfg_wrapper.dir/add_main.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_driver.dir/build.make CMakeFiles/sdfg_driver.dir/add_main.cpp.o
-.PHONY : add_main.cpp.o
-
-add_main.i: add_main.cpp.i
-.PHONY : add_main.i
-
-# target to preprocess a source file
-add_main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_wrapper.dir/build.make CMakeFiles/sdfg_wrapper.dir/add_main.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_driver.dir/build.make CMakeFiles/sdfg_driver.dir/add_main.cpp.i
-.PHONY : add_main.cpp.i
-
-add_main.s: add_main.cpp.s
-.PHONY : add_main.s
-
-# target to generate assembly for a file
-add_main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_wrapper.dir/build.make CMakeFiles/sdfg_wrapper.dir/add_main.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_driver.dir/build.make CMakeFiles/sdfg_driver.dir/add_main.cpp.s
-.PHONY : add_main.cpp.s
-
 call_sdfg.o: call_sdfg.f90.o
 .PHONY : call_sdfg.o
 
@@ -230,9 +203,6 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... sdfg_driver"
 	@echo "... sdfg_wrapper"
-	@echo "... add_main.o"
-	@echo "... add_main.i"
-	@echo "... add_main.s"
 	@echo "... call_sdfg.o"
 	@echo "... call_sdfg.i"
 	@echo "... call_sdfg.s"

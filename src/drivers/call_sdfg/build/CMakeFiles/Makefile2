@@ -83,12 +83,12 @@ clean: CMakeFiles/sdfg_driver.dir/clean
 CMakeFiles/sdfg_wrapper.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_wrapper.dir/build.make CMakeFiles/sdfg_wrapper.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_wrapper.dir/build.make CMakeFiles/sdfg_wrapper.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=5,6,7 "Built target sdfg_wrapper"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=4,5 "Built target sdfg_wrapper"
 .PHONY : CMakeFiles/sdfg_wrapper.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/sdfg_wrapper.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles 2
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/sdfg_wrapper.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles 0
 .PHONY : CMakeFiles/sdfg_wrapper.dir/rule
@@ -109,12 +109,12 @@ CMakeFiles/sdfg_wrapper.dir/clean:
 CMakeFiles/sdfg_driver.dir/all: CMakeFiles/sdfg_wrapper.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_driver.dir/build.make CMakeFiles/sdfg_driver.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdfg_driver.dir/build.make CMakeFiles/sdfg_driver.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=1,2,3,4 "Built target sdfg_driver"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles --progress-num=1,2,3 "Built target sdfg_driver"
 .PHONY : CMakeFiles/sdfg_driver.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/sdfg_driver.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles 7
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles 5
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/sdfg_driver.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/maurinl/maurinl26/DE330_Task_10.3.6_gt4py_physics/dwarf-p-ice3/sandbox/build/CMakeFiles 0
 .PHONY : CMakeFiles/sdfg_driver.dir/rule
