@@ -368,6 +368,7 @@ name = "dwarf-ice3-gt4py"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "dace" },
     { name = "fmodpy" },
     { name = "fprettify" },
     { name = "ifs-physics-common" },
@@ -385,6 +386,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "dace", specifier = ">=0.15.1" },
     { name = "fmodpy", specifier = ">=1.7.4" },
     { name = "fprettify", specifier = ">=0.3.7" },
     { name = "ifs-physics-common", git = "https://github.com/stubbiali/ifs-physics-common.git" },

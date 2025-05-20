@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "dace>=0.15.1",
     "fmodpy>=1.7.4",
     "fprettify>=0.3.7",
     "ifs-physics-common",
