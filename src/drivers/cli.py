@@ -32,7 +32,7 @@ app = typer.Typer()
 
 ######################## GT4Py drivers #######################
 @app.command()
-def run_ice_adjust(
+def ice_adjust(
     backend: str,
     dataset: str,
     output_path: str,
@@ -96,7 +96,7 @@ def run_ice_adjust(
 
 
 @app.command()
-def run_ice_adjust_split(
+def ice_adjust_split(
     backend: str,
     dataset: str,
     output_path: str,
@@ -129,7 +129,7 @@ def run_ice_adjust_split(
     ######## Instanciation + compilation #####
     logging.info(f"Compilation for IceAdjust stencils")
     start_compilation = time.time()
-    ice_adjust = IceAdjustSplit(grid, gt4py_config, phyex)
+    ice_adjust = IceAdjustSplit(grid, gt4py_config, phyex, enable_checks=validate_args)
     stop_compilation = time.time()
     elapsed_time = stop_compilation - start_compilation
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
@@ -208,7 +208,7 @@ def run_ice_adjust_split(
 
 
 @app.command()
-def run_rain_ice(
+def rain_ice(
     backend: str,
     dataset: str,
     output_path: str,
@@ -299,7 +299,7 @@ def run_rain_ice(
 
 ##################### Fortran drivers #########################
 @app.command()
-def run_ice_adjust_fortran(
+def ice_adjust_fortran(
     testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
 ):
     """Call and run main_ice_adjust (Fortran)"""
@@ -329,7 +329,7 @@ def run_ice_adjust_fortran(
 
 
 @app.command()
-def run_rain_ice_fortran(
+def rain_ice_fortran(
     testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
 ):
     """Call and run main_rain_ice (Fortran)"""
