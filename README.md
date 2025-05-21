@@ -1,31 +1,33 @@
 # ICE3 microphysics on gt4py.
 
-dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX) repository or updated as a submodule in this project -via _install.sh_ script.
+dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
+repository or updated as a submodule in this project -via _install.sh_ script.
 
 ## Installation and build
 
-- installation :
 
-  ```
-  source install.sh
-  ```
-- tests :
-
-  ```
-  source tests.sh
-  ```
-- doc :
-
-  ```
-  source build_docs.sh
-  ```
-
-## Data generation
+## Data generation for reproductibility
 
 Data generation script is made to transform _.dat_ files from PHYEX to netcdf with named fields. _.dat_ files are retrieved from PHYEX reproductibility sets (testprogs_data).
 
+Load PHYEX testprogs dataset :
+
+```bash
+  cd ./data/
+  wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/files/12783926/ice_adjust.tar.gz \
+   -O ice_adjust.tar.gz
+  tar xf ice_adjust.tar.gz
+  rm -f ice_adjust.tar.gz
+  cd ..
 ```
-python testprogs_data/main.py extract-data-ice-adjust ../../PHYEX/tools/testprogs_data/ice_adjust reference.nc ./testprogs_data/ice_adjust.yaml
+
+Decode files to netcdf :
+
+```bash
+   uv run testprogs-data extract-data-ice-adjust \
+   data/ice_adjust/ \
+   reference.nc \
+   ./src/testprogs_data/ice_adjust.yaml 
 ```
 
 ## Microphysical Adjustments (Ice Adjust)
@@ -36,9 +38,17 @@ There are three components available for microphysical adjustments, under _/src/
 - AroAdjust (aro_adjust.py) : combines both stencil collections to reproduce aro_adjust.F90.
 - To launch ice_adjust (with cli):
 
+```bash
+  python src/drivers/cli.py run-ice-adjust \    
+      gt:cpu_ifirst \                     # backend
+      ./data/ice_adjust/reference.nc \    # input dataset
+      ./data/ice_adjust/run.nc \          # output file
+      track_ice_adjust.json               # meta data for execution
 ```
-python src/drivers/cli.py run-ice-adjust gt:cpu_ifirst ./data/ice_adjust/reference.nc ./data/ice_adjust/run.nc track_ice_adjust.json
-```
+
+## Integration with PHYEX
+
+## Integration with PMAP-L
 
 ## Rain Ice
 
@@ -54,7 +64,10 @@ There are three components available for rain_ice (one-moment microphysical proc
 python src/drivers/cli.py run-rain-ice gt:cpu_ifirst ./data/rain_ice/reference.nc ./data/rain_ice/run.nc track_rain_ice.json
 ```
 
-## Unit tests with fmodpy
+## Unit tests
+
+Unit tests for reproductibility are using pytest. 
+
 
 Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
 
@@ -62,4 +75,3 @@ Fortran routines are issued from CY49T0 version of the code and reworked to elim
 derivate types from routines. Then both stencils are ran with random numpy arrays
 as an input.
 
-## Extraction of .dat files

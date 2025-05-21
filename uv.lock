@@ -366,7 +366,7 @@ wheels = [
 [[package]]
 name = "dwarf-ice3-gt4py"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "fmodpy" },
     { name = "fprettify" },
