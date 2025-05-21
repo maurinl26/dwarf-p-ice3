@@ -1,3 +1,13 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "netcdf4",
+#     "pyyaml",
+#     "typer",
+#     "xarray",
+# ]
+# ///
+
 # -*- coding: utf-8 -*-
 import logging
 import sys
@@ -6,7 +16,7 @@ import typer
 from pathlib import Path
 import yaml
 
-from ice3_gt4py.utils import (
+from testprogs_data.utils import (
     get_array_double,
     get_array_double,
     get_array_simple,
@@ -262,3 +272,4 @@ def extract_data_rain_ice(dir: str, output_file: str, conf: str):
 
 if __name__ == "__main__":
     app()
+
