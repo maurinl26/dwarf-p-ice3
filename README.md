@@ -39,11 +39,11 @@ There are three components available for microphysical adjustments, under _/src/
 - To launch ice_adjust (with cli):
 
 ```bash
-  python src/drivers/cli.py run-ice-adjust \    
-      gt:cpu_ifirst \                     # backend
-      ./data/ice_adjust/reference.nc \    # input dataset
-      ./data/ice_adjust/run.nc \          # output file
-      track_ice_adjust.json               # meta data for execution
+  uv run standalone-model ice-adjust-split \
+  gt:cpu_ifirst \
+  ./data/ice_adjust/reference.nc \
+  ./data/ice_adjust/run.nc \
+  track_ice_adjust.json
 ```
 
 ## Integration with PHYEX
