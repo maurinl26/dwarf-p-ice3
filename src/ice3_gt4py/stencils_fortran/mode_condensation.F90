@@ -206,6 +206,8 @@ contains
       integer, dimension(nijt, nkt), intent(out)  :: inq1
       integer, dimension(nijt, nkt) :: inq2
 
+      integer jij, jk
+
 
       real, dimension(-22:11), parameter :: zsrc_1d = (/ &
                                             0., 0., 2.0094444e-04, 0.316670e-03, &
