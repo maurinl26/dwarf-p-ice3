@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import datetime
 import logging
 from datetime import timedelta
 import sys
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
+
+import numpy as np
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
@@ -39,16 +42,24 @@ class IceAdjustSplit(ImplicitTendencyComponent):
         )
 
         self.externals = phyex.to_externals()
+        self.externals.update({
+            "OCND2": False
+        })
+
+        logging.info(f"LAMBDA3 : {self.externals['LAMBDA3']}")
+
+
         self.thermo = self.compile_stencil("thermodynamic_fields", self.externals)
         self.condensation = self.compile_stencil("condensation", self.externals)
-        self.cloud_fraction = self.compile_stencil("cloud_fraction", self.externals)
+        # todo : add sigrc diagnostic compilation
+        self.cloud_fraction_1 = self.compile_stencil("cloud_fraction_1", self.externals)
+        self.cloud_fraction_2 = self.compile_stencil("cloud_fraction_2", self.externals)
 
         logging.info(f"IceAdjustSplit - Keys")
         logging.info(f"LSUBG_COND : {phyex.nebn.LSUBG_COND}")
         logging.info(f"LSIGMAS :  {phyex.nebn.LSIGMAS}")
         logging.info(f"FRAC_ICE_ADJUST : {phyex.nebn.FRAC_ICE_ADJUST}")
         logging.info(f"CONDENS : {phyex.nebn.CONDENS}")
-        logging.info(f"LAMBDA3 : {phyex.nebn.LAMBDA3}")
         logging.info(f"OCOMPUTE_SRC absent")
         logging.info(f"LMFCONV : {phyex.LMFCONV}")
         logging.info(f"LOCND2 absent")
@@ -77,208 +88,166 @@ class IceAdjustSplit(ImplicitTendencyComponent):
     def _input_properties(self) -> PropertyDict:
         return {
             "sigqsat": {
-                "grid": (I, J, K),
+                "grid": (I, J),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "exn": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "exnref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PEXNREF",
                 "dtype": "float",
             },
             "rhodref": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRHODREF",
                 "dtype": "float",
             },
             "pabs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PPABSM",
                 "dtype": "float",
             },
             "sigs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PSIGS",
                 "dtype": "float",
             },
             "cf_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PCF_MF",
                 "dtype": "float",
             },
             "rc_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRC_MF",
                 "dtype": "float",
             },
             "ri_mf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "PRI_MF",
                 "dtype": "float",
             },
             "th": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 0,
                 "dtype": "float",
             },
             "rv": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 1,
                 "dtype": "float",
             },
             "rc": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 2,
                 "dtype": "float",
             },
             "rr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 3,
                 "dtype": "float",
             },
             "ri": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 4,
                 "dtype": "float",
             },
             "rs": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 5,
                 "dtype": "float",
             },
             "rg": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": "ZRS",
-                "irr": 6,
                 "dtype": "float",
             },
             "cldfr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "ifr": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hlc_hrc": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hlc_hcf": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hli_hri": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "hli_hcf": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "sigrc": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
-                "dtype": "float",
-            },
-            "ths": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 0,
-                "dtype": "float",
-            },
-            "rcs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 1,
-                "dtype": "float",
-            },
-            "rrs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 2,
-                "dtype": "float",
-            },
-            "ris": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 3,
-                "dtype": "float",
-            },
-            "rss": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 4,
-                "dtype": "float",
-            },
-            "rvs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 5,
-                "dtype": "float",
-            },
-            "rgs": {
-                "grid": (I, J, K),
-                "units": "",
-                "fortran_name": "PRS",
-                "irr": 6,
                 "dtype": "float",
             },
         }
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
-        return {}
+        return {
+            "ths": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rcs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rrs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "ris": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rss": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rvs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "rgs": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+        }
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
-        return {}
+        return {
+            "hlc_hrc": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hlc_hcf": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hli_hri": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "hli_hcf": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+        }
 
     @cached_property
     def _temporaries(self) -> PropertyDict:
@@ -301,9 +270,10 @@ class IceAdjustSplit(ImplicitTendencyComponent):
 
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 8),
+            *repeat(((I, J, K), "float"), 9),
+            ((I,J,K), "int"),
             gt4py_config=self.gt4py_config,
-        ) as (lv, ls, cph, t, rc_out, ri_out, rv_out, t_out):
+        ) as (lv, ls, cph, t, rc_out, ri_out, rv_out, t_out, q1, inq1):
 
             state_thermo = {
                 key: state[key]
@@ -349,9 +319,14 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "rv_out": rv_out,
                 "ri_out": ri_out,
                 "rc_out": rc_out,
+                "q1": q1
             }
 
             logging.info("Launching condensation")
+
+            for key, field in state_condensation.items():
+                logging.info(f"{key}, shape: {field.shape}")
+
             self.condensation(
                 **state_condensation,
                 **temporaries_condensation,
@@ -361,13 +336,45 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-            # TODO : insert diagnostic on sigrc here
-            # Translation note : if needed, sigrc_computation could be inserted here
+            # todo : add sigrc diagnostic
 
-            state_cloud_fraction = {
+            state_cloud_fraction_1 = {
                 key: state[key]
                 for key in [
-                    # "t",
+                    "exnref",
+                    "rc",
+                    "ri",
+                    "ths",
+                    "rvs",
+                    "rcs",
+                    "ris",
+                ]
+            }
+
+            # TODO: check the scope of t
+            temporaries_cloud_fraction_1 = {
+                "lv": lv,
+                "ls": ls,
+                "cph": cph,
+                "t": t,
+                "rc_tmp": rc_out,
+                "ri_tmp": ri_out,
+            }
+
+            logging.info("Launching cloud fraction 1")
+            self.cloud_fraction_1(
+                **state_cloud_fraction_1,
+                **temporaries_cloud_fraction_1,
+                dt=timestep.total_seconds(),
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
+            )
+
+            state_cloud_fraction_2 = {
+                key: state[key]
+                for key in [
                     "rhodref",
                     "exnref",
                     "rc",
@@ -387,8 +394,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 ]
             }
 
-            # TODO: check the scope of t
-            temporaries_cloud_fraction = {
+            temporaries_cloud_fraction_2 = {
                 "lv": lv,
                 "ls": ls,
                 "cph": cph,
@@ -397,13 +403,13 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "ri_tmp": ri_out,
             }
 
-            logging.info("Launching cloud fraction")
-            self.cloud_fraction(
-                **state_cloud_fraction,
-                **temporaries_cloud_fraction,
+            self.cloud_fraction_2(
+                **state_cloud_fraction_2,
+                **temporaries_cloud_fraction_2,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
+

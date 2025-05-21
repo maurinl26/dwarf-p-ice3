@@ -82,9 +82,13 @@ def gt4py_config_fixture():
     return DEFAULT_GT4PY_CONFIG
 
 
+@pytest.fixture(name="phyex", scope="module")
+def phyex_fixture():
+    return Phyex("AROME")
+
 @pytest.fixture(name="externals", scope="module")
-def externals_fixture():
-    return Phyex("AROME").to_externals()
+def externals_fixture(phyex):
+    return phyex.to_externals()
 
 
 @pytest.fixture(name="fortran_dims", scope="module")
