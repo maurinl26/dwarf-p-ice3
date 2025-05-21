@@ -5,6 +5,14 @@ repository or updated as a submodule in this project -via _install.sh_ script.
 
 ## Installation and build
 
+### LUMI
+
+
+
+### Atos ECMWF
+
+### Leonardo
+
 
 ## Data generation for reproductibility
 
