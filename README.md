@@ -7,6 +7,42 @@ repository or updated as a submodule in this project -via _install.sh_ script.
 
 ### LUMI
 
+Data must be setup on the scratch.
+
+Run debug :
+
+Run GPU :
+
+- Module load + environment variables
+```bash
+    source ./config/lumi/lumi_env
+```
+
+- Interactive session
+```bash
+    srun --nodes=1  \
+    --ntasks-per-node=1 \
+    --cpus-per-task=56 \
+    --gpus-per-node=1 \
+    --account=project_465000527 \
+    --partition=dev-g \
+    --time=03:00:00  \
+    --mem=0 \
+    --pty bash
+```
+
+- Launch
+```bash
+    uv run standalone-model ice-adjust-split \
+    gt:gpu \
+    $SCRATCH_PATH/data/ice_adjust/reference.nc \
+    $SCRATCH_PATH/data/ice_adjust/run.nc \
+    track_ice_adjust.json
+```
+
+#### Warning
+
+cupy is only compatible with rocm v4.3 or v5.0 : [https://docs.cupy.dev/en/stable/install.html](https://docs.cupy.dev/en/stable/install.html)
 
 
 ### Atos ECMWF
@@ -48,10 +84,10 @@ There are three components available for microphysical adjustments, under _/src/
 
 ```bash
   uv run standalone-model ice-adjust-split \
-  gt:cpu_ifirst \
+  gt:cpu_kfirst \
   ./data/ice_adjust/reference.nc \
   ./data/ice_adjust/run.nc \
-  track_ice_adjust.json
+  track_ice_adjust.json --no-rebuild 
 ```
 
 ## Integration with PHYEX
