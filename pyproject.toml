@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fmodpy>=1.7.4",
     "fprettify>=0.3.7",
-    "ifs-physics-common",
+    "gt4py>=1.0.4",
     "numpy<2.0",
     "pytest>=8.3.5",
     "ruff>=0.10.0",
@@ -21,9 +21,6 @@ requires = ['setuptools>=65.5.0', 'wheel']
 [project.scripts]
 testprogs-data = "testprogs_data.main:app"
 standalone-model = "drivers.cli:app"
-
-[tool.uv.sources]
-ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
 
 [dependency-groups]
 dev = [
