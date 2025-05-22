@@ -1,0 +1,22 @@
+module --force purge
+module load LUMI/23.09 partition/G cpeCray/23.09 Boost/1.82.0-cpeCray-23.09
+module load buildtools
+module load cray-python
+module load rocm
+
+export PYTHONPATH=/opt/cray/pe/python/3.9.12.1
+export GT_CACHE_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/gt_cache/lumi/23.03/cray
+export GT_CACHE_DIR_NAME=.gt_cache
+#export DACE_CONFIG=/project/project_465000527/maurinlo/dwarf-p-ice3/amd-gpu/gt_cache/lumi/23.03/cray/.dace.conf
+export CUDA_HOME=/opt/rocm
+export CUPY_INSTALL_USE_HIP=1
+export GT4PY_USE_HIP=1
+export HCC_AMDGPU_TARGET=gfx90a
+export ROCM_HOME=/opt/rocm
+export HDF5_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/hdf5/1.14.3/build/lumi/23.03/cray
+export NETCDF_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/netcdf-c/4.9.2/build/lumi/23.03/cray
+#export BOOST_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/boost/1.83.0
+
+# Custom env var
+export ICE3_PATH=/project/project_465000527/maurinlo/dwarf-p-ice3
+export SCRATCH_PATH=/scratch/project/project_645000527/maurinlo
