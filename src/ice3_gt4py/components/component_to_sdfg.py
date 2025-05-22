@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
 import sys
+import dace
 from functools import cached_property
-from itertools import repeat
-from typing import Dict
 from ifs_physics_common.framework.components import DiagnosticComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
@@ -40,21 +38,6 @@ class TestComponent(DiagnosticComponent):
 
         self.externals = phyex.to_externals()
         self.thermo = self.compile_stencil("thermodynamic_fields", self.externals)
-        self.condensation = self.compile_stencil("condensation", self.externals)
-        self.cloud_fraction = self.compile_stencil("cloud_fraction", self.externals)
-
-        logging.info(f"IceAdjustSplit - Keys")
-        logging.info(f"LSUBG_COND : {phyex.nebn.LSUBG_COND}")
-        logging.info(f"LSIGMAS :  {phyex.nebn.LSIGMAS}")
-        logging.info(f"FRAC_ICE_ADJUST : {phyex.nebn.FRAC_ICE_ADJUST}")
-        logging.info(f"CONDENS : {phyex.nebn.CONDENS}")
-        logging.info(f"LAMBDA3 : {phyex.nebn.LAMBDA3}")
-        logging.info(f"OCOMPUTE_SRC absent")
-        logging.info(f"LMFCONV : {phyex.LMFCONV}")
-        logging.info(f"LOCND2 absent")
-        logging.info(f"LHGT_QS : {phyex.nebn.LHGT_QS}")
-        logging.info(f"LSTATNW : {phyex.nebn.LSTATNW}")
-        logging.info(f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}")
 
         logging.info(f"Constants for condensation")
         logging.info(f"RD : {phyex.cst.RD}")
@@ -66,12 +49,6 @@ class TestComponent(DiagnosticComponent):
         logging.info(f"CL : {phyex.cst.CL}")
         logging.info(f"CI : {phyex.cst.CI}")
 
-        logging.info(f"Constants for cloud fraction")
-        logging.info(f"CRIAUTC : {phyex.rain_ice_param.CRIAUTC}")
-        logging.info(f"CRIAUTI : {phyex.rain_ice_param.CRIAUTI}")
-        logging.info(f"ACRIAUTI : {phyex.rain_ice_param.ACRIAUTI}")
-        logging.info(f"BCRIAUTI : {phyex.rain_ice_param.BCRIAUTI}")
-        logging.info(f"TT : {phyex.cst.TT}")
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -162,4 +139,51 @@ class TestComponent(DiagnosticComponent):
             validate_args=self.gt4py_config.validate_args,
             exec_info=self.gt4py_config.exec_info,
         )
+
+    def dace_setup(self):
+
+        from ifs_physics_common.framework.grid import I, J, K
+
+        I = dace.symbol(I.name)
+        J = dace.symbol(J.name)
+        K = dace.symbol(K.name)
+
+    @dace.method
+    def orchestrated_call(
+            self,
+            # inputs
+            th: dace.float32[I, J, K],
+            exn: dace.float32[I, J, K],
+            rv: dace.float32[I, J, K],
+            rc: dace.float32[I, J, K],
+            rr: dace.float32[I, J, K],
+            ri: dace.float32[I, J, K],
+            rs: dace.float32[I, J, K],
+            rg: dace.float32[I, J, K],
+            # outputs
+            lv: dace.float32[I, J, K],
+            ls:dace.float32[I, J, K],
+            cph: dace.float32[I, J, K],
+            t: dace.float32[I, J, K],
+        ):
+
+        self.thermo(
+            th=th,
+            exn=exn,
+            rv=rv,
+            rc=rc,
+            rr=rr,
+            ri=ri,
+            rs=rs,
+            rg=rg,
+            lv=lv,
+            ls=ls,
+            cph=cph,
+            t=t,
+            origin=(0, 0, 0),
+            domain=self.computational_grid.grids[I, J, K].shape,
+            validate_args=self.gt4py_config.validate_args,
+            exec_info=self.gt4py_config.exec_info,
+        )
+
 
