@@ -24,13 +24,13 @@ from ifs_physics_common.utils.f2py import ported_method
 )
 @stencil_collection("condensation")
 def condensation(
-    sigqsat: Field[IJ, "float"],
+    sigqsat: Field["float"],
     pabs: Field["float"],
     sigs: Field["float"],
     t: Field["float"],
-    rv_in: Field["float"],
-    ri_in: Field["float"],
-    rc_in: Field["float"],
+    rv: Field["float"],
+    ri: Field["float"],
+    rc: Field["float"],
     rv_out: Field["float"],
     rc_out: Field["float"],
     ri_out: Field["float"],
@@ -68,7 +68,7 @@ def condensation(
         # Translation note : 264 -> 274 if(present(PCPH)) skipped (files are assumed to be present)
 
         # store total water mixing ratio (244 -> 248)
-        rt = rv_in + rc_in + ri_in * prifact
+        rt = rv + rc + ri * prifact
 
         # Translation note : 276 -> 310 (not osigmas) skipped : (osigmas = True) for Arome default version
         # Translation note : 316 -> 331 (ocnd2 == True) skipped : ocnd2 = False for Arome
@@ -88,8 +88,8 @@ def condensation(
         # Translation note : OUSERI = TRUE, OCND2 = False
         if __INLINED(not OCND2):
             frac_tmp =(
-                rc_in / (rc_in + ri_in) 
-                if rc_in + ri_in > 1e-20 else 0
+                rc / (rc + ri)
+                if rc + ri > 1e-20 else 0
             )
 
             # Compute frac ice inlined
@@ -114,7 +114,7 @@ def condensation(
         ah = lvs * qsl / (RV * t**2) * (1 + RV * qsl / RD)
         a = 1 / (1 + lvs / cph * ah)
         b = ah * a
-        sbar = a * (rt - qsl + ah * lvs * (rc_in + ri_in * prifact) / cph)
+        sbar = a * (rt - qsl + ah * lvs * (rc + ri * prifact) / cph)
 
         # Translation note : l369 - l390 kept
         # Translation note : l391 - l406 skipped (OSIGMAS = False)
@@ -164,7 +164,7 @@ def condensation(
             if __INLINED(not OCND2):
                 rc_out = (1 - frac_tmp) * cond_tmp  # liquid condensate
                 ri_out = frac_tmp * cond_tmp  # solid condensate
-                t += ((rc_out - rc_in) * lv + (ri_out - ri_in) * ls) / cph
+                t += ((rc_out - rc) * lv + (ri_out - ri) * ls) / cph
                 rv_out = rt - rc_out - ri_out * prifact
 
             # Translation note : sigrc computation out of scope
