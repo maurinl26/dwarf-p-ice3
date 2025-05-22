@@ -88,7 +88,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
     def _input_properties(self) -> PropertyDict:
         return {
             "sigqsat": {
-                "grid": (I, J),
+                "grid": (I, J, K),
                 "units": "",
                 "dtype": "float",
             },
@@ -252,9 +252,10 @@ class IceAdjustSplit(ImplicitTendencyComponent):
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {
-            "lv": {"grid": (I, J, K), "units": ""},
-            "ls": {"grid": (I, J, K), "units": ""},
-            "cph": {"grid": (I, J, K), "units": ""},
+            "lv": {"grid": (I, J, K), "units": "", "dtype": "float"},
+            "ls": {"grid": (I, J, K), "units": "", "dtype": "float"},
+            "cph": {"grid": (I, J, K), "units": "", "dtype": "float"},
+            "t": {"grid": (I, J, K), "units": "", "dtype":"float"}
         }
 
     def array_call(
@@ -303,12 +304,8 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             )
 
             state_condensation = {
-                **{key: state[key] for key in ["sigqsat", "pabs", "cldfr", "sigs"]},
-                **{
-                    "rv_in": state["rv"],
-                    "ri_in": state["ri"],
-                    "rc_in": state["rc"],
-                },
+                key: state[key]
+                for key in ["sigqsat", "pabs", "cldfr", "sigs", "ri", "rc", "rv"]
             }
 
             temporaries_condensation = {
@@ -321,11 +318,6 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "rc_out": rc_out,
                 "q1": q1
             }
-
-            logging.info("Launching condensation")
-
-            for key, field in state_condensation.items():
-                logging.info(f"{key}, shape: {field.shape}")
 
             self.condensation(
                 **state_condensation,
@@ -344,10 +336,16 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                     "exnref",
                     "rc",
                     "ri",
+                ]
+            }
+
+            tendencies_cloud_fraction_1 = {
+                name: out_tendencies[name]
+                for name in [
                     "ths",
                     "rvs",
                     "rcs",
-                    "ris",
+                    "ris"
                 ]
             }
 
@@ -356,7 +354,6 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "lv": lv,
                 "ls": ls,
                 "cph": cph,
-                "t": t,
                 "rc_tmp": rc_out,
                 "ri_tmp": ri_out,
             }
@@ -364,6 +361,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             logging.info("Launching cloud fraction 1")
             self.cloud_fraction_1(
                 **state_cloud_fraction_1,
+                **tendencies_cloud_fraction_1,
                 **temporaries_cloud_fraction_1,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
@@ -377,20 +375,25 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 for key in [
                     "rhodref",
                     "exnref",
-                    "rc",
-                    "ri",
+                    "rc_mf",
+                    "ri_mf",
+                    "cf_mf",
+                    "cldfr",
+                ]
+            }
+
+            diagnotics_cloud_fraction_2 = {
+                name: out_diagnostics[name]
+                for name in self._diagnostic_properties.keys()
+            }
+
+            tendencies_cloud_fraction_2 = {
+                name: out_tendencies[name]
+                for name in [
                     "ths",
                     "rvs",
                     "rcs",
                     "ris",
-                    "rc_mf",
-                    "ri_mf",
-                    "cf_mf",
-                    "hlc_hrc",
-                    "hlc_hcf",
-                    "hli_hri",
-                    "hli_hcf",
-                    "cldfr",
                 ]
             }
 
@@ -399,12 +402,12 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "ls": ls,
                 "cph": cph,
                 "t": t,
-                "rc_tmp": rc_out,
-                "ri_tmp": ri_out,
             }
 
             self.cloud_fraction_2(
                 **state_cloud_fraction_2,
+                **diagnotics_cloud_fraction_2,
+                **tendencies_cloud_fraction_2,
                 **temporaries_cloud_fraction_2,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),

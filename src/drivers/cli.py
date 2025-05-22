@@ -10,6 +10,7 @@ import datetime
 import time
 import sys
 import xarray as xr
+from ifs_physics_common.utils.numpyx import to_numpy
 
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
@@ -36,6 +37,8 @@ def ice_adjust(
     backend: str,
     dataset: str,
     output_path: str,
+
+
     tracking_file: str,
     rebuild: bool = True,
     validate_args: bool = False,
@@ -129,7 +132,7 @@ def ice_adjust_split(
     ######## Instanciation + compilation #####
     logging.info(f"Compilation for IceAdjust stencils")
     start_compilation = time.time()
-    ice_adjust = IceAdjustSplit(grid, gt4py_config, phyex, enable_checks=validate_args)
+    ice_adjust_split = IceAdjustSplit(grid, gt4py_config, phyex, enable_checks=validate_args)
     stop_compilation = time.time()
     elapsed_time = stop_compilation - start_compilation
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
@@ -146,56 +149,38 @@ def ice_adjust_split(
     logging.info(f"Field rhodref, shape {field.shape}")
     logging.info(f"Field rhodref, mean {field.mean().values}, std {field.std().values}")
 
+    # Cut shadow level at bottom for plain levels
     logging.info("Fields INOUT (before call)")
-    logging.info(
-        f"Field rvs, mean {state['rvs'].isel(z=slice(0,15)).mean().values}, std {state['rvs'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field rcs, mean {state['rcs'].isel(z=slice(0,15)).mean().values}, std {state['rcs'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field ris, mean {state['ris'].isel(z=slice(0,15)).mean().values}, std {state['ris'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field ths, mean {state['ths'].isel(z=slice(0,15)).mean().values}, std {state['ths'].isel(z=slice(0,15)).std().values}"
-    )
+    for field_name in ['rvs', 'rcs', 'ris', 'ths']:
+        logging.info(
+            f"Field rvs, mean {state[field_name].isel(z=slice(0,15)).mean().values}, std {state[field_name].isel(z=slice(0,15)).std().values}"
+        )
 
     ###### Launching IceAdjust ###############
     logging.info("Launching IceAdjust")
 
     # TODO: decorator for tracking
     start = time.time()
-    tends, diags = ice_adjust(state, dt)
+    tends, diags = ice_adjust_split(state, dt)
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
 
-    logging.info("Fields INOUT (after call)")
-    logging.info(
-        f"Field rvs, mean {state['rvs'].isel(z=slice(0,15)).mean().values}, std {state['rvs'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field rcs, mean {state['rcs'].isel(z=slice(0,15)).mean().values}, std {state['rcs'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field ris, mean {state['ris'].isel(z=slice(0,15)).mean().values}, std {state['ris'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field ths, mean {state['ths'].isel(z=slice(0,15)).mean().values}, std {state['ths'].isel(z=slice(0,15)).std().values}"
-    )
+    ice_adjust_split(state, dt, out_tendencies=tends, out_diagnostics=diags)
 
-    logging.info(
-        f"Field hlc_hrc, mean {state['hlc_hrc'].isel(z=slice(0,15)).mean().values}, std {state['hlc_hrc'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field hlc_hcf, mean {state['hlc_hcf'].isel(z=slice(0,15)).mean().values}, std {state['hlc_hcf'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field hli_hcf, mean {state['hli_hcf'].isel(z=slice(0,15)).mean().values}, std {state['hli_hcf'].isel(z=slice(0,15)).std().values}"
-    )
-    logging.info(
-        f"Field hli_hri, mean {state['hli_hri'].isel(z=slice(0,15)).mean().values}, std {state['hli_hri'].isel(z=slice(0,15)).std().values}"
-    )
+    logging.info(f"Diagnostics")
+    for name, field in diags.items():
+        np_field = to_numpy(field.data[...])
+        logging.info(
+            f"Field {name}, mean : {np_field.mean()}"
+        )
+
+    logging.info(f"Tendencies")
+    for name, field in tends.items():
+        np_field = to_numpy(field.data[...])
+        logging.info(
+            f"Field {name}, mean : {np_field.mean()}"
+        )
 
     #################### Write dataset ######################
     write_dataset(state, (nx, ny, nz), output_path)
