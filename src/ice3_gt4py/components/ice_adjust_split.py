@@ -51,7 +51,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
 
         self.thermo = self.compile_stencil("thermodynamic_fields", self.externals)
         self.condensation = self.compile_stencil("condensation", self.externals)
-        self.sigrc_diagnostic = self.compile_stencil("sigrc_diagnostic")
+        # todo : add sigrc diagnostic compilation
         self.cloud_fraction_1 = self.compile_stencil("cloud_fraction_1", self.externals)
         self.cloud_fraction_2 = self.compile_stencil("cloud_fraction_2", self.externals)
 
@@ -336,26 +336,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-
-            state_sigrc_diagnostic = {
-                key: state[key] for key in [
-                    "sigrc"
-                ]
-            }
-
-            temporaries_sigrc = {
-                "q1": q1,
-                "inq1": inq1
-            }
-
-            self.sigrc_diagnostic(
-                **state_sigrc_diagnostic,
-                **temporaries_sigrc,
-                origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
-            )
+            # todo : add sigrc diagnostic
 
             state_cloud_fraction_1 = {
                 key: state[key]
