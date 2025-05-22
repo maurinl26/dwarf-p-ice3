@@ -18,5 +18,5 @@ export NETCDF_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/netcdf-c/4.9
 #export BOOST_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/boost/1.83.0
 
 # Custom env var
-export ICE3_PATH=/project/project_465000527/maurinlo/dwarf-p-ice3/
-export SCRATCH_PATH=/scratch/project/project_645000527/maurinlo/dwarf-p-ice3
+export ICE3_PATH=/project/project_465000527/maurinlo/dwarf-p-ice3
+export SCRATCH_PATH=/scratch/project/project_645000527/maurinlo
