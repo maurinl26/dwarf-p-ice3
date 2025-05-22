@@ -39,17 +39,6 @@ def condensation(
     lv: Field["float"],
     ls: Field["float"],
     q1: Field["float"],
-    # Temporaries
-    piv: Field["float"],
-    pv: Field["float"],
-    qsl: Field["float"],
-    qsi: Field["float"], 
-    frac_tmp: Field["float"],
-    sigma: Field["float"],
-    cond_tmp: Field["float"],
-    a: Field["float"],
-    b: Field["float"], 
-    sbar: Field["float"]
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
@@ -194,21 +183,18 @@ def condensation(
 def sigrc_computation(
     q1: Field["float"], 
     sigrc: Field["float"], 
-    inq1: Field["int"],
+    # inq1: Field["int"],
+    inq2: "int",
     src_1d: GlobalTable["float", (34)]
 ):
 
-    from __externals__ import LAMBDA3
-
     with computation(PARALLEL), interval(...):
 
-        inq1 = floor(min(100., max(-100., 2 * q1)))
+        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
         inq2 = min(max(-22, inq1), 10)
         # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1 - inq2
+        inc = 2 * q1 #- inq2
         sigrc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
 
-        # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
-        if __INLINED(LAMBDA3 == 0):
-            sigrc *= min(3, max(1, 1 - q1))
+        # todo : add LAMBDA3='CB' inlined conditional
 
