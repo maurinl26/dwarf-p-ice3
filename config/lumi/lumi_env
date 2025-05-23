@@ -24,6 +24,10 @@ export CUPY_INSTALL_USE_HIP=1
 export GT4PY_USE_HIP=1
 export HCC_AMDGPU_TARGET=gfx90a
 export ROCM_HOME=/opt/rocm-6.0.3
+export CUDA_ARCH=gfx90a
+
+# Discover GPUs
+export ROCR_VISIBLE_DEVICES=$SLURM_LOCALID
 
 # Custom libs for file reading
 export HDF5_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/hdf5/1.14.3/build/lumi/23.03/cray
@@ -39,6 +43,7 @@ export MPICXX=CC
 # Flags and Links
 export CFLAGS="-I/opt/rocm-6.0.3/include"
 export LDFLAGS="-L/opt/rocm-6.0.3/lib"
+export LIBRARY_PATH=$LIBRARY_PATH:/opt/rocm-6.0.3/lib
 
 # Custom env var
 export ICE3_PATH=/project/project_465000527/maurinlo/dwarf-p-ice3
