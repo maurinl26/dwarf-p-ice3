@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.12"
 
 [[package]]
@@ -516,6 +515,9 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
 ]
+fortran = [
+    { name = "fprettify" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -535,6 +537,7 @@ dev = [
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "ruff", specifier = ">=0.10.0" },
 ]
+fortran = [{ name = "fprettify", specifier = ">=0.3.7" }]
 
 [[package]]
 name = "executing"
