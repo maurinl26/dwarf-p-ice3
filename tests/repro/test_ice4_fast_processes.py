@@ -3,7 +3,7 @@ from ctypes import c_double, c_float, c_int
 
 import numpy as np
 import pytest
-from conftest import compile_fortran_stencil, get_backends
+from tests.conftest import compile_fortran_stencil, get_backends
 from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
@@ -139,9 +139,12 @@ def test_ice4_fast_ri(
     Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
 
     fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.ravel() for name, field in FloatFieldsIJK.items()
+        Py2F_Mapping[name]: field.ravel()
+        for name, field in FloatFieldsIJK.items()
     }
 
+
+    logging.info(f"ldsoft fortran {ldsoft}")
     result = fortran_stencil(
         ldsoft=ldsoft,
         ldcompute=ldcompute,
@@ -150,15 +153,12 @@ def test_ice4_fast_ri(
         **fortran_packed_dims,
     )
 
-    rcberi_out = result[0]
+    rcberi_out = result
 
     logging.info(f"Mean rc_beri_tnd_gt4py   {rc_beri_tnd_gt4py.mean()}")
     logging.info(f"Mean rcberi_out          {rcberi_out.mean()}")
-    logging.info(
-        f"Max abs rtol             {max(abs(rc_beri_tnd_gt4py.ravel() - rcberi_out) / abs(rcberi_out))}"
-    )
 
-    assert_allclose(rc_beri_tnd_gt4py.ravel(), rcberi_out, 1e-5)
+    assert_allclose(rc_beri_tnd_gt4py.ravel(), rcberi_out, 1e-6)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -174,7 +174,7 @@ def test_ice4_fast_rs(
 
     ice4_fast_rs = compile_stencil("ice4_fast_rs", gt4py_config, externals)
     fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
+        "mode_ice4_fast_processes.F90", "mode_ice4_fast_processes", "ice4_fast_rs"
     )
 
     logging.info(f"Machine precision {np.finfo(np.float32).eps}")
@@ -439,9 +439,6 @@ def test_ice4_fast_rs(
         origin=origin,
     )
 
-    fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
-    )
 
     externals_mapping = {
         "ngaminc": "NGAMINC",
@@ -843,10 +840,6 @@ def test_ice4_fast_rg(
         index_floor_s=index_floor_s_gt4py,
         domain=grid.shape,
         origin=origin,
-    )
-
-    fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_rg.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
     )
 
     fortran_externals = {
