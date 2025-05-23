@@ -18,6 +18,13 @@ Run GPU :
     source ./config/lumi/lumi_env
 ```
 
+- Cupy for rocm6.0.3 :
+```bash
+    source .venv/bin/activate
+    uv sync
+    uv pip install "cupy @ git+https://github.com/cupy/cupy.git@9e944d5d0bd2b6c62a152d49be000b14fb7e514c"
+```
+
 - Interactive session
 ```bash
     srun --nodes=1  \
