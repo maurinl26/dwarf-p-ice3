@@ -294,7 +294,7 @@ def ice4_fast_rg(
                 ) / (rhodref * (LMTT - CL * (TT - t)))
                 rg_freez2_tnd = (rhodref * (LMTT + (CI - CL) * (TT - t))) / (
                     rhodref * (LMTT - CL * (TT - t))
-                )
+                ):q
 
             rwetg_init_tmp = max(
                 rg_riwet_tnd + rg_rswet_tnd,

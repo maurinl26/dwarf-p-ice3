@@ -3,53 +3,50 @@
 module mode_ice4_stepping
    implicit none
 
-   subroutine time_integration_and_limiter(
+   subroutine time_integration_and_limiter(&
            &ldsigma_rc, ldaucv_adju, ldext_tend, &
-&kproma, kmicro, &
+         &kproma, kmicro, &
 &ldmicro, &
 &ptstep,&  ! double time step (single if cold start)
 &krr, &     ! number of moist variable
 &osave_micro, oelec, &         ! if true, cloud electricity is activated
    &pexn, prhodref, &! reference density
-   &k1,k2, ppres, pcf, psigma_rc, pcit, &
+   &k1, k2, ppres, pcf, psigma_rc, pcit, &
    &pvart, & !packed variables
    &phlc_hrc, phlc_hcf, phli_hri, phli_hcf, &
    &prainfr, &
    &pextpk, pbu_sum, &
-   &prrevav, platham_iaggs !
-   )
+   &prrevav, platham_iaggs &
+   &)
 
-
-
-   logical,                  intent(in)    :: ldsigma_rc
-logical,                  intent(in)    :: ldaucv_adju
-logical,                  intent(in)    :: ldext_tend
-integer,                  intent(in)    :: kproma ! cache-blocking factor for microphysic loop
-integer,                  intent(in)    :: kmicro ! case r_x>0 locations
-logical, dimension(kproma), intent(in)  :: ldmicro
-real,                     intent(in)    :: ptstep  ! double time step (single if cold start)
-integer,                  intent(in)    :: krr     ! number of moist variable
-logical,                  intent(in)    :: osave_micro   ! if true, save the microphysical tendencies
-logical,                  intent(in)    :: oelec         ! if true, cloud electricity is activated
+      logical, intent(in)    :: ldsigma_rc
+      logical, intent(in)    :: ldaucv_adju
+      logical, intent(in)    :: ldext_tend
+      integer, intent(in)    :: kproma ! cache-blocking factor for microphysic loop
+      integer, intent(in)    :: kmicro ! case r_x>0 locations
+      logical, dimension(kproma), intent(in)  :: ldmicro
+      real, intent(in)    :: ptstep  ! double time step (single if cold start)
+      integer, intent(in)    :: krr     ! number of moist variable
+      logical, intent(in)    :: osave_micro   ! if true, save the microphysical tendencies
+      logical, intent(in)    :: oelec         ! if true, cloud electricity is activated
 !
-real,    dimension(kproma),                     intent(in)    :: pexn    ! exner function
-real,    dimension(kproma),                     intent(in)    :: prhodref! reference density
-integer, dimension(kproma),                     intent(in)    :: k1,k2 ! used to replace the count and pack intrinsics on variables
-real,    dimension(kproma),                     intent(in)    :: ppres
-real,    dimension(kproma),                     intent(in)    :: pcf ! cloud fraction
-real,    dimension(kproma),                     intent(inout) :: psigma_rc
-real,    dimension(kproma),                     intent(inout) :: pcit
-real,    dimension(kproma,0:7),                 intent(inout) :: pvart !packed variables
-real,    dimension(kproma),                     intent(inout) :: phlc_hrc
-real,    dimension(kproma),                     intent(inout) :: phlc_hcf
-real,    dimension(kproma),                     intent(inout) :: phli_hri
-real,    dimension(kproma),                     intent(inout) :: phli_hcf
-real,    dimension(d%nijt,d%nkt),               intent(inout) :: prainfr
-real,    dimension(kproma,0:7),                 intent(inout) :: pextpk !to take into acount external tendencies inside the splitting
-real,    dimension(kproma, ibunum-ibunum_extra),intent(out)   :: pbu_sum
-real,    dimension(kproma),                     intent(out)   :: prrevav
-real,    dimension(merge(kproma,0,oelec)),      intent(in)    :: platham_iaggs ! e function to simulate
-
+      real, dimension(kproma), intent(in)    :: pexn    ! exner function
+      real, dimension(kproma), intent(in)    :: prhodref! reference density
+      integer, dimension(kproma), intent(in)    :: k1, k2 ! used to replace the count and pack intrinsics on variables
+      real, dimension(kproma), intent(in)    :: ppres
+      real, dimension(kproma), intent(in)    :: pcf ! cloud fraction
+      real, dimension(kproma), intent(inout) :: psigma_rc
+      real, dimension(kproma), intent(inout) :: pcit
+      real, dimension(kproma, 0:7), intent(inout) :: pvart !packed variables
+      real, dimension(kproma), intent(inout) :: phlc_hrc
+      real, dimension(kproma), intent(inout) :: phlc_hcf
+      real, dimension(kproma), intent(inout) :: phli_hri
+      real, dimension(kproma), intent(inout) :: phli_hcf
+      real, dimension(d%nijt, d%nkt), intent(inout) :: prainfr
+      real, dimension(kproma, 0:7), intent(inout) :: pextpk !to take into acount external tendencies inside the splitting
+      real, dimension(kproma, ibunum - ibunum_extra), intent(out)   :: pbu_sum
+      real, dimension(kproma), intent(out)   :: prrevav
+      real, dimension(merge(kproma, 0, oelec)), intent(in)    :: platham_iaggs ! e function to simulate
 
       do jl = 1, kmicro
          if (llcompute(jl)) then
