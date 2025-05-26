@@ -392,7 +392,7 @@ fortran = [
 requires-dist = [
     { name = "fmodpy", specifier = ">=1.7.4" },
     { name = "fprettify", specifier = ">=0.3.7" },
-    { name = "ifs-physics-common", git = "https://github.com/stubbiali/ifs-physics-common.git" },
+    { name = "ifs-physics-common", editable = "../ifs-physics-common" },
     { name = "numpy", specifier = "<2.0" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "ruff", specifier = ">=0.10.0" },
@@ -607,12 +607,31 @@ wheels = [
 [[package]]
 name = "ifs-physics-common"
 version = "0.0"
-source = { git = "https://github.com/stubbiali/ifs-physics-common.git#0c8d91cd60c9f29a800b77108cbc3538bc0b93d1" }
+source = { editable = "../ifs-physics-common" }
 dependencies = [
     { name = "gt4py", extra = ["dace"] },
     { name = "numpy" },
     { name = "pydantic" },
     { name = "sympl" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = "==24.4.0" },
+    { name = "cupy", marker = "extra == 'gpu'" },
+    { name = "cupy", marker = "extra == 'gpu-rocm'", specifier = "<13.0" },
+    { name = "cupy-cuda11x", marker = "extra == 'gpu-cuda11x'" },
+    { name = "cupy-cuda12x", marker = "extra == 'gpu-cuda12x'" },
+    { name = "cython", marker = "extra == 'gpu-rocm'", specifier = "<3.0" },
+    { name = "flake8", marker = "extra == 'dev'" },
+    { name = "gt4py", extras = ["dace"], git = "https://github.com/GridTools/gt4py.git?rev=2cd0c91" },
+    { name = "ipdb", marker = "extra == 'dev'" },
+    { name = "ipython", marker = "extra == 'dev'", specifier = "==8.22.0" },
+    { name = "mypy", marker = "extra == 'dev'" },
+    { name = "numpy", specifier = ">=1.22" },
+    { name = "pre-commit", marker = "extra == 'dev'" },
+    { name = "pydantic", specifier = "<2.0" },
+    { name = "sympl", git = "https://github.com/stubbiali/sympl.git?rev=oop" },
 ]
 
 [[package]]

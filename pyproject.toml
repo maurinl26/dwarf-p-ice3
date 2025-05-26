@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
+ifs-physics-common = { path = "../ifs-physics-common", editable = true }
 
 [dependency-groups]
 dev = [

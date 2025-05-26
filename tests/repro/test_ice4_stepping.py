@@ -1,5 +1,5 @@
 import pytest
-from conftest import get_backends, compile_fortran_stencil
+from tests.conftest import get_backends, compile_fortran_stencil
 from ifs_physics_common.framework.stencil import compile_stencil
 
 @pytest.mark.skip("Not Implemented")

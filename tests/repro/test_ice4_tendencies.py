@@ -2,7 +2,7 @@ import logging
 
 import numpy as np
 import pytest
-from conftest import get_backends, compile_fortran_stencil
+from tests.conftest import get_backends, compile_fortran_stencil
 from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose

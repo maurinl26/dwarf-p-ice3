@@ -1,5 +1,5 @@
 import pytest
-from conftest import get_backends
+from tests.conftest import get_backends
 
 
 @pytest.mark.skip("Not Implemented")
