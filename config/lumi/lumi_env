@@ -44,6 +44,8 @@ export MPICXX=CC
 export CFLAGS="-I/opt/rocm-6.0.3/include"
 export LDFLAGS="-L/opt/rocm-6.0.3/lib"
 export LIBRARY_PATH=$LIBRARY_PATH:/opt/rocm-6.0.3/lib
+export HIPCC_COMPILE_FLAGS_APPEND='--offload-arch=gfx90a $(CC --cray-print-opts=cflags)'
+export HIPCC_LINK_FLAGS_APPEND=$(CC --cray-print-opts=libs)
 
 # Custom env var
 export ICE3_PATH=/project/project_465000527/maurinlo/dwarf-p-ice3
