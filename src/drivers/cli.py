@@ -143,18 +143,8 @@ def ice_adjust_split(
     logging.info("Getting state for IceAdjust")
     state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
 
-    ####### Check inputs #####################
-    logging.info("Fields IN")
-    field = state["rhodref"].isel(z=slice(0, 15))
-    logging.info(f"Field rhodref, shape {field.shape}")
-    logging.info(f"Field rhodref, mean {field.mean().values}, std {field.std().values}")
-
-    # Cut shadow level at bottom for plain levels
-    logging.info("Fields INOUT (before call)")
-    for field_name in ['rvs', 'rcs', 'ris', 'ths']:
-        logging.info(
-            f"Field rvs, mean {state[field_name].isel(z=slice(0,15)).mean().values}, std {state[field_name].isel(z=slice(0,15)).std().values}"
-        )
+    # todo : setup check inputs with right interface
+    # setup xarray cupy
 
     ###### Launching IceAdjust ###############
     logging.info("Launching IceAdjust")

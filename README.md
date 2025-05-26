@@ -34,7 +34,7 @@ Run GPU :
 - Launch
 ```bash
     uv run standalone-model ice-adjust-split \
-    gt:gpu\
+    gt:gpu \
     $SCRATCH_PATH/data/ice_adjust/reference.nc \
     $SCRATCH_PATH/data/ice_adjust/run.nc \
     track_ice_adjust.json
