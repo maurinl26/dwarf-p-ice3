@@ -17,11 +17,11 @@ def test_sigrc_computation_dace(grid):
     sigrc = np.ones((I, J, K), dtype=np.float32)
 
     sigrc_computation(
-        q1=q1, inq1=inq1, src_1d=SRC_1D, sigrc=sigrc, LAMBDA3=0, I=I, J=J, K=K
+        q1=q1, inq1=inq1, src_1d=SRC_1D, sigrc=sigrc, LAMBDA3=0, I=I, J=J, K=K, F=34
     )
 
 
-def test_sigrc_computation(
+def test_sigrc_computation_stencil(
     gt4py_config, externals, fortran_dims, grid, origin
 ):
 
@@ -55,6 +55,7 @@ def test_sigrc_computation(
         I=I,
         J=J,
         K=K,
+        F=34,
     )
 
     F2Py_Mapping = {"zq1": "q1", "psigrc": "sigrc"}
@@ -94,3 +95,4 @@ def test_sigrc_computation(
         FloatFieldsIJK["sigrc"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
         rtol=1e-6,
     )
+

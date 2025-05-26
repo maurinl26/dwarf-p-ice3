@@ -9,7 +9,7 @@ from numpy.testing import assert_allclose
 
 from ice3_gt4py.phyex_common.tables import SRC_1D
 
-from conftest import compile_fortran_stencil, get_backends
+from tests.conftest import compile_fortran_stencil, get_backends
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -367,97 +367,83 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
-def test_sigrc_computation(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
-       
-    # Setting backend and precision
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")   
-        
-        
+def test_sigrc_computation(
+    gt4py_config, externals, fortran_dims, grid, origin, precision, backend
+):
+
     logging.info(f"HLAMBDA3 {externals['LAMBDA3']}")
 
-    sigrc_computation = compile_stencil("sigrc_diagnostic", gt4py_config, externals)
-    fortran_stencil = compile_fortran_stencil("mode_condensation.F90", "mode_condensation", "sigrc_computation")
-        
+    I, J, K = grid.shape
+
+    fortran_stencil = compile_fortran_stencil(
+        "mode_condensation.F90", "mode_condensation", "sigrc_computation"
+    )
+
     FloatFieldsIJK_Names = ["q1", "sigrc"]
     FloatFieldsIJK = {
         name: np.array(
-                np.random.rand(*grid.shape),
-                dtype=c_float,
-                order="F",
-            ) for name in FloatFieldsIJK_Names
+            np.random.rand(*grid.shape),
+            dtype=c_float,
+            order="F",
+        )
+        for name in FloatFieldsIJK_Names
     }
-    
-    q1_gt4py = from_array(
-        FloatFieldsIJK["q1"],
-        dtypes=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend
-    )
-    sigrc_gt4py = from_array(
-        FloatFieldsIJK["sigrc"],
-        dtypes=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend
+
+    inq1 = np.zeros(grid.shape, dtype=np.int32)
+
+    from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+    compiled_sdfg = sigrc_computation.to_sdfg().compile()
+
+    # dace
+    compiled_sdfg(
+        q1=FloatFieldsIJK["q1"],
+        inq1=inq1,
+        src_1d=SRC_1D,
+        sigrc=FloatFieldsIJK["sigrc"],
+        LAMBDA3=0,
+        I=I,
+        J=J,
+        K=K,
+        F=34,
     )
 
-        
-    inq1_gt4py = ones(
-            grid.shape, 
-            dtype=np.int32, 
-            backend=gt4py_config.backend)
-    src_1d_gt4py = from_array(
-            SRC_1D,
-            dtype=np.float32,
-            backend=gt4py_config.backend
-        )
-        
-    sigrc_computation(
-        q1=q1_gt4py,
-        sigrc=sigrc_gt4py,
-        src_1d=src_1d_gt4py,
-        inq1=inq1_gt4py,
-        domain=grid.shape,
-        origin=origin
-        )
-        
-    F2Py_Mapping = {
-            "zq1": "q1",
-            "psigrc": "sigrc"
-        }
+    F2Py_Mapping = {"zq1": "q1", "psigrc": "sigrc"}
     Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
 
-        
     fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: FloatFieldsIJK[name].reshape(grid.shape[0]*grid.shape[1], grid.shape[2])
+        Py2F_Mapping[name]: FloatFieldsIJK[name].reshape(
+            grid.shape[0] * grid.shape[1], grid.shape[2]
+        )
         for name in FloatFieldsIJK.keys()
     }
-    
-    inq1 = np.ones((grid.shape[0]*grid.shape[1], grid.shape[2]))
-    
+
+    inq1 = np.ones((grid.shape[0] * grid.shape[1], grid.shape[2]))
+
     result = fortran_stencil(
-            inq1=inq1,
-            hlambda3=externals["LAMBDA3"],
-            **fortran_FloatFieldsIJK,
-            **fortran_dims
-        )
-    
+        inq1=inq1,
+        hlambda3=externals["LAMBDA3"],
+        **fortran_FloatFieldsIJK,
+        **fortran_dims,
+    )
+
     FieldsOut_Names = ["psigrc", "inq1"]
-    
-    FieldsOut = {
-        name: result[i] for i, name in enumerate(FieldsOut_Names)
-    }
-        
+
+    FieldsOut = {name: result[i] for i, name in enumerate(FieldsOut_Names)}
+
     logging.info("\n Temporaries")
-    logging.info(f"Mean inq1_gt4py    {inq1_gt4py.mean()}")
-    logging.info(f"Mean inq1_out      {FieldsOut["inq1"].mean()}")
-    
+    logging.info(f"Mean inq1 (dace)   {inq1.mean()}")
+    logging.info(f"Mean inq1_out      {FieldsOut['inq1'].mean()}")
+
     logging.info("\n Outputs")
     logging.info(f"Machine precision {np.finfo(float).eps}")
-    logging.info(f"Mean sigrc_gt4py     {sigrc_gt4py.mean()}")
-    logging.info(f"Mean psigrc_out      {FieldsOut["psigrc"].mean()}")
+    logging.info(f"Mean sigrc (dace)    {FloatFieldsIJK["sigrc"].mean()}")
+    logging.info(f"Mean psigrc_out      {FieldsOut['psigrc'].mean()}")
 
-    assert_allclose(FieldsOut["psigrc"], sigrc_gt4py.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), rtol=1e-6)
-
+    assert_allclose(
+        FieldsOut["psigrc"],
+        FloatFieldsIJK["sigrc"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        rtol=1e-6,
+    )
 
 def test_global_table():
     
