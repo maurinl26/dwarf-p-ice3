@@ -35,9 +35,9 @@ export NETCDF_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/netcdf-c/4.9
 #export BOOST_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/boost/1.83.0
 
 # Compiler options
-export CC=cc
+export CC=CC
 export CXX=CC
-export MPICC=cc
+export MPICC=CC
 export MPICXX=CC
 
 # Flags and Links
