@@ -28,6 +28,9 @@ dev = [
     "isort>=6.0.1",
     "prettify>=0.1.1",
 ]
+gpu = [
+    "cupy-xarray>=0.1.4",
+]
 
 [tool.uv.sources]
 cupy = { git = "https://github.com/cupy/cupy.git", rev = "9e944d5d0bd2b6c62a152d49be000b14fb7e514c" }
