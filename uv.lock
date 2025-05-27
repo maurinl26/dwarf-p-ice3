@@ -29,15 +29,6 @@ wheels = [
 ]
 
 [[package]]
-name = "atpublic"
-version = "6.0.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/20/40/e686038a07af08e8462a71dc9201867ffdde408b4d93be90a4ad0fbc83ef/atpublic-6.0.1.tar.gz", hash = "sha256:718932844f5bdfdf5d80ad4c64e13964f22274b4f8937d54a8d3811d6bc5dc05", size = 17520 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/cd/37/66f9fcdd6a56ab3da53291c7501890246c39bc7b5891e27cd956efe127ca/atpublic-6.0.1-py3-none-any.whl", hash = "sha256:f9a23902faf5ca1fdc6436b3712d79452f71abc61a810d22be1f31b40a8004c5", size = 6421 },
-]
-
-[[package]]
 name = "attrs"
 version = "25.3.0"
 source = { registry = "https://pypi.org/simple" }
