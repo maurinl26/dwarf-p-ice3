@@ -59,8 +59,6 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
     output_fields = xr.Dataset(state)
     for key, field in state.items():
         if key not in ["time"]:
-            logging.info(f"Converting {key}")
-            logging.info(f"Data type is {type(field.data)}")
             array = xr.DataArray(
                 data=field.data[:, :, 1:],
                 dims=["I", "J", "K"],
@@ -75,6 +73,7 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
 
         output_fields = output_fields.as_numpy()
     output_fields.to_netcdf(Path(output_path))
+    logging.info(f"Data Array written to {output_path}")
 
 
 def initialize_state(
