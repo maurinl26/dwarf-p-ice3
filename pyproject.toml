@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cupy",
     "fmodpy>=1.7.4",
     "fprettify>=0.3.7",
     "gt4py>=1.0.4",
@@ -27,3 +28,7 @@ dev = [
     "isort>=6.0.1",
     "prettify>=0.1.1",
 ]
+
+[tool.uv.sources]
+cupy = { git = "https://github.com/cupy/cupy.git", rev = "9e944d5d0bd2b6c62a152d49be000b14fb7e514c" }
+gt4py = { path = "../gt4py", editable = true }
