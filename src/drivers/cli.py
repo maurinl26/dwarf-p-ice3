@@ -166,7 +166,6 @@ def ice_adjust_split(
         )
 
     logging.info(f"Tendencies")
-    logging.info(f"Type, tendencies : {type(tends)}")
     for name, field in tends.items():
         np_field = to_numpy(field.data[...])
         logging.info(
