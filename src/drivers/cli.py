@@ -173,10 +173,10 @@ def ice_adjust_split(
             f"Field {name}, mean : {np_field.mean()}"
         )
 
-    #################### Write dataset ########:wq:##############
-    write_dataset(state, (nx, ny, nz), f"{output_path}_state")
-    write_dataset(diags, (nx, ny, nz), f"{output_path}_diags")
-    write_dataset(tends, (nx, ny, nz), f"{output_path}_tends")
+    #################### Write dataset ######################
+    write_dataset(state, (nx, ny, nz), f"state_{output_path}")
+    write_dataset(diags, (nx, ny, nz), f"diags_{output_path}")
+    write_dataset(tends, (nx, ny, nz), f"tends_{output_path}")
 
     ############### Compute differences per field ###########
     # metrics = compare_fields(dataset, output_path, "ice_adjust")
