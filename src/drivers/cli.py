@@ -174,9 +174,12 @@ def ice_adjust_split(
         )
 
     #################### Write dataset ######################
-    write_dataset(state, (nx, ny, nz), output_path)
-    write_dataset(diags, (nx, ny, nz), output_path)
-    write_dataset(tends, (nx, ny, nz), output_path)
+    output_dict = {
+        **state,
+        **diags,
+        **tends
+    }
+    write_dataset(output_dict, (nx, ny, nz), output_path)
 
     ############### Compute differences per field ###########
     # metrics = compare_fields(dataset, output_path, "ice_adjust")
