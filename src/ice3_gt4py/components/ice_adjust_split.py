@@ -53,10 +53,10 @@ class IceAdjustSplit(ImplicitTendencyComponent):
         self.condensation = self.compile_stencil("condensation", self.externals)
 
         # todo : add sigrc diagnostic compilation
-        from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
-
-        self.nx, self.ny, self.nz = self.computational_grid.grids[(I, J, K)].shape
-        self.sigrc_diagnostic = sigrc_computation.to_sdfg().compile()
+        # from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+        #
+        # self.nx, self.ny, self.nz = self.computational_grid.grids[(I, J, K)].shape
+        # self.sigrc_diagnostic = sigrc_computation.to_sdfg().compile()
 
         self.cloud_fraction_1 = self.compile_stencil("cloud_fraction_1", self.externals)
         self.cloud_fraction_2 = self.compile_stencil("cloud_fraction_2", self.externals)
@@ -308,17 +308,18 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-            self.sigrc_diagnostic(
-                q1=q1,
-                inq1=inq1,
-                src_1d=SRC_1D,
-                sigrc=out_diagnostics["sigrc"],
-                LAMBDA3=0,
-                I=self.nx,
-                J=self.ny,
-                K=self.nz,
-                F=34
-            )
+            # todo : add dace managed sigrc diagnostic
+            # self.sigrc_diagnostic(
+            #     q1=q1,
+            #     inq1=inq1,
+            #     src_1d=SRC_1D,
+            #     sigrc=out_diagnostics["sigrc"],
+            #     LAMBDA3=0,
+            #     I=self.nx,
+            #     J=self.ny,
+            #     K=self.nz,
+            #     F=34
+            # )
 
             state_cloud_fraction_1 = {
                 key: state[key]
