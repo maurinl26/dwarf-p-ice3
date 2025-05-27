@@ -166,14 +166,17 @@ def ice_adjust_split(
         )
 
     logging.info(f"Tendencies")
+    logging.info(f"Type, tendencies : {type(tends)}")
     for name, field in tends.items():
         np_field = to_numpy(field.data[...])
         logging.info(
             f"Field {name}, mean : {np_field.mean()}"
         )
 
-    #################### Write dataset ######################
-    write_dataset(state, (nx, ny, nz), output_path)
+    #################### Write dataset ########:wq:##############
+    write_dataset(state, (nx, ny, nz), f"{output_path}_state")
+    write_dataset(diags, (nx, ny, nz), f"{output_path}_diags")
+    write_dataset(tends, (nx, ny, nz), f"{output_path}_tends")
 
     ############### Compute differences per field ###########
     # metrics = compare_fields(dataset, output_path, "ice_adjust")
