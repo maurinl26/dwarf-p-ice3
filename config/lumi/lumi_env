@@ -14,7 +14,7 @@ export GT_CACHE_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/gt_cache/l
 export GT_CACHE_DIR_NAME=.gt_cache
 
 # Dace config
-export DACE_CONFIG=/project/project_465000527/maurinlo/dwarf-p-ice3/amd-gpu/gt_cache/lumi/23.03/cray/.dace.conf
+#export DACE_CONFIG=/project/project_465000527/maurinlo/dwarf-p-ice3/amd-gpu/gt_cache/lumi/23.03/cray/.dace.conf
 
 # Cuda + HIP
 export CUDA_HOME=/opt/rocm-6.0.3
