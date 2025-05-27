@@ -159,9 +159,6 @@ def ice_adjust_split(
     ice_adjust_split(state, dt, out_tendencies=tends, out_diagnostics=diags)
 
     logging.info(f"Diagnostics")
-    logging.info(f"Type, diags : {type(diags)}")
-    logging.info(f"Type, diags, hlc_hrc :  {type(diags['hlc_hrc'])}")
-    logging.info(f"Type, diags, hlc_hrc.data : {type(diags['hlc_hrc'].data)}")
     for name, field in diags.items():
         np_field = to_numpy(field.data[...])
         logging.info(
