@@ -55,6 +55,7 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
     logging.info(f"Extracting state data to {output_path}")
     logging.info(f"Type, state {type(state)}")
     logging.info(f"Type, state {type(state['rhodref'])}")
+    logging.info(f"Is cupy, state {state['rhodref'].cupy.is_cupy}")
     output_fields = xr.Dataset(state)
     for key, field in state.items():
         if key not in ["time"]:
