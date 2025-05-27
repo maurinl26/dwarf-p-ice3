@@ -308,17 +308,18 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-            self.sigrc_diagnostic(
-                q1=q1,
-                inq1=inq1,
-                src_1d=SRC_1D,
-                sigrc=out_diagnostics["sigrc"],
-                LAMBDA3=0,
-                I=self.nx,
-                J=self.ny,
-                K=self.nz,
-                F=34
-            )
+            # todo : add dace managed sigrc diagnostic
+            # self.sigrc_diagnostic(
+            #     q1=q1,
+            #     inq1=inq1,
+            #     src_1d=SRC_1D,
+            #     sigrc=out_diagnostics["sigrc"],
+            #     LAMBDA3=0,
+            #     I=self.nx,
+            #     J=self.ny,
+            #     K=self.nz,
+            #     F=34
+            # )
 
             state_cloud_fraction_1 = {
                 key: state[key]
