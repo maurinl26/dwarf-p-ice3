@@ -159,6 +159,7 @@ def ice_adjust_split(
     ice_adjust_split(state, dt, out_tendencies=tends, out_diagnostics=diags)
 
     logging.info(f"Diagnostics")
+    logging.info(f"Type, diags : {type(diags)}")
     for name, field in diags.items():
         np_field = to_numpy(field.data[...])
         logging.info(
@@ -166,6 +167,7 @@ def ice_adjust_split(
         )
 
     logging.info(f"Tendencies")
+    logging.info(f"Type, tendencies : {type(tends)}")
     for name, field in tends.items():
         np_field = to_numpy(field.data[...])
         logging.info(
