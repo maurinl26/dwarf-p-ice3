@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "cupy",
+    "cupy>=14",
     "fmodpy>=1.7.4",
     "fprettify>=0.3.7",
     "gt4py>=1.0.4",
