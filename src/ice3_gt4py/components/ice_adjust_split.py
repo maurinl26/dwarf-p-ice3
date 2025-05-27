@@ -53,10 +53,10 @@ class IceAdjustSplit(ImplicitTendencyComponent):
         self.condensation = self.compile_stencil("condensation", self.externals)
 
         # todo : add sigrc diagnostic compilation
-        from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
-
-        self.nx, self.ny, self.nz = self.computational_grid.grids[(I, J, K)].shape
-        self.sigrc_diagnostic = sigrc_computation.to_sdfg().compile()
+        # from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+        #
+        # self.nx, self.ny, self.nz = self.computational_grid.grids[(I, J, K)].shape
+        # self.sigrc_diagnostic = sigrc_computation.to_sdfg().compile()
 
         self.cloud_fraction_1 = self.compile_stencil("cloud_fraction_1", self.externals)
         self.cloud_fraction_2 = self.compile_stencil("cloud_fraction_2", self.externals)
