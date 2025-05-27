@@ -73,7 +73,6 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
             )
             output_fields[key] = array
 
-    if output_fields.cupy.is_cupy:
         output_fields = output_fields.as_numpy()
     output_fields.to_netcdf(Path(output_path))
 
