@@ -4,7 +4,6 @@ module load partition/G
 module load cpeCray/24.03
 module load Boost/1.83.0-cpeCray-24.03
 module load buildtools
-module load buildtools
 module load cray-python
 module load rocm/6.0.3
 
@@ -18,7 +17,7 @@ export GT_CACHE_DIR_NAME=.gt_cache
 export DACE_CONFIG=/project/project_465000527/maurinlo/dwarf-p-ice3/amd-gpu/gt_cache/lumi/23.03/cray/.dace.conf
 
 # Cuda + HIP
-export CUDA_PATH=/opt/rocm-6.0.3
+export CUDA_HOME=/opt/rocm-6.0.3
 export CUPY_ACCELERATORS=cub
 export CUPY_INSTALL_USE_HIP=1
 export GT4PY_USE_HIP=1
@@ -35,9 +34,9 @@ export NETCDF_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/netcdf-c/4.9
 #export BOOST_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/boost/1.83.0
 
 # Compiler options
-export CC=cc
+export CC=CC
 export CXX=CC
-export MPICC=cc
+export MPICC=CC
 export MPICXX=CC
 
 # Flags and Links
