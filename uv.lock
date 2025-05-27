@@ -318,9 +318,7 @@ gpu = [
 tests = [
     { name = "pytest" },
 ]
-gpu = [
-    { name = "cupy-xarray" },
-]
+
 
 [package.metadata]
 requires-dist = [
