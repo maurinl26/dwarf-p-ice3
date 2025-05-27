@@ -41,7 +41,7 @@ def compile_fortran_stencil(
     return getattr(mode, fortran_stencil)
 
 # fixtures
-@pytest.fixture(name="", scope="module")
+@pytest.fixture(name="domain", scope="module")
 def domain_fixture():
     return (50, 50, 15)
 
