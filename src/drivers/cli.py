@@ -173,7 +173,7 @@ def ice_adjust_split(
             f"Field {name}, mean : {np_field.mean()}"
         )
 
-    #################### Write dataset ######################
+    #################### Write dataset ########:wq:##############
     write_dataset(state, (nx, ny, nz), f"{output_path}_state")
     write_dataset(diags, (nx, ny, nz), f"{output_path}_diags")
     write_dataset(tends, (nx, ny, nz), f"{output_path}_tends")
