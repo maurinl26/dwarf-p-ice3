@@ -13,16 +13,10 @@ from gt4py.cartesian.gtscript import (
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method
 
-from ice3_gt4py.functions.interp_micro import (
-    index_micro2d_dry_g,
-    index_micro2d_dry_r,
-    index_micro2d_dry_s,
-)
-
 
 @ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rg.F90")
-@stencil_collection("ice4_fast_rg")
-def ice4_fast_rg(
+@stencil_collection("rain_contact_freezing")
+def rain_contact_freezing(
     ldsoft: "bool",  # bool to update tendencies
     ldcompute: Field["bool"],
     t: Field["float"],
@@ -33,107 +27,35 @@ def ice4_fast_rg(
     rit: Field["float"],
     rgt: Field["float"],
     rct: Field["float"],
-    rst: Field["float"],
     cit: Field["float"],
-    ka: Field["float"],
-    dv: Field["float"],
-    cj: Field["float"],
     lbdar: Field["float"],
-    lbdas: Field["float"],
     lbdag: Field["float"],
-    ricfrrg: Field["float"],
-    rrcfrig: Field["float"],
+    # outputs
     ricfrr: Field["float"],
-    rg_rcdry_tnd: Field["float"],
+    rrcfrig: Field["float"],
+    ricfrrg: Field["float"],
     rg_ridry_tnd: Field["float"],
-    rg_rsdry_tnd: Field["float"],
-    rg_rrdry_tnd: Field["float"],
     rg_riwet_tnd: Field["float"],
-    rg_rswet_tnd: Field["float"],
-    rg_freez1_tnd: Field["float"],
-    rg_freez2_tnd: Field["float"],
-    rgmltr: Field["float"],
-    ker_sdryg: GlobalTable[float, (40, 40)],
-    ker_rdryg: GlobalTable[float, (40, 40)],
-    index_floor_s: Field["int"],
-    index_floor_g: Field["int"],
-    index_floor_r: Field["int"],
 ):
-    """Compute fast graupel sources
-
-    Args:
-        ldcompute (Field[int]): switch to compute microphysical processes on column
-        t (Field[float]): temperature
-        rhodref (Field[float]): reference density
-        rit (Field[float]): ice mixing ratio at t
-
-        rgt (Field[float]): graupel m.r. at t
-        rct (Field[float]): cloud droplets m.r. at t
-        rst (Field[float]): snow m.r. at t
-        cit (Field[float]): _description_
-        dv (Field[float]): diffusivity of water vapor
-        ka (Field[float]): thermal conductivity of the air
-        cj (Field[float]): function to compute the ventilation coefficient
-        lbdar (Field[float]): slope parameter for rain
-        lbdas (Field[float]): slope parameter for snow
-        lbdag (Field[float]): slope parameter for graupel
-        ricfrrg (Field[float]): rain contact freezing
-        rrcfrig (Field[float]): rain contact freezing
-        ricfrr (Field[float]): rain contact freezing
-        rg_rcdry_tnd (Field[float]): Graupel wet growth
-        rg_ridry_tnd (Field[float]): Graupel wet growth
-        rg_riwet_tnd (Field[float]): Graupel wet growth
-        rg_rsdry_tnd (Field[float]): Graupel wet growth
-        rg_rswet_tnd (Field[float]): Graupel wet growth
-        gdry (Field[int]): boolean field
-    """
-
     from __externals__ import (
         LCRFLIMIT,
-        ALPI,
-        ALPW,
-        BETAI,
-        BETAW,
-        BS,
         CEXVT,
         CI,
         CL,
         COLEXIG,
         COLIG,
-        COLSG,
-        CPV,
         CXG,
-        CXS,
         DG,
-        EPSILO,
-        ESTT,
-        EX0DEPG,
-        EX1DEPG,
         EXICFRR,
         EXRCFRI,
         FCDRYG,
         FIDRYG,
-        FRDRYG,
-        FSDRYG,
         G_RTMIN,
-        GAMI,
-        GAMW,
         I_RTMIN,
         ICFRR,
-        LBSDRYG1,
-        LBSDRYG2,
-        LBSDRYG3,
-        LEVLIMIT,
-        LMTT,
-        LNULLWETG,
         LVTT,
-        LWETGPOST,
-        O0DEPG,
-        O1DEPG,
         R_RTMIN,
         RCFRI,
-        RV,
-        S_RTMIN,
         TT,
     )
 
@@ -187,86 +109,61 @@ def ice4_fast_rg(
             rg_ridry_tnd = 0
             rg_riwet_tnd = 0
 
-    # todo : move to dace
-    # 6.2.1 wet and dry collection of rs on graupel
-    # Translation note : l171 in mode_ice4_fast_rg.F90
-    with computation(PARALLEL), interval(...):
-        if rst > S_RTMIN and rgt > G_RTMIN and ldcompute:
-            gdry = True  # GDRY is a boolean field in f90
 
-        else:
-            gdry = False
-            rg_rsdry_tnd = 0
-            rg_rswet_tnd = 0
+@stencil_collection("graupel_growth")
+def graupel_growth(
+    ldsoft: "bool",  # bool to update tendencies
+    ldcompute: Field["bool"],
+    t: Field["float"],
+    rhodref: Field["float"],
+    pres: Field["float"],
+    rvt: Field["float"],
+    rgt: Field["float"],
+    ka: Field["float"],
+    dv: Field["float"],
+    cj: Field["float"],
+    lbdar: Field["float"],
+    lbdag: Field["float"],
+    rg_rcdry_tnd: Field["float"],
+    rg_ridry_tnd: Field["float"],
+    rg_rsdry_tnd: Field["float"],
+    rg_rrdry_tnd: Field["float"],
+    rg_riwet_tnd: Field["float"],
+    rg_rswet_tnd: Field["float"],
+    rg_freez1_tnd: Field["float"],
+    rg_freez2_tnd: Field["float"],
+    rgmltr: Field["float"],
+    zw_tmp: Field["float"],
+    gdry: Field["bool"]
+):
+    from __externals__ import (
+        ALPI,
+        ALPW,
+        BETAI,
+        BETAW,
+        BS,
+        CI,
+        CL,
+        CPV,
+        EPSILO,
+        ESTT,
+        EX0DEPG,
+        EX1DEPG,
+        FRDRYG,
+        G_RTMIN,
+        GAMI,
+        GAMW,
+        LEVLIMIT,
+        LMTT,
+        LNULLWETG,
+        LVTT,
+        LWETGPOST,
+        O0DEPG,
+        O1DEPG,
+        RV,
+        TT,
+    )
 
-    with computation(PARALLEL), interval(...):
-        if (not ldsoft) and gdry:
-            index_floor_s, index_float_s = index_micro2d_dry_s(lbdas)
-            index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
-            zw_tmp = index_float_g * (
-                index_float_s * ker_sdryg.A[index_floor_g + 1, index_floor_s + 1]
-                + (1 - index_float_s) * ker_sdryg.A[index_floor_g + 1, index_floor_s]
-            ) + (1 - index_float_g) * (
-                index_float_s * ker_sdryg.A[index_floor_g, index_floor_s + 1]
-                + (1 - index_float_s) * ker_sdryg.A[index_floor_g, index_floor_s]
-            )
-
-    with computation(PARALLEL), interval(...):
-        # Translation note : #ifdef REPRO48 l192 to l198 kept
-        #                                   l200 to l206 removed
-        if gdry:
-            rg_rswet_tnd = (
-                FSDRYG
-                * zw_tmp
-                / COLSG
-                * (lbdas * (CXS - BS))
-                * (lbdag**CXG)
-                * (rhodref ** (-CEXVT))
-                * (
-                    LBSDRYG1 / (lbdag**2)
-                    + LBSDRYG2 / (lbdag * lbdas)
-                    + LBSDRYG3 / (lbdas**2)
-                )
-            )
-
-            rg_rsdry_tnd = rg_rswet_tnd * COLSG * exp(t - TT)
-
-    # todo : move to dace
-    # 6.2.6 accretion of raindrops on the graupeln
-    with computation(PARALLEL), interval(...):
-        if rrt < R_RTMIN and rgt < G_RTMIN and ldcompute:
-            gdry = True
-        else:
-            gdry = False
-            rg_rrdry_tnd = 0
-
-    with computation(PARALLEL), interval(...):
-        if not ldsoft:
-            index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
-            index_floor_r, index_float_r = index_micro2d_dry_r(lbdar)
-            zw_tmp = index_float_r * (
-                index_float_g * ker_rdryg.A[index_floor_r + 1, index_floor_g + 1]
-                + (1 - index_float_g) * ker_rdryg.A[index_floor_r + 1, index_floor_g]
-            ) + (1 - index_float_r) * (
-                index_float_g * ker_rdryg.A[index_floor_r, index_floor_g + 1]
-                + (1 - index_float_g) * ker_rdryg.A[index_floor_r, index_floor_g]
-            )
-
-    # # l233
-    with computation(PARALLEL), interval(...):
-        if (not ldsoft) and gdry:
-            rg_rrdry_tnd = (
-                FRDRYG
-                * zw_tmp
-                * (lbdar ** (-4))
-                * (lbdag**CXG)
-                * (rhodref ** (-CEXVT - 1))
-                * (
-                    LBSDRYG1 / (lbdag**2)
-                    + LBSDRYG2 / (lbdag * lbdar)
-                    + LBSDRYG3 / (lbdar**2)
-                )
-            )
 
     # l245
     with computation(PARALLEL), interval(...):
@@ -388,4 +285,3 @@ def ice4_fast_rg(
 
         else:
             rgmltr = 0
-
