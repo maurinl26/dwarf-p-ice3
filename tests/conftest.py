@@ -40,10 +40,9 @@ def compile_fortran_stencil(
     mode = getattr(fortran_script, fortran_module)
     return getattr(mode, fortran_stencil)
 
-
 # fixtures
-@pytest.fixture(name="computational_grid", scope="module")
-def computational_grid_fixture():
+@pytest.fixture(name="domain", scope="module")
+def domain_fixture():
     return (50, 50, 15)
 
 @pytest.fixture(name="gt4py_config", scope="module")
@@ -79,8 +78,8 @@ def phyex_fixture():
     return Phyex("AROME")
 
 @pytest.fixture(name="externals", scope="module")
-def externals_fixture():
-    return Phyex("AROME").to_externals()
+def externals_fixture(phyex):
+    return phyex.to_externals()
 
 
 @pytest.fixture(name="fortran_dims", scope="module")

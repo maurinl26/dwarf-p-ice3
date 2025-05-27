@@ -9,7 +9,7 @@ from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
 from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
-
+import gt4py
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
@@ -56,64 +56,22 @@ def test_ice4_fast_ri(
         for name in FloatFieldsIJK_Names
     }
 
+    # Wrapper
+    GT4Py_FloatFieldsIJK = {
+        name: gt4py.storage.zeros(
+            shape=grid.shape,
+            backend=backend,
+            dtype=gt4py_config.dtypes.float,
+        ) for name in FloatFieldsIJK_Names
+    }
+
+    # Allocate fields
+    for name in GT4Py_FloatFieldsIJK.keys():
+        GT4Py_FloatFieldsIJK[name] = FloatFieldsIJK[name]
+
     ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
-    rhodref_gt4py = from_array(
-        FloatFieldsIJK["rhodref"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    ai_gt4py = from_array(
-        FloatFieldsIJK["ai"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    cj_gt4py = from_array(
-        FloatFieldsIJK["cj"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    cit_gt4py = from_array(
-        FloatFieldsIJK["cit"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    ssi_gt4py = from_array(
-        FloatFieldsIJK["ssi"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    rct_gt4py = from_array(
-        FloatFieldsIJK["rct"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    rit_gt4py = from_array(
-        FloatFieldsIJK["rit"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    rc_beri_tnd_gt4py = from_array(
-        FloatFieldsIJK["rc_beri_tnd"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
 
-    logging.info(f"IN mean rc_beri_tnd_gt4py {rc_beri_tnd_gt4py.mean()}")
-
-    ice4_fast_ri(
-        ldcompute=ldcompute_gt4py,
-        rhodref=rhodref_gt4py,
-        ai=ai_gt4py,
-        cj=cj_gt4py,
-        cit=cit_gt4py,
-        ssi=ssi_gt4py,
-        rct=rct_gt4py,
-        rit=rit_gt4py,
-        rc_beri_tnd=rc_beri_tnd_gt4py,
-        ldsoft=ldsoft,
-        domain=grid.shape,
-        origin=origin,
-    )
+    logging.info(f"IN mean rc_beri_tnd_gt4py {GT4Py_FloatFieldsIJK['rc_beri_tnd'].mean()}")
 
     fortran_externals = {
         "c_rtmin": externals["C_RTMIN"],
@@ -142,6 +100,16 @@ def test_ice4_fast_ri(
         Py2F_Mapping[name]: field.ravel() for name, field in FloatFieldsIJK.items()
     }
 
+    ice4_fast_ri(
+        **GT4Py_FloatFieldsIJK,
+        ldcompute=ldcompute_gt4py,
+        ldsoft=ldsoft,
+        domain=grid.shape,
+        origin=origin,
+    )
+
+
+    logging.info(f"ldsoft fortran {ldsoft}")
     result = fortran_stencil(
         ldsoft=ldsoft,
         ldcompute=ldcompute,
@@ -152,13 +120,13 @@ def test_ice4_fast_ri(
 
     rcberi_out = result[0]
 
-    logging.info(f"Mean rc_beri_tnd_gt4py   {rc_beri_tnd_gt4py.mean()}")
+    logging.info(f"Mean rc_beri_tnd_gt4py   {GT4Py_FloatFieldsIJK['rc_beri_tnd'].mean()}")
     logging.info(f"Mean rcberi_out          {rcberi_out.mean()}")
     logging.info(
         f"Max abs rtol             {max(abs(rc_beri_tnd_gt4py.ravel() - rcberi_out) / abs(rcberi_out))}"
     )
 
-    assert_allclose(rc_beri_tnd_gt4py.ravel(), rcberi_out, 1e-5)
+    assert_allclose(GT4Py_FloatFieldsIJK['rc_beri_tnd'].ravel(), rcberi_out, 1e-6)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
