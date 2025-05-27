@@ -8,20 +8,6 @@ import pytest
 from ifs_physics_common.framework.config import GT4PyConfig
 from ice3_gt4py.phyex_common.phyex import Phyex
 
-# TODO : rework as fixtures
-BACKEND = "gt:cpu_ifirst"
-REBUILD = True
-VALIDATE_ARGS = True
-SHAPE = (50, 50, 15)
-
-DEFAULT_GRID = ComputationalGrid(*SHAPE)
-
-DEFAULT_GT4PY_CONFIG = GT4PyConfig(
-            backend="gt:cpu_ifirst", 
-            rebuild=True, 
-            validate_args=True, 
-            verbose=True
-        )
 
 def get_backends(gpu: bool = False):
     backends = ["numpy", "gt:cpu_ifirst", "gt:cpu_kfirst", "dace:cpu"]
@@ -58,7 +44,7 @@ def compile_fortran_stencil(
 # fixtures
 @pytest.fixture(name="computational_grid", scope="module")
 def computational_grid_fixture():
-    return DEFAULT_GRID
+    return (50, 50, 15)
 
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
@@ -71,8 +57,8 @@ def gt4py_config_fixture():
 
 
 @pytest.fixture(name="grid", scope="module")
-def grid_fixture():
-    return DEFAULT_GRID.grids[(I, J, K)]
+def grid_fixture(computational_grid):
+    return computational_grid.grids[(I, J, K)]
 
 @pytest.fixture(name="origin", scope="module")
 def origin_fixture():
@@ -80,7 +66,12 @@ def origin_fixture():
 
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
-    return DEFAULT_GT4PY_CONFIG
+    return GT4PyConfig(
+            backend="gt:cpu_ifirst",
+            rebuild=True,
+            validate_args=True,
+            verbose=True
+        )
 
 
 @pytest.fixture(name="phyex", scope="module")
