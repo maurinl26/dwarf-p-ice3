@@ -204,7 +204,6 @@ def test_ice4_rimltc(
         FloatFieldsIJK,
     )
 
-
     ldcompute_gt4py = from_array(
         ldcompute,
         dtype=bool,
