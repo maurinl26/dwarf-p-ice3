@@ -248,6 +248,19 @@ def test_ice4_rimltc(
         FloatFieldsIJK,
     )
 
+    ldcompute_gt4py = from_array(
+        ldcompute,
+        dtype=bool,
+        backend=gt4py_config.backend,
+    )
+
+    ice4_rimltc_gt4py(
+        **GT4Py_FloatFieldsIJK,
+        ldcompute=ldcompute_gt4py,
+        domain=grid.shape,
+        origin=origin,
+    )
+
     result = fortran_stencil(
         ldcompute=ldcompute.ravel(),
         **Fortran_FloatFieldsIJK,

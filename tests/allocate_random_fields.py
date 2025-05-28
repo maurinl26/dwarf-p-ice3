@@ -42,11 +42,3 @@ def allocate_fortran_fields(
         fname: buffer[pyname].ravel()
         for fname, pyname in f2py_names.items()
     }
-
-
-def get_fields(names: List[str], f2py_names: Dict[str, str], gt4py_config: GT4PyConfig, grid: Grid):
-    FloatFieldsIJK = draw_fields(names, gt4py_config, grid)
-    GT4Py_FloatFieldsIJK = allocate_gt4py_fields(names, gt4py_config, grid)
-    allocate_fields(GT4Py_FloatFieldsIJK, FloatFieldsIJK)
-    Fortran_FloatFieldsIJK = allocate_fortran_fields(f2py_names, FloatFieldsIJK)
-    return GT4Py_FloatFieldsIJK, Fortran_FloatFieldsIJK
