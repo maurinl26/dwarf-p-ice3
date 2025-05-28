@@ -3,11 +3,12 @@ from ctypes import c_double, c_float
 
 import numpy as np
 import pytest
-from conftest import compile_fortran_stencil, get_backends
+from tests.conftest import compile_fortran_stencil, get_backends
+from tests.allocate_random_fields import draw_fields, allocate_gt4py_fields, allocate_fields, allocate_fortran_fields
 from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
-
+import gt4py
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
@@ -206,7 +207,7 @@ def test_ice4_rimltc(
         order="F",
     )
 
-    FloatFieldsIJK_names = [
+    FloatFieldsIJK_Names = [
         "t",
         "exn",
         "lvfact",
@@ -216,72 +217,23 @@ def test_ice4_rimltc(
         "rimltc_mr",
     ]
 
-    FloatFieldsIJK = {
-        name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=float,
-            order="F",
-        )
-        for name in FloatFieldsIJK_names
-    }
-
-    ldcompute_gt4py = from_array(
-        ldcompute,
-        dtype=bool,
-        backend=gt4py_config.backend,
-    )
-    t_gt4py = from_array(
-        FloatFieldsIJK["t"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    exn_gt4py = from_array(
-        FloatFieldsIJK["exn"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    lvfact_gt4py = from_array(
-        FloatFieldsIJK["lvfact"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    lsfact_gt4py = from_array(
-        FloatFieldsIJK["lsfact"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    tht_gt4py = from_array(
-        FloatFieldsIJK["tht"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )  # theta at time t
-    rit_gt4py = from_array(
-        FloatFieldsIJK["rit"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )  # rain water mixing ratio at t
-    rimltc_mr_gt4py = from_array(
-        FloatFieldsIJK["rimltc_mr"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+    FloatFieldsIJK = draw_fields(
+        FloatFieldsIJK_Names,
+        gt4py_config,
+        grid
     )
 
-    ice4_rimltc_gt4py(
-        ldcompute=ldcompute_gt4py,
-        t=t_gt4py,
-        exn=exn_gt4py,
-        lvfact=lvfact_gt4py,
-        lsfact=lsfact_gt4py,
-        tht=tht_gt4py,
-        rit=rit_gt4py,
-        rimltc_mr=rimltc_mr_gt4py,
-        domain=grid.shape,
-        origin=origin,
+    GT4Py_FloatFieldsIJK = allocate_gt4py_fields(
+        FloatFieldsIJK_Names,
+        gt4py_config,
+        grid
     )
+
+    allocate_fields(GT4Py_FloatFieldsIJK, FloatFieldsIJK)
 
     fortran_externals = {"xtt": externals["TT"], "lfeedbackt": externals["LFEEDBACKT"]}
 
-    F2Py_Mapping = {
+    f2py_mapping = {
         "pexn": "exn",
         "plvfact": "lvfact",
         "plsfact": "lsfact",
@@ -291,15 +243,14 @@ def test_ice4_rimltc(
         "primltc_mr": "rimltc_mr",
     }
 
-    Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
-
-    fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.ravel() for name, field in FloatFieldsIJK.items()
-    }
+    Fortran_FloatFieldsIJK = allocate_fortran_fields(
+        f2py_mapping,
+        FloatFieldsIJK,
+    )
 
     result = fortran_stencil(
         ldcompute=ldcompute.ravel(),
-        **fortran_FloatFieldsIJK,
+        **Fortran_FloatFieldsIJK,
         **fortran_packed_dims,
         **fortran_externals,
     )
