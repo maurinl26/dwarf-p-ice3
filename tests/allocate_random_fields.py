@@ -27,15 +27,15 @@ def allocate_gt4py_fields(names: List[str], gt4py_config: GT4PyConfig, grid: Gri
         for name in names
     }
 
-def allocate_fields(gt4py_fields, buffer):
+def allocate_fields(fields, buffer):
     # Allocate
-    for name in gt4py_fields.keys():
-        gt4py_fields[name] = buffer[name]
+    for name in fields.keys():
+        fields[name] = buffer[name]
 
-    return gt4py_fields
+    # return gt4py_fields
 
 def allocate_fortran_fields(
-        f2py_names: Dict[str],
+        f2py_names: Dict[str, str],
         buffer: Dict[np.ndarray]
 ):
     return {
