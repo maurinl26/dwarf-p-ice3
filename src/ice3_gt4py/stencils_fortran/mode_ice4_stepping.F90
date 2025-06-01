@@ -15,6 +15,7 @@ module mode_ice4_stepping
       real, intent(in) :: xtt, xlvtt, xlstt
       real, dimension(kmicro), intent(in) :: pexn, ptht
       real, dimension(kmicro), intent(in) :: prvt, prct, prrt
+      real, dimension(kmicro), intent(out) :: zzt, zlsfact, zlvfact
       real, dimension(kmicro) :: zsum2
 
       integer :: jl
