@@ -2,7 +2,8 @@ import pytest
 
 from tests.conftest import get_backends, compile_fortran_stencil
 from ifs_physics_common.framework.stencil import compile_stencil
-from tests.allocate_random_fields import draw_fields, allocate_fields, allocate_gt4py_fields, allocate_fortran_fields
+from tests.allocate_random_fields import draw_fields, allocate_fields, allocate_gt4py_fields, allocate_fortran_fields, \
+    get_fields
 
 from numpy.testing import assert_allclose
 
@@ -42,28 +43,26 @@ def test_ice4_stepping_heat(
         "prgt":"rg_t",
         "pexn":"exn",
         "ptht":"th_t",
-        "plsfact":"ls_fact",
-        "plvfact":"lv_fact",
-        "pt":"t"
+        "zlsfact":"ls_fact",
+        "zlvfact":"lv_fact",
+        "zzt":"t"
     }
 
-    fexternals ={
+    fexternals = {
         fname: externals[pyname]
         for fname, pyname in {
-        "xcpd":"cpd",
-        "xcpv":"cpv",
-        "xcl":"cl",
-        "xci":"ci",
-        "xtt":"tt",
-        "xlvtt":"lvtt",
-        "xlstt":"lstt"
-    }.items()
-        }
+        "xcpd":"CPD",
+        "xcpv":"CPV",
+        "xcl":"CL",
+        "xci":"CI",
+        "xtt":"TT",
+        "xlvtt":"LVTT",
+        "xlstt":"LSTT"
+        }.items()
+    }
 
-    FloatFieldsIJK = draw_fields(FloatFieldsIJK_names, gt4py_config, grid)
-    GT4Py_FloatFieldsIJK = allocate_gt4py_fields(FloatFieldsIJK_names, gt4py_config, grid)
-    allocate_fields(GT4Py_FloatFieldsIJK, FloatFieldsIJK)
-    Fortran_FloatFieldsIJK = allocate_fortran_fields(f2py_names, FloatFieldsIJK)
+    # Get random fields + gt4py buffer + fortran reshaping
+    GT4Py_FloatFieldsIJK, Fortran_FloatFieldsIJK = get_fields(FloatFieldsIJK_names, f2py_names, gt4py_config, grid)
 
     ice4_stepping_heat(
         **GT4Py_FloatFieldsIJK,
@@ -84,60 +83,4 @@ def test_ice4_stepping_heat(
     assert_allclose(zzt, GT4Py_FloatFieldsIJK["t"])
     assert_allclose(zlsfact, GT4Py_FloatFieldsIJK["ls_fact"])
     assert_allclose(zlvfact, GT4Py_FloatFieldsIJK["lv_fact"])
-
-@pytest.mark.skip("Not Implemented")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_step_limiter(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
-
-@pytest.mark.skip("Not Implemented")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_mixing_ratio_step_limiter(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
-
-@pytest.mark.skip("Not Implemented")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_state_update(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
-
-@pytest.mark.skip("Not Implemented")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_external_tendencies_update(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
-
-@pytest.mark.skip("Not Implemented")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_tmicro_init(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
-
-@pytest.mark.skip("Variable initialization")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_tsoft_init(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
-
-@pytest.mark.skip("Not Implemented")
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ldcompute_init(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ...
 
