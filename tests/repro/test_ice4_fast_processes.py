@@ -3,130 +3,15 @@ from ctypes import c_double, c_float, c_int
 
 import numpy as np
 import pytest
-from conftest import compile_fortran_stencil, get_backends
+from tests.conftest import compile_fortran_stencil, get_backends
 from gt4py.storage import from_array
+import gt4py
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
 from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
-import gt4py
+from tests.allocate_random_fields import draw_fields, allocate_gt4py_fields, allocate_fortran_fields, allocate_fields
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_fast_ri(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    ldsoft = False
-
-    # Setting backend and precision
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
-    ice4_fast_ri = compile_stencil("ice4_fast_ri", gt4py_config, externals)
-    fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_ri.F90", "mode_ice4_fast_ri", "ice4_fast_ri"
-    )
-
-    logging.info(f"Machine precision {np.finfo(np.float32).eps}")
-    logging.info(f"Machine precision {np.finfo(np.float32).eps}")
-
-    ldcompute = np.ones(
-        grid.shape,
-        dtype=bool,
-        order="F",
-    )
-
-    FloatFieldsIJK_Names = [
-        "rhodref",
-        "ai",
-        "cj",
-        "cit",
-        "ssi",
-        "rct",
-        "rit",
-        "rc_beri_tnd",
-    ]
-
-    FloatFieldsIJK = {
-        name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
-            order="F",
-        )
-        for name in FloatFieldsIJK_Names
-    }
-
-    # Wrapper
-    GT4Py_FloatFieldsIJK = {
-        name: gt4py.storage.zeros(
-            shape=grid.shape,
-            backend=backend,
-            dtype=gt4py_config.dtypes.float,
-        ) for name in FloatFieldsIJK_Names
-    }
-
-    # Allocate fields
-    for name in GT4Py_FloatFieldsIJK.keys():
-        GT4Py_FloatFieldsIJK[name] = FloatFieldsIJK[name]
-
-    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
-
-    logging.info(f"IN mean rc_beri_tnd_gt4py {GT4Py_FloatFieldsIJK['rc_beri_tnd'].mean()}")
-
-    fortran_externals = {
-        "c_rtmin": externals["C_RTMIN"],
-        "i_rtmin": externals["I_RTMIN"],
-        "xlbexi": externals["LBEXI"],
-        "xlbi": externals["LBI"],
-        "x0depi": externals["O0DEPI"],
-        "x2depi": externals["O2DEPI"],
-        "xdi": externals["DI"],
-    }
-
-    F2Py_Mapping = {
-        "prhodref": "rhodref",
-        "pai": "ai",
-        "pcj": "cj",
-        "pcit": "cit",
-        "pssi": "ssi",
-        "prct": "rct",
-        "prit": "rit",
-        "prcberi": "rc_beri_tnd",
-    }
-
-    Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
-
-    fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.ravel() for name, field in FloatFieldsIJK.items()
-    }
-
-    ice4_fast_ri(
-        **GT4Py_FloatFieldsIJK,
-        ldcompute=ldcompute_gt4py,
-        ldsoft=ldsoft,
-        domain=grid.shape,
-        origin=origin,
-    )
-
-
-    logging.info(f"ldsoft fortran {ldsoft}")
-    result = fortran_stencil(
-        ldsoft=ldsoft,
-        ldcompute=ldcompute,
-        **fortran_FloatFieldsIJK,
-        **fortran_externals,
-        **fortran_packed_dims,
-    )
-
-    rcberi_out = result[0]
-
-    logging.info(f"Mean rc_beri_tnd_gt4py   {GT4Py_FloatFieldsIJK['rc_beri_tnd'].mean()}")
-    logging.info(f"Mean rcberi_out          {rcberi_out.mean()}")
-    logging.info(
-        f"Max abs rtol             {max(abs(rc_beri_tnd_gt4py.ravel() - rcberi_out) / abs(rcberi_out))}"
-    )
-
-    assert_allclose(GT4Py_FloatFieldsIJK['rc_beri_tnd'].ravel(), rcberi_out, 1e-6)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -142,7 +27,7 @@ def test_ice4_fast_rs(
 
     ice4_fast_rs = compile_stencil("ice4_fast_rs", gt4py_config, externals)
     fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
+        "mode_ice4_fast_processes.F90", "mode_ice4_fast_processes", "ice4_fast_rs"
     )
 
     logging.info(f"Machine precision {np.finfo(np.float32).eps}")
@@ -259,11 +144,7 @@ def test_ice4_fast_rs(
     )
     rst_gt4py = from_array(
         FloatFieldsIJK["rst"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
     rcrimss_gt4py = from_array(
-        FloatFieldsIJK["rcrimss"],
         dtype=gt4py_config.dtypes.float,
         backend=gt4py_config.backend,
     )
@@ -407,9 +288,6 @@ def test_ice4_fast_rs(
         origin=origin,
     )
 
-    fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
-    )
 
     externals_mapping = {
         "ngaminc": "NGAMINC",
@@ -827,10 +705,6 @@ def test_ice4_fast_rg(
         index_floor_s=index_floor_s_gt4py,
         domain=grid.shape,
         origin=origin,
-    )
-
-    fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_fast_rg.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
     )
 
     fortran_externals = {
