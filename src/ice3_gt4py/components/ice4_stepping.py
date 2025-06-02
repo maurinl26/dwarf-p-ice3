@@ -40,6 +40,12 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
         externals = phyex.to_externals()
 
+        # Switch between numpy and cupy
+        if "gpu" in gt4py_config.backend:
+            import cupy as xp
+        else:
+            import numpy as np
+
         # Stencil collections
         self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
         self.ice4_step_limiter = self.compile_stencil("ice4_step_limiter", externals)
@@ -60,6 +66,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         self.ice4_tendencies = Ice4Tendencies(
             self.computational_grid, self.gt4py_config, phyex
         )
+
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -229,7 +236,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             lsoft = False
 
             # l223 in f90
-            while np.any(t_micro[...] < dt):
+            while xp.any(t_micro[...] < dt):
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
@@ -242,7 +249,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                while np.any(ldcompute[...]):
+                while xp.any(ldcompute[...]):
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
