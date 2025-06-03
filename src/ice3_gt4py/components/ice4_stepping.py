@@ -263,13 +263,13 @@ class Ice4Stepping(ImplicitTendencyComponent):
                             "t",
                         ]
                     },**{
-                            "th_t": state["tht"],
-                            "rv_t": state["rvt"],
-                            "rc_t": state["rct"],
-                            "rr_t": state["rrt"],
-                            "ri_t": state["rit"],
-                            "rs_t": state["rst"],
-                            "rg_t": state["rgt"],
+                            "tht": state["th_t"],
+                            "rvt": state["rv_t"],
+                            "rct": state["rc_t"],
+                            "rrt": state["rr_t"],
+                            "rit": state["ri_t"],
+                            "rst": state["rs_t"],
+                            "rgt": state["rg_t"],
                         }
                     }
 
