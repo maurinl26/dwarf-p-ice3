@@ -16,3 +16,4 @@ import ice3_gt4py.stencils.ice4_correct_negativities
 import ice3_gt4py.stencils.ice4_stepping
 import ice3_gt4py.stencils.multiply_ab2c
 import ice3_gt4py.stencils.cloud_fraction_split
+import ice3_gt4py.stencils.rain_ice
