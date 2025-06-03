@@ -292,19 +292,21 @@ class Ice4Stepping(ImplicitTendencyComponent):
                                 "sigma_rc",
                                 "ci_t",
                                 "t",
-                                "th_t",
-                                "rv_t",
-                                "rc_t",
-                                "rr_t",
-                                "ri_t",
-                                "rs_t",
-                                "rg_t",
                                 "hlc_hcf",
                                 "hlc_hrc",
                                 "hli_hcf",
                                 "hli_hri",
                             ]
                         },
+                        **{
+                              "tht": state["th_t"],
+                              "rvt": state["rv_t"],
+                              "rct": state["rc_t"],
+                              "rrt": state["rr_t"],
+                              "rit": state["ri_t"],
+                              "rst": state["rs_t"],
+                              "rgt": state["rg_t"],
+                          },
                         **{"pres": state["pabs_t"]},
                         **{
                             "ldcompute": ldcompute,
@@ -362,16 +364,13 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     #       ice4_state_update in one stencil
                     ######### ice4_step_limiter ############################
                     state_step_limiter = {
-                        key: state[key]
-                        for key in [
-                            "exn",
-                            "rc_t",
-                            "rr_t",
-                            "ri_t",
-                            "rs_t",
-                            "rg_t",
-                            "th_t",
-                        ]
+                        "tht": state["th_t"],
+                        "rct": state["rc_t"],
+                        "rrt": state["rr_t"],
+                        "rit": state["ri_t"],
+                        "rst": state["rs_t"],
+                        "rgt": state["rg_t"],
+                        "exn": state["exn"]
                     }
 
                     tmps_step_limiter = {
@@ -404,8 +403,12 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     # l346 to l388
                     ############ ice4_mixing_ratio_step_limiter ############
                     state_mixing_ratio_step_limiter = {
-                        key: state[key]
-                        for key in ["rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]
+                        "rct": state["rc_t"],
+                        "rrt": state["rr_t"],
+                        "rit": state["ri_t"],
+                        "rst": state["rs_t"],
+                        "rgt": state["rg_t"],
+                        "cit": state["ci_t"],
                     }
 
                     temporaries_mixing_ratio_step_limiter = {
