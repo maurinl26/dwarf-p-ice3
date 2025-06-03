@@ -246,9 +246,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                _np_ldcompute = to_numpy(ldcompute)
-                logging.info(f"type, _np_ldcompute {type(_np_ldcompute)}")
-                while _np_ldcompute.any():
+                while ldcompute.any():
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
@@ -488,8 +486,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     lsoft = True
                     innerloop_counter += 1
                 outerloop_counter += 1
-
-                _np_ldcompute = to_numpy(ldcompute)
 
             _np_t_micro = to_numpy(t_micro)
             # l440 to l452
