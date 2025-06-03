@@ -5,8 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "gt4py>=1.0.4",
+    "ifs-physics-common",
+    "netcdf4>=1.7.2",
     "numpy<2.0",
+    "pyyaml>=6.0.2",
     "typer>=0.15.2",
     "xarray>=2025.4.0",
 ]
@@ -25,7 +27,6 @@ dev = [
     "ruff>=0.11.11",
 ]
 gpu = [
-    "cupy==14.0.0a1",
     "cupy-xarray>=0.1.4",
 ]
 tests = [
@@ -36,4 +37,4 @@ fortran = [
 ]
 
 [tool.uv.sources]
-gt4py = { path = "../gt4py", editable = true }
+ifs-physics-common = { git = "https://github.com/maurinl26/ifs-physics-common.git" }

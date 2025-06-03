@@ -8,9 +8,6 @@ import time
 import sys
 import xarray as xr
 
-import cupy as cp
-import cupy_xarray
-
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.framework.components import ImplicitTendencyComponent

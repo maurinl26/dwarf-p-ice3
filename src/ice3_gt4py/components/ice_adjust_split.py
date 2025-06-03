@@ -283,6 +283,9 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
+            logging.info(f"Thermo output")
+            logging.info(f"Mean cph {cph.mean()}")
+
             state_condensation = {
                 key: state[key]
                 for key in ["sigqsat", "pabs", "cldfr", "sigs", "ri", "rc", "rv"]
@@ -307,6 +310,9 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
+
+            logging.info(f"Condensation output")
+            logging.info(f"Mean rv_out {rv_out.mean()}")
 
             # todo : add dace managed sigrc diagnostic
             # self.sigrc_diagnostic(
@@ -361,6 +367,9 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
+            logging.info(f"Cloud fraction 1 output")
+            logging.info(f"Mean rc_out {rc_out.mean()}")
+
             state_cloud_fraction_2 = {
                 key: state[key]
                 for key in [
@@ -407,4 +416,7 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
+
+            logging.info(f"Cloud fraction 2 output")
+            logging.info(f"Mean hlc_hrc {diagnotics_cloud_fraction_2['hlc_hrc'].mean()}")
 
