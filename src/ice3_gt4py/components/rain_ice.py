@@ -565,9 +565,9 @@ class RainIce(ImplicitTendencyComponent):
             self.rain_ice_nucleation_pre_processing(**state_nuc_pre, **tmps_nuc_pre)
 
             state_nuc = {
-                key: state[key]
-                for key in [
-                    "th_t",
+                **{
+                    key: state[key]
+                    for key in [
                     "pabs_t",
                     "rhodref",
                     "exn",
@@ -576,6 +576,10 @@ class RainIce(ImplicitTendencyComponent):
                     "ci_t",
                     "ssi",
                 ]
+                },
+                **{
+                    "tht": state["th_t"]
+                }
             }
             tmps_nuc = {
                 "ldcompute": lw3d,
