@@ -125,8 +125,8 @@ def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float
     from_line=346,
     to_line=388,
 )
-@stencil_collection("mixing_ratio_step_limiter")
-def mixing_ratio_step_limiter(
+@stencil_collection("ice4_mixing_ratio_step_limiter")
+def ice4_mixing_ratio_step_limiter(
     rc_0r_t: Field["float"],
     rr_0r_t: Field["float"],
     ri_0r_t: Field["float"],
@@ -297,8 +297,8 @@ def mixing_ratio_step_limiter(
     from_line=290,
     to_line=332,
 )
-@stencil_collection("step_limiter")
-def step_limiter(
+@stencil_collection("ice4_step_limiter")
+def ice4_step_limiter(
     exn: Field["float"],
     theta_t: Field["float"],
     theta_a_tnd: Field["float"],
