@@ -32,7 +32,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         gt4py_config: GT4PyConfig,
         phyex: Phyex,
         *,
-        enable_checks: bool = True,
+        enable_checks: bool = False,
     ) -> None:
         super().__init__(
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
