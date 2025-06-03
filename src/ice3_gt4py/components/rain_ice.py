@@ -27,6 +27,7 @@ from ice3_gt4py.phyex_common.param_ice import (
     SubgRRRCAccr,
 )
 from ice3_gt4py.phyex_common.phyex import Phyex
+import ice3_gt4py.stencils
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
