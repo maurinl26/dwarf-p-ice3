@@ -42,7 +42,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         if "gpu" in gt4py_config.backend:
             import cupy as xp
         else:
-            import numpy as np
+            import numpy as xp
 
         # Stencil collections
         self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
