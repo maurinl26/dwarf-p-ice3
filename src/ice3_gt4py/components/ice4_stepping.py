@@ -232,8 +232,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             lsoft = False
 
             # l223 in f90
-            _np_t_micro = to_numpy(t_micro)
-            while (_np_t_micro < dt).any():
+            while (t_micro < dt).any():
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
@@ -487,7 +486,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     innerloop_counter += 1
                 outerloop_counter += 1
 
-            _np_t_micro = to_numpy(t_micro)
             # l440 to l452
             ################ external_tendencies_update ############
             # if ldext_tnd
