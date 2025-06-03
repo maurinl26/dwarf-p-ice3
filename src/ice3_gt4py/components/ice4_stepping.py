@@ -254,20 +254,24 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
                     ####### ice4_stepping_heat #############
                     state_stepping_heat = {
+                        **{
                         key: state[key]
                         for key in [
-                            "rv_t",
-                            "rc_t",
-                            "rr_t",
-                            "ri_t",
-                            "rs_t",
-                            "rg_t",
                             "exn",
                             "th_t",
                             "ls_fact",
                             "lv_fact",
                             "t",
                         ]
+                    },**{
+                            "th_t": state["tht"],
+                            "rv_t": state["rvt"],
+                            "rc_t": state["rct"],
+                            "rr_t": state["rrt"],
+                            "ri_t": state["rit"],
+                            "rs_t": state["rst"],
+                            "rg_t": state["rgt"],
+                        }
                     }
 
                     self.ice4_stepping_heat(
