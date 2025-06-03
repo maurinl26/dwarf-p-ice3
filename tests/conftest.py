@@ -93,8 +93,8 @@ def fortran_dims_fixture(grid):
         "nije": grid.shape[0] * grid.shape[1],
     }
     
-@pytest.fixture(name="fortran_packed_dims", scope="module")
-def fortran_packed_dims_fixture(grid):
+@pytest.fixture(name="packed_dims", scope="module")
+def packed_dims_fixture(grid):
     return {
         "kproma": grid.shape[0] * grid.shape[1] * grid.shape[2],
         "ksize": grid.shape[0] * grid.shape[1] * grid.shape[2]

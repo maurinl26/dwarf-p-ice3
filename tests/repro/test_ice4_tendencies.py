@@ -143,7 +143,7 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
 
         FloatFieldsIJK =  {
             name: np.array(
-                np.random.rand(*grid),
+                np.random.rand(*grid.shape),
                 dtype=gt4py_config.dtypes.float,
                 order="F",
             ) for name in FloatFieldsIJK_names
@@ -254,7 +254,7 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
 
         FloatFieldsIJK = {
             name: np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         ) for name in FloatFieldsIJK_names
