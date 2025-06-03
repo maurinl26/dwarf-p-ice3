@@ -496,17 +496,21 @@ class Ice4Stepping(ImplicitTendencyComponent):
             ################ external_tendencies_update ############
             # if ldext_tnd
 
-            state_external_tendencies_update = {
+            state_external_tendencies_update =  {
+                **{
                 key: state[key]
                 for key in [
-                    "th_t",
-                    "rc_t",
-                    "rr_t",
-                    "ri_t",
-                    "rs_t",
-                    "rg_t",
+
                     "ldmicro",
                 ]
+            }, **{
+                    "tht": state["th_t"],
+                    "rct": state["rc_t"],
+                    "rrt": state["rr_t"],
+                    "rit": state["ri_t"],
+                    "rst": state["rs_t"],
+                    "rgt": state["rg_t"],
+                }
             }
 
             tmps_external_tendencies_update = {
