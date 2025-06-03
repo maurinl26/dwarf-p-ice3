@@ -572,13 +572,14 @@ class RainIce(ImplicitTendencyComponent):
                     "rhodref",
                     "exn",
                     "t",
-                    "rv_t",
-                    "ci_t",
                     "ssi",
                 ]
                 },
                 **{
-                    "tht": state["th_t"]
+                    "tht": state["th_t"],
+                    "pabst": state["pabs_t"],
+                    "rvt": state["rv_t"],
+                    "cit": state["ci_t"]
                 }
             }
             tmps_nuc = {
