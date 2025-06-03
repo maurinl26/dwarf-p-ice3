@@ -258,7 +258,6 @@ class Ice4Stepping(ImplicitTendencyComponent):
                         key: state[key]
                         for key in [
                             "exn",
-                            "th_t",
                             "ls_fact",
                             "lv_fact",
                             "t",
