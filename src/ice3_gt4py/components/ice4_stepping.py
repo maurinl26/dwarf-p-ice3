@@ -16,6 +16,7 @@ from ifs_physics_common.utils.f2py import ported_method
 from ifs_physics_common.utils.numpyx import to_numpy
 import numpy as np
 import xarray as xr
+import logging
 
 
 from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
@@ -231,6 +232,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             lsoft = False
 
             # l223 in f90
+            _np_t_micro = to_numpy(t_micro)
             while np.any(to_numpy(t_micro.data) < dt):
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
@@ -244,7 +246,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                while np.any(to_numpy(ldcompute.data)):
+                _np_ldcompute = to_numpy(ldcompute)
+                logging.info(f"type, _np_ldcompute {type(_np_ldcompute)}")
+                while np.any(_np_ldcompute):
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
@@ -485,6 +489,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     innerloop_counter += 1
                 outerloop_counter += 1
 
+                _np_ldcompute = to_numpy(ldcompute)
+
+            _np_t_micro = to_numpy(t_micro)
             # l440 to l452
             ################ external_tendencies_update ############
             # if ldext_tnd
