@@ -48,7 +48,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
         self.ice4_step_limiter = self.compile_stencil("ice4_step_limiter", externals)
         self.ice4_mixing_ratio_step_limiter = self.compile_stencil(
-            "mixing_ratio_step_limiter", externals
+            "ice4_mixing_ratio_step_limiter", externals
         )
         self.ice4_state_update = self.compile_stencil("state_update", externals)
         self.external_tendencies_update = self.compile_stencil(

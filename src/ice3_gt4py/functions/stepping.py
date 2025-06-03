@@ -2,9 +2,9 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, function
+from ifs_physics_common.framework.stencil import function_collection
 
-
-@function("mixing_ratio_step_limiter")
+@function_collection("mixing_ratio_step_limiter")
 def mixing_ratio_step_limiter(
     r_a_tnd: Field["float"],
     r_b: Field["float"],
