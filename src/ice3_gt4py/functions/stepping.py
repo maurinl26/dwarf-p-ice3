@@ -4,7 +4,7 @@ from __future__ import annotations
 from gt4py.cartesian.gtscript import Field, function
 
 
-@function
+@function("mixing_ratio_step_limiter")
 def mixing_ratio_step_limiter(
     r_a_tnd: Field["float"],
     r_b: Field["float"],
