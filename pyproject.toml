@@ -3,27 +3,37 @@ name = "dwarf-ice3-gt4py"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
-    "fmodpy>=1.7.4",
-    "fprettify>=0.3.7",
-    "ifs-physics-common",
+    "gt4py>=1.0.4",
     "numpy<2.0",
-    "pytest>=8.3.5",
-    "ruff>=0.10.0",
     "typer>=0.15.2",
+    "xarray>=2025.4.0",
 ]
 
-[tool.uv.sources]
-ifs-physics-common = { path = "../ifs-physics-common", editable = true }
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = ['setuptools>=65.5.0', 'wheel']
+
+[project.scripts]
+testprogs-data = "testprogs_data.main:app"
+standalone-model = "drivers.cli:app"
 
 [dependency-groups]
 dev = [
     "isort>=6.0.1",
-    "prettify>=0.1.1",
+    "ruff>=0.11.11",
+]
+gpu = [
+    "cupy==14.0.0a1",
+    "cupy-xarray>=0.1.4",
+]
+tests = [
     "pytest>=8.3.5",
-    "ruff>=0.10.0",
 ]
 fortran = [
     "fprettify>=0.3.7",
 ]
+
+[tool.uv.sources]
+gt4py = { path = "../gt4py", editable = true }
