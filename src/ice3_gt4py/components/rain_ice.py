@@ -568,7 +568,6 @@ class RainIce(ImplicitTendencyComponent):
                 **{
                     key: state[key]
                     for key in [
-                    "pabs_t",
                     "rhodref",
                     "exn",
                     "t",
