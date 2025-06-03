@@ -583,7 +583,7 @@ class RainIce(ImplicitTendencyComponent):
             }
             tmps_nuc = {
                 "ldcompute": lw3d,
-                "ls_fact": ls_fact,
+                "lsfact": ls_fact,
                 "rvheni_mr": rvheni,
             }
             self.ice4_nucleation(
