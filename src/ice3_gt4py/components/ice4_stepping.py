@@ -13,6 +13,7 @@ from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
+from ifs_physics_common.utils.numpyx import to_numpy
 import numpy as np
 import xarray as xr
 
@@ -230,7 +231,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
             lsoft = False
 
             # l223 in f90
-            while np.any(t_micro[...] < dt):
+            while np.any(to_numpy(t_micro[...].data) < dt):
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
@@ -243,7 +244,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                while np.any(ldcompute[...]):
+                while np.any(to_numpy(ldcompute[...].data)):
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
