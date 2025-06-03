@@ -56,6 +56,7 @@ Data generation script is made to transform _.dat_ files from PHYEX to netcdf wi
 
 Load PHYEX testprogs dataset :
 
+- ice_adjust
 ```bash
   cd ./data/
   wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/files/12783926/ice_adjust.tar.gz \
@@ -64,6 +65,17 @@ Load PHYEX testprogs dataset :
   rm -f ice_adjust.tar.gz
   cd ..
 ```
+
+- rain_ice :
+```bash
+  cd ./data/
+  wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/files/12783935/rain_ice.tar.gz \
+  -O rain_ice.tar.gz
+  tar xf ice_adjust.tar.gz
+  rm -f ice_adjust.tar.gz
+  cd ..
+```
+
 
 Decode files to netcdf :
 
