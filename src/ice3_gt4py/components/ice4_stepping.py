@@ -443,17 +443,15 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     # 4.7 new values for next iteration
                     ############### ice4_state_update ######################
                     state_state_update = {
-                        key: state[key]
-                        for key in [
-                            "th_t",
-                            "rc_t",
-                            "rr_t",
-                            "ri_t",
-                            "rs_t",
-                            "rg_t",
-                            "ci_t",
-                            "ldmicro",
-                        ]
+                        "tht": state["th_t"],
+                        "rct": state["rc_t"],
+                        "rrt": state["rr_t"],
+                        "rit": state["ri_t"],
+                        "rst": state["rs_t"],
+                        "rgt": state["rg_t"],
+                        "cit": state["ci_t"],
+                        "ldmicro": state["ldmicro"],
+
                     }
 
                     tmps_state_update = {
