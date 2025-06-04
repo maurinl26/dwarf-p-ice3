@@ -418,5 +418,5 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             )
 
             logging.info(f"Cloud fraction 2 output")
-            logging.info(f"Mean hlc_hrc {hlc_hrc.mean()}")
+            logging.info(f"Mean hlc_hrc {diagnotics_cloud_fraction_2['hlc_hrc'].mean()}")
 
