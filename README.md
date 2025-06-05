@@ -42,13 +42,11 @@ Run GPU :
 
 #### Warning
 
-cupy is only compatible with rocm v4.3 or v5.0 : [https://docs.cupy.dev/en/stable/install.html](https://docs.cupy.dev/en/stable/install.html)
-
+It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config _pyproject.toml_) 
 
 ### Atos ECMWF
 
 ### Leonardo
-
 
 ## Data generation for reproductibility
 
@@ -102,9 +100,19 @@ There are three components available for microphysical adjustments, under _/src/
   track_ice_adjust.json --no-rebuild 
 ```
 
-## Integration with PHYEX
+## (WIP) Integration with PHYEX
+  
+- Option 1:
+  - intégration par Serialbox dans IAL_de330 sous ecbuild
+  - édition de lien vers Serialbox à faire
 
-## Integration with PMAP-L
+- Option 2:
+  - intégration des fonctions DaCe (C++)
+
+## (WIP) Integration with PMAP-L
+
+- Option 1:
+  - Intégration Python (nécessite peut-être de la réécriture de composants).
 
 ## Rain Ice
 
@@ -124,10 +132,58 @@ python src/drivers/cli.py run-rain-ice gt:cpu_ifirst ./data/rain_ice/reference.n
 
 Unit tests for reproductibility are using pytest. 
 
+They test the components for every backend.
 
 Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
 
 Fortran routines are issued from CY49T0 version of the code and reworked to eliminate
 derivate types from routines. Then both stencils are ran with random numpy arrays
 as an input.
+
+- conftest.py : 
+  - tous les utilitaires pour les tests : grille, domain, origine de test et config gt4py
+  - compile_fortran_stencil(fichier, module, subroutine)
+
+
+## Structure du projet 
+
+- src 
+  - drivers : Command Line Interface
+  - ice3_gt4py :
+    - stencils : stencils gt4py et dace
+    - functions : fonctions gt4py
+    - initialisation : initialisation des champs (arrays)
+    - phyex_common : équivalents des modd en python : les modd ont été recodés en dataclasses
+    - stencils_fortran : équivalent fortran des stencisl gt4py (modules + 1 subroutine = 1 stencil gt4py)
+    - utils : utilitaires pour la config et l'allocation des champs
+  - testprogs_data :
+    - main : Command Line Interface pour le décodage des testprogs phyex
+    - .yaml : config de décodage des fichiers
+
+## Work in Progress
+
+- branche ice_adjust_review :
+  - tous les stencils ont été testés unitairement (y compris l'interpolation en DaCe). 
+  - l'interpolation (sigrc_computation_dace) doit, être intégrée au composant ice_adjust_split
+    -> Couplage stencil dace + stencil gt4py à investiguer
+  - il y a un bug, les stencils cloud_fraction_1 et cloud_fraction_2 renvoient des valeurs nulles
+    -> Les variables inout doivent être découpées en in / out
+
+  
+- branche rain_ice_review :
+  - tous les stencils des tendances (Ice4Tendencies) ont été testés
+  - les stencils dace ice4_fast_rs (2 stencils gt4py + 2 stencils DaCe) et ice4_fast_rg doivent être intégrés au composant
+  - les appels des stencils de Ice4Tendencies doivent être mis à jour (débuggage)
+  - les tests unitaires sur le stepping ne sont pas nécessaire -> il est préférable de tester le composant dans un cas 
+simple (1 boucle ldsoft)
+  - les tests unitaires des rain_fr et sedimentation sont à réaliser
+
+- branches expérimentales :
+  - dace-interpolation : intégration des interpolations DaCe dans le stencil
+  - dace-orchestration : orchestration DaCe des composants pour livraison en standalone et l'intégration à pmapl :
+un composant DaCe fournit sa librairie partagée à la compilation,
+  - fortran-plugin : branche pour évaluer les branchements des composants DaCe (code complet)
+dans fortran
+
+
 
