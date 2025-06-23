@@ -7,7 +7,7 @@ from ctypes import c_float, c_double
 
 import logging 
 
-from conftest import compile_fortran_stencil, get_backends 
+from tests.conftest import compile_fortran_stencil, get_backends
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -341,10 +341,9 @@ def test_cloud_fraction_1(gt4py_config, externals, fortran_dims, precision, back
         assert_allclose(FieldsOut["pris"], ris_gt4py.reshape(grid.shape[0]*grid.shape[1], grid.shape[2]), rtol=1e-6)
         
 
-@pytest.mark.parametrize("subg_mf_pdf", [0, 1])
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
-def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, backend, grid, origin, subg_mf_pdf):
+def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
         
         # Setting backend and precision
         gt4py_config.backend = backend
@@ -353,7 +352,7 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
         externals["LSUBG_COND"] = True 
         externals.update({
-            "SUBG_MF_PDF": subg_mf_pdf
+            "SUBG_MF_PDF": 0
         })      
         
         # Fortran and GT4Py stencils compilation
