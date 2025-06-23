@@ -36,7 +36,7 @@ def test_ice4_nucleation_post_processing(
 
     FloatFieldsIJK = {
         name: np.array(
-        np.random.rand(grid),
+        np.random.rand(*grid.shape),
         dtype=gt4py_config.dtypes.float,
         order="F",
     ) for name in FloatFieldsIJK_names
@@ -58,7 +58,7 @@ def test_ice4_nucleation_post_processing(
         rvt=rvt_gt4py,
         rit=rit_gt4py,
         rvheni_mr=rvheni_mr_gt4py,
-        domain=grid,
+        domain=grid.shape,
         origin=(0, 0, 0)
     )
 
@@ -143,7 +143,7 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
 
         FloatFieldsIJK =  {
             name: np.array(
-                np.random.rand(*grid),
+                np.random.rand(*grid.shape),
                 dtype=gt4py_config.dtypes.float,
                 order="F",
             ) for name in FloatFieldsIJK_names
@@ -167,7 +167,7 @@ def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dim
             rrt=rrt_gt4py,
             rgt=rgt_gt4py,
             rrhong_mr=rrhong_mr_gt4py,
-            domain=grid,
+            domain=grid.shape,
             origin=(0, 0, 0)
         )
 
@@ -254,7 +254,7 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
 
         FloatFieldsIJK = {
             name: np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         ) for name in FloatFieldsIJK_names
@@ -278,7 +278,7 @@ def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dim
             tht=tht_gt4py,
             rct=rct_gt4py,
             rit=rit_gt4py,
-            domain=grid,
+            domain=grid.shape,
             origin=(0, 0, 0)
         )
 
@@ -348,52 +348,52 @@ def test_ice4_fast_rg_pre_processing(gt4py_config, externals, fortran_packed_dim
 
 
         rgsi = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rgsi_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rvdepg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsmltg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rraccsg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsaccrg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcrimsg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsrimcg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrhong_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsrimcg_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
@@ -420,7 +420,7 @@ def test_ice4_fast_rg_pre_processing(gt4py_config, externals, fortran_packed_dim
             rsrimcg=rsrimcg_gt4py,
             rrhong_mr=rrhong_mr_gt4py,
             rsrimcg_mr=rsrimcg_mr_gt4py,
-            domain=grid,
+            domain=grid.shape,
             origin=(0, 0, 0)
         )
 
@@ -475,68 +475,68 @@ def test_ice4_increment_update(gt4py_config, externals, fortran_packed_dims, pre
         )
 
         lsfact = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
 
         lvfact = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         theta_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rv_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rc_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rr_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ri_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rs_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rg_increment = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rvheni_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rimltc_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrhong_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsrimcg_mr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
@@ -571,7 +571,7 @@ def test_ice4_increment_update(gt4py_config, externals, fortran_packed_dims, pre
             rrhong_mr=rrhong_mr_gt4py,
             rsrimcg_mr=rsrimcg_mr_gt4py,
             rvheni_mr=rvheni_mr_gt4py,
-            domain=grid,
+            domain=grid.shape,
             origin=(0, 0, 0)
         )
 
@@ -651,52 +651,52 @@ def test_ice4_derived_fields(gt4py_config, externals, fortran_packed_dims, preci
         )
 
         t = 300 * np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rhodref = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         pres = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ssi = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ka = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         dv = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ai = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         cj = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rvt = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         zw = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
@@ -723,7 +723,7 @@ def test_ice4_derived_fields(gt4py_config, externals, fortran_packed_dims, preci
             rvt=rvt_gt4py,
             dv=dv,
             zw=zw_gt4py,
-            domain=grid,
+            domain=grid.shape,
             origin=(0, 0, 0)
         )
 
@@ -818,47 +818,47 @@ def test_ice4_slope_parameters(gt4py_config, externals, fortran_packed_dims, pre
         )
 
         rhodref = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         t = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrt = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rst = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rgt = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         lbdar = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         lbdar_rf = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         lbdas = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         lbdag = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
@@ -964,197 +964,197 @@ def test_ice4_total_tendencies_update(gt4py_config, externals, fortran_packed_di
         )
 
         lsfact = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         lvfact = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         th_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rv_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rc_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rr_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ri_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rs_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rg_tnd = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rchoni = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rvdeps = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         riaggs = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         riauts = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rvdepg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcautr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcaccr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrevav = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcberi = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsmltg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcmltsr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rraccss = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rraccsg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsaccrg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcrimss = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcrimsg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsrimcg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ricfrrg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrcfrig = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ricfrr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcwetg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         riwetg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrwetg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rswetg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rcdryg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         ridryg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rrdryg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rsdryg = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rgmltr = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
         rwetgh = np.array(
-            np.random.rand(*grid),
+            np.random.rand(*grid.shape),
             dtype=gt4py_config.dtypes.float,
             order="F",
         )
@@ -1240,7 +1240,7 @@ def test_ice4_total_tendencies_update(gt4py_config, externals, fortran_packed_di
             rsdryg=rsdryg_gt4py,
             rgmltr=rgmltr_gt4py,
             rwetgh=rwetgh_gt4py,
-            domain=grid,
+            domain=grid.shape,
             origin=(0, 0, 0)
         )
 

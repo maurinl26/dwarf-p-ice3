@@ -41,9 +41,17 @@ def compile_fortran_stencil(
     return getattr(mode, fortran_stencil)
 
 # fixtures
+@pytest.fixture(name="domain", scope="module")
+def domain_fixture():
+    return (50, 50, 15)
+
+@pytest.fixture(name="computational_grid", scope="module")
+def computational_grid_fixture(domain):
+    return ComputationalGrid(*domain)
+
 @pytest.fixture(name="grid", scope="module")
-def grid_fixture():
-    return DEFAULT_GRID.grids[(I, J, K)]
+def grid_fixture(computational_grid):
+    return computational_grid.grids[(I, J, K)]
 
 @pytest.fixture(name="origin", scope="module")
 def origin_fixture():
@@ -51,7 +59,9 @@ def origin_fixture():
 
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
-    return DEFAULT_GT4PY_CONFIG
+    return GT4PyConfig(
+        backend="numpy"
+    )
 
 
 @pytest.fixture(name="externals", scope="module")
@@ -70,7 +80,7 @@ def fortran_dims_fixture(grid):
         "nije": grid.shape[0] * grid.shape[1],
     }
     
-@pytest.fixture(name="packed_dims", scope="module")
+@pytest.fixture(name="fortran_packed_dims", scope="module")
 def packed_dims_fixture(grid):
     return {
         "kproma": grid.shape[0] * grid.shape[1] * grid.shape[2],
