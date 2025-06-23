@@ -178,9 +178,9 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
             pabs=pabs_gt4py,
             sigs=sigs_gt4py, 
             t=t_gt4py,
-            rv_in=rv_in_gt4py,
-            ri_in=ri_in_gt4py,
-            rc_in=rc_in_gt4py,
+            rv=rv_in_gt4py,
+            ri=ri_in_gt4py,
+            rc=rc_in_gt4py,
             rv_out=rv_out_gt4py,
             rc_out=rc_out_gt4py,
             ri_out=ri_out_gt4py,
@@ -189,17 +189,6 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
             lv=lv_gt4py,
             ls=ls_gt4py,
             q1=q1_gt4py,
-            # Temporaries
-            pv=pv_gt4py,
-            piv=piv_gt4py,
-            frac_tmp=frac_tmp_gt4py,
-            qsl=qsl_gt4py,
-            qsi=qsi_gt4py,
-            sigma=sigma_gt4py,
-            cond_tmp=cond_tmp_gt4py,
-            a=a_gt4py,
-            b=b_gt4py,
-            sbar=sbar_gt4py,
             domain=grid.shape,
             origin=origin
         )
@@ -444,6 +433,7 @@ def test_sigrc_computation(
         FloatFieldsIJK["sigrc"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
         rtol=1e-6,
     )
+
 
 def test_global_table():
     

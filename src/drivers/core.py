@@ -8,14 +8,11 @@ import time
 import sys
 import xarray as xr
 
-import cupy as cp
-import cupy_xarray
-
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 
-from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3.phyex_common.phyex import Phyex
 
 from ifs_physics_common.utils.typingx import (
     DataArrayDict,
@@ -23,7 +20,7 @@ from ifs_physics_common.utils.typingx import (
 
 )
 
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.utils.reader import NetCDFReader
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)

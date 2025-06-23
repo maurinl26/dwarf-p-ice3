@@ -141,9 +141,20 @@ derivate types from routines. Then both stencils are ran with random numpy array
 as an input.
 
 - conftest.py : 
-  - tous les utilitaires pour les tests : grille, domain, origine de test et config gt4py
+  - tous les utilitaires pour
+  - les tests : grille, domain, origine de test et config gt4py
   - compile_fortran_stencil(fichier, module, subroutine)
 
+
+## Python Wrapper
+
+```bash
+uv run standalone-model ice-adjust-fortran\
+  ../phyex/lib/libice-adjust.so \
+  ./data/ice_adjust/reference.nc \
+  ./data/ice_adjust/run.nc \
+  track_ice_adjust.json
+```
 
 ## Structure du projet 
 

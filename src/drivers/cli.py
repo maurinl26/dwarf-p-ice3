@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-import subprocess
-
-import numpy as np
-from ice3_gt4py.components.ice_adjust_split import IceAdjustSplit
+import ctypes as ct
+from ice3.components.ice_adjust_split import IceAdjustSplit
 import typer
 import logging
 import datetime
@@ -17,14 +15,14 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 
 from drivers.compare import compare_fields
 from drivers.core import write_dataset, write_performance_tracking
-from ice3_gt4py.components.ice_adjust import IceAdjust
-from ice3_gt4py.components.rain_ice import RainIce
-from ice3_gt4py.initialisation.state_ice_adjust import (
+from ice3.components.ice_adjust import IceAdjust
+from ice3.components.rain_ice import RainIce
+from ice3.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
 )
-from ice3_gt4py.initialisation.state_rain_ice import get_state_rain_ice
-from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.initialisation.state_rain_ice import get_state_rain_ice
+from ice3.phyex_common.phyex import Phyex
+from ice3.utils.reader import NetCDFReader
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -280,32 +278,39 @@ def rain_ice(
 ##################### Fortran drivers #########################
 @app.command()
 def ice_adjust_fortran(
-    testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
+    ice_adjust_path: str, dataset: str, output_path: str, tracking_file: str
 ):
     """Call and run main_ice_adjust (Fortran)"""
 
-    try:
+    ice_adjust_lib = ct.CDLL(ice_adjust_path)
+    reader = NetCDFReader(Path(dataset))
 
-        logging.info("Setting env variables")
-        subprocess.run(
-            ["source", f"{testdir}/{name}/build/with_fcm/arch_{archfile}/arch.env"]
-        )
+    ##### Grid #####
+    logging.info("Initializing grid ...")
+    nx = 9472
+    ny = 1
+    nz = 15
+    grid = ComputationalGrid(nx, ny, nz)
+    dt = datetime.timedelta(seconds=50)
 
-        logging.info("Job submit")
-        subprocess.run(
-            [
-                "submit",
-                "Output_run",
-                "Stderr_run",
-                f"{testdir}/{name}/build/with_fcm/arch_${archfile}/build/bin/main_ice_adjust.exe",
-                f"{checkOpt}",
-                f"{extrapolation_opts}",
-            ]
-        )
+    ################## Phyex #################
+    logging.info("Initializing Phyex ...")
+    phyex = Phyex("AROME")
 
-    except RuntimeError as e:
-        logging.error("Fortran ice_adjust execution failed")
-        logging.error(f"{e}")
+    ######## Backend and gt4py config #######
+    # gt4py config only to get state
+    gt4py_config = GT4PyConfig(
+        backend="numpy", rebuild=False, validate_args=False, verbose=True
+    )
+
+
+    state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
+
+    print(state)
+    print(ice_adjust_lib.ice_adjust)
+
+    ice_adjust_lib.ice_adjust(state)
+
 
 
 @app.command()
