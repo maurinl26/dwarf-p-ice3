@@ -762,8 +762,8 @@ wheels = [
 
 [[package]]
 name = "gt4py"
-version = "1.0.3"
-source = { git = "https://github.com/GridTools/gt4py.git?rev=2cd0c91#2cd0c91cfe89e034f2bb895e1ccd85eb3f19d28f" }
+version = "v1.0.4"
+source = { editable = "../gt4py" }
 dependencies = [
     { name = "attrs" },
     { name = "black" },
