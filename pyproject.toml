@@ -27,9 +27,7 @@ classifiers = [
 ]
 
 dependencies = [
-    "ifs-physics-common",
     "gt4py",
-    "netcdf4>=1.7.2",
     "numpy<2.0",
     "pyyaml>=6.0.2",
     "typer>=0.15.2",
@@ -69,18 +67,3 @@ fortran = [
 
 [tool.uv.sources]
 gt4py = { git = "https://github.com/GridTools/gt4py.git", tag = "icon4py_staging_20250324" }
-ifs-physics-common = { git = "https://github.com/maurinl26/ifs-physics-common.git" }
-ice3-gt4py = { workspace = true }
-testprogs-data = {  workspace = true }
-drivers = {workspace = true}
-
-[tool.uv.workspace]
-members = [
-    "src/ice3_gt4py",
-    "src/drivers",
-    "src/testprogs_data"
-]
-
-# -- setuptools --
-[tool.setuptools]
-packages = []
