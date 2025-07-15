@@ -19,6 +19,7 @@ src/ice3_gt4py/__pycache__/
 src/PHYEX/
 test/
 test_OLD/
+.idea/
 
 *.pyc
 src/ice3_gt4py/drivers/tests.py
