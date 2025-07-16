@@ -28,6 +28,7 @@ classifiers = [
 
 dependencies = [
     "gt4py",
+    "netcdf4>=1.7.2",
     "numpy<2.0",
     "pyyaml>=6.0.2",
     "typer>=0.15.2",
