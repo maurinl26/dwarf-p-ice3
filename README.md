@@ -1,9 +1,26 @@
-# ICE3 microphysics on gt4py.
+# dwarf-ice3-gt4py
+
+ICE3 microphysics on gt4py.
 
 dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
 repository or updated as a submodule in this project -via _install.sh_ script.
 
 ## Installation and build
+
+- installation :
+    ```
+    source install.sh
+    ```
+
+- tests :
+    ```
+    source tests.sh
+    ```
+
+- doc :
+    ```
+    source build_docs.sh
+    ```
 
 ### LUMI
 
@@ -89,11 +106,10 @@ Decode files to netcdf :
 ## Microphysical Adjustments (Ice Adjust)
 
 There are three components available for microphysical adjustments, under _/src/ice3_gt4py/components_ directory:
-
 - IceAdjust (ice_adjust.py) : performs condensation and adjustements following supersaturation, and is the mirror of PHYEX's ice_adjust.F90,
 - AroAdjust (aro_adjust.py) : combines both stencil collections to reproduce aro_adjust.F90.
-- To launch ice_adjust (with cli):
 
+- To launch ice_adjust (with cli):
 ```bash
   uv run standalone-model ice-adjust-split \
   gt:cpu_kfirst \
@@ -106,16 +122,16 @@ There are three components available for microphysical adjustments, under _/src/
 
 ## Integration with PMAP-L
 
+
 ## Rain Ice
 
 There are three components available for rain_ice (one-moment microphysical processes computation), under _/src/ice3_gt4py/components_ directory:
-
 - RainIce (rain_ice.py) : calls stencils involved in RainIce computation,
 - AroRainIce (aro_rain_ice.py) : calls RainIce common computation plus non-negative filters for model coupling,
 - Ice4Tendencies (ice4_tendencies.py) : responsible for processes computation,
 - Ice4Stepping (ice4_stepping.py) : responsible for orchestration of processes computations (handling soft and heavy cycles plus accumulating tendencies).
-- To launch rain_ice (with cli):
 
+- To launch rain_ice (with cli):
 ```
 python src/drivers/cli.py run-rain-ice gt:cpu_ifirst ./data/rain_ice/reference.nc ./data/rain_ice/run.nc track_rain_ice.json
 ```

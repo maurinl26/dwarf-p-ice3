@@ -12,14 +12,14 @@ from env import DEFAULT_GT4PY_CONFIG, TEST_GRID
 
 ####### Field allocation functions #######
 def allocate_gt4py_fields(
-    component: ComputationalGridComponent, fields: dict
+    component: ComputationalGridComponent, fields: NDArrayLikeDict
 ) -> NDArrayLikeDict:
     """Allocate storage for gt4py fields and
     initialize fields with given np arrays
 
     Args:
         component (ComputationalGridComponent): a ComputationalGridComponent with well described fields
-        fields (dict): _description_
+        fields (NDArrayLikeDict): _description_
 
     Returns:
         NDArrayLikeDict: _description_
@@ -95,7 +95,6 @@ def compare_output(
     fortran_fields = unpack(fortran_fields, component.computational_grid)
     gt4py_fields = remove_y_axis(gt4py_state)
 
-    absolute_differences = dict()
     fields_to_compare = {**component.fields_inout, **component.fields_out}
     for field_name in fields_to_compare.keys():
     
@@ -155,6 +154,8 @@ def run_test(component: ComputationalGridComponent):
     gt4py_output_fields = component.call_gt4py_stencil(state_gt4py)
 
     logging.info("Compare output fields")
+
+    ## Assertion in compare output
     compare_output(
         component=component,
         fortran_fields=fortran_output_fields,

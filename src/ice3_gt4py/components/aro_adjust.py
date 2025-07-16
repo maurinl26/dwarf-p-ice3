@@ -7,7 +7,7 @@ from functools import cached_property
 from itertools import repeat
 from typing import Dict
 
-from gt4py.storage import from_array
+from gt4py.storage import from_array, ones
 
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
