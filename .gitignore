@@ -19,6 +19,7 @@ src/ice3_gt4py/__pycache__/
 src/PHYEX/
 test/
 test_OLD/
+*/__pycache__/*
 
 *.pyc
 src/ice3_gt4py/drivers/tests.py
@@ -26,6 +27,7 @@ src/ice3_gt4py/stencils/ice4*
 src/testprogs_data/fortran/
 src/ice3_gt4py/stencils_fortran/ref
 src/dwarf_ice3_gt4py.egg-info/
+src/drivers/cffi_driver
 output/
 dist/
 venv*
@@ -42,3 +44,4 @@ scripts
 mode_*/
 cloud_fraction/
 sandbox/
+src/dwarf_ice3_gt4py.egg-info/

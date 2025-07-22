@@ -16,7 +16,7 @@ contains
        &xlbsaccr1, xlbsaccr2, xlbsaccr3, xfsaccrg, &
        &xsrimcg, xexsrimcg, xcexvt, &
        &xalpw, xbetaw, xgamw, xfscvmg, &
-       &xker_raccss, xker_raccs, xker_saccrg, &
+       &xker_raccss, xker_raccs,xker_saccrg, &
        &xgaminc_rim1, xgaminc_rim2, xgaminc_rim4, &
        &xrimintp1, xrimintp2, xaccintp1s, xaccintp2s, xaccintp1r, xaccintp2r, &
        &prhodref, ppres, &
@@ -27,19 +27,12 @@ contains
        &prcrimss, prcrimsg, prsrimcg, &
        &prraccss, prraccsg, prsaccrg, prsmltg, &
        &prcmltsr, &
-       &rs_rcrims_tend, &
-         &rs_rcrimss_tend, &
-      &rs_rsrimcg_tend, &
-      &rs_rraccs_tend, &
-      &rs_rraccss_tend, &
-      &rs_rsaccrg_tend, &
-      &rs_freez1_tend, &
-      &rs_freez2_tend, &
-      &)
-
+       &prs_tend)
+!
       implicit none
-
-      !* 0.1   declarations of dummy arguments :
+!
+!*       0.1   declarations of dummy arguments :
+!
       integer, intent(in)    :: kproma, ksize
       logical, intent(in) :: levlimit, lpack_interp
       logical, intent(in)    :: ldsoft
@@ -54,7 +47,7 @@ contains
       real, intent(in) :: xcxs, xsrimcg2, xsrimcg3, xbs
       real, intent(in) :: xlbsaccr1, xlbsaccr2, xlbsaccr3, xfsaccrg
       real, intent(in) :: xalpw, xbetaw, xgamw, xfscvmg
-      real, dimension(:, :), intent(in) :: xker_raccss, xker_raccs, xker_saccrg
+      real, dimension(:,:), intent(in) :: xker_raccss, xker_raccs, xker_saccrg
       real, dimension(:) :: xgaminc_rim1, xgaminc_rim2, xgaminc_rim4
       real, intent(in) :: xrimintp1, xrimintp2
       integer, intent(in) :: nacclbdas, nacclbdar
@@ -82,18 +75,12 @@ contains
       real, dimension(kproma), intent(out)   :: prsaccrg ! rain accretion onto the aggregates
       real, dimension(kproma), intent(inout) :: prsmltg  ! conversion-melting of the aggregates
       real, dimension(kproma), intent(inout) :: prcmltsr ! cloud droplet collection onto aggregates by positive temperature
-
-      ! prs_tend is moved with individual variables
-      real, dimension(kproma), intent(inout) :: rs_rcrims_tend
-      real, dimension(kproma), intent(inout) :: rs_rcrimss_tend
-      real, dimension(kproma), intent(inout) :: rs_rsrimcg_tend
-      real, dimension(kproma), intent(inout) :: rs_rraccs_tend
-      real, dimension(kproma), intent(inout) :: rs_rraccss_tend
-      real, dimension(kproma), intent(inout) :: rs_rsaccrg_tend
-      real, dimension(kproma), intent(inout) :: rs_freez1_tend
-      real, dimension(kproma), intent(inout) :: rs_freez2_tend
-
-      !* 0.2  declaration of local variables
+      real, dimension(kproma, 8), intent(inout) :: prs_tend ! individual tendencies
+!
+!*       0.2  declaration of local variables
+!
+      integer, parameter :: ircrims = 1, ircrimss = 2, irsrimcg = 3, irraccs = 4, irraccss = 5, irsaccrg = 6, &
+       & ifreez1 = 7, ifreez2 = 8
       logical, dimension(kproma) :: grim, gacc
       integer :: igrim, igacc
       integer, dimension(kproma) :: ibuf1, ibuf2, ibuf3
@@ -101,37 +88,39 @@ contains
       real, dimension(kproma) :: zzw, zzw1, zzw2, zzw3, zfreez_rate
       integer :: jl
       real :: zzw0d
-
-      !* 5.0    maximum freezing rate
+!
+!*       5.0    maximum freezing rate
+!
       do jl = 1, ksize
       if (prst(jl) > s_rtmin .and. ldcompute(jl)) then
       if (.not. ldsoft) then
-         rs_freez1_tend(jl) = prvt(jl)*ppres(jl)/(xepsilo + prvt(jl)) ! vapor pressure
+         prs_tend(jl, ifreez1) = prvt(jl)*ppres(jl)/(xepsilo + prvt(jl)) ! vapor pressure
          if (levlimit) then
-            rs_freez1_tend(jl) = min(rs_freez1_tend(jl), exp(xalpi - xbetai/pt(jl) - xgami*alog(pt(jl)))) ! min(ev, es_i(t))
+            prs_tend(jl, ifreez1) = min(prs_tend(jl, ifreez1), exp(xalpi - xbetai/pt(jl) - xgami*alog(pt(jl)))) ! min(ev, es_i(t))
          end if
-         rs_freez1_tend(jl) = pka(jl)*(xtt - pt(jl)) +                              &
+         prs_tend(jl, ifreez1) = pka(jl)*(xtt - pt(jl)) +                              &
                  &(pdv(jl)*(xlvtt + (xcpv - xcl)*(pt(jl) - xtt)) &
-                 &*(xestt - rs_freez1_tend(jl)/(xrv*pt(jl)))
-         rs_freez1_tend(jl) = rs_freez1_tend(jl)*(x0deps*plbdas(jl)**xex0deps +     &
+                 &*(xestt - prs_tend(jl, ifreez1))/(xrv*pt(jl)))
+         prs_tend(jl, ifreez1) = prs_tend(jl, ifreez1)*(x0deps*plbdas(jl)**xex0deps +     &
                  &                        x1deps*pcj(jl)*plbdas(jl)**xex1deps)/ &
                  &(prhodref(jl)*(xlmtt - xcl*(xtt - pt(jl))))
 
-         rs_freez2_tend(jl) = (prhodref(jl)*(xlmtt + (xci - xcl)*(xtt - pt(jl))))/ &
+         prs_tend(jl, ifreez2) = (prhodref(jl)*(xlmtt + (xci - xcl)*(xtt - pt(jl))))/ &
                  &(prhodref(jl)*(xlmtt - xcl*(xtt - pt(jl))))
       end if
 
-      zfreez_rate(jl) = max(0., max(0., rs_freez2_tnd(jl) + &
+      zfreez_rate(jl) = max(0., max(0., prs_tend(jl, ifreez1) + &
                        &prs_tend(jl, ifreez2)*priaggs(jl)) - &
                priaggs(jl))
       else
-      rs_freez1_tend(jl) = 0.
-      rs_freez2_tend(jl) = 0.
+      prs_tend(jl, ifreez1) = 0.
+      prs_tend(jl, ifreez2) = 0.
       zfreez_rate(jl) = 0.
       end if
       end do
-
-      !* 5.1    cloud droplet riming of the aggregates
+!
+!*       5.1    cloud droplet riming of the aggregates
+!
       do jl = 1, ksize
       if (prct(jl) > c_rtmin .and. prst(jl) > s_rtmin .and. ldcompute(jl)) then
          zzw(jl) = plbdas(jl)
@@ -139,65 +128,69 @@ contains
          grim(jl) = .true.
       else
          grim(jl) = .false.
-         rs_rcrims_tend(jl, ircrims) = 0.
-         rs_rcrimss_tend(jl, ircrimss) = 0.
-         rs_rsrimcg_tend(jl, irsrimcg) = 0.
+         prs_tend(jl, ircrims) = 0.
+         prs_tend(jl, ircrimss) = 0.
+         prs_tend(jl, irsrimcg) = 0.
       end if
       end do
-
-      ! collection of cloud droplets by snow: this rate is used for riming (t<0) and for conversion/melting (t>0)
+!
+! collection of cloud droplets by snow: this rate is used for riming (t<0) and for conversion/melting (t>0)
       if (.not. ldsoft) then
          call interp_micro_1d(kproma, ksize, zzw, ngaminc, xrimintp1, xrimintp2, &
                               lpack_interp, grim(:), ibuf1, ibuf2, zbuf1, zbuf2, &
                               igrim, &
                               xgaminc_rim1(:), zzw1(:), xgaminc_rim2(:), zzw2(:), xgaminc_rim4(:), zzw3(:))
          if (igrim > 0) then
-
-            ! 5.1.4  riming of the small sized aggregates
-
+!
+!        5.1.4  riming of the small sized aggregates
+!
+!$mnh_expand_where(jl=1:ksize)
             where (grim(1:ksize))
-               rs_rcrimss_tend(1:ksize) = xcrimss*zzw1(1:ksize)*prct(1:ksize) & ! rcrimss
-                                          *plbdas(1:ksize)**xexcrimss &
-                                          *prhodref(1:ksize)**(-xcexvt)
+               prs_tend(1:ksize, ircrimss) = xcrimss*zzw1(1:ksize)*prct(1:ksize) & ! rcrimss
+                                             *plbdas(1:ksize)**xexcrimss &
+                                             *prhodref(1:ksize)**(-xcexvt)
+
+            end where
+!$mnh_end_expand_where(jl=1:ksize)
+!
+!        5.1.6  riming-conversion of the large sized aggregates into graupeln
+!
+!
+!$mnh_expand_where(jl=1:ksize)
+            where (grim(1:ksize))
+               prs_tend(1:ksize, ircrims) = xcrimsg*prct(1:ksize) & ! rcrims
+                                            *plbdas(1:ksize)**xexcrimsg &
+                                            *prhodref(1:ksize)**(-xcexvt)
 
             end where
 
-            ! 5.1.6  riming-conversion of the large sized aggregates into graupeln
-            where (grim(1:ksize))
-               rs_rcrims_tend(1:ksize) = xcrimsg*prct(1:ksize) & ! rcrims
-                                         *plbdas(1:ksize)**xexcrimsg &
-                                         *prhodref(1:ksize)**(-xcexvt)
-
-            end where
-
-            !murakami 1990
             if (csnowriming == 'm90 ') then
-
+!murakami 1990
                where (grim(1:ksize))
-                  zzw(1:ksize) = rs_rcrims_tend(1:ksize, ircrims) - rs_rcrimss_tend(1:ksize) ! rcrimsg
-                  rs_rsrimcg_tend(1:ksize) = xsrimcg*plbdas(1:ksize)**xexsrimcg*(1.0 - zzw2(1:ksize))
+                  zzw(1:ksize) = prs_tend(1:ksize, ircrims) - prs_tend(1:ksize, ircrimss) ! rcrimsg
+                  prs_tend(1:ksize, irsrimcg) = xsrimcg*plbdas(1:ksize)**xexsrimcg*(1.0 - zzw2(1:ksize))
 
-                  rs_rsrimcg_tend(1:ksize) = zzw(1:ksize)*rs_rsrimcg_tend(1:ksize, irsrimcg)/ &
-                                             max(1.e-20, &
-                                                 xsrimcg3*xsrimcg2*plbdas(1:ksize)**xexsrimcg2*(1.-zzw3(1:ksize)) - &
-                                                 xsrimcg3*rs_rsrimcg_tend(1:ksize, irsrimcg))
+                  prs_tend(1:ksize, irsrimcg) = zzw(1:ksize)*prs_tend(1:ksize, irsrimcg)/ &
+                                                max(1.e-20, &
+                                                    xsrimcg3*xsrimcg2*plbdas(1:ksize)**xexsrimcg2*(1.-zzw3(1:ksize)) - &
+                                                    xsrimcg3*prs_tend(1:ksize, irsrimcg))
 
                end where
             else
-               rs_rsrimcg_tend(:, irsrimcg) = 0.
+               prs_tend(:, irsrimcg) = 0.
             end if
          end if
       end if
 !
       do jl = 1, ksize
-      ! more restrictive rim mask to be used for riming by negative temperature only
+! more restrictive rim mask to be used for riming by negative temperature only
          if (grim(jl) .and. pt(jl) < xtt) then
-            prcrimss(jl) = min(zfreez_rate(jl), rs_rcrimss_tend(jl))
+            prcrimss(jl) = min(zfreez_rate(jl), prs_tend(jl, ircrimss))
             zfreez_rate(jl) = max(0., zfreez_rate(jl) - prcrimss(jl))
-            zzw0d = min(1., zfreez_rate(jl)/max(1.e-20, rs_rcrims_tend(jl) - prcrimss(jl))) ! proportion we are able to freeze
-            prcrimsg(jl) = zzw0d*max(0., rs_rcrims_tend(jl) - prcrimss(jl)) ! rcrimsg
+            zzw0d = min(1., zfreez_rate(jl)/max(1.e-20, prs_tend(jl, ircrims) - prcrimss(jl))) ! proportion we are able to freeze
+            prcrimsg(jl) = zzw0d*max(0., prs_tend(jl, ircrims) - prcrimss(jl)) ! rcrimsg
             zfreez_rate(jl) = max(0., zfreez_rate(jl) - prcrimsg(jl))
-            prsrimcg(jl) = zzw0d*rs_rsrimcg_tend(jl)
+            prsrimcg(jl) = zzw0d*prs_tend(jl, irsrimcg)
 
             prsrimcg(jl) = prsrimcg(jl)*max(0., -sign(1., -prcrimsg(jl)))
             prcrimsg(jl) = max(0., prcrimsg(jl))
@@ -207,8 +200,9 @@ contains
             prsrimcg(jl) = 0.
          end if
       end do
-
-      !* 5.2    rain accretion onto the aggregates
+!
+!*       5.2    rain accretion onto the aggregates
+!
       do jl = 1, ksize
       if (prrt(jl) > r_rtmin .and. prst(jl) > s_rtmin .and. ldcompute(jl)) then
          gacc(jl) = .true.
@@ -220,16 +214,18 @@ contains
       end if
       end do
       if (.not. ldsoft) then
-         rs_rraccs_tend(:) = 0.
-         rs_rraccss_tend(:) = 0.
-         rs_rsaccrg_tend(:) = 0.
+         prs_tend(:, irraccs) = 0.
+         prs_tend(:, irraccss) = 0.
+         prs_tend(:, irsaccrg) = 0.
          call interp_micro_2d(kproma, ksize, plbdas, plbdar, nacclbdas, nacclbdar, &
             &xaccintp1s, xaccintp2s, xaccintp1r, xaccintp2r,&
             &lpack_interp, gacc(:), ibuf1(:), ibuf2(:), ibuf3(:), zbuf1(:), zbuf2(:), zbuf3(:), &
             &igacc, &
             &xker_raccss(:, :), zzw1(:), xker_raccs(:, :), zzw2(:), xker_saccrg(:, :), zzw3(:))
          if (igacc > 0) then
-         ! 5.2.4  raindrop accretion on the small sized aggregates
+!        5.2.4  raindrop accretion on the small sized aggregates
+!
+!$mnh_expand_where(jl=1:ksize)
             where (gacc(1:ksize))
                zzw(1:ksize) = & !! coef of rraccs
                   xfraccss*(plbdas(1:ksize)**xcxs)*(prhodref(1:ksize)**(-xcexvt - 1.)) &
@@ -237,36 +233,41 @@ contains
                     xlbraccs2/(plbdas(1:ksize)*plbdar(1:ksize)) + &
                     xlbraccs3/((plbdar(1:ksize)**2)))/plbdar(1:ksize)**4
 
-               rs_rraccss_tend(1:ksize) = zzw1(1:ksize)*zzw(1:ksize)
+               prs_tend(1:ksize, irraccss) = zzw1(1:ksize)*zzw(1:ksize)
             end where
-
+!$mnh_end_expand_where(jl=1:ksize)
+!
+!$mnh_expand_where(jl=1:ksize)
             where (gacc(1:ksize))
-               rs_rraccs_tend(1:ksize) = zzw2(1:ksize)*zzw(1:ksize)
+               prs_tend(1:ksize, irraccs) = zzw2(1:ksize)*zzw(1:ksize)
             end where
-
-         ! 5.2.6  raindrop accretion-conversion of the large sized aggregates
-         ! into graupeln
-
+!$mnh_end_expand_where(jl=1:ksize)
+!
+!        5.2.6  raindrop accretion-conversion of the large sized aggregates
+!               into graupeln
+!
+!$mnh_expand_where(jl=1:ksize)
             where (gacc(1:ksize))
-               rs_rsaccrg_tend(1:ksize) = xfsaccrg*zzw3(1:ksize)* & ! rsaccrg
-                                          (plbdas(1:ksize)**(xcxs - xbs))*(prhodref(1:ksize)**(-xcexvt - 1.)) &
-                                          *(xlbsaccr1/((plbdar(1:ksize)**2)) + &
-                                            xlbsaccr2/(plbdar(1:ksize)*plbdas(1:ksize)) + &
-                                            xlbsaccr3/((plbdas(1:ksize)**2)))/plbdar(1:ksize)
+               prs_tend(1:ksize, irsaccrg) = xfsaccrg*zzw3(1:ksize)* & ! rsaccrg
+                                             (plbdas(1:ksize)**(xcxs - xbs))*(prhodref(1:ksize)**(-xcexvt - 1.)) &
+                                             *(xlbsaccr1/((plbdar(1:ksize)**2)) + &
+                                               xlbsaccr2/(plbdar(1:ksize)*plbdas(1:ksize)) + &
+                                               xlbsaccr3/((plbdas(1:ksize)**2)))/plbdar(1:ksize)
 
             end where
+!$mnh_end_expand_where(jl=1:ksize)
          end if
       end if
 !
       do jl = 1, ksize
 ! more restrictive acc mask to be used for accretion by negative temperature only
          if (gacc(jl) .and. pt(jl) < xtt) then
-            prraccss(jl) = min(zfreez_rate(jl), rs_rraccss_tend(jl))
+            prraccss(jl) = min(zfreez_rate(jl), prs_tend(jl, irraccss))
             zfreez_rate(jl) = max(0., zfreez_rate(jl) - prraccss(jl))
-            zzw(jl) = min(1., zfreez_rate(jl)/max(1.e-20, rs_rraccs_tend(jl) - prraccss(jl))) ! proportion we are able to freeze
-            prraccsg(jl) = zzw(jl)*max(0., rs_rraccs_tend(jl) - prraccss(jl))
+            zzw(jl) = min(1., zfreez_rate(jl)/max(1.e-20, prs_tend(jl, irraccs) - prraccss(jl))) ! proportion we are able to freeze
+            prraccsg(jl) = zzw(jl)*max(0., prs_tend(jl, irraccs) - prraccss(jl))
             zfreez_rate(jl) = max(0., zfreez_rate(jl) - prraccsg(jl))
-            prsaccrg(jl) = zzw(jl)*rs_rsaccrg_tend(jl)
+            prsaccrg(jl) = zzw(jl)*prs_tend(jl, irsaccrg)
 
             prsaccrg(jl) = prsaccrg(jl)*max(0., -sign(1., -prraccsg(jl)))
             prraccsg(jl) = max(0., prraccsg(jl))
@@ -301,7 +302,7 @@ contains
                                         )/(prhodref(jl)*xlmtt))
 !
 
-         prcmltsr(jl) = rs_rcrims_tend(jl) ! both species are liquid, no heat is exchanged
+         prcmltsr(jl) = prs_tend(jl, ircrims) ! both species are liquid, no heat is exchanged
       end if
       else
       prsmltg(jl) = 0.
@@ -316,7 +317,7 @@ contains
    end subroutine ice4_fast_rs
 
    subroutine ice4_fast_rg(kproma, ksize, krr,&
-      &ldsoft, lcrflimit, levlimit, lnullwetg, lwetgpost, lpack_interp, ldcompute,&
+      &ldsoft, lcrflimit, levlimit, lnullwetg, lwetgpost, lpack_interp, ldcompute,& 
       &ndrylbdag, ndrylbdas, ndrylbdar, &
       &c_rtmin, i_rtmin, r_rtmin, g_rtmin, s_rtmin, &
       &xalpw, xbetaw, xgamw, xexrcfri, xdg, xepsilo, &
@@ -369,7 +370,7 @@ contains
       real, intent(in) :: xdryintp1r, xdryintp2r
       logical, intent(in) :: lpack_interp
 
-      real, dimension(:, :), intent(in) :: xker_sdryg, xker_rdryg
+      real, dimension(:,:), intent(in) :: xker_sdryg, xker_rdryg
 
       real, dimension(kproma), intent(in)    :: prhodref ! reference density
       real, dimension(kproma), intent(in)    :: ppres    ! absolute pressure at t
@@ -602,6 +603,7 @@ contains
       end if
 
       do jl = 1, ksize
+!aggregated minus collected
          if (ldwetg(jl)) then
             prrwetg(jl) = -(prg_tend(jl, iriwetg) + prg_tend(jl, irswetg) +&
             &prg_tend(jl, ircdryg) - zrwetg_init(jl))
@@ -658,270 +660,271 @@ contains
 !!!!!!!!!!!!!!!!!!!! Interpolation routines !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    subroutine interp_micro_1d(kproma, ksize, pin, knum, p1, p2, &
-                              ldpack, ldmask, kbuf1, kbuf2, pbuf1, pbuf2, &
-                              klen, &
-                              plt1, pout1, plt2, pout2, plt3, pout3)
+                           ldpack, ldmask, kbuf1, kbuf2, pbuf1, pbuf2, &
+                           klen, &
+                           plt1, pout1, plt2, pout2, plt3, pout3)
 
-      implicit none
+implicit none
 
-      integer, intent(in)  :: kproma       !array size
-      integer, intent(in)  :: ksize        !last usefull array index
-      real, dimension(kproma), intent(in)  :: pin          !input array
-      integer, intent(in)  :: knum         !number of points in the look-up table
-      real, intent(in)  :: p1           !scaling factor
-      real, intent(in)  :: p2           !scaling factor
-      logical, intent(in)  :: ldpack       !.true. to perform packing
-      logical, dimension(kproma), intent(in)  :: ldmask       !computation mask
-      integer, dimension(kproma), intent(out) :: kbuf1, kbuf2 !buffer arrays
-      real, dimension(kproma), intent(out) :: pbuf1, pbuf2 !buffer arrays
-      integer, intent(out) :: klen         !number of active points
-      real, dimension(knum), intent(in)            :: plt1  !look-up table
-      real, dimension(kproma), intent(out)           :: pout1 !interpolated values
-      real, dimension(knum), intent(in), optional :: plt2
-      real, dimension(kproma), intent(out), optional :: pout2
-      real, dimension(knum), intent(in), optional :: plt3
-      real, dimension(kproma), intent(out), optional :: pout3
+integer,                    intent(in)  :: kproma       !array size
+integer,                    intent(in)  :: ksize        !last usefull array index
+real,    dimension(kproma), intent(in)  :: pin          !input array
+integer,                    intent(in)  :: knum         !number of points in the look-up table
+real,                       intent(in)  :: p1           !scaling factor
+real,                       intent(in)  :: p2           !scaling factor
+logical,                    intent(in)  :: ldpack       !.true. to perform packing
+logical, dimension(kproma), intent(in)  :: ldmask       !computation mask
+integer, dimension(kproma), intent(out) :: kbuf1, kbuf2 !buffer arrays
+real,    dimension(kproma), intent(out) :: pbuf1, pbuf2 !buffer arrays
+integer,                    intent(out) :: klen         !number of active points
+real,    dimension(knum),   intent(in)            :: plt1  !look-up table
+real,    dimension(kproma), intent(out)           :: pout1 !interpolated values
+real,    dimension(knum),   intent(in) , optional :: plt2
+real,    dimension(kproma), intent(out), optional :: pout2
+real,    dimension(knum),   intent(in) , optional :: plt3
+real,    dimension(kproma), intent(out), optional :: pout3
 
-      integer :: jl
-      integer :: iindex
-      real :: zindex
+integer :: jl
+integer :: iindex
+real :: zindex
 
-      if (ldpack) then
+if (ldpack) then
 
-         !pack input array
-         klen = 0
-         do jl = 1, ksize
-            if (ldmask(jl)) then
-               klen = klen + 1
-               pbuf1(klen) = pin(jl)
-               kbuf1(klen) = jl
-            end if
-         end do
+  !pack input array
+  klen=0
+  do jl=1, ksize
+    if (ldmask(jl)) then
+      klen=klen+1
+      pbuf1(klen)=pin(jl)
+      kbuf1(klen)=jl
+    endif
+  enddo
 
-         if (klen > 0) then
-            !index computation
-            !$mnh_expand_array(jl=1:klen)
-            pbuf1(1:klen) = max(1.00001, min(real(knum) - 0.00001, p1*log(pbuf1(1:klen)) + p2))
-            kbuf2(1:klen) = int(pbuf1(1:klen))
-            pbuf1(1:klen) = pbuf1(1:klen) - real(kbuf2(1:klen))
-            !$mnh_end_expand_array(jl=1:klen)
+  if (klen>0) then
+    !index computation
+    !$mnh_expand_array(jl=1:klen)
+    pbuf1(1:klen) = max(1.00001, min(real(knum)-0.00001, p1 * log(pbuf1(1:klen)) + p2))
+    kbuf2(1:klen) = int(pbuf1(1:klen))
+    pbuf1(1:klen) = pbuf1(1:klen) - real(kbuf2(1:klen))
+    !$mnh_end_expand_array(jl=1:klen)
 
-            !interpolation and unpack
-            !$mnh_expand_array(jl=1:klen)
-            pbuf2(1:klen) = plt1(kbuf2(1:klen) + 1)*pbuf1(1:klen)       &
-                          &- plt1(kbuf2(1:klen))*(pbuf1(1:klen) - 1.0)
-            !$mnh_end_expand_array(jl=1:klen)
-            pout1(:) = 0.
-            do jl = 1, klen
-               pout1(kbuf1(jl)) = pbuf2(jl)
-            end do
+    !interpolation and unpack
+    !$mnh_expand_array(jl=1:klen)
+    pbuf2(1:klen) = plt1(kbuf2(1:klen)+1) *  pbuf1(1:klen)       &
+                  &-plt1(kbuf2(1:klen)  ) * (pbuf1(1:klen) - 1.0)
+    !$mnh_end_expand_array(jl=1:klen)
+    pout1(:)=0.
+    do jl=1, klen
+      pout1(kbuf1(jl))=pbuf2(jl)
+    enddo
 
-            !interpolation and unpack 2
-            if (present(plt2)) then
-               !$mnh_expand_array(jl=1:klen)
-               pbuf2(1:klen) = plt2(kbuf2(1:klen) + 1)*pbuf1(1:klen)       &
-                             &- plt2(kbuf2(1:klen))*(pbuf1(1:klen) - 1.0)
-               !$mnh_end_expand_array(jl=1:klen)
-               pout2(:) = 0.
-               do jl = 1, klen
-                  pout2(kbuf1(jl)) = pbuf2(jl)
-               end do
-            end if
+    !interpolation and unpack 2
+    if(present(plt2)) then
+      !$mnh_expand_array(jl=1:klen)
+      pbuf2(1:klen) = plt2(kbuf2(1:klen)+1) *  pbuf1(1:klen)       &
+                    &-plt2(kbuf2(1:klen)  ) * (pbuf1(1:klen) - 1.0)
+      !$mnh_end_expand_array(jl=1:klen)
+      pout2(:)=0.
+      do jl=1, klen
+        pout2(kbuf1(jl))=pbuf2(jl)
+      enddo
+    endif
 
-            !interpolation and unpack 3
-            if (present(plt3)) then
-               !$mnh_expand_array(jl=1:klen)
-               pbuf2(1:klen) = plt3(kbuf2(1:klen) + 1)*pbuf1(1:klen)       &
-                             &- plt3(kbuf2(1:klen))*(pbuf1(1:klen) - 1.0)
-               !$mnh_end_expand_array(jl=1:klen)
-               pout3(:) = 0.
-               do jl = 1, klen
-                  pout3(kbuf1(jl)) = pbuf2(jl)
-               end do
-            end if
+    !interpolation and unpack 3
+    if(present(plt3)) then
+      !$mnh_expand_array(jl=1:klen)
+      pbuf2(1:klen) = plt3(kbuf2(1:klen)+1) *  pbuf1(1:klen)       &
+                    &-plt3(kbuf2(1:klen)  ) * (pbuf1(1:klen) - 1.0)
+      !$mnh_end_expand_array(jl=1:klen)
+      pout3(:)=0.
+      do jl=1, klen
+        pout3(kbuf1(jl))=pbuf2(jl)
+      enddo
+    endif
 
-         end if
+  endif
 
-      else
+else
 
-         klen = 0
-         do jl = 1, ksize
-            if (ldmask(jl)) then
-               klen = klen + 1
+  klen=0
+  do jl=1, ksize
+    if (ldmask(jl)) then
+      klen=klen+1
 
-               !index computation
-               zindex = max(1.00001, min(real(knum) - 0.00001, p1*log(pin(jl)) + p2))
-               iindex = int(zindex)
-               zindex = zindex - real(iindex)
+      !index computation
+      zindex = max(1.00001, min(real(knum)-0.00001, p1 * log(pin(jl)) + p2))
+      iindex = int(zindex)
+      zindex = zindex - real(iindex)
 
-               !interpolations
-               pout1(jl) = plt1(iindex + 1)*zindex       &
-                         &- plt1(iindex)*(zindex - 1.0)
+      !interpolations
+      pout1(jl) = plt1(iindex+1) *  zindex       &
+                &-plt1(iindex  ) * (zindex - 1.0)
 
-               if (present(plt2)) then
-                  pout2(jl) = plt2(iindex + 1)*zindex       &
-                            &- plt2(iindex)*(zindex - 1.0)
-               end if
+      if(present(plt2)) then
+        pout2(jl) = plt2(iindex+1) *  zindex       &
+                  &-plt2(iindex  ) * (zindex - 1.0)
+      endif
 
-               if (present(plt3)) then
-                  pout3(jl) = plt3(iindex + 1)*zindex       &
-                            &- plt3(iindex)*(zindex - 1.0)
-               end if
+      if(present(plt3)) then
+        pout3(jl) = plt3(iindex+1) *  zindex       &
+                  &-plt3(iindex  ) * (zindex - 1.0)
+      endif
 
-            else
-               pout1(jl) = 0.
-               if (present(plt2)) pout2(jl) = 0.
-               if (present(plt3)) pout3(jl) = 0.
-            end if
-         end do
+    else
+      pout1(jl) = 0.
+      if(present(plt2)) pout2(jl) = 0.
+      if(present(plt3)) pout3(jl) = 0.
+    endif
+  enddo
 
-      end if
-   end subroutine interp_micro_1d
+endif
+end subroutine interp_micro_1d
 
-   subroutine interp_micro_2d(kproma, ksize, pin1, pin2, knum1, knum2, p11, p12, p21, p22, &
-                              ldpack, ldmask, kbuf1, kbuf2, kbuf3, pbuf1, pbuf2, pbuf3, &
-                              klen, &
-                              plt1, pout1, plt2, pout2, plt3, pout3)
+subroutine interp_micro_2d(kproma, ksize, pin1, pin2, knum1, knum2, p11, p12, p21, p22,&
+                           ldpack, ldmask, kbuf1, kbuf2, kbuf3, pbuf1, pbuf2, pbuf3, &
+                           klen, &
+                           plt1, pout1, plt2, pout2, plt3, pout3)
 
-      implicit none
+implicit none
 
-      integer, intent(in)  :: kproma       !array size
-      integer, intent(in)  :: ksize        !last usefull array index
-      real, dimension(kproma), intent(in)  :: pin1                !input array
-      real, dimension(kproma), intent(in)  :: pin2                !input array
-      integer, intent(in)  :: knum1               !first dimension of the look-up table
-      integer, intent(in)  :: knum2               !second dimension of the look-up table
-      real, intent(in)  :: p11                 !scaling factor
-      real, intent(in)  :: p12                 !scaling factor
-      real, intent(in)  :: p21                 !scaling factor
-      real, intent(in)  :: p22                 !scaling factor
-      logical, intent(in)  :: ldpack              !.true. to perform packing
-      logical, dimension(kproma), intent(in)  :: ldmask              !computation mask
-      integer, dimension(kproma), intent(out) :: kbuf1, kbuf2, kbuf3 !buffer arrays
-      real, dimension(kproma), intent(out) :: pbuf1, pbuf2, pbuf3 !buffer arrays
-      integer, intent(out) :: klen                !number of active points
-      real, dimension(knum1, knum2), intent(in)            :: plt1  !look-up table
-      real, dimension(kproma), intent(out)           :: pout1 !interpolated values from the first look-up table
-      real, dimension(knum1, knum2), intent(in), optional :: plt2  !other look-up table
-      real, dimension(kproma), intent(out), optional :: pout2 !interpolated values from the second look-up table
-      real, dimension(knum2, knum1), intent(in), optional :: plt3  !another look-up table **caution, table is reversed**
-      real, dimension(kproma), intent(out), optional :: pout3 !interpolated values from the third look-up table
+integer,                    intent(in)  :: kproma       !array size
+integer,                    intent(in)  :: ksize        !last usefull array index
+real,    dimension(kproma), intent(in)  :: pin1                !input array
+real,    dimension(kproma), intent(in)  :: pin2                !input array
+integer,                    intent(in)  :: knum1               !first dimension of the look-up table
+integer,                    intent(in)  :: knum2               !second dimension of the look-up table
+real,                       intent(in)  :: p11                 !scaling factor
+real,                       intent(in)  :: p12                 !scaling factor
+real,                       intent(in)  :: p21                 !scaling factor
+real,                       intent(in)  :: p22                 !scaling factor
+logical,                    intent(in)  :: ldpack              !.true. to perform packing
+logical, dimension(kproma), intent(in)  :: ldmask              !computation mask
+integer, dimension(kproma), intent(out) :: kbuf1, kbuf2, kbuf3 !buffer arrays
+real,    dimension(kproma), intent(out) :: pbuf1, pbuf2, pbuf3 !buffer arrays
+integer,                    intent(out) :: klen                !number of active points
+real,    dimension(knum1, knum2),   intent(in)            :: plt1  !look-up table
+real,    dimension(kproma),         intent(out)           :: pout1 !interpolated values from the first look-up table
+real,    dimension(knum1, knum2),   intent(in) , optional :: plt2  !other look-up table
+real,    dimension(kproma),         intent(out), optional :: pout2 !interpolated values from the second look-up table
+real,    dimension(knum2, knum1),   intent(in) , optional :: plt3  !another look-up table **caution, table is reversed**
+real,    dimension(kproma),         intent(out), optional :: pout3 !interpolated values from the third look-up table
 
-      integer :: jl
-      integer :: iindex1, iindex2
-      real :: zindex1, zindex2
+integer :: jl
+integer :: iindex1, iindex2
+real :: zindex1, zindex2
 
-      if (ldpack) then
+if (ldpack) then
 
-         !pack input array
-         klen = 0
-         do jl = 1, ksize
-            if (ldmask(jl)) then
-               klen = klen + 1
-               pbuf1(klen) = pin1(jl)
-               pbuf2(klen) = pin2(jl)
-               kbuf3(klen) = jl
-            end if
-         end do
+  !pack input array
+  klen=0
+  do jl=1, ksize
+    if (ldmask(jl)) then
+      klen=klen+1
+      pbuf1(klen)=pin1(jl)
+      pbuf2(klen)=pin2(jl)
+      kbuf3(klen)=jl
+    endif
+  enddo
 
-         if (klen > 0) then
-            !index computation
-            !$mnh_expand_array(jl=1:klen)
-            pbuf1(1:klen) = max(1.00001, min(real(knum1) - 0.00001, p11*log(pbuf1(1:klen)) + p12))
-            kbuf1(1:klen) = int(pbuf1(1:klen))
-            pbuf1(1:klen) = pbuf1(1:klen) - real(kbuf1(1:klen))
+  if (klen>0) then
+    !index computation
+    !$mnh_expand_array(jl=1:klen)
+    pbuf1(1:klen) = max(1.00001, min(real(knum1)-0.00001, p11 * log(pbuf1(1:klen)) + p12))
+    kbuf1(1:klen) = int(pbuf1(1:klen))
+    pbuf1(1:klen) = pbuf1(1:klen) - real(kbuf1(1:klen))
 
-            pbuf2(1:klen) = max(1.00001, min(real(knum2) - 0.00001, p21*log(pbuf2(1:klen)) + p22))
-            kbuf2(1:klen) = int(pbuf2(1:klen))
-            pbuf2(1:klen) = pbuf2(1:klen) - real(kbuf2(1:klen))
-            !$mnh_end_expand_array(jl=1:klen)
+    pbuf2(1:klen) = max(1.00001, min(real(knum2)-0.00001, p21 * log(pbuf2(1:klen)) + p22))
+    kbuf2(1:klen) = int(pbuf2(1:klen))
+    pbuf2(1:klen) = pbuf2(1:klen) - real(kbuf2(1:klen))
+    !$mnh_end_expand_array(jl=1:klen)
 
-            !interpolation and unpack 1
-            do jl = 1, klen
-               pbuf3(jl) = (plt1(kbuf1(jl) + 1, kbuf2(jl) + 1)*pbuf2(jl) &
-                            - plt1(kbuf1(jl) + 1, kbuf2(jl))*(pbuf2(jl) - 1.0))*pbuf1(jl) &
-                           - (plt1(kbuf1(jl), kbuf2(jl) + 1)*pbuf2(jl) &
-                              - plt1(kbuf1(jl), kbuf2(jl))*(pbuf2(jl) - 1.0))*(pbuf1(jl) - 1.0)
-            end do
-            pout1(:) = 0.
-            do jl = 1, klen
-               pout1(kbuf3(jl)) = pbuf3(jl)
-            end do
+    !interpolation and unpack 1
+    do jl=1, klen
+      pbuf3(jl) = ( plt1(kbuf1(jl)+1,kbuf2(jl)+1)* pbuf2(jl)         &
+                   -plt1(kbuf1(jl)+1,kbuf2(jl)  )*(pbuf2(jl) - 1.0)) *  pbuf1(jl) &
+                 -( plt1(kbuf1(jl)  ,kbuf2(jl)+1)* pbuf2(jl)         &
+                   -plt1(kbuf1(jl)  ,kbuf2(jl)  )*(pbuf2(jl) - 1.0)) * (pbuf1(jl) - 1.0)
+    enddo
+    pout1(:)=0.
+    do jl=1, klen
+      pout1(kbuf3(jl))=pbuf3(jl)
+    enddo
 
-            !interpolation and unpack 2
-            if (present(plt2)) then
-               do jl = 1, klen
-                  pbuf3(jl) = (plt2(kbuf1(jl) + 1, kbuf2(jl) + 1)*pbuf2(jl) &
-                               - plt2(kbuf1(jl) + 1, kbuf2(jl))*(pbuf2(jl) - 1.0))*pbuf1(jl) &
-                              - (plt2(kbuf1(jl), kbuf2(jl) + 1)*pbuf2(jl) &
-                                 - plt2(kbuf1(jl), kbuf2(jl))*(pbuf2(jl) - 1.0))*(pbuf1(jl) - 1.0)
-               end do
-               pout2(:) = 0.
-               do jl = 1, klen
-                  pout2(kbuf3(jl)) = pbuf3(jl)
-               end do
-            end if
+    !interpolation and unpack 2
+    if(present(plt2)) then
+      do jl=1, klen
+        pbuf3(jl) = ( plt2(kbuf1(jl)+1,kbuf2(jl)+1)* pbuf2(jl)         &
+                     -plt2(kbuf1(jl)+1,kbuf2(jl)  )*(pbuf2(jl) - 1.0)) *  pbuf1(jl) &
+                   -( plt2(kbuf1(jl)  ,kbuf2(jl)+1)* pbuf2(jl)         &
+                     -plt2(kbuf1(jl)  ,kbuf2(jl)  )*(pbuf2(jl) - 1.0)) * (pbuf1(jl) - 1.0)
+      enddo
+      pout2(:)=0.
+      do jl=1, klen
+        pout2(kbuf3(jl))=pbuf3(jl)
+      enddo
+    endif
 
-            !interpolation and unpack 3
-            if (present(plt3)) then
-               do jl = 1, klen
-                  pbuf3(jl) = (plt3(kbuf2(jl) + 1, kbuf1(jl) + 1)*pbuf1(jl) &
-                               - plt3(kbuf2(jl) + 1, kbuf1(jl))*(pbuf1(jl) - 1.0))*pbuf2(jl) &
-                              - (plt3(kbuf2(jl), kbuf1(jl) + 1)*pbuf1(jl) &
-                                 - plt3(kbuf2(jl), kbuf1(jl))*(pbuf1(jl) - 1.0))*(pbuf2(jl) - 1.0)
-               end do
-               pout3(:) = 0.
-               do jl = 1, klen
-                  pout3(kbuf3(jl)) = pbuf3(jl)
-               end do
-            end if
-         end if
+    !interpolation and unpack 3
+    if(present(plt3)) then
+      do jl=1, klen
+        pbuf3(jl) = ( plt3(kbuf2(jl)+1,kbuf1(jl)+1)* pbuf1(jl)         &
+                     -plt3(kbuf2(jl)+1,kbuf1(jl)  )*(pbuf1(jl) - 1.0)) *  pbuf2(jl) &
+                   -( plt3(kbuf2(jl)  ,kbuf1(jl)+1)* pbuf1(jl)         &
+                     -plt3(kbuf2(jl)  ,kbuf1(jl)  )*(pbuf1(jl) - 1.0)) * (pbuf2(jl) - 1.0)
+      enddo
+      pout3(:)=0.
+      do jl=1, klen
+        pout3(kbuf3(jl))=pbuf3(jl)
+      enddo
+    endif
+  endif
 
-      else
+else
 
-         klen = 0
-         do jl = 1, ksize
-            if (ldmask(jl)) then
-               klen = klen + 1
+  klen=0
+  do jl=1, ksize
+    if (ldmask(jl)) then
+      klen=klen+1
 
-               !indexes computation
-               zindex1 = max(1.00001, min(real(knum1) - 0.00001, p11*log(pin1(jl)) + p12))
-               iindex1 = int(zindex1)
-               zindex1 = zindex1 - real(iindex1)
+      !indexes computation
+      zindex1 = max(1.00001, min(real(knum1)-0.00001, p11 * log(pin1(jl)) + p12))
+      iindex1 = int(zindex1)
+      zindex1 = zindex1 - real(iindex1)
+  
+      zindex2 = max(1.00001, min(real(knum1)-0.00001, p21 * log(pin2(jl)) + p22))
+      iindex2 = int(zindex2)
+      zindex2 = zindex2 - real(iindex2)
+  
+      !interpolations
+      pout1(jl) = ( plt1(iindex1+1,iindex2+1)* zindex2         &
+                   -plt1(iindex1+1,iindex2  )*(zindex2 - 1.0)) *  zindex1 &
+                 -( plt1(iindex1  ,iindex2+1)* zindex2         &
+                   -plt1(iindex1  ,iindex2  )*(zindex2 - 1.0)) * (zindex1 - 1.0)
 
-               zindex2 = max(1.00001, min(real(knum1) - 0.00001, p21*log(pin2(jl)) + p22))
-               iindex2 = int(zindex2)
-               zindex2 = zindex2 - real(iindex2)
+      if(present(plt2)) then
+        pout2(jl) = ( plt2(iindex1+1,iindex2+1)* zindex2         &
+                     -plt2(iindex1+1,iindex2  )*(zindex2 - 1.0)) *  zindex1 &
+                   -( plt2(iindex1  ,iindex2+1)* zindex2         &
+                     -plt2(iindex1  ,iindex2  )*(zindex2 - 1.0)) * (zindex1 - 1.0)
+      endif
 
-               !interpolations
-               pout1(jl) = (plt1(iindex1 + 1, iindex2 + 1)*zindex2 &
-                            - plt1(iindex1 + 1, iindex2)*(zindex2 - 1.0))*zindex1 &
-                           - (plt1(iindex1, iindex2 + 1)*zindex2 &
-                              - plt1(iindex1, iindex2)*(zindex2 - 1.0))*(zindex1 - 1.0)
+      if(present(plt3)) then
+        pout3(jl) = ( plt3(iindex2+1,iindex1+1)* zindex1         &
+                     -plt3(iindex2+1,iindex1  )*(zindex1 - 1.0)) *  zindex2 &
+                   -( plt3(iindex2  ,iindex1+1)* zindex1         &
+                     -plt3(iindex2  ,iindex1  )*(zindex1 - 1.0)) * (zindex2 - 1.0)
+      endif
 
-               if (present(plt2)) then
-                  pout2(jl) = (plt2(iindex1 + 1, iindex2 + 1)*zindex2 &
-                               - plt2(iindex1 + 1, iindex2)*(zindex2 - 1.0))*zindex1 &
-                              - (plt2(iindex1, iindex2 + 1)*zindex2 &
-                                 - plt2(iindex1, iindex2)*(zindex2 - 1.0))*(zindex1 - 1.0)
-               end if
+    else
+      pout1(jl)=0.
+      if(present(plt2)) pout2(jl)=0.
+      if(present(plt3)) pout3(jl)=0.
+    endif
+  enddo
 
-               if (present(plt3)) then
-                  pout3(jl) = (plt3(iindex2 + 1, iindex1 + 1)*zindex1 &
-                               - plt3(iindex2 + 1, iindex1)*(zindex1 - 1.0))*zindex2 &
-                              - (plt3(iindex2, iindex1 + 1)*zindex1 &
-                                 - plt3(iindex2, iindex1)*(zindex1 - 1.0))*(zindex2 - 1.0)
-               end if
+endif
+end subroutine interp_micro_2d
 
-            else
-               pout1(jl) = 0.
-               if (present(plt2)) pout2(jl) = 0.
-               if (present(plt3)) pout3(jl) = 0.
-            end if
-         end do
-
-      end if
-   end subroutine interp_micro_2d
 
 end module mode_ice4_fast_processes
 

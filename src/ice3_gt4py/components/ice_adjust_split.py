@@ -7,6 +7,8 @@ import sys
 from functools import cached_property
 from itertools import repeat
 from typing import Dict
+
+import dace
 from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
@@ -14,6 +16,7 @@ from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
 from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3_gt4py.phyex_common.tables import SRC_1D
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -39,39 +42,26 @@ class IceAdjustSplit(ImplicitTendencyComponent):
         )
 
         self.externals = phyex.to_externals()
+        self.externals.update({
+            "OCND2": False
+        })
+
+        logging.info(f"LAMBDA3 : {self.externals['LAMBDA3']}")
+
+
         self.thermo = self.compile_stencil("thermodynamic_fields", self.externals)
         self.condensation = self.compile_stencil("condensation", self.externals)
-        self.cloud_fraction = self.compile_stencil("cloud_fraction", self.externals)
 
-        logging.info(f"IceAdjustSplit - Keys")
-        logging.info(f"LSUBG_COND : {phyex.nebn.LSUBG_COND}")
-        logging.info(f"LSIGMAS :  {phyex.nebn.LSIGMAS}")
-        logging.info(f"FRAC_ICE_ADJUST : {phyex.nebn.FRAC_ICE_ADJUST}")
-        logging.info(f"CONDENS : {phyex.nebn.CONDENS}")
-        logging.info(f"LAMBDA3 : {phyex.nebn.LAMBDA3}")
-        logging.info(f"OCOMPUTE_SRC absent")
-        logging.info(f"LMFCONV : {phyex.LMFCONV}")
-        logging.info(f"LOCND2 absent")
-        logging.info(f"LHGT_QS : {phyex.nebn.LHGT_QS}")
-        logging.info(f"LSTATNW : {phyex.nebn.LSTATNW}")
-        logging.info(f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}")
+        # todo : add sigrc diagnostic compilation
+        # from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+        #
+        # self.nx, self.ny, self.nz = self.computational_grid.grids[(I, J, K)].shape
+        # self.sigrc_diagnostic = sigrc_computation.to_sdfg().compile()
 
-        logging.info(f"Constants for condensation")
-        logging.info(f"RD : {phyex.cst.RD}")
-        logging.info(f"RV : {phyex.cst.RV}")
+        self.cloud_fraction_1 = self.compile_stencil("cloud_fraction_1", self.externals)
+        self.cloud_fraction_2 = self.compile_stencil("cloud_fraction_2", self.externals)
 
-        logging.info(f"Constants for thermodynamic fields")
-        logging.info(f"CPD : {phyex.cst.CPD}")
-        logging.info(f"CPV : {phyex.cst.CPV}")
-        logging.info(f"CL : {phyex.cst.CL}")
-        logging.info(f"CI : {phyex.cst.CI}")
 
-        logging.info(f"Constants for cloud fraction")
-        logging.info(f"CRIAUTC : {phyex.rain_ice_param.CRIAUTC}")
-        logging.info(f"CRIAUTI : {phyex.rain_ice_param.CRIAUTI}")
-        logging.info(f"ACRIAUTI : {phyex.rain_ice_param.ACRIAUTI}")
-        logging.info(f"BCRIAUTI : {phyex.rain_ice_param.BCRIAUTI}")
-        logging.info(f"TT : {phyex.cst.TT}")
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -226,7 +216,6 @@ class IceAdjustSplit(ImplicitTendencyComponent):
             "hlc_hcf": {
                 "grid": (I, J, K),
                 "units": "",
-                "fortran_name": None,
                 "dtype": "float",
             },
             "hli_hri": {
@@ -239,14 +228,20 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "units": "",
                 "dtype": "float",
             },
+            "sigrc": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
         }
 
     @cached_property
     def _temporaries(self) -> PropertyDict:
         return {
-            "lv": {"grid": (I, J, K), "units": ""},
-            "ls": {"grid": (I, J, K), "units": ""},
-            "cph": {"grid": (I, J, K), "units": ""},
+            "lv": {"grid": (I, J, K), "units": "", "dtype": "float"},
+            "ls": {"grid": (I, J, K), "units": "", "dtype": "float"},
+            "cph": {"grid": (I, J, K), "units": "", "dtype": "float"},
+            "t": {"grid": (I, J, K), "units": "", "dtype":"float"}
         }
 
     def array_call(
@@ -262,9 +257,10 @@ class IceAdjustSplit(ImplicitTendencyComponent):
 
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "float"), 8),
+            *repeat(((I, J, K), "float"), 9),
+            ((I,J,K), "int"),
             gt4py_config=self.gt4py_config,
-        ) as (lv, ls, cph, t, rc_out, ri_out, rv_out, t_out):
+        ) as (lv, ls, cph, t, rc_out, ri_out, rv_out, t_out, q1, inq1):
 
             state_thermo = {
                 key: state[key]
@@ -293,13 +289,12 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
+            logging.info(f"Thermo output")
+            logging.info(f"Mean cph {cph.mean()}")
+
             state_condensation = {
-                **{key: state[key] for key in ["sigqsat", "pabs", "cldfr", "sigs"]},
-                **{
-                    "rv_in": state["rv"],
-                    "ri_in": state["ri"],
-                    "rc_in": state["rc"],
-                },
+                key: state[key]
+                for key in ["sigqsat", "pabs", "cldfr", "sigs", "ri", "rc", "rv"]
             }
 
             temporaries_condensation = {
@@ -310,9 +305,9 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 "rv_out": rv_out,
                 "ri_out": ri_out,
                 "rc_out": rc_out,
+                "q1": q1
             }
 
-            logging.info("Launching condensation")
             self.condensation(
                 **state_condensation,
                 **temporaries_condensation,
@@ -322,49 +317,112 @@ class IceAdjustSplit(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-            # TODO : insert diagnostic on sigrc here
-            # Translation note : if needed, sigrc_computation could be inserted here
+            logging.info(f"Condensation output")
+            logging.info(f"Mean rv_out {rv_out.mean()}")
 
-            state_cloud_fraction = {
+            # todo : add dace managed sigrc diagnostic
+            # self.sigrc_diagnostic(
+            #     q1=q1,
+            #     inq1=inq1,
+            #     src_1d=SRC_1D,
+            #     sigrc=out_diagnostics["sigrc"],
+            #     LAMBDA3=0,
+            #     I=self.nx,
+            #     J=self.ny,
+            #     K=self.nz,
+            #     F=34
+            # )
+
+            state_cloud_fraction_1 = {
                 key: state[key]
                 for key in [
-                    # "t",
-                    "rhodref",
                     "exnref",
                     "rc",
                     "ri",
+                ]
+            }
+
+            tendencies_cloud_fraction_1 = {
+                name: out_tendencies[name]
+                for name in [
                     "ths",
                     "rvs",
                     "rcs",
-                    "ris",
-                    "rc_mf",
-                    "ri_mf",
-                    "cf_mf",
-                    "hlc_hrc",
-                    "hlc_hcf",
-                    "hli_hri",
-                    "hli_hcf",
-                    "cldfr",
+                    "ris"
                 ]
             }
 
             # TODO: check the scope of t
-            temporaries_cloud_fraction = {
+            temporaries_cloud_fraction_1 = {
                 "lv": lv,
                 "ls": ls,
                 "cph": cph,
-                "t": t,
                 "rc_tmp": rc_out,
                 "ri_tmp": ri_out,
             }
 
-            logging.info("Launching cloud fraction")
-            self.cloud_fraction(
-                **state_cloud_fraction,
-                **temporaries_cloud_fraction,
+            logging.info("Launching cloud fraction 1")
+            self.cloud_fraction_1(
+                **state_cloud_fraction_1,
+                **tendencies_cloud_fraction_1,
+                **temporaries_cloud_fraction_1,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,
             )
+
+            logging.info(f"Cloud fraction 1 output")
+            logging.info(f"Mean rc_out {rc_out.mean()}")
+
+            state_cloud_fraction_2 = {
+                key: state[key]
+                for key in [
+                    "rhodref",
+                    "exnref",
+                    "rc_mf",
+                    "ri_mf",
+                    "cf_mf",
+                    "cldfr",
+                ]
+            }
+
+            diagnotics_cloud_fraction_2 = {
+                name: out_diagnostics[name]
+                for name in self._diagnostic_properties.keys()
+            }
+            diagnotics_cloud_fraction_2.pop("sigrc")
+
+            tendencies_cloud_fraction_2 = {
+                name: out_tendencies[name]
+                for name in [
+                    "ths",
+                    "rvs",
+                    "rcs",
+                    "ris",
+                ]
+            }
+
+            temporaries_cloud_fraction_2 = {
+                "lv": lv,
+                "ls": ls,
+                "cph": cph,
+                "t": t,
+            }
+
+            self.cloud_fraction_2(
+                **state_cloud_fraction_2,
+                **diagnotics_cloud_fraction_2,
+                **tendencies_cloud_fraction_2,
+                **temporaries_cloud_fraction_2,
+                dt=timestep.total_seconds(),
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
+            )
+
+            logging.info(f"Cloud fraction 2 output")
+            logging.info(f"Mean hlc_hrc {diagnotics_cloud_fraction_2['hlc_hrc'].mean()}")
+

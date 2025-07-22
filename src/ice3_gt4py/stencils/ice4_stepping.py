@@ -125,8 +125,8 @@ def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float
     from_line=346,
     to_line=388,
 )
-@stencil_collection("ice4_mixing_ratio_step_limiter")
-def ice4_mixing_ratio_step_limiter(
+@stencil_collection("mixing_ratio_step_limiter")
+def mixing_ratio_step_limiter(
     rc_0r_t: Field["float"],
     rr_0r_t: Field["float"],
     ri_0r_t: Field["float"],
@@ -297,8 +297,8 @@ def ice4_mixing_ratio_step_limiter(
     from_line=290,
     to_line=332,
 )
-@stencil_collection("ice4_step_limiter")
-def ice4_step_limiter(
+@stencil_collection("step_limiter")
+def step_limiter(
     exn: Field["float"],
     theta_t: Field["float"],
     theta_a_tnd: Field["float"],
@@ -367,27 +367,28 @@ def ice4_step_limiter(
                 delta_t_micro = min(delta_t_micro, delta_t_tmp)
 
     # Tendencies adjustment if a speci disappears
+    # (c)
     with computation(PARALLEL), interval(...):
-        # (c)
         delta_t_micro = mixing_ratio_step_limiter(
             rc_a_tnd, rc_b, rc_t, delta_t_micro, C_RTMIN, MNH_TINY
         )
-        # (r)
+    # (r)
+    with computation(PARALLEL), interval(...):
         delta_t_micro = mixing_ratio_step_limiter(
-        rr_a_tnd, rr_b, rr_t, delta_t_micro, R_RTMIN, MNH_TINY
-    )
-
-        # (i)
+            rr_a_tnd, rr_b, rr_t, delta_t_micro, R_RTMIN, MNH_TINY
+        )
+    # (i)
+    with computation(PARALLEL), interval(...):
         delta_t_micro = mixing_ratio_step_limiter(
             ri_a_tnd, ri_b, ri_t, delta_t_micro, I_RTMIN, MNH_TINY
         )
-
-        # (s)
+    # (s)
+    with computation(PARALLEL), interval(...):
         delta_t_micro = mixing_ratio_step_limiter(
             rs_a_tnd, rs_b, rs_t, delta_t_micro, S_RTMIN, MNH_TINY
         )
-
-        # (g)
+    # (g)
+    with computation(PARALLEL), interval(...):
         delta_t_micro = mixing_ratio_step_limiter(
             rg_a_tnd, rg_b, rg_t, delta_t_micro, G_RTMIN, MNH_TINY
         )
@@ -498,15 +499,15 @@ def external_tendencies_update(
     rs_tnd_ext: Field["float"],
     rg_tnd_ext: Field["float"],
     ldmicro: Field["bool"],
-    dt: "float"
 ):
+    from __externals__ import TSTEP
 
     with computation(PARALLEL), interval(...):
         if ldmicro:
-            th_t -= theta_tnd_ext * dt
-            rc_t -= rc_tnd_ext * dt
-            rr_t -= rr_tnd_ext * dt
-            ri_t -= ri_tnd_ext * dt
-            rs_t -= rs_tnd_ext * dt
-            rg_t -= rg_tnd_ext * dt
+            th_t -= theta_tnd_ext * TSTEP
+            rc_t -= rc_tnd_ext * TSTEP
+            rr_t -= rr_tnd_ext * TSTEP
+            ri_t -= ri_tnd_ext * TSTEP
+            rs_t -= rs_tnd_ext * TSTEP
+            rg_t -= rg_tnd_ext * TSTEP
 

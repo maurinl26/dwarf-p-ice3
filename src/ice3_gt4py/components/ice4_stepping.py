@@ -80,7 +80,9 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
-        return {}
+        return {
+
+        }
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
