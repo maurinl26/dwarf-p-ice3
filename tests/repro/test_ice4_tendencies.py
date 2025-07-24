@@ -10,627 +10,135 @@ from numpy.testing import assert_allclose
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
+def allocate_random_fields(names, gt4py_config, grid, dtype=None):
+    dtype = dtype or gt4py_config.dtypes.float
+    fields = {name: np.array(np.random.rand(*grid.shape), dtype=dtype, order="F") for name in names}
+    gt4py_buffers = {name: from_array(fields[name], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend) for name in names}
+    return fields, gt4py_buffers
+
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
-def test_ice4_nucleation_post_processing(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    # Setting backend and precision
+def test_ice4_nucleation_post_processing(gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin):
     gt4py_config.backend = backend
     gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
     ice4_nucleation_post_processing_gt4py = compile_stencil("ice4_nucleation_post_processing", gt4py_config, externals)
-    fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_nucleation_post_processing"
-    )
-
-    FloatFieldsIJK_names = [
-        "t",
-        "exn",
-        "lsfact",
-        "tht",
-        "rvt",
-        "rit",
-        "rvheni_mr",
-    ]
-
-    FloatFieldsIJK = {
-        name: np.array(
-        np.random.rand(*grid.shape),
-        dtype=gt4py_config.dtypes.float,
-        order="F",
-    ) for name in FloatFieldsIJK_names
-    }
-
-    t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=backend)
-    exn_gt4py = from_array(FloatFieldsIJK["exn"], dtype=gt4py_config.dtypes.float, backend=backend)
-    lsfact_gt4py = from_array(FloatFieldsIJK["lsfact"], dtype=gt4py_config.dtypes.float, backend=backend)
-    tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=backend)
-    rvt_gt4py = from_array(FloatFieldsIJK["rvt"], dtype=gt4py_config.dtypes.float, backend=backend)
-    rit_gt4py = from_array(FloatFieldsIJK["rit"], dtype=gt4py_config.dtypes.float, backend=backend)
-    rvheni_mr_gt4py = from_array(FloatFieldsIJK["rvheni_mr"], dtype=gt4py_config.dtypes.float, backend=backend)
-
-    ice4_nucleation_post_processing_gt4py(
-        t=t_gt4py,
-        exn=exn_gt4py,
-        lsfact=lsfact_gt4py,
-        tht=tht_gt4py,
-        rvt=rvt_gt4py,
-        rit=rit_gt4py,
-        rvheni_mr=rvheni_mr_gt4py,
-        domain=grid.shape,
-        origin=(0, 0, 0)
-    )
-
-    f2py_mapping = {
-        "plsfact": "lsfact",
-        "pexn": "exn",
-        "ptht": "tht",
-        "prit": "rit",
-        "prvt": "rvt",
-        "zt": "t",
-        "prvheni_mr": "rvheni_mr"
-    }
-
-    fortran_FloatFieldsIJK = {
-        name: FloatFieldsIJK[value].ravel()
-        for name, value in f2py_mapping.items()
-    }
-
-    result = fortran_stencil(
-        **fortran_FloatFieldsIJK,
-        **fortran_packed_dims
-    )
-
-    tht_out = result[0]
-    rvt_out = result[1]
-    rit_out = result[2]
-    zt_out = result[3]
-
-    logging.info(f"Mean tht_gt4py {tht_gt4py.mean()}")
-    logging.info(f"Mean   tht_out {tht_out.mean()}")
-    logging.info(
-        f"Max abs rtol {max(abs(tht_gt4py.ravel() - tht_out) / abs(tht_out))}"
-    )
-
-    logging.info(f"Mean rit_gt4py {rit_gt4py.mean()}")
-    logging.info(f"Mean   rit_out {rit_out.mean()}")
-    logging.info(
-        f"Max abs rtol {max(abs(rit_gt4py.ravel() - rit_out) / abs(rit_out))}"
-    )
-
-    logging.info(f"Mean rvt_gt4py {rvt_gt4py.mean()}")
-    logging.info(f"Mean   rvt_out {rvt_out.mean()}")
-    logging.info(
-        f"Max abs rtol {max(abs(rvt_gt4py.ravel() - rvt_out) / abs(rvt_out))}"
-    )
-
-    logging.info(f"Mean t_gt4py {t_gt4py.mean()}")
-    logging.info(f"Mean  zt_out {zt_out.mean()}")
-    logging.info(f"Max abs rtol {max(abs(t_gt4py.ravel() - zt_out) / abs(zt_out))}")
-
-    logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
-
-    assert_allclose(tht_out, tht_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(rit_out, rit_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(zt_out, t_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(rvt_out, rvt_gt4py.ravel(), rtol=1e-3)
-
+    fortran_stencil = compile_fortran_stencil("mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_nucleation_post_processing")
+    field_names = ["t", "exn", "lsfact", "tht", "rvt", "rit", "rvheni_mr"]
+    fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
+    ice4_nucleation_post_processing_gt4py(**gt4py_buffers, domain=grid.shape, origin=(0, 0, 0))
+    f2py_mapping = {"plsfact": "lsfact", "pexn": "exn", "ptht": "tht", "prit": "rit", "prvt": "rvt", "zt": "t", "prvheni_mr": "rvheni_mr"}
+    fortran_FloatFieldsIJK = {name: fields[value].ravel() for name, value in f2py_mapping.items()}
+    result = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
+    tht_out, rvt_out, rit_out, zt_out = result[:4]
+    assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3)
+    assert_allclose(rit_out, gt4py_buffers["rit"].ravel(), rtol=1e-3)
+    assert_allclose(zt_out, gt4py_buffers["t"].ravel(), rtol=1e-3)
+    assert_allclose(rvt_out, gt4py_buffers["rvt"].ravel(), rtol=1e-3)
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
 def test_ice4_rrhong_post_processing(gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin):
-
-        # Setting backend and precision
-        gt4py_config.backend = backend
-        gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
-        ice4_rrhong_post_processing_gt4py = compile_stencil("ice4_rrhong_post_processing", gt4py_config, externals)
-        fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_rrhong_post_processing"
-        )
-
-        FloatFieldsIJK_names = [
-            "t",
-            "exn",
-            "lsfact",
-            "lvfact",
-            "tht",
-            "rrt",
-            "rgt",
-            "rrhong_mr"
-        ]
-
-        FloatFieldsIJK =  {
-            name: np.array(
-                np.random.rand(*grid.shape),
-                dtype=gt4py_config.dtypes.float,
-                order="F",
-            ) for name in FloatFieldsIJK_names
-        }
-
-        t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=backend)
-        exn_gt4py = from_array(FloatFieldsIJK["exn"], dtype=gt4py_config.dtypes.float, backend=backend)
-        lsfact_gt4py = from_array(FloatFieldsIJK["lsfact"], dtype=gt4py_config.dtypes.float, backend=backend)
-        lvfact_gt4py = from_array(FloatFieldsIJK["lvfact"], dtype=gt4py_config.dtypes.float, backend=backend)
-        tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=backend)
-        rrt_gt4py = from_array(FloatFieldsIJK["rrt"], dtype=gt4py_config.dtypes.float, backend=backend)
-        rgt_gt4py = from_array(FloatFieldsIJK["rgt"], dtype=gt4py_config.dtypes.float, backend=backend)
-        rrhong_mr_gt4py = from_array(FloatFieldsIJK["rrhong_mr"], dtype=gt4py_config.dtypes.float, backend=backend)
-
-        ice4_rrhong_post_processing_gt4py(
-            t=t_gt4py,
-            exn=exn_gt4py,
-            lsfact=lsfact_gt4py,
-            lvfact=lvfact_gt4py,
-            tht=tht_gt4py,
-            rrt=rrt_gt4py,
-            rgt=rgt_gt4py,
-            rrhong_mr=rrhong_mr_gt4py,
-            domain=grid.shape,
-            origin=(0, 0, 0)
-        )
-
-        f2py_mapping = {
-            "p"+name: name for name in [
-                "lsfact",
-                "lvfact",
-                "exn",
-                "rrhong_mr",
-                "tht",
-                "t",
-                "rrt",
-                "rgt"
-            ]
-        }
-
-        fortran_FloatFieldsIJK = {
-            name: FloatFieldsIJK[value].ravel()
-            for name, value in f2py_mapping.items()
-        }
-
-        result = fortran_stencil(
-            **fortran_FloatFieldsIJK,
-            **fortran_packed_dims
-        )
-
-        tht_out = result[0]
-        t_out = result[1]
-        rrt_out = result[2]
-        rgt_out = result[3]
-
-        logging.info(f"Mean tht_gt4py {tht_gt4py.mean()}")
-        logging.info(f"Mean tht_out {tht_out.mean()}")
-        logging.info(
-            f"Max abs rtol {max(abs(tht_gt4py.ravel() - tht_out) / abs(tht_out))}"
-        )
-
-        logging.info(f"Mean t_gt4py {t_gt4py.mean()}")
-        logging.info(f"Mean t_out {t_out.mean()}")
-        logging.info(f"Max abs rtol {max(abs(t_gt4py.ravel() - t_out) / abs(t_out))}")
-
-        logging.info(f"Mean rrt_gt4py {rrt_gt4py.mean()}")
-        logging.info(f"Mean rrt_out {rrt_out.mean()}")
-        logging.info(
-            f"Max abs rtol {max(abs(rrt_gt4py.ravel() - rrt_out) / abs(rrt_out))}"
-        )
-
-        logging.info(f"Mean rgt_gt4py {rgt_gt4py.mean()}")
-        logging.info(f"Mean rgt_out {rgt_out.mean()}")
-        logging.info(
-            f"Max abs rtol {max(abs(rgt_gt4py.ravel() - rgt_out) / abs(rgt_out))}"
-        )
-
-        logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
-
-        assert_allclose(tht_out, tht_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(t_out, t_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(rrt_out, rrt_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(rgt_out, rgt_gt4py.ravel(), rtol=1e-3)
-
+    gt4py_config.backend = backend
+    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
+    ice4_rrhong_post_processing_gt4py = compile_stencil("ice4_rrhong_post_processing", gt4py_config, externals)
+    fortran_stencil = compile_fortran_stencil("mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_rrhong_post_processing")
+    field_names = ["t", "exn", "lsfact", "lvfact", "tht", "rrt", "rgt", "rrhong_mr"]
+    fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
+    ice4_rrhong_post_processing_gt4py(**gt4py_buffers, domain=grid.shape, origin=(0, 0, 0))
+    f2py_mapping = {"plsfact": "lsfact", "plvfact": "lvfact", "pexn": "exn", "prrhong_mr": "rrhong_mr", "ptht": "tht", "pt": "t", "prrt": "rrt", "prgt": "rgt"}
+    fortran_FloatFieldsIJK = {name: fields[value].ravel() for name, value in f2py_mapping.items()}
+    result = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
+    tht_out, t_out, rrt_out, rgt_out = result[:4]
+    assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3)
+    assert_allclose(t_out, gt4py_buffers["t"].ravel(), rtol=1e-3)
+    assert_allclose(rrt_out, gt4py_buffers["rrt"].ravel(), rtol=1e-3)
+    assert_allclose(rgt_out, gt4py_buffers["rgt"].ravel(), rtol=1e-3)
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
 def test_ice4_rimltc_post_processing(gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin):
-        # Setting backend and precision
-        gt4py_config.backend = backend
-        gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
-        ice4_rimltc_post_processing_gt4py = compile_stencil("ice4_rimltc_post_processing", gt4py_config, externals)
-        fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_rimltc_post_processing"
-        )
-
-        FloatFieldsIJK_names = [
-            "t",
-            "exn",
-            "lsfact",
-            "lvfact",
-            "rimltc_mr",
-            "tht",
-            "rct",
-            "rit",
-        ]
-
-        FloatFieldsIJK = {
-            name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        ) for name in FloatFieldsIJK_names
-        }
-
-        t_gt4py = from_array(FloatFieldsIJK["t"], dtype=gt4py_config.dtypes.float, backend=backend)
-        exn_gt4py = from_array(FloatFieldsIJK["exn"], dtype=gt4py_config.dtypes.float, backend=backend)
-        lsfact_gt4py = from_array(FloatFieldsIJK["lsfact"], dtype=gt4py_config.dtypes.float, backend=backend)
-        lvfact_gt4py = from_array(FloatFieldsIJK["lvfact"], dtype=gt4py_config.dtypes.float, backend=backend)
-        tht_gt4py = from_array(FloatFieldsIJK["tht"], dtype=gt4py_config.dtypes.float, backend=backend)
-        rimltc_mr_gt4py = from_array(FloatFieldsIJK["rimltc_mr"], dtype=gt4py_config.dtypes.float, backend=backend)
-        rct_gt4py = from_array(FloatFieldsIJK["rct"], dtype=gt4py_config.dtypes.float, backend=backend)
-        rit_gt4py = from_array(FloatFieldsIJK["rit"], dtype=gt4py_config.dtypes.float, backend=backend)
-
-        ice4_rimltc_post_processing_gt4py(
-            t=t_gt4py,
-            exn=exn_gt4py,
-            lsfact=lsfact_gt4py,
-            lvfact=lvfact_gt4py,
-            rimltc_mr=rimltc_mr_gt4py,
-            tht=tht_gt4py,
-            rct=rct_gt4py,
-            rit=rit_gt4py,
-            domain=grid.shape,
-            origin=(0, 0, 0)
-        )
-
-        f2py_mapping = {
-            "p"+name: name for name in [
-                "lsfact",
-                "lvfact",
-                "exn",
-                "rimltc_mr",
-                "tht",
-                "t",
-                "rit",
-                "rct",
-            ]
-        }
-
-        fortran_FloatFieldsIJK = {
-            name: FloatFieldsIJK[value].ravel()
-            for name, value in f2py_mapping.items()
-        }
-
-        result = fortran_stencil(
-            **fortran_FloatFieldsIJK,
-            **fortran_packed_dims
-        )
-
-        tht_out = result[0]
-        t_out = result[1]
-        rct_out = result[2]
-        rit_out = result[3]
-
-        logging.info(f"Mean tht_gt4py {tht_gt4py.mean()}")
-        logging.info(f"Mean   tht_out {tht_out.mean()}")
-
-        logging.info(f"Mean t_gt4py {t_gt4py.mean()}")
-        logging.info(f"Mean   t_out {t_out.mean()}")
-
-        logging.info(f"Mean rct_gt4py {rct_gt4py.mean()}")
-        logging.info(f"Mean   rct_out {rct_out.mean()}")
-
-        logging.info(f"Mean rit_gt4py {rit_gt4py.mean()}")
-        logging.info(f"Mean   rit_out {rit_out.mean()}")
-
-        logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
-
-        assert_allclose(tht_out, tht_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(t_out, t_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(rct_out, rct_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(rit_out, rit_gt4py.ravel(), rtol=1e-3)
+    gt4py_config.backend = backend
+    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
+    ice4_rimltc_post_processing_gt4py = compile_stencil("ice4_rimltc_post_processing", gt4py_config, externals)
+    fortran_stencil = compile_fortran_stencil("mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_rimltc_post_processing")
+    field_names = ["t", "exn", "lsfact", "lvfact", "rimltc_mr", "tht", "rct", "rit"]
+    fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
+    ice4_rimltc_post_processing_gt4py(**gt4py_buffers, domain=grid.shape, origin=(0, 0, 0))
+    f2py_mapping = {"plsfact": "lsfact", "plvfact": "lvfact", "pexn": "exn", "primltc_mr": "rimltc_mr", "ptht": "tht", "pt": "t", "prit": "rit", "prct": "rct"}
+    fortran_FloatFieldsIJK = {name: fields[value].ravel() for name, value in f2py_mapping.items()}
+    result = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
+    tht_out, t_out, rct_out, rit_out = result[:4]
+    assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3)
+    assert_allclose(t_out, gt4py_buffers["t"].ravel(), rtol=1e-3)
+    assert_allclose(rct_out, gt4py_buffers["rct"].ravel(), rtol=1e-3)
+    assert_allclose(rit_out, gt4py_buffers["rit"].ravel(), rtol=1e-3)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
 def test_ice4_fast_rg_pre_processing(gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin):
-        # Setting backend and precision
-        gt4py_config.backend = backend
-        gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
-        fortran_stencil = compile_fortran_stencil(
-        "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_fast_rg_pre_processing"
-        )
-
-        ice4_fast_rg_pre_processing_gt4py = compile_stencil(
-            "ice4_fast_rg_pre_processing", gt4py_config, externals
-        )
-
-
-
-        rgsi = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rgsi_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rvdepg = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rsmltg = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rraccsg = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rsaccrg = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rcrimsg = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rsrimcg = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rrhong_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rsrimcg_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-
-        rgsi_gt4py = from_array(rgsi, dtype=gt4py_config.dtypes.float, backend=backend)
-        rgsi_mr_gt4py = from_array(rgsi_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-        rvdepg_gt4py = from_array(rvdepg, dtype=gt4py_config.dtypes.float, backend=backend)
-        rsmltg_gt4py = from_array(rsmltg, dtype=gt4py_config.dtypes.float, backend=backend)
-        rraccsg_gt4py = from_array(rraccsg, dtype=gt4py_config.dtypes.float, backend=backend)
-        rsaccrg_gt4py = from_array(rsaccrg, dtype=gt4py_config.dtypes.float, backend=backend)
-        rcrimsg_gt4py = from_array(rcrimsg, dtype=gt4py_config.dtypes.float, backend=backend)
-        rsrimcg_gt4py = from_array(rsrimcg, dtype=gt4py_config.dtypes.float, backend=backend)
-        rrhong_mr_gt4py = from_array(rrhong_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-        rsrimcg_mr_gt4py = from_array(rsrimcg_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-
-        ice4_fast_rg_pre_processing_gt4py(
-            rgsi=rgsi_gt4py,
-            rgsi_mr=rgsi_mr_gt4py,
-            rvdepg=rvdepg_gt4py,
-            rsmltg=rsmltg_gt4py,
-            rraccsg=rraccsg_gt4py,
-            rsaccrg=rsaccrg_gt4py,
-            rcrimsg=rcrimsg_gt4py,
-            rsrimcg=rsrimcg_gt4py,
-            rrhong_mr=rrhong_mr_gt4py,
-            rsrimcg_mr=rsrimcg_mr_gt4py,
-            domain=grid.shape,
-            origin=(0, 0, 0)
-        )
-
-        result = fortran_stencil(
-            rvdepg=rvdepg,
-            rsmltg=rsmltg,
-            rraccsg=rraccsg,
-            rsaccrg=rsaccrg,
-            rcrimsg=rcrimsg,
-            rsrimcg=rsrimcg,
-            rrhong_mr=rrhong_mr,
-            rsrimcg_mr=rsrimcg,
-            zgrsi=rgsi,
-            zrgsi_mr=rgsi_mr,
-            **fortran_packed_dims
-        )
-
-        zrgsi_out = result[0]
-        zrgsi_mr_out = result[1]
-
-        logging.info(f"Mean zrgsi_gt4py {rgsi_gt4py.mean()}")
-        logging.info(f"Mean zrgsi_out   {zrgsi_out.mean()}")
-        logging.info(
-            f"Max abs rtol     {max(abs(rgsi_gt4py.ravel() - zrgsi_out) / abs(zrgsi_out))}"
-        )
-
-        logging.info(f"Mean rgsi_mr_gt4py   {rgsi_gt4py.mean()}")
-        logging.info(f"Mean rgsi_mr_out     {zrgsi_mr_out.mean()}")
-        logging.info(
-            f"Max abs rtol {max(abs(rgsi_mr_gt4py.ravel() - zrgsi_mr_out) / abs(zrgsi_mr_out))}"
-        )
-
-        logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
-
-        assert_allclose(zrgsi_out, rgsi_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(zrgsi_mr_out, rgsi_mr_gt4py.ravel(), rtol=1e-3)
-
+    gt4py_config.backend = backend
+    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
+    fortran_stencil = compile_fortran_stencil("mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_fast_rg_pre_processing")
+    ice4_fast_rg_pre_processing_gt4py = compile_stencil("ice4_fast_rg_pre_processing", gt4py_config, externals)
+    field_names = [
+        "rgsi", "rgsi_mr", "rvdepg", "rsmltg", "rraccsg", "rsaccrg", "rcrimsg", "rsrimcg", "rrhong_mr", "rsrimcg_mr"
+    ]
+    fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
+    ice4_fast_rg_pre_processing_gt4py(**gt4py_buffers, domain=grid.shape, origin=(0, 0, 0))
+    result = fortran_stencil(
+        rvdepg=fields["rvdepg"],
+        rsmltg=fields["rsmltg"],
+        rraccsg=fields["rraccsg"],
+        rsaccrg=fields["rsaccrg"],
+        rcrimsg=fields["rcrimsg"],
+        rsrimcg=fields["rsrimcg"],
+        rrhong_mr=fields["rrhong_mr"],
+        rsrimcg_mr=fields["rsrimcg_mr"],
+        zgrsi=fields["rgsi"],
+        zrgsi_mr=fields["rgsi_mr"],
+        **fortran_packed_dims
+    )
+    zrgsi_out, zrgsi_mr_out = result[:2]
+    assert_allclose(zrgsi_out, gt4py_buffers["rgsi"].ravel(), rtol=1e-3)
+    assert_allclose(zrgsi_mr_out, gt4py_buffers["rgsi_mr"].ravel(), rtol=1e-3)
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())
 def test_ice4_increment_update(gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin):
-        # Setting backend and precision
-        gt4py_config.backend = backend
-        gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
-        fortran_stencil = compile_fortran_stencil(
-            "mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_increment_update"
-        )
-  
-        ice4_increment_update_gt4py = compile_stencil(
-            "ice4_increment_update", gt4py_config, externals
-        )
-
-        lsfact = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-
-        lvfact = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        theta_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rv_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rc_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rr_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        ri_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rs_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rg_increment = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rvheni_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rimltc_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rrhong_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-        rsrimcg_mr = np.array(
-            np.random.rand(*grid.shape),
-            dtype=gt4py_config.dtypes.float,
-            order="F",
-        )
-
-        lsfact_gt4py = from_array(lsfact, dtype=gt4py_config.dtypes.float, backend=backend)
-        lvfact_gt4py = from_array(lvfact, dtype=gt4py_config.dtypes.float, backend=backend)
-        theta_increment_gt4py = from_array(
-            theta_increment, dtype=gt4py_config.dtypes.float, backend=backend
-        )
-        rv_increment_gt4py = from_array(rv_increment, dtype=gt4py_config.dtypes.float, backend=backend)
-        rc_increment_gt4py = from_array(rc_increment, dtype=gt4py_config.dtypes.float, backend=backend)
-        rr_increment_gt4py = from_array(rr_increment, dtype=gt4py_config.dtypes.float, backend=backend)
-        ri_increment_gt4py = from_array(ri_increment, dtype=gt4py_config.dtypes.float, backend=backend)
-        rs_increment_gt4py = from_array(rs_increment, dtype=gt4py_config.dtypes.float, backend=backend)
-        rg_increment_gt4py = from_array(rg_increment, dtype=gt4py_config.dtypes.float, backend=backend)
-        rvheni_mr_gt4py = from_array(rvheni_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-        rimltc_mr_gt4py = from_array(rimltc_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-        rsrimcg_mr_gt4py = from_array(rsrimcg_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-        rrhong_mr_gt4py = from_array(rrhong_mr, dtype=gt4py_config.dtypes.float, backend=backend)
-
-        ice4_increment_update_gt4py(
-            lsfact=lsfact_gt4py,
-            lvfact=lvfact_gt4py,
-            theta_increment=theta_increment_gt4py,
-            rv_increment=rv_increment_gt4py,
-            rc_increment=rc_increment_gt4py,
-            rr_increment=rr_increment_gt4py,
-            ri_increment=ri_increment_gt4py,
-            rs_increment=rs_increment_gt4py,
-            rg_increment=rg_increment_gt4py,
-            rimltc_mr=rimltc_mr_gt4py,
-            rrhong_mr=rrhong_mr_gt4py,
-            rsrimcg_mr=rsrimcg_mr_gt4py,
-            rvheni_mr=rvheni_mr_gt4py,
-            domain=grid.shape,
-            origin=(0, 0, 0)
-        )
-
-      
-        result = fortran_stencil(
-            plsfact=lsfact.ravel(),
-            plvfact=lvfact.ravel(),
-            prvheni_mr=rvheni_mr.ravel(),
-            primltc_mr=rimltc_mr.ravel(),
-            prrhong_mr=rrhong_mr.ravel(),
-            prsrimcg_mr=rsrimcg_mr.ravel(),
-            pth_inst=theta_increment.ravel(),
-            prv_inst=rv_increment.ravel(),
-            prc_inst=rc_increment.ravel(),
-            prr_inst=rr_increment.ravel(),
-            pri_inst=ri_increment.ravel(),
-            prs_inst=rs_increment.ravel(),
-            prg_inst=rg_increment.ravel(),
-            **fortran_packed_dims
-        )
-
-        pth_inst_out = result[0]
-        prv_inst_out = result[1]
-        prc_inst_out = result[2]
-        prr_inst_out = result[3]
-        pri_inst_out = result[4]
-        prs_inst_out = result[5]
-        prg_inst_out = result[6]
-
-        logging.info(f"Mean tht_incr_gt4py {theta_increment_gt4py.mean()}")
-        logging.info(f"Mean   tht_inst_out {pth_inst_out.mean()}")
-
-        logging.info(f"Mean rv_incr_gt4py {rv_increment_gt4py.mean()}")
-        logging.info(f"Mean   rv_inst_out {prv_inst_out.mean()}")
-
-        logging.info(f"Mean rct_incr_gt4py {rc_increment_gt4py.mean()}")
-        logging.info(f"Mean   rct_inst_out {prc_inst_out.mean()}")
-
-        logging.info(f"Mean rrt_incr_gt4py {rr_increment_gt4py.mean()}")
-        logging.info(f"Mean   rrt_inst_out {prr_inst_out.mean()}")
-
-        logging.info(f"Mean rit_incr_gt4py {ri_increment_gt4py.mean()}")
-        logging.info(f"Mean   rit_inst_out {pri_inst_out.mean()}")
-
-        logging.info(f"Mean rst_incr_gt4py {rs_increment_gt4py.mean()}")
-        logging.info(f"Mean   rst_inst_out {prs_inst_out.mean()}")
-
-        logging.info(f"Mean rit_incr_gt4py {rg_increment_gt4py.mean()}")
-        logging.info(f"Mean   rit_inst_out {prg_inst_out.mean()}")
-
-        logging.info(f"Machine precision {np.finfo(gt4py_config.dtypes.float).eps}")
-
-        assert_allclose(pth_inst_out, theta_increment_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(prv_inst_out, rv_increment_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(prc_inst_out, rc_increment_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(pri_inst_out, ri_increment_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(prr_inst_out, rr_increment_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(prs_inst_out, rs_increment_gt4py.ravel(), rtol=1e-3)
-        assert_allclose(prg_inst_out, rg_increment_gt4py.ravel(), rtol=1e-3)
+    gt4py_config.backend = backend
+    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
+    fortran_stencil = compile_fortran_stencil("mode_ice4_tendencies.F90", "mode_ice4_tendencies", "ice4_increment_update")
+    ice4_increment_update_gt4py = compile_stencil("ice4_increment_update", gt4py_config, externals)
+    field_names = [
+        "lsfact", "lvfact", "theta_increment", "rv_increment", "rc_increment", "rr_increment", "ri_increment", "rs_increment", "rg_increment", "rvheni_mr", "rimltc_mr", "rrhong_mr", "rsrimcg_mr"
+    ]
+    fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
+    ice4_increment_update_gt4py(**gt4py_buffers, domain=grid.shape, origin=(0, 0, 0))
+    result = fortran_stencil(
+        plsfact=fields["lsfact"].ravel(),
+        plvfact=fields["lvfact"].ravel(),
+        prvheni_mr=fields["rvheni_mr"].ravel(),
+        primltc_mr=fields["rimltc_mr"].ravel(),
+        prrhong_mr=fields["rrhong_mr"].ravel(),
+        prsrimcg_mr=fields["rsrimcg_mr"].ravel(),
+        pth_inst=fields["theta_increment"].ravel(),
+        prv_inst=fields["rv_increment"].ravel(),
+        prc_inst=fields["rc_increment"].ravel(),
+        prr_inst=fields["rr_increment"].ravel(),
+        pri_inst=fields["ri_increment"].ravel(),
+        prs_inst=fields["rs_increment"].ravel(),
+        prg_inst=fields["rg_increment"].ravel(),
+        **fortran_packed_dims
+    )
+    pth_inst_out, prv_inst_out, prc_inst_out, prr_inst_out, pri_inst_out, prs_inst_out, prg_inst_out = result[:7]
+    assert_allclose(pth_inst_out, gt4py_buffers["theta_increment"].ravel(), rtol=1e-3)
+    assert_allclose(prv_inst_out, gt4py_buffers["rv_increment"].ravel(), rtol=1e-3)
+    assert_allclose(prc_inst_out, gt4py_buffers["rc_increment"].ravel(), rtol=1e-3)
+    assert_allclose(pri_inst_out, gt4py_buffers["ri_increment"].ravel(), rtol=1e-3)
+    assert_allclose(prr_inst_out, gt4py_buffers["rr_increment"].ravel(), rtol=1e-3)
+    assert_allclose(prs_inst_out, gt4py_buffers["rs_increment"].ravel(), rtol=1e-3)
+    assert_allclose(prg_inst_out, gt4py_buffers["rg_increment"].ravel(), rtol=1e-3)
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])

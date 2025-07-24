@@ -20,11 +20,6 @@ from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ice3_gt4py.components.ice4_stepping import Ice4Stepping
 from ice3_gt4py.phyex_common.param_ice import (
     Sedim,
-    SubgAucvRc,
-    SubgAucvRi,
-    SubgPRPDF,
-    SubgRREvap,
-    SubgRRRCAccr,
 )
 from ice3_gt4py.phyex_common.phyex import Phyex
 
@@ -54,21 +49,15 @@ class RainIce(ImplicitTendencyComponent):
         SEDIM = self.phyex.param_icen.SEDIM
 
         # 1. Generalites
-        self.rain_ice_init = self.compile_stencil("rain_ice_init", externals)
+        self.rain_ice_thermo = self.compile_stencil("rain_ice_thermo", externals)
+
+        self.rain_ice_mask = self.compile_stencil("rain_ice_mask", externals)
 
         # 3. Initial values saving
         self.initial_values_saving = self.compile_stencil(
             "initial_values_saving", externals
         )
 
-        # 4.1 Slow cold processes outside of ldmicro
-        self.rain_ice_nucleation_pre_processing = self.compile_stencil(
-            "rain_ice_nucleation_pre_processing", externals
-        )
-        self.ice4_nucleation = self.compile_stencil("ice4_nucleation", externals)
-        self.rain_ice_nucleation_post_processing = self.compile_stencil(
-            "rain_ice_nucleation_post_processing", externals
-        )
 
         # 4.2 Computes precipitation fraction
         self.ice4_precipitation_fraction_sigma = self.compile_stencil(
@@ -425,21 +414,15 @@ class RainIce(ImplicitTendencyComponent):
 
         with managed_temporary_storage(
             self.computational_grid,
-            *repeat(((I, J, K), "bool"), 2),
-            *repeat(((I, J, K), "float"), 16),
+            *repeat(((I, J, K), "bool"), 1),
+            *repeat(((I, J, K), "float"), 11),
             *repeat(((I, J), "float"), 2),
             gt4py_config=self.gt4py_config,
         ) as (
             ldmicro,
-            lw3d,
             rvheni,
             lv_fact,
             ls_fact,
-            sigma_rc,
-            hlc_lcf,
-            hlc_lrc,
-            hli_lcf,
-            hli_lri,
             wr_th,
             wr_v,
             wr_c,
@@ -453,16 +436,11 @@ class RainIce(ImplicitTendencyComponent):
         ):
 
             # KEYS
-            SUBG_RC_RR_ACCR = self.phyex.param_icen.SUBG_RC_RR_ACCR
-            SUBG_RR_EVAP = self.phyex.param_icen.SUBG_RR_EVAP
-            SUBG_PR_PDF = self.phyex.param_icen.SUBG_PR_PDF
-            SUBG_AUCV_RC = self.phyex.param_icen.SUBG_AUCV_RC
-            SUBG_AUCV_RI = self.phyex.param_icen.SUBG_AUCV_RI
             LSEDIM_AFTER = self.phyex.param_icen.LSEDIM_AFTER
             LDEPOSC = self.phyex.param_icen.LDEPOSC
 
             # 1. Generalites
-            state_rain_ice_init = {
+            state_rain_ice_thermo = {
                 **{
                     key: state[key]
                     for key in [
@@ -482,8 +460,8 @@ class RainIce(ImplicitTendencyComponent):
                     "lv_fact": lv_fact,
                 },
             }
-            self.rain_ice_init(
-                **state_rain_ice_init,
+            self.rain_ice_thermo(
+                **state_rain_ice_thermo,
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
@@ -559,136 +537,6 @@ class RainIce(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-            # 4.1 Slow cold processes outside of ldmicro
-            state_nuc_pre = {key: state[key] for key in ["exn", "ci_t"]}
-            tmps_nuc_pre = {"ldmicro": ldmicro, "w3d": w3d, "ls_fact": ls_fact}
-            self.rain_ice_nucleation_pre_processing(**state_nuc_pre, **tmps_nuc_pre)
-
-            state_nuc = {
-                **{
-                    key: state[key]
-                    for key in [
-                    "rhodref",
-                    "exn",
-                    "t",
-                    "ssi",
-                ]
-                },
-                **{
-                    "tht": state["th_t"],
-                    "pabst": state["pabs_t"],
-                    "rvt": state["rv_t"],
-                    "cit": state["ci_t"]
-                }
-            }
-            tmps_nuc = {
-                "ldcompute": lw3d,
-                "lsfact": ls_fact,
-                "rvheni_mr": rvheni,
-            }
-            self.ice4_nucleation(
-                **state_nuc, 
-                **tmps_nuc,
-                origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
-            self.rain_ice_nucleation_post_processing(rvs=state["rvs"], rvheni=rvheni)
-
-            # 4.2 Computes precipitation fraction
-            if (
-                SUBG_RC_RR_ACCR == SubgRRRCAccr.PRFR.value
-                or SUBG_RR_EVAP == SubgRREvap.PRFR.value
-            ):
-                if (
-                    SUBG_AUCV_RC == SubgAucvRc.PDF.value
-                    and SUBG_PR_PDF == SubgPRPDF.SIGM.value
-                ):
-                    self.ice4_precipitation_fraction_sigma(
-                        sigs=state["sigs"], sigma_rc=sigma_rc
-                    )
-                if (
-                    SUBG_AUCV_RC == SubgAucvRc.ADJU.value
-                    and SUBG_AUCV_RI == SubgAucvRi.ADJU.value
-                ):
-
-                    state_lc = {
-                        **{
-                            key: state[key]
-                            for key in [
-                                "hlc_hrc",
-                                "hli_hri",
-                                "hlc_hcf",
-                                "hli_hcf",
-                                "rc_t",
-                                "ri_t",
-                                "cldfr",
-                            ]
-                        },
-                        "hlc_lrc": hlc_lrc,
-                        "hli_lri": hli_lri,
-                        "hlc_lcf": hlc_lcf,
-                        "hli_lcf": hli_lcf,
-                    }
-
-                    self.ice4_precipitation_fraction_liquid_content(
-                        **state_lc,
-                        origin=(0, 0, 0),
-                        domain=self.computational_grid.grids[I, J, K].shape,
-                        validate_args=self.gt4py_config.validate_args,
-                        exec_info=self.gt4py_config.exec_info,)
-
-                state_compute_pdf = {
-                    **{
-                        key: state[key]
-                        for key in [
-                            "rhodref",
-                            "rc_t",
-                            "ri_t",
-                            "cf",
-                            "t",
-                            "hlc_hcf",
-                            "hlc_hrc",
-                            "hli_hcf",
-                            "hli_hri",
-                            "rf",
-                        ]
-                    },
-                    "hli_lri": hli_lri,
-                    "hli_lcf": hli_lcf,
-                    "hlc_lrc": hlc_lrc,
-                    "hlc_lcf": hlc_lcf,
-                    "sigma_rc": sigma_rc,
-                    "ldmicro": ldmicro,
-                }
-
-                self.ice4_compute_pdf(
-                    **state_compute_pdf,
-                    origin=(0, 0, 0),
-                    domain=self.computational_grid.grids[I, J, K].shape,
-                    validate_args=self.gt4py_config.validate_args,
-                    exec_info=self.gt4py_config.exec_info,)
-
-                state_rainfr_vert = {
-                    **{
-                        key: state[key]
-                        for key in [
-                            "rrs",
-                            "rss",
-                            "rgs",
-                        ]
-                    },
-                    "wr_r": wr_r,
-                    "wr_s": wr_s,
-                    "wr_g": wr_g,
-                }
-                self.ice4_rainfr_vert(
-                    **state_rainfr_vert,
-                    origin=(0, 0, 0),
-                    domain=self.computational_grid.grids[I, J, K].shape,
-                    validate_args=self.gt4py_config.validate_args,
-                    exec_info=self.gt4py_config.exec_info,)
-
             # 5. Tendencies computation
             # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
             state_stepping = {
@@ -722,6 +570,9 @@ class RainIce(ImplicitTendencyComponent):
                 },
             }
 
+
+            # TODO : refactor stepping to a simpler function
+            # to avoid passing a dict of dataarrays
             state_stepping_dataarrays = {
                 **{
                     key: xr.DataArray(
@@ -739,7 +590,7 @@ class RainIce(ImplicitTendencyComponent):
                 "time": datetime.datetime(year=2024, month=1, day=1),
             }
 
-            # TODO : transform state to pass as a DataArray
+            # ice4_stepping handles the tendency update with double while loop
             _, _ = self.ice4_stepping(state_stepping_dataarrays, timestep)
 
             # 8. Total tendencies
@@ -809,6 +660,8 @@ class RainIce(ImplicitTendencyComponent):
 
             # 9. Compute the sedimentation source
             if LSEDIM_AFTER:
+                # sedimentation switch is handled in initialisation
+                # self.sedimentation is can be either statistical_sedimentation or upwind_sedimentation
                 self.sedimentation(**state_sed, **tmps_sedim)
 
                 state_frac_sed = {

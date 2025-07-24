@@ -19,16 +19,15 @@ def sigrc_computation(
         LAMBDA3: dace.int32
 ):
 
-    @dace.map
-    def tasklet(i: _[0:I], j: _[0:J], k: _[0:K]):
-
-            inq1 = floor(
+    for i, j, k in dace.map[0:I, 0:J, 0:K]:
+        inq1 = floor(
             min(10, max(-22, min(-100, 2 * floor(q1[i, j, k]))))
         )  # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-            inc = 2 * q1[i, j, k] - inq1[i, j, k]
-            sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
+        inc = 2 * q1[i, j, k] - inq1[i, j, k]
+        sigrc = min(1, (1 - inc) * src_1d.A[inq1] + inc * src_1d.A[inq1 + 1])
+        
 
-            # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
-            if LAMBDA3 == 0:
-                sigrc[i, j, k] *= min(3, max(1, 1 - q1[i, j, k]))
+        # Transaltion notes : 566 -> 578 HLAMBDA3 = CB
+        if LAMBDA3 == 0:
+            sigrc[i, j, k] *= min(3, max(1, 1 - q1[i, j, k]))
 

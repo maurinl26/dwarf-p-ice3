@@ -23,6 +23,7 @@ from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
 from ice3_gt4py.phyex_common.phyex import Phyex
 
 
+# todo : merge with ice4_tendencies
 class Ice4Stepping(ImplicitTendencyComponent):
     """Component for step computation"""
 

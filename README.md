@@ -84,6 +84,7 @@ Decode files to netcdf :
    ./src/testprogs_data/ice_adjust.yaml 
 ```
 
+
 ## Microphysical Adjustments (Ice Adjust)
 
 There are three components available for microphysical adjustments, under _/src/ice3_gt4py/components_ directory:
@@ -171,6 +172,13 @@ as an input.
   - testprogs_data :
     - main : Command Line Interface pour le décodage des testprogs phyex
     - .yaml : config de décodage des fichiers
+  
+
+Run tests :
+
+```bash
+   uv run pytest tests/repro
+```
 
 ## Work in Progress
 

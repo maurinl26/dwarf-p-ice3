@@ -1,12 +1,9 @@
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
+from ifs_physics_common.framework.grid import I, J, K
 from pathlib import Path
 import fmodpy 
 import logging
 import pytest
-
-from ifs_physics_common.framework.config import GT4PyConfig
-from ice3_gt4py.phyex_common.phyex import Phyex
 
 
 def get_backends(gpu: bool = False):

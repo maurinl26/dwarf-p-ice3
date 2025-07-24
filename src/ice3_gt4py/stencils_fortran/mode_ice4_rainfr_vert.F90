@@ -4,9 +4,10 @@ module mode_ice4_rainfr_vert
 
     IMPLICIT NONE
 CONTAINS
-SUBROUTINE ICE4_RAINFR_VERT(NKB, NKE, NKL, NIJB, NIJE, &
-        &R_RTMIN, S_RTMIN, G_RTMIN, &
-        &PPRFR, PRR, PRS, PRG, PRH)
+SUBROUTINE ICE4_RAINFR_VERT(KIB, KIE, KIT, KJB, &
+&KJE, KJT, KKB, KKE, KKT, KKL, &
+&R_RTMIN, S_RTMIN, G_RTMIN, &
+&PPRFR, PRR)
 !!
 !!**  PURPOSE
 !!    -------
@@ -30,13 +31,11 @@ IMPLICIT NONE
 !
 !*       0.1   Declarations of dummy arguments :
 !
-INTEGER, intent(in) :: NKB, NKE, NKL, NIJB, NIJE
-real, intent(in) :: R_RTMIN, S_RTMIN, G_RTMIN
-REAL, DIMENSION(D%NIJT,D%NKT), INTENT(INOUT) :: PPRFR !Precipitation fraction
-REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)    :: PRR !Rain field
-REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)    :: PRS !Snow field
-REAL, DIMENSION(D%NIJT,D%NKT), INTENT(IN)    :: PRG !Graupel field
-REAL, DIMENSION(D%NIJT,D%NKT), OPTIONAL, INTENT(IN)    :: PRH !Hail field
+!
+INTEGER,                      INTENT(IN) :: KIB, KIE, KIT, KJB, KJE, KJT, KKB, KKE, KKT, KKL
+real, dimension(kit, kjt, kkt), intent(in) :: R_RTMIN
+REAL, DIMENSION(KIT,KJT,KKT), INTENT(OUT) :: PPRFR !Precipitation fraction
+REAL, DIMENSION(KIT,KJT,KKT), INTENT(IN)   :: PRR !Rain field
 !
 INTEGER :: NKB, NKE, NKL, NIJB, NIJE
 !*       0.2  declaration of local variables
@@ -44,45 +43,22 @@ INTEGER :: NKB, NKE, NKL, NIJB, NIJE
 INTEGER :: JIJ, JK
 LOGICAL :: MASK
 !
-!$acc kernels
-PPRFR(NIJB:NIJE,NKE)=0.
-!$acc end kernels
-DO JK=NKE-NKL, NKB, -NKL
-  IF(PRESENT(PRH)) THEN
-!$acc kernels
-!$acc loop independent
-    DO JIJ = NIJB, NIJE
-      MASK=PRR(JIJ,JK) > R_RTMIN .OR. PRS(JIJ,JK) > S_RTMIN &
-      .OR. PRG(JIJ,JK) > G_RTMIN
-      IF (MASK) THEN
-        PPRFR(JIJ,JK)=MAX(PPRFR(JIJ,JK),PPRFR(JIJ,JK+NKL))
-        IF (PPRFR(JIJ,JK)==0) THEN
-          PPRFR(JIJ,JK)=1.
-        END IF
-      ELSE
-        PPRFR(JIJ,JK)=0.
-      END IF
-    END DO
-!$acc end kernels
-  ELSE
-!$acc kernels
-!$acc loop independent
-    DO JIJ = NIJB, NIJE
-      MASK=PRR(JIJ,JK) > R_RTMIN .OR. PRS(JIJ,JK) > S_RTMIN &
-      .OR. PRG(JIJ,JK) > G_RTMIN
-      IF (MASK) THEN
-        PPRFR(JIJ,JK)=MAX(PPRFR(JIJ,JK),PPRFR(JIJ,JK+NKL))
-        IF (PPRFR(JIJ,JK)==0) THEN
-          PPRFR(JIJ,JK)=1.
-        END IF
-      ELSE
-        PPRFR(JIJ,JK)=0.
-      END IF
-    END DO
-!$acc end kernels
-  END IF
+DO JI = KIB,KIE
+   DO JJ = KJB, KJE
+      PPRFR(JI,JJ,KKE)=0.
+      DO JK=KKE-KKL, KKB, -KKL
+         IF (PRR(JI,JJ,JK) .GT. R_RTMIN) THEN
+            PPRFR(JI,JJ,JK)=MAX(PPRFR(JI,JJ,JK),PPRFR(JI,JJ,JK+KKL))
+            IF (PPRFR(JI,JJ,JK)==0) THEN
+               PPRFR(JI,JJ,JK)=1.
+            END IF
+         ELSE
+            PPRFR(JI,JJ,JK)=0.
+         END IF
+      END DO
+   END DO
 END DO
-!
+
 END SUBROUTINE ICE4_RAINFR_VERT
 
 end module mode_ice4_rainfr_vert
