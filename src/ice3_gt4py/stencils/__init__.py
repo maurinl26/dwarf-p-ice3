@@ -17,3 +17,5 @@ import ice3_gt4py.stencils.ice4_stepping
 import ice3_gt4py.stencils.multiply_ab2c
 import ice3_gt4py.stencils.cloud_fraction_split
 import ice3_gt4py.stencils.rain_ice
+import ice3_gt4py.stencils.precipitation_fraction_liquid_content
+import ice3_gt4py.stencils.ice4_compute_pdf
