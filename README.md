@@ -69,8 +69,8 @@ Load PHYEX testprogs dataset :
   cd ./data/
   wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/files/12783935/rain_ice.tar.gz \
   -O rain_ice.tar.gz
-  tar xf ice_adjust.tar.gz
-  rm -f ice_adjust.tar.gz
+  tar xf rain_ice.tar.gz
+  rm -f rain_ice.tar.gz
   cd ..
 ```
 

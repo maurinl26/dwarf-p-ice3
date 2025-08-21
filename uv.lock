@@ -1,5 +1,4 @@
 version = 1
-revision = 1
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -516,6 +515,7 @@ dev = [
     { name = "ruff" },
 ]
 fortran = [
+    { name = "fmodpy" },
     { name = "fprettify" },
 ]
 gpu = [
@@ -539,7 +539,10 @@ dev = [
     { name = "isort", specifier = ">=6.0.1" },
     { name = "ruff", specifier = ">=0.11.11" },
 ]
-fortran = [{ name = "fprettify", specifier = ">=0.3.7" }]
+fortran = [
+    { name = "fmodpy", specifier = ">=1.7.4" },
+    { name = "fprettify", specifier = ">=0.3.7" },
+]
 gpu = [
     { name = "cupy", specifier = "==14.0.0a1" },
     { name = "cupy-xarray", specifier = ">=0.1.4" },
@@ -667,6 +670,15 @@ sdist = { url = "https://files.pythonhosted.org/packages/82/99/b4de7e39e8eaf8207
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fe/5e/3be305568fe5f34448807976dc82fc151d76c3e0e03958f34770286278c1/flexparser-0.4-py3-none-any.whl", hash = "sha256:3738b456192dcb3e15620f324c447721023c0293f6af9955b481e91d00179846", size = 27625 },
 ]
+
+[[package]]
+name = "fmodpy"
+version = "1.7.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0d/46/0c2f83157f8ee8247caa2e510d15535731572dff5be23e138218f910e7e7/fmodpy-1.7.4.tar.gz", hash = "sha256:557bb4e1bbf560f8ea052eddec7fafeb04f26b4decb01b68a3e8a56b34eeea95", size = 75784 }
 
 [[package]]
 name = "fonttools"
@@ -1817,7 +1829,7 @@ wheels = [
 
 [[package]]
 name = "sympl"
-version = "0.4.1.dev65+g5491978"
+version = "0.4.1.dev65+g549197833"
 source = { git = "https://github.com/stubbiali/sympl.git?rev=oop#5491978331ef7d6b7dc7995b9a5726713b5de7a7" }
 dependencies = [
     { name = "cftime" },
