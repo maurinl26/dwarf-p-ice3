@@ -300,7 +300,7 @@ def ice4_mixing_ratio_step_limiter(
 @stencil_collection("ice4_step_limiter")
 def ice4_step_limiter(
     exn: Field["float"],
-    theta_t: Field["float"],
+    th_t: Field["float"],
     theta_a_tnd: Field["float"],
     theta_b: Field["float"],
     theta_ext_tnd: Field["float"],
@@ -357,12 +357,12 @@ def ice4_step_limiter(
 
     # Adjustment of tendencies when temperature reaches 0
     with computation(PARALLEL), interval(...):
-        theta_tt = TT / exn
-        if (theta_t - theta_tt) * (theta_t + theta_b - theta_tt) < 0:
+        th_tt = TT / exn
+        if (th_t - th_tt) * (th_t + theta_b - th_tt) < 0:
             delta_t_micro = 0
 
         if abs(theta_a_tnd > 1e-20):
-            delta_t_tmp = (theta_tt - theta_b - theta_t) / theta_a_tnd
+            delta_t_tmp = (th_tt - theta_b - th_t) / theta_a_tnd
             if delta_t_tmp > 0:
                 delta_t_micro = min(delta_t_micro, delta_t_tmp)
 
@@ -372,10 +372,11 @@ def ice4_step_limiter(
         delta_t_micro = mixing_ratio_step_limiter(
             rc_a_tnd, rc_b, rc_t, delta_t_micro, C_RTMIN, MNH_TINY
         )
+        
         # (r)
         delta_t_micro = mixing_ratio_step_limiter(
         rr_a_tnd, rr_b, rr_t, delta_t_micro, R_RTMIN, MNH_TINY
-    )
+        )
 
         # (i)
         delta_t_micro = mixing_ratio_step_limiter(
