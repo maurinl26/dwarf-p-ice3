@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "gt4py>=1.0.4",
+    "ifs-physics-common",
     "numpy<2.0",
     "typer>=0.15.2",
     "xarray>=2025.4.0",
@@ -36,4 +36,4 @@ fortran = [
 ]
 
 [tool.uv.sources]
-gt4py = { path = "../gt4py", editable = true }
+ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
