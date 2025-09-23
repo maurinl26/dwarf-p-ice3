@@ -16,8 +16,6 @@ from ice3_gt4py.phyex_common.phyex import Phyex
 
 from ifs_physics_common.utils.typingx import (
     DataArrayDict,
-    NDArrayLikeDict, PropertyDict
-
 )
 
 from ice3_gt4py.utils.reader import NetCDFReader
