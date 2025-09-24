@@ -7,7 +7,7 @@ from gt4py.storage import from_array, ones
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
-from ice3_gt4py.phyex_common.tables import SRC_1D
+from ice3.phyex_common.tables import SRC_1D
 
 from tests.conftest import compile_fortran_stencil, get_backends
 
@@ -111,7 +111,7 @@ def test_sigrc_computation(
 
     inq1 = np.zeros(grid.shape, dtype=np.int32)
 
-    from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+    from ice3.stencils.sigma_rc_dace import sigrc_computation
     compiled_sdfg = sigrc_computation.to_sdfg().compile()
 
     # dace

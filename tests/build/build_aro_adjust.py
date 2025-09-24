@@ -14,9 +14,9 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 import numpy as np
 
-from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3.phyex_common.phyex import Phyex
 import sys
-from ice3_gt4py.phyex_common.tables import src_1d
+from ice3.phyex_common.tables import src_1d
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()

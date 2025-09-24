@@ -20,7 +20,7 @@ def test_rain_contact_freezing(
     gt4py_config.backend = backend
     gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
 
-    from src.ice3_gt4py.stencils.ice4_fast_rg_split import rain_contact_freezing
+    from src.ice3.stencils.ice4_fast_rg_split import rain_contact_freezing
 
     rain_contact_freezing = compile_stencil("rain_contact_freezing", gt4py_config, externals)
     fortran_stencil = compile_fortran_stencil(

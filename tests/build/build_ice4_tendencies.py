@@ -17,10 +17,10 @@ from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
 
 
-from ice3_gt4py.initialisation.state_ice4_tendencies import (
+from ice3.initialisation.state_ice4_tendencies import (
     get_constant_state_ice4_tendencies,
 )
-from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3.phyex_common.phyex import Phyex
 
 
 BACKEND = "gt:cpu_kfirst"

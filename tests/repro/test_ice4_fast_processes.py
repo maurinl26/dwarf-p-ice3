@@ -9,7 +9,7 @@ import gt4py
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
-from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
+from ice3.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 from tests.allocate_random_fields import draw_fields, allocate_gt4py_fields, allocate_fortran_fields, allocate_fields
 
 

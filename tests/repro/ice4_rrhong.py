@@ -7,14 +7,14 @@ import numpy as np
 
 from ifs_physics_common.framework.grid import I, J, K
 
-import ice3_gt4py.stencils
-from ice3_gt4py.utils.fields_allocation import (
+import ice3.stencils
+from ice3.utils.fields_allocation import (
     allocate_gt4py_fields,
     compare_input,
     compare_output,
     draw_fields,
 )
-from ice3_gt4py.components.generic_test_component import TestComponent
+from ice3.components.generic_test_component import TestComponent
 from repro.default_config import phyex, default_epsilon, test_grid, default_gt4py_config
 
 
