@@ -12,7 +12,7 @@ from ice3_gt4py.phyex_common.param_ice import ParamIce
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90")
 @dataclass
-class RainIceDescr:
+class RainIceDescriptor:
     """Declaration of the microphysical descriptove constants for use in the warm and cold schemes.
 
     m(D)    = XAx * D ** Bx         : Mass-MaxDim relationship

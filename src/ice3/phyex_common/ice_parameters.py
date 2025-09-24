@@ -68,7 +68,7 @@ class Sedim(Enum):
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
 @dataclass
-class ParamIce:
+class IceParameters:
     """
     Parameters for ice processes
     Default values are taken from modd_param_icen.F90

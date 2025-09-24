@@ -18,7 +18,7 @@ logging.getLogger()
 
 @ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90")
 @dataclass
-class RainIceParam:
+class RainIceParameters:
     """Constants for RainIce parametrization and source computation
 
     # Constants dependencies
