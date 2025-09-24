@@ -1,29 +1,27 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, computation, PARALLEL, interval
-from ifs_physics_common.framework.stencil import stencil_collection
+from gt4py.cartesian.gtscript import Field, computation, PARALLEL, interval, IJ, K
 
-from ice3_gt4py.functions.ice_adjust import (
+from ice3.functions.ice_adjust import (
     constant_pressure_heat_capacity,
     sublimation_latent_heat,
     vaporisation_latent_heat,
 )
 
 
-@stencil_collection("aro_filter")
 def aro_filter(
-    exnref: Field["float"],
-    cph: Field["float"],
-    tht: Field["float"],
-    ths: Field["float"],
-    rcs: Field["float"],
-    rrs: Field["float"],
-    ris: Field["float"],
-    rvs: Field["float"],
-    rgs: Field["float"],
-    rss: Field["float"],
-    dt: "float",
+    exnref: Field[IJ, K],
+    cph: Field[IJ, K],
+    tht: Field[IJ, K],
+    ths: Field[IJ, K],
+    rcs: Field[IJ, K],
+    rrs: Field[IJ, K],
+    ris: Field[IJ, K],
+    rvs: Field[IJ, K],
+    rgs: Field[IJ, K],
+    rss: Field[IJ, K],
+    dt: float,
 ):
     """Negativity filter for sources
 
