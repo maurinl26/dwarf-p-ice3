@@ -15,7 +15,7 @@ dwarf_p_ice3.egg-info
 .venv-prod/
 .gt_cache/
 .pytest_cache/
-src/ice3_gt4py/__pycache__/
+src/ice3/__pycache__/
 src/PHYEX/
 test/
 test_OLD/
@@ -23,10 +23,10 @@ test_OLD/
 .idea/
 
 *.pyc
-src/ice3_gt4py/drivers/tests.py
-src/ice3_gt4py/stencils/ice4*
+src/ice3/drivers/tests.py
+src/ice3/stencils/ice4*
 src/testprogs_data/fortran/
-src/ice3_gt4py/stencils_fortran/ref
+src/ice3/stencils_fortran/ref
 src/dwarf_ice3_gt4py.egg-info/
 src/drivers/cffi_driver
 output/
