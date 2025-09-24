@@ -4,7 +4,6 @@ from enum import Enum
 from typing import Literal
 
 import numpy as np
-from ifs_physics_common.utils.f2py import ported_class
 
 # Stands for CSUBG_MF_PDF in modd_param_icen.F90
 # Default to NONE
@@ -66,9 +65,9 @@ class Sedim(Enum):
     STAT = 1
 
 
-@ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
+############ phyex/common/aux/modd_param_icen.F90 ###############
 @dataclass
-class ParamIce:
+class IceParameters:
     """
     Parameters for ice processes
     Default values are taken from modd_param_icen.F90

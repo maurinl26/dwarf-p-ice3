@@ -69,8 +69,8 @@ Load PHYEX testprogs dataset :
   cd ./data/
   wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/files/12783935/rain_ice.tar.gz \
   -O rain_ice.tar.gz
-  tar xf rain_ice.tar.gz
-  rm -f rain_ice.tar.gz
+  tar xf ice_adjust.tar.gz
+  rm -f ice_adjust.tar.gz
   cd ..
 ```
 
@@ -84,15 +84,14 @@ Decode files to netcdf :
    ./src/testprogs_data/ice_adjust.yaml 
 ```
 
-
 ## Microphysical Adjustments (Ice Adjust)
 
 There are three components available for microphysical adjustments, under _/src/ice3_gt4py/components_ directory:
 
 - IceAdjust (ice_adjust.py) : performs condensation and adjustements following supersaturation, and is the mirror of PHYEX's ice_adjust.F90,
 - AroAdjust (aro_adjust.py) : combines both stencil collections to reproduce aro_adjust.F90.
-
 - To launch ice_adjust (with cli):
+
 ```bash
   uv run standalone-model ice-adjust-split \
   gt:cpu_kfirst \
@@ -160,13 +159,6 @@ as an input.
   - testprogs_data :
     - main : Command Line Interface pour le décodage des testprogs phyex
     - .yaml : config de décodage des fichiers
-  
-
-Run tests :
-
-```bash
-   uv run pytest tests/repro
-```
 
 ## Work in Progress
 
@@ -193,10 +185,5 @@ un composant DaCe fournit sa librairie partagée à la compilation,
   - fortran-plugin : branche pour évaluer les branchements des composants DaCe (code complet)
 dans fortran
 
-
-
-- conftest.py : 
-  - tous les utilitaires pour les tests : grille, domain, origine de test et config gt4py
-  - compile_fortran_stencil(fichier, module, subroutine)
 
 

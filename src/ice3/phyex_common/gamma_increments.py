@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from math import gamma
-from ifs_physics_common.utils.f2py import ported_method
 import logging
 
 from numpy import exp, log, finfo
@@ -41,8 +40,8 @@ def generalized_incomplete_gamma(a,x) -> float:
     return result
 
 
-@ported_method(from_file="PHYEX/src/common/aux/gamma_inc.F90")
-def gamma_inc(a: float, x: float) -> float:
+################# PHYEX/src/common/aux/gamma_inc.F90 #################
+def gamma_increment(a: float, x: float) -> float:
     """Compute the genernalized gamma function 
 
     The purpose of this function is to compute the generalized

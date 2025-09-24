@@ -2,7 +2,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
 
-
 class VerticalLevelOrder(Enum):
     """Specify order of index on vertical levels
 
@@ -15,7 +14,7 @@ class VerticalLevelOrder(Enum):
 
 
 @dataclass
-class DIMPhyex:
+class PhyexDimensions:
     """Specify index boundaries for PHYEX domain
 
     Not used in dwarf-ice3-gt4py but reproduced for translation support

@@ -1,24 +1,19 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from math import gamma, log
-from typing import Literal, Tuple
 from numpy.typing import NDArray
 import logging
 
 import numpy as np
-from ifs_physics_common.utils.f2py import ported_class, ported_method
 
 from ice3.phyex_common.constants import Constants
 from ice3.phyex_common.gamma_inc import generalized_incomplete_gamma
 from ice3.phyex_common.param_ice import ParamIce
 from ice3.phyex_common.rain_ice_descr import RainIceDescr
 
-logging.getLogger()
-
-
-@ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90")
+##########  phyex/common/aux/modd_rain_ice_paramn.F90 ##########
 @dataclass
-class RainIceParam:
+class RainIceParameters:
     """Constants for RainIce parametrization and source computation
 
     # Constants dependencies

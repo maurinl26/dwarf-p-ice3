@@ -4,15 +4,18 @@ from math import gamma, sqrt
 from typing import List, Tuple
 
 import numpy as np
-from ifs_physics_common.utils.f2py import ported_class
 
 from ice3.phyex_common.constants import Constants
+<<<<<<<< HEAD:src/ice3/phyex_common/rain_ice_descr.py
 from ice3.phyex_common.param_ice import ParamIce
+========
+from ice3.phyex_common.ice_parameters import IceParameters
+>>>>>>>> ice_adjust_review:src/ice3/phyex_common/rain_ice_descriptors.py
 
 
-@ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90")
+################# PHYEX/src/common/aux/modd_rain_ice_descrn.F90 ##############
 @dataclass
-class RainIceDescr:
+class RainIceDescriptor:
     """Declaration of the microphysical descriptove constants for use in the warm and cold schemes.
 
     m(D)    = XAx * D ** Bx         : Mass-MaxDim relationship
