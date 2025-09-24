@@ -591,10 +591,11 @@ wheels = [
 ]
 
 [[package]]
-name = "dwarf-ice3-gt4py"
+name = "dwarf-p-ice3"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "gt4py" },
     { name = "ifs-physics-common" },
     { name = "numpy" },
     { name = "typer" },
@@ -619,6 +620,7 @@ tests = [
 
 [package.metadata]
 requires-dist = [
+    { name = "gt4py", specifier = ">=1.0.3" },
     { name = "ifs-physics-common", git = "https://github.com/stubbiali/ifs-physics-common.git" },
     { name = "numpy", specifier = "<2.0" },
     { name = "typer", specifier = ">=0.15.2" },
