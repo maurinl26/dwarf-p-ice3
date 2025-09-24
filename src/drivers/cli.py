@@ -2,8 +2,7 @@
 from pathlib import Path
 import subprocess
 
-import numpy as np
-from ice3_gt4py.components.ice_adjust_split import IceAdjustSplit
+from ice3.components.ice_adjust_split import IceAdjustSplit
 import typer
 import logging
 import datetime
@@ -17,19 +16,20 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 
 from drivers.compare import compare_fields
 from drivers.core import write_dataset, write_performance_tracking
-from ice3_gt4py.components.ice_adjust import IceAdjust
-from ice3_gt4py.components.rain_ice import RainIce
-from ice3_gt4py.initialisation.state_ice_adjust import (
+from ice3.components.ice_adjust import IceAdjust
+from ice3.components.rain_ice import RainIce
+from ice3.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
 )
-from ice3_gt4py.initialisation.state_rain_ice import get_state_rain_ice
-from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.initialisation.state_rain_ice import get_state_rain_ice
+from ice3.phyex_common.phyex import Phyex
+from ice3.utils.reader import NetCDFReader
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
 app = typer.Typer()
+
 
 ######################## GT4Py drivers #######################
 @app.command()
@@ -37,8 +37,6 @@ def ice_adjust(
     backend: str,
     dataset: str,
     output_path: str,
-
-
     tracking_file: str,
     rebuild: bool = True,
     validate_args: bool = False,
@@ -132,7 +130,9 @@ def ice_adjust_split(
     ######## Instanciation + compilation #####
     logging.info(f"Compilation for IceAdjust stencils")
     start_compilation = time.time()
-    ice_adjust_split = IceAdjustSplit(grid, gt4py_config, phyex, enable_checks=validate_args)
+    ice_adjust_split = IceAdjustSplit(
+        grid, gt4py_config, phyex, enable_checks=validate_args
+    )
     stop_compilation = time.time()
     elapsed_time = stop_compilation - start_compilation
     logging.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
@@ -161,23 +161,15 @@ def ice_adjust_split(
     logging.info(f"Diagnostics")
     for name, field in diags.items():
         np_field = to_numpy(field.data[...])
-        logging.info(
-            f"Field {name}, mean : {np_field.mean()}"
-        )
+        logging.info(f"Field {name}, mean : {np_field.mean()}")
 
     logging.info(f"Tendencies")
     for name, field in tends.items():
         np_field = to_numpy(field.data[...])
-        logging.info(
-            f"Field {name}, mean : {np_field.mean()}"
-        )
+        logging.info(f"Field {name}, mean : {np_field.mean()}")
 
     #################### Write dataset ######################
-    output_dict = {
-        **state,
-        **diags,
-        **tends
-    }
+    output_dict = {**state, **diags, **tends}
     write_dataset(output_dict, (nx, ny, nz), output_path)
 
     ############### Compute differences per field ###########
@@ -285,7 +277,6 @@ def ice_adjust_fortran(
     """Call and run main_ice_adjust (Fortran)"""
 
     try:
-
         logging.info("Setting env variables")
         subprocess.run(
             ["source", f"{testdir}/{name}/build/with_fcm/arch_{archfile}/arch.env"]
