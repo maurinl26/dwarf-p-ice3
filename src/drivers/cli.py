@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess
 
 import numpy as np
-from ice3_gt4py.components.ice_adjust_split import IceAdjustSplit
+from ice3.components.ice_adjust_split import IceAdjustSplit
 import typer
 import logging
 import datetime
@@ -17,14 +17,14 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 
 from drivers.compare import compare_fields
 from drivers.core import write_dataset, write_performance_tracking
-from ice3_gt4py.components.ice_adjust import IceAdjust
-from ice3_gt4py.components.rain_ice import RainIce
-from ice3_gt4py.initialisation.state_ice_adjust import (
+from ice3.components.ice_adjust import IceAdjust
+from ice3.components.rain_ice import RainIce
+from ice3.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
 )
-from ice3_gt4py.initialisation.state_rain_ice import get_state_rain_ice
-from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.initialisation.state_rain_ice import get_state_rain_ice
+from ice3.phyex_common.phyex import Phyex
+from ice3.utils.reader import NetCDFReader
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
