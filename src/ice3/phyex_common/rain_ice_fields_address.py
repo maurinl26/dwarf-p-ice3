@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from enum import Enum
 
-
 class Processes(Enum):
     RCHONI = 1
     RVDEPS = 2

@@ -3,16 +3,12 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Literal
 
-from ifs_physics_common.utils.f2py import ported_class
-
-
 class FracIceAdjust(Enum):
     """Enumeration for ice fraction adjustments modes
 
     T in case of AROME
 
     """
-
     T = 0
     O = 1
     N = 2
@@ -24,7 +20,6 @@ class FracIceShallow(Enum):
 
     T in case of AROME
     """
-
     T = 0
     S = 1
 
@@ -35,7 +30,6 @@ class Condens(Enum):
     HCONDENS in .F90
     CB02 for AROME
     """
-
     CB02 = 0
     GAUS = 1
 
@@ -45,11 +39,10 @@ class Lambda3(Enum):
 
     CB by default in AROME
     """
-
     CB = 0
 
 
-@ported_class(from_file="PHYEX/src/common/aux/modd_nebn.F90")
+########### PHYEX/src/common/aux/modd_nebn.F90 #############
 @dataclass
 class Neb:
     """Declaration of

@@ -1,22 +1,17 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from math import gamma, log
-from typing import Literal, Tuple
 from numpy.typing import NDArray
 import logging
 
 import numpy as np
-from ifs_physics_common.utils.f2py import ported_class, ported_method
 
-from ice3_gt4py.phyex_common.constants import Constants
-from ice3_gt4py.phyex_common.gamma_inc import generalized_incomplete_gamma
-from ice3_gt4py.phyex_common.param_ice import ParamIce
-from ice3_gt4py.phyex_common.rain_ice_descr import RainIceDescr
+from ice3.phyex_common.constants import Constants
+from ice3.phyex_common.gamma_inc import generalized_incomplete_gamma
+from ice3.phyex_common.param_ice import ParamIce
+from ice3.phyex_common.rain_ice_descr import RainIceDescr
 
-logging.getLogger()
-
-
-@ported_class(from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90")
+##########  phyex/common/aux/modd_rain_ice_paramn.F90 ##########
 @dataclass
 class RainIceParameters:
     """Constants for RainIce parametrization and source computation
@@ -803,27 +798,27 @@ class RainIceParameters:
         """
 
         if kernel == "saccrg":
-            from ice3_gt4py.phyex_common.xker_raccs import KER_SACCRG
+            from ice3.phyex_common.xker_raccs import KER_SACCRG
 
             return KER_SACCRG[1:, 1:]
 
         elif kernel == "raccs":
-            from ice3_gt4py.phyex_common.xker_raccs import KER_RACCS
+            from ice3.phyex_common.xker_raccs import KER_RACCS
 
             return KER_RACCS[1:, 1:]
 
         elif kernel == "raccss":
-            from ice3_gt4py.phyex_common.xker_raccs import KER_RACCSS
+            from ice3.phyex_common.xker_raccs import KER_RACCSS
 
             return KER_RACCSS[1:, 1:]
 
         elif kernel == "rdryg":
-            from ice3_gt4py.phyex_common.xker_rdryg import KER_RDRYG
+            from ice3.phyex_common.xker_rdryg import KER_RDRYG
 
             return KER_RDRYG[1:, 1:]
 
         elif kernel == "sdryg":
-            from ice3_gt4py.phyex_common.xker_sdryg import KER_SDRYG
+            from ice3.phyex_common.xker_sdryg import KER_SDRYG
 
             return KER_SDRYG[1:, 1:]
 

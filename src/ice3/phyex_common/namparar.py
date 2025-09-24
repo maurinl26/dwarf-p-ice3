@@ -2,9 +2,9 @@
 from dataclasses import dataclass, field
 from f90nml import read, Namelist
 
-
+######### arpifs/namparar ###########
 @dataclass
-class Namparar:
+class PararNamelist(Namelist):
     nml_file_path: str
 
     CFRAC_ICE_ADJUST: str = field(init=False)

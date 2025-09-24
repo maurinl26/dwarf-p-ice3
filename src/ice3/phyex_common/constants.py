@@ -3,10 +3,9 @@ from dataclasses import dataclass, field
 
 import sys
 import numpy as np
-from ifs_physics_common.utils.f2py import ported_class
 
 
-@ported_class(from_file="PHYEX/src/common/aux/modd_cst.F90")
+######## phyex/common/aux/modd_cst.F90 ###########
 @dataclass
 class Constants:
     """Data class for physical constants
