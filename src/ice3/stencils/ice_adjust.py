@@ -19,7 +19,7 @@ from ice3.functions.tiwmx import e_sat_i, e_sat_w
 from ice3.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
 
 
-# PHYEX/src/common/micro/condensation.F90
+# PHYEX/src/common/micro/ice_adjust.F90
 def ice_adjust(
         sigqsat: Field[IJ, K],
         pabs: Field[IJ, K],

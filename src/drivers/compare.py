@@ -2,13 +2,13 @@
 from pathlib import Path
 from typing import Dict, Literal
 import numpy as np
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.utils.reader import NetCDFReader
 from ifs_physics_common.utils.typingx import (
     DataArray,
     DataArrayDict,
     NDArrayLikeDict,
 )
-from ice3_gt4py.initialisation.state_ice_adjust import KRR_MAPPING
+from ice3.initialisation.state_ice_adjust import KRR_MAPPING
 import logging
 import sys
 
@@ -67,7 +67,6 @@ def compare_fields(
 
     metrics = dict()
     for run_name, ref_name in KEYS:
-
         if run_name in tendencies:
             run_field = run_reader.get_field(run_name)
 

@@ -13,8 +13,8 @@ from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
 from ifs_physics_common.framework.storage import allocate_data_array
 from ifs_physics_common.utils.typingx import DataArray, DataArrayDict, NDArrayLikeDict
 
-from ice3_gt4py.initialisation.utils import initialize_field
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.initialisation.utils import initialize_field
+from ice3.utils.reader import NetCDFReader
 import logging
 
 if TYPE_CHECKING:

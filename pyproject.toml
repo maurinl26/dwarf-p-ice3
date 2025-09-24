@@ -1,11 +1,11 @@
 [project]
-name = "dwarf-ice3-gt4py"
+name = "dwarf-p-ice3"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "ifs-physics-common",
+    "gt4py>=1.0.9",
     "numpy<2.0",
     "typer>=0.15.2",
     "xarray>=2025.4.0",
@@ -29,11 +29,12 @@ gpu = [
     "cupy-xarray>=0.1.4",
 ]
 tests = [
+    "fmodpy>=1.7.4",
     "pytest>=8.3.5",
 ]
 fortran = [
     "fprettify>=0.3.7",
 ]
-
-[tool.uv.sources]
-ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
+test = [
+    "pytest>=8.3.5",
+]

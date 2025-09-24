@@ -15,8 +15,8 @@ from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
-from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.phyex_common.tables import SRC_1D
+from ice3.phyex_common.phyex import Phyex
+from ice3.phyex_common.lookup_table import SRC_1D
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()

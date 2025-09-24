@@ -3,17 +3,18 @@ from ctypes import c_double, c_float
 
 import numpy as np
 import pytest
-from gt4py.storage import from_array, ones
+from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
 from ice3_gt4py.phyex_common.tables import SRC_1D
 
-from tests.conftest import compile_fortran_stencil, get_backends
+from ice3.utils.compile_fortran_stencil import compile_fortran_stencil
+from ice3.utils.config import BACKEND_LIST
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
+@pytest.mark.parametrize("backend", BACKEND_LIST)
 def test_condensation(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
     
          # Setting backend and precision

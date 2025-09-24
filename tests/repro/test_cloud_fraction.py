@@ -7,11 +7,12 @@ from ctypes import c_float, c_double
 
 import logging 
 
-from tests.conftest import compile_fortran_stencil, get_backends
+from ice3.utils.compile_fortran_stencil import compile_fortran_stencil
+from ice3.utils.config import BACKEND_LIST
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
+@pytest.mark.parametrize("backend", BACKEND_LIST)
 def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
     
          # Setting backend and precision

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
@@ -15,15 +16,14 @@ from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
-from ice3_gt4py.phyex_common.phyex import Phyex
-import sys
-from ice3_gt4py.phyex_common.tables import src_1d
+from ice3.phyex_common.phyex import Phyex
+from ice3.phyex_common.tables import src_1d
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
 
-class AroAdjust(ImplicitTendencyComponent):
+class AroAdjust:
     """Implicit Tendency Component calling sequentially
     - aro_filter : negativity filters
     - ice_adjust : saturation adjustment of temperature and mixing ratios

@@ -2,20 +2,17 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
 import sys
-from functools import cached_property
 from itertools import repeat
-from typing import Dict
 from gt4py.storage import from_array
-from ifs_physics_common.framework.components import ImplicitTendencyComponent
+from gt4py.cartesian.gtscript import stencil
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
-from ice3_gt4py.phyex_common.phyex import Phyex
-from ice3_gt4py.phyex_common.tables import SRC_1D
+from ice3.phyex_common.phyex import Phyex
+from ice3.phyex_common.lookup_table import SRC_1D
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -32,16 +29,16 @@ class IceAdjust:
         self,
         computational_grid: ComputationalGrid,
         gt4py_config: GT4PyConfig,
+        backend: str,
         phyex: Phyex,
         *,
         enable_checks: bool = True,
     ) -> None:
-        super().__init__(
-            computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
-        )
 
         externals = phyex.to_externals()
-        self.ice_adjust = self.compile_stencil("ice_adjust", externals)
+
+        from ice3.stencils.ice_adjust import ice_adjust
+        self.ice_adjust = stencil(ice_adjust, externals, backend=backend)
 
         logging.info(f"Keys")
         logging.info(f"SUBG_COND : {phyex.nebn.LSUBG_COND}")
@@ -49,7 +46,7 @@ class IceAdjust:
         logging.info(f"SIGMAS : {phyex.nebn.LSIGMAS}")
         logging.info(f"LMFCONV : {phyex.LMFCONV}")
 
-    def __call__(self, state):
+    def __call__(self, state, dt):
 
 
         with managed_temporary_storage(
@@ -115,7 +112,7 @@ class IceAdjust:
                 **state_ice_adjust,
                 **temporaries_ice_adjust,
                 src_1d=src_1D,
-                dt=timestep.total_seconds(),
+                dt=dt.total_seconds(),
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,

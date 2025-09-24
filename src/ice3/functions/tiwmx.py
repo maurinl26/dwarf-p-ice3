@@ -3,9 +3,6 @@ from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, exp, function, log
 
-from ice3_gt4py.functions.sign import sign
-
-
 @function
 def e_sat_w(t: Field["float"]) -> Field["float"]:
     """Saturation vapor pressure over liquid water

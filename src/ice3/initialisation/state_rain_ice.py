@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 from __future__ import annotations
 
 from datetime import datetime
@@ -9,8 +9,8 @@ from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
 import numpy as np
 
-from ice3_gt4py.initialisation.utils import initialize_field
-from ice3_gt4py.utils.reader import NetCDFReader
+from ice3.initialisation.utils import initialize_field
+from ice3.utils.reader import NetCDFReader
 import logging
 
 if TYPE_CHECKING:
