@@ -7,9 +7,9 @@ import logging
 import numpy as np
 
 from ice3.phyex_common.constants import Constants
-from ice3.phyex_common.gamma_inc import generalized_incomplete_gamma
-from ice3.phyex_common.param_ice import ParamIce
-from ice3.phyex_common.rain_ice_descr import RainIceDescr
+from ice3.phyex_common.gamma_incomplete import generalized_incomplete_gamma
+from ice3.phyex_common.ice_parameters import IceParameters
+from ice3.phyex_common.rain_ice_descriptors import RainIceDescriptor
 
 ##########  phyex/common/aux/modd_rain_ice_paramn.F90 ##########
 @dataclass
@@ -113,8 +113,8 @@ class RainIceParameters:
 
     # Constants dependencies
     cst: Constants
-    rid: RainIceDescr
-    parami: ParamIce
+    rid: RainIceDescriptor
+    parami: IceParameters
 
     # Parameters for microphysical sources and transformations
     FSEDC_1: float = field(init=False)  # Constants for sedimentation fluxes of C
@@ -728,7 +728,7 @@ class RainIceParameters:
         self.ker_rdryg = self.get_kernel("rdryg")
         self.ker_sdryg = self.get_kernel("sdryg")
 
-    @ported_method(from_file="PHYEX/src/common/micro/mode_ini_rain_ice.F90")
+    # "PHYEX/src/common/micro/mode_ini_rain_ice.F90
     def init_gaminc_rim_tables(self):
         """Compute generalized incomplete gamma tables for riming"""
 

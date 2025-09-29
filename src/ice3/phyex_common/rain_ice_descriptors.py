@@ -30,7 +30,7 @@ class RainIceDescriptor:
     """
 
     cst: Constants
-    parami: ParamIce
+    parami: IceParameters
 
     CEXVT: float = 0.4  # Air density fall speed correction
 
@@ -38,20 +38,20 @@ class RainIceDescriptor:
     # Min values allowed for mixing ratios
 
     # Cloud droplet charact.
-    AC: float = field(default=524)
-    BC: float = field(default=3.0)
-    CC: float = field(default=842)
-    DC: float = field(default=2)
+    AC: float = 524
+    BC: float = 3.0
+    CC: float = 842
+    DC: float = 2
 
     # Rain drop charact
-    AR: float = field(default=524)
-    BR: float = field(default=3.0)
-    CR: float = field(default=842)
-    DR: float = field(default=0.8)
-    CCR: float = field(default=8e-6)
-    F0R: float = field(default=1.0)
-    F1R: float = field(default=0.26)
-    C1R: float = field(default=0.5)
+    AR: float = 524
+    BR: float = 3.0
+    CR: float = 842
+    DR: float = 0.8
+    CCR: float = 8e-6
+    F0R: float = 1.0
+    F1R: float = 0.26
+    C1R: float = 0.5
 
     # ar, br -> mass - diameter power law
     # cr, dr -> terminal speed velocity - diameter powerlaw
@@ -63,31 +63,31 @@ class RainIceDescriptor:
     BI: float = field(init=False)
     C_I: float = field(init=False)
     DI: float = field(init=False)
-    F0I: float = field(default=1.00)
-    F2I: float = field(default=0.14)
+    F0I: float = 1.00
+    F2I: float = 0.14
     C1I: float = field(init=False)
 
     # Snow/agg charact.
-    A_S: float = field(default=0.02)
-    BS: float = field(default=1.9)
-    CS: float = field(default=5.1)
-    DS: float = field(default=0.27)
-    CCS: float = field(default=5.0)  # not lsnow
-    CXS: float = field(default=1.0)
-    F0S: float = field(default=0.86)
-    F1S: float = field(default=0.28)
+    A_S: float = 0.02
+    BS: float = 1.9
+    CS: float = 5.1
+    DS: float = 0.27
+    CCS: float = 5.0  # not lsnow
+    CXS: float = 1.0
+    F0S: float = 0.86
+    F1S: float = 0.28
     C1S: float = field(init=False)
 
     # Graupel charact.
-    AG: float = field(default=19.6)
-    BG: float = field(default=2.8)
-    CG: float = field(default=124)
-    DG: float = field(default=0.66)
-    CCG: float = field(default=5e5)
-    CXG: float = field(default=-0.5)
-    F0G: float = field(default=0.86)
-    F1G: float = field(default=0.28)
-    C1G: float = field(default=1 / 2)
+    AG: float = 19.6
+    BG: float = 2.8
+    CG: float = 124
+    DG: float = 0.66
+    CCG: float = 5e5
+    CXG: float = -0.5
+    F0G: float = 0.86
+    F1G: float = 0.28
+    C1G: float = 1 / 2
 
     # Cloud droplet distribution parameters
 
@@ -120,8 +120,8 @@ class RainIceDescriptor:
     LBI: float = field(init=False)
 
     # Snow/agg. distribution parameters
-    ALPHAS: float = field(default=1.0)
-    NUS: float = field(default=1.0)
+    ALPHAS: float = 1.0
+    NUS: float = 1.0
     LBEXS: float = field(init=False)
     LBS: float = field(init=False)
     NS: float = field(init=False)
@@ -132,23 +132,23 @@ class RainIceDescriptor:
     LBEXG: float = field(init=False)
     LBG: float = field(init=False)
 
-    FVELOS: float = field(default=0.097)  # factor for snow fall speed after Thompson
+    FVELOS: float = 0.097  # factor for snow fall speed after Thompson
     TRANS_MP_GAMMAS: float = field(
         default=1
     )  # coefficient to convert lambda for gamma functions
     LBDAR_MAX: float = field(
         default=1e5
     )  # Max values allowed for the shape parameters (rain,snow,graupeln)
-    LBDAS_MAX: float = field(default=1e5)
-    LBDAG_MAX: float = field(default=1e5)
-    LBDAS_MIN: float = field(default=1e-10)
+    LBDAS_MAX: float = 1e5
+    LBDAG_MAX: float = 1e5
+    LBDAS_MIN: float = 1e-10
 
-    V_RTMIN: float = field(default=1e-20)
-    C_RTMIN: float = field(default=1e-20)
-    R_RTMIN: float = field(default=1e-20)
-    I_RTMIN: float = field(default=1e-20)
-    S_RTMIN: float = field(default=1e-15)
-    G_RTMIN: float = field(default=1e-15)
+    V_RTMIN: float = 1e-20
+    C_RTMIN: float = 1e-20
+    R_RTMIN: float = 1e-20
+    I_RTMIN: float = 1e-20
+    S_RTMIN: float = 1e-15
+    G_RTMIN: float = 1e-15
 
     CONC_SEA: float = 1e8  # Diagnostic concentration of droplets over sea
     CONC_LAND: float = 3e8  # Diagnostic concentration of droplets over land
