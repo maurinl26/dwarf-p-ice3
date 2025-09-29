@@ -3,12 +3,6 @@ from pathlib import Path
 from typing import Dict, Literal
 import numpy as np
 from ice3.utils.reader import NetCDFReader
-from ifs_physics_common.utils.typingx import (
-    DataArray,
-    DataArrayDict,
-    NDArrayLikeDict,
-)
-from ice3.initialisation.state_ice_adjust import KRR_MAPPING
 import logging
 import sys
 

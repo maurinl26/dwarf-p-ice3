@@ -17,7 +17,6 @@ from ifs_physics_common.framework.grid import ComputationalGrid
 from drivers.compare import compare_fields
 from drivers.core import write_dataset, write_performance_tracking
 from ice3.components.ice_adjust import IceAdjust
-from ice3.components.rain_ice import RainIce
 from ice3.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
 )
