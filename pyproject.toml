@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "gt4py>=1.0.9",
+    "ifs-physics-common",
     "matplotlib>=3.10.6",
     "numpy<2.0",
     "typer>=0.15.2",
@@ -39,3 +39,6 @@ fortran = [
 test = [
     "pytest>=8.3.5",
 ]
+
+[tool.uv.sources]
+ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
