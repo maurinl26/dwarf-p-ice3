@@ -1,349 +1,383 @@
-# -*- coding: utf-8 -*-
-from __future__ import annotations
+"""
+Ice adjustment module - GT4Py translation of ice_adjust.F90.
 
-from ice3.utils.datatypes import float_dtype
+This module implements the ice adjustment scheme for mixed-phase clouds,
+which computes the fast microphysical sources through a saturation adjustment
+procedure.
+"""
 
-from gt4py.cartesian.gtscript import (
-    __INLINED,
-    PARALLEL,
-    atan,
-    computation,
-    exp,
-    floor,
-    interval,
-    sqrt,
-    Field,
-    GlobalTable,
-    IJ,
-    K
+import numpy as np
+import gt4py.next as gtx
+from gt4py.next import Field, float64, int32
+from typing import Tuple, Optional
+
+from .constants import CST
+from .dimensions import DimPhyex
+from .condensation import condensation
+from .utils import (
+    compute_latent_heat_vaporization,
+    compute_latent_heat_sublimation,
+    compute_specific_heat_moist_air,
+    limit_to_range
 )
-from ice3.functions.tiwmx import e_sat_i, e_sat_w
-from ice3.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
 
 
-# PHYEX/src/common/micro/ice_adjust.F90
-def ice_adjust(
-        sigqsat: Field[float_dtype],
-        pabs: Field[float_dtype],
-        sigs: Field[float_dtype],
-        th: Field[float_dtype],
-        exn: Field[float_dtype],
-        exn_ref: Field[float_dtype],
-        rho_dry_ref: Field[float_dtype],
-        t: Field[float_dtype],
-        rv: Field[float_dtype],
-        ri: Field[float_dtype],
-        rc: Field[float_dtype],
-        rr: Field[float_dtype],
-        rs: Field[float_dtype],
-        rg: Field[float_dtype],
-        cf_mf: Field[float_dtype],
-        rc_mf: Field[float_dtype],
-        ri_mf: Field[float_dtype],
-        rv_out: Field[float_dtype],
-        rc_out: Field[float_dtype],
-        ri_out: Field[float_dtype],
-        hli_hri: Field[float_dtype],
-        hli_hcf: Field[float_dtype],
-        hlc_hrc: Field[float_dtype],
-        hlc_hcf: Field[float_dtype],
-        ths: Field[float_dtype],
-        rvs: Field[float_dtype],
-        rcs: Field[float_dtype],
-        ris: Field[float_dtype],
-        cldfr: Field[float_dtype],
-        cph: Field[float_dtype],
-        lv: Field[float_dtype],
-        ls: Field[float_dtype],
-        q1: Field[float_dtype],
-        sigma_rc: Field[float_dtype],
-        src_1d: GlobalTable[(float_dtype, (34))],
-        dt: float_dtype
-):
-    """Microphysical adjustments for specific contents due to condensation."""
+@gtx.field_operator
+def compute_source_terms(
+    rc_new: Field[[I, J, K], float64],
+    rc_old: Field[[I, J, K], float64],
+    ri_new: Field[[I, J, K], float64],
+    ri_old: Field[[I, J, K], float64],
+    timestep: float
+) -> Tuple[
+    Field[[I, J, K], float64],  # rc_source
+    Field[[I, J, K], float64]   # ri_source
+]:
+    """
+    Compute source terms from the difference between new and old mixing ratios.
+    
+    Args:
+        rc_new: New cloud water mixing ratio
+        rc_old: Old cloud water mixing ratio  
+        ri_new: New cloud ice mixing ratio
+        ri_old: Old cloud ice mixing ratio
+        timestep: Time step
+        
+    Returns:
+        Tuple of (rc_source, ri_source) in kg/kg/s
+    """
+    rc_source = (rc_new - rc_old) / timestep
+    ri_source = (ri_new - ri_old) / timestep
+    
+    return rc_source, ri_source
 
-    from __externals__ import (
-        RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX,
-        OCND2, LSIGMAS, LSTATNW, CONDENS,
-        NRR, CPV, CPD, CL, CI,
-        LSUBG_COND,
-        SUBG_MF_PDF,
-        CRIAUTC,
-        CRIAUTI,
-        ACRIAUTI,
-        BCRIAUTI,
-        TT
+
+@gtx.field_operator
+def apply_mass_flux_weighting(
+    field: Field[[I, J, K], float64],
+    weight_mf_cloud: Field[[I, J, K], float64]
+) -> Field[[I, J, K], float64]:
+    """
+    Apply mass flux cloud weighting to a field.
+    
+    Args:
+        field: Input field
+        weight_mf_cloud: Mass flux cloud weight coefficient
+        
+    Returns:
+        Weighted field
+    """
+    return field * (1.0 - weight_mf_cloud)
+
+
+@gtx.field_operator
+def compute_theta_source(
+    rv_source: Field[[I, J, K], float64],
+    rc_source: Field[[I, J, K], float64],
+    ri_source: Field[[I, J, K], float64],
+    lv: Field[[I, J, K], float64],
+    ls: Field[[I, J, K], float64],
+    cph: Field[[I, J, K], float64],
+    exnref: Field[[I, J, K], float64]
+) -> Field[[I, J, K], float64]:
+    """
+    Compute potential temperature source term from latent heat release.
+    
+    Args:
+        rv_source: Water vapor source (negative for condensation)
+        rc_source: Cloud water source
+        ri_source: Cloud ice source
+        lv: Latent heat of vaporization
+        ls: Latent heat of sublimation
+        cph: Specific heat of moist air
+        exnref: Reference Exner function
+        
+    Returns:
+        Potential temperature source in K/s
+    """
+    # Note: rv_source is negative when condensation occurs, so we use -rv_source
+    # to get positive heating from condensation
+    return (-rv_source * lv + ri_source * (ls - lv)) / (cph * exnref)
+
+
+@gtx.field_operator
+def limit_source_terms(
+    rv_source: Field[[I, J, K], float64],
+    rc_source: Field[[I, J, K], float64],
+    ri_source: Field[[I, J, K], float64],
+    rv_current: Field[[I, J, K], float64],
+    rc_current: Field[[I, J, K], float64],
+    ri_current: Field[[I, J, K], float64]
+) -> Tuple[
+    Field[[I, J, K], float64],  # limited rv_source
+    Field[[I, J, K], float64],  # limited rc_source
+    Field[[I, J, K], float64]   # limited ri_source
+]:
+    """
+    Limit source terms to prevent negative mixing ratios.
+    
+    Args:
+        rv_source: Water vapor source
+        rc_source: Cloud water source
+        ri_source: Cloud ice source
+        rv_current: Current water vapor mixing ratio
+        rc_current: Current cloud water mixing ratio
+        ri_current: Current cloud ice mixing ratio
+        
+    Returns:
+        Tuple of limited source terms
+    """
+    # Limit cloud water source
+    rc_source_limited = gtx.where(
+        rc_source < 0.0,
+        gtx.maximum(rc_source, -rc_current),
+        gtx.minimum(rc_source, rv_current)
     )
+    
+    # Limit cloud ice source
+    ri_source_limited = gtx.where(
+        ri_source < 0.0,
+        gtx.maximum(ri_source, -ri_current),
+        gtx.minimum(ri_source, rv_current)
+    )
+    
+    # Update water vapor source to maintain conservation
+    rv_source_limited = rv_source - (rc_source_limited - rc_source) - (ri_source_limited - ri_source)
+    
+    return rv_source_limited, rc_source_limited, ri_source_limited
 
-    # 2.3 Compute the variation of mixing ratio
-    with computation(PARALLEL), interval(...):
-        t = th * exn
-        lv = vaporisation_latent_heat(t)
-        ls = sublimation_latent_heat(t)
 
-    # Translation note : in Fortran, ITERMAX = 1, DO JITER =1,ITERMAX
-    # Translation note : version without iteration is kept (1 iteration)
-    #                   IF jiter = 1; CALL ITERATION()
-    # jiter > 0
+@gtx.field_operator
+def compute_all_or_nothing_cloud_fraction(
+    rc_source: Field[[I, J, K], float64],
+    ri_source: Field[[I, J, K], float64],
+    timestep: float
+) -> Field[[I, J, K], float64]:
+    """
+    Compute cloud fraction for all-or-nothing condensation scheme.
+    
+    Args:
+        rc_source: Cloud water source
+        ri_source: Cloud ice source
+        timestep: Time step
+        
+    Returns:
+        Cloud fraction (0 or 1)
+    """
+    total_condensate_source = (rc_source + ri_source) * timestep
+    return gtx.where(total_condensate_source > 1.0e-12, 1.0, 0.0)
 
-    # numer of moist variables fixed to 6 (without hail)
 
-    # Translation note :
-    # 2.4 specific heat for moist air at t+1
-    with computation(PARALLEL), interval(...):
-        # Translation note : case(7) removed because hail is not taken into account
-        # Translation note : l453 to l456 removed
-        if __INLINED(NRR == 6):
-            cph = CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs + rg)
-        if __INLINED(NRR == 5):
-            cph = CPD + CPV * rv + CL * (rc + rr) + CI * (ri + rs)
-        if __INLINED(NRR == 4):
-            cph = CPD + CPV * rv + CL * (rc + rr)
-        if __INLINED(NRR == 2):
-            cph = CPD + CPV * rv + CL * rc + CI * ri
-
-    # initialize values
-    with computation(PARALLEL), interval(...):
-        cldfr = 0.0
-        rv_out = 0.0
-        rc_out = 0.0
-        ri_out = 0.0
-
-    # 3. subgrid condensation scheme
-    # Translation note : only the case with LSUBG_COND = True retained (l475 in ice_adjust.F90)
-    # sigqsat and sigs must be provided by the user
-    with computation(PARALLEL), interval(...):
-        # local
-        # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
-        # Translation note : 515 -> 575 skipped (ocnd2 == True)
-        prifact = 1  # ocnd2 == False for AROME
-        frac_tmp = 0  # l340 in Condensation .f90
-
-        # Translation note : 252 -> 263 if(present(PLV)) skipped (ls/lv are assumed to be present)
-        # Translation note : 264 -> 274 if(present(PCPH)) skipped (files are assumed to be present)
-
-        # store total water mixing ratio (244 -> 248)
-        rt = rv + rc + ri * prifact
-
-        # Translation note : 276 -> 310 (not osigmas) skipped : (osigmas = True) for Arome default version
-        # Translation note : 316 -> 331 (ocnd2 == True) skipped : ocnd2 = False for Arome
-
-        # l334 to l337
-        if __INLINED(not OCND2):
-            pv = min(
-                e_sat_w(t),
-                0.99 * pabs,
-            )
-            piv = min(
-                e_sat_i(t),
-                0.99 * pabs,
-            )
-
-        # TODO : l341 -> l350
-        # Translation note : OUSERI = TRUE, OCND2 = False
-        if __INLINED(not OCND2):
-            frac_tmp = (
-                rc / (rc + ri)
-                if rc + ri > 1e-20 else 0
-            )
-
-            # Compute frac ice inlined
-            # Default Mode (S)
-            if __INLINED(FRAC_ICE_ADJUST == 3):
-                frac_tmp = max(0, min(1, frac_tmp))
-
-            # AROME mode
-            if __INLINED(FRAC_ICE_ADJUST == 0):
-                frac_tmp = max(0, min(1, ((TMAXMIX - t) / (TMAXMIX - TMINMIX))))
-
-        # Supersaturation coefficients
-        qsl = RD / RV * pv / (pabs - pv)
-        qsi = RD / RV * piv / (pabs - piv)
-
-        # interpolate between liquid and solid as a function of temperature
-        qsl = (1 - frac_tmp) * qsl + frac_tmp * qsi
-        lvs = (1 - frac_tmp) * lv + frac_tmp * ls
-
-        # coefficients a et b
-        ah = lvs * qsl / (RV * t ** 2) * (1 + RV * qsl / RD)
-        a = 1 / (1 + lvs / cph * ah)
-        b = ah * a
-        sbar = a * (rt - qsl + ah * lvs * (rc + ri * prifact) / cph)
-
-        # Translation note : l369 - l390 kept
-        # Translation note : l391 - l406 skipped (OSIGMAS = False)
-        # Translation note : LSTATNW = False
-        # Translation note : l381 retained for sigmas formulation
-        # Translation note : OSIGMAS = TRUE
-        # Translation npte : LHGT_QS = False (and ZDZFACT unused)
-        if __INLINED(LSIGMAS and not LSTATNW):
-            sigma = (
-                sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2)
-                if sigqsat != 0
-                else 2 * sigs
-            )
-
-        # Translation note : l407 - l411
-        sigma = max(1e-10, sigma)
-        q1 = sbar / sigma
-
-        # Translation notes : l413 to l468 skipped (HCONDENS=="GAUS")
-        # TODO : add hcondens == "GAUS" option
-        # Translation notes : l469 to l504 kept (HCONDENS = "CB02")
-        # 9.2.3 Fractional cloudiness and cloud condensate
-        # HCONDENS = 0 is CB02 option
-        if __INLINED(CONDENS == 0):
-            # Translation note : l470 to l479
-            if q1 > 0.0:
-                cond_tmp = (
-                    min(exp(-1.0) + 0.66 * q1 + 0.086 * q1 ** 2, 2.0) if q1 <= 2.0 else q1
-                )  # we use the MIN function for continuity
-            else:
-                cond_tmp = exp(1.2 * q1 - 1.0)
-            cond_tmp *= sigma
-
-            # Translation note : l482 to l489
-            # cloud fraction
-            cldfr = (
-                max(0.0, min(1.0, 0.5 + 0.36 * atan(1.55 * q1))) if cond_tmp >= 1e-12 else 0
-            )
-
-            # Translation note : l487 to l489
-            cond_tmp = 0 if cldfr == 0 else cond_tmp
-
-            # Translation note : l496 to l503 removed (because initialized further in cloud_fraction diagnostics)
-
-            # Translation notes : 506 -> 514 (not ocnd2)
-            # Translation notes : l515 to l565 (removed)
-            if __INLINED(not OCND2):
-                rc_out = (1 - frac_tmp) * cond_tmp  # liquid condensate
-                ri_out = frac_tmp * cond_tmp  # solid condensate
-                t += ((rc_out - rc) * lv + (ri_out - ri) * ls) / cph
-                rv_out = rt - rc_out - ri_out * prifact
-
-            # Translation note : sigrc computation out of scope
-            # Translation note : l491 to l494 skept
-            # sigrc computation in sigrc_computation stencil
-
-        # Translation note : end jiter
-
-    # Compute sigma_rc using global table
-    with computation(PARALLEL), interval(...):
-        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
-        inq2 = min(max(-22, inq1), 10)
-        # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1  # - inq2
-        sigma_rc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
-
-    # Cloud fraction 1
-    with computation(PARALLEL), interval(...):
-        # 5.0 compute the variation of mixing ratio
-        w1 = (rc_out - rc) / dt
-        w2 = (ri_out - ri) / dt
-
-        # 5.1 compute the sources
-        w1 = max(w1, -rcs) if w1 < 0.0 else min(w1, rvs)
-        rvs -= w1
-        rcs += w1
-        ths += w1 * lv / (cph * exn_ref)
-
-        w2 = max(w2, -ris) if w2 < 0.0 else min(w2, rvs)
-        rvs -= w2
-        ris += w2
-        ths += w2 * ls / (cph * exn_ref)
-
-    # Cloud fraction 2
-    with computation(PARALLEL), interval(...):
-
-        if __INLINED(not LSUBG_COND):
-            cldfr = 1.0 if ((rcs + ris) * dt > 1e-12) else 0.0
-        # Translation note : OCOMPUTE_SRC is taken False
-        # Translation note : l320 to l322 removed
-
-        # Translation note : LSUBG_COND = TRUE for Arome
-        else:
-            w1 = rc_mf / dt
-            w2 = ri_mf / dt
-
-            if w1 + w2 > rvs:
-                w1 *= rvs / (w1 + w2)
-                w2 = rvs - w1
-
-            cldfr = min(1, cldfr + cf_mf)
-            rcs += w1
-            ris += w2
-            rvs -= (w1 + w2)
-            ths += (w1 * lv + w2 * ls) / (cph * exn_ref)
-
-            # Droplets subgrid autoconversion
-            # LLHLC_H is True (AROME like) phlc_hrc and phlc_hcf are present
-            # LLHLI_H is True (AROME like) phli_hri and phli_hcf are present
-            criaut = CRIAUTC / rho_dry_ref
-
-            # ice_adjust.F90 IF LLNONE; IF CSUBG_MF_PDF is None
-            if __INLINED(SUBG_MF_PDF == 0):
-                if w1 * dt > cf_mf * criaut:
-                    hlc_hrc += w1 * dt
-                    hlc_hcf = min(1.0, hlc_hcf + cf_mf)
-
-            # Translation note : if LLTRIANGLE in .F90
-            if __INLINED(SUBG_MF_PDF == 1):
-                if w1 * dt > cf_mf * criaut:
-                    hcf = 1.0 - 0.5 * (criaut * cf_mf / max(1e-20, w1 * dt)) ** 2
-                    hr = w1 * dt - (criaut * cf_mf) ** 3 / (
-                            3 * max(1e-20, w1 * dt) ** 2
-                    )
-
-                elif 2.0 * w1 * dt <= cf_mf * criaut:
-                    hcf = 0.0
-                    hr = 0.0
-
-                else:
-                    hcf = (2.0 * w1 * dt - criaut * cf_mf) ** 2 / (
-                            2.0 * max(1.0e-20, w1 * dt) ** 2
-                    )
-                    hr = (
-                                 4.0 * (w1 * dt) ** 3
-                                 - 3.0 * w1 * dt * (criaut * cf_mf) ** 2
-                                 + (criaut * cf_mf ** 3)
-                         ) / (3 * max(1.0e-20, w1 * dt) ** 2)
-
-                hcf *= cf_mf
-                hlc_hcf = min(1.0, hlc_hcf + hcf)
-                hlc_hrc += hr
-
-            # Ice subgrid autoconversion
-            criaut = min(
-                CRIAUTI,
-                10 ** (ACRIAUTI * (t - TT) + BCRIAUTI),
-            )
-
-            # LLNONE in ice_adjust.F90
-            if __INLINED(SUBG_MF_PDF == 0):
-                if w2 * dt > cf_mf * criaut:
-                    hli_hri += w2 * dt
-                    hli_hcf = min(1.0, hli_hcf + cf_mf)
-
-            # LLTRIANGLE in ice_adjust.F90
-            if __INLINED(SUBG_MF_PDF == 1):
-                if w2 * dt > cf_mf * criaut:
-                    hcf = 1.0 - 0.5 * ((criaut * cf_mf) / (w2 * dt)) ** 2
-                    hri = w2 * dt - (criaut * cf_mf) ** 3 / (3 * (w2 * dt) ** 2)
-
-                elif 2 * w2 * dt <= cf_mf * criaut:
-                    hcf = 0.0
-                    hri = 0.0
-
-                else:
-                    hcf = (2.0 * w2 * dt - criaut * cf_mf) ** 2 / (
-                            2.0 * (w2 * dt) ** 2
-                    )
-                    hri = (
-                                  4.0 * (w2 * dt) ** 3
-                                  - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
-                                  + (criaut * cf_mf) ** 3
-                          ) / (3.0 * (w2 * dt) ** 2)
-
-                hcf *= cf_mf
-                hli_hcf = min(1.0, hli_hcf + hcf)
-                hli_hri += hri
+def ice_adjust(
+    dim: DimPhyex,
+    # Input fields - state variables
+    pressure: Field[[I, J, K], float64],
+    height: Field[[I, J, K], float64],
+    rho_dry: Field[[I, J, K], float64],
+    exner: Field[[I, J, K], float64],
+    exner_ref: Field[[I, J, K], float64],
+    rho_ref: Field[[I, J, K], float64],
+    theta: Field[[I, J, K], float64],
+    rv: Field[[I, J, K], float64],
+    rc: Field[[I, J, K], float64],
+    ri: Field[[I, J, K], float64],
+    rr: Field[[I, J, K], float64],
+    rs: Field[[I, J, K], float64],
+    rg: Field[[I, J, K], float64],
+    # Input/output fields - source terms
+    rv_source: Field[[I, J, K], float64],
+    rc_source: Field[[I, J, K], float64],
+    ri_source: Field[[I, J, K], float64],
+    theta_source: Field[[I, J, K], float64],
+    # Configuration parameters
+    timestep: float,
+    krr: int = 6,  # Number of moist variables
+    use_subgrid_condensation: bool = True,
+    hfrac_ice: str = "T",
+    hcondens: str = "GAUS",
+    hlambda3: str = "CB",
+    # Optional mass flux fields
+    weight_mf_cloud: Optional[Field[[I, J, K], float64]] = None,
+    cf_mf: Optional[Field[[I, J, K], float64]] = None,
+    rc_mf: Optional[Field[[I, J, K], float64]] = None,
+    ri_mf: Optional[Field[[I, J, K], float64]] = None,
+    # Optional turbulence fields
+    sigma_s: Optional[Field[[I, J, K], float64]] = None,
+    # Optional hail field
+    rh: Optional[Field[[I, J, K], float64]] = None,
+) -> Tuple[
+    Field[[I, J, K], float64],  # rv_source_out
+    Field[[I, J, K], float64],  # rc_source_out
+    Field[[I, J, K], float64],  # ri_source_out
+    Field[[I, J, K], float64],  # theta_source_out
+    Field[[I, J, K], float64],  # cloud_fraction
+    Field[[I, J, K], float64],  # ice_cloud_fraction
+    Field[[I, J, K], float64],  # water_cloud_fraction
+]:
+    """
+    Ice adjustment scheme for mixed-phase clouds.
+    
+    This function computes the fast microphysical sources through a saturation
+    adjustment procedure in case of mixed-phase clouds.
+    
+    Args:
+        dim: Dimension structure
+        pressure: Pressure field [Pa]
+        height: Height field [m]
+        rho_dry: Dry density * Jacobian [kg/m³]
+        exner: Exner function
+        exner_ref: Reference Exner function
+        rho_ref: Reference density [kg/m³]
+        theta: Potential temperature [K]
+        rv: Water vapor mixing ratio [kg/kg]
+        rc: Cloud water mixing ratio [kg/kg]
+        ri: Cloud ice mixing ratio [kg/kg]
+        rr: Rain mixing ratio [kg/kg]
+        rs: Snow mixing ratio [kg/kg]
+        rg: Graupel mixing ratio [kg/kg]
+        rv_source: Water vapor source [kg/kg/s] (input/output)
+        rc_source: Cloud water source [kg/kg/s] (input/output)
+        ri_source: Cloud ice source [kg/kg/s] (input/output)
+        theta_source: Potential temperature source [K/s] (input/output)
+        timestep: Time step [s]
+        krr: Number of moist variables
+        use_subgrid_condensation: Whether to use subgrid condensation
+        hfrac_ice: Ice fraction method
+        hcondens: Condensation scheme
+        hlambda3: Lambda3 formulation
+        weight_mf_cloud: Mass flux cloud weight coefficient
+        cf_mf: Convective mass flux cloud fraction
+        rc_mf: Convective mass flux liquid mixing ratio
+        ri_mf: Convective mass flux ice mixing ratio
+        sigma_s: Sigma_s from turbulence scheme
+        rh: Hail mixing ratio [kg/kg] (optional)
+        
+    Returns:
+        Tuple of updated source terms and cloud fractions
+    """
+    
+    # Compute temperature from potential temperature
+    temperature = theta * exner
+    
+    # Compute thermodynamic quantities
+    lv = compute_latent_heat_vaporization(temperature)
+    ls = compute_latent_heat_sublimation(temperature)
+    
+    # Include hail in specific heat calculation if provided
+    if rh is not None:
+        cph = compute_specific_heat_moist_air(rv, rc, ri, rr, rs, rg, rh)
+    else:
+        cph = compute_specific_heat_moist_air(rv, rc, ri, rr, rs, rg)
+    
+    # Set default mass flux weight if not provided
+    if weight_mf_cloud is None:
+        weight_mf_cloud = gtx.zeros_like(rv)
+    
+    # Perform iterative adjustment (simplified to 1 iteration for now)
+    max_iterations = 1
+    
+    # Initialize adjusted state with current values
+    rv_adjusted = rv
+    rc_adjusted = rc
+    ri_adjusted = ri
+    temperature_adjusted = temperature
+    
+    for iteration in range(max_iterations):
+        # Call condensation scheme
+        rv_new, rc_new, ri_new, temperature_new, cloud_fraction, sigrc = condensation(
+            dim=dim,
+            pressure=pressure,
+            height=height,
+            rho_ref=rho_ref,
+            temperature=temperature_adjusted,
+            rv_in=rv_adjusted,
+            rc_in=rc_adjusted,
+            ri_in=ri_adjusted,
+            rr=rr,
+            rs=rs,
+            rg=rg,
+            hfrac_ice=hfrac_ice,
+            hcondens=hcondens,
+            hlambda3=hlambda3,
+            use_subgrid=use_subgrid_condensation,
+            sigma_s=sigma_s,
+            lv=lv,
+            ls=ls,
+            cph=cph
+        )
+        
+        # Update adjusted state
+        rv_adjusted = rv_new
+        rc_adjusted = rc_new
+        ri_adjusted = ri_new
+        temperature_adjusted = temperature_new
+    
+    # Apply mass flux weighting to condensation results
+    rc_adjusted = apply_mass_flux_weighting(rc_adjusted, weight_mf_cloud)
+    ri_adjusted = apply_mass_flux_weighting(ri_adjusted, weight_mf_cloud)
+    cloud_fraction = apply_mass_flux_weighting(cloud_fraction, weight_mf_cloud)
+    sigrc = apply_mass_flux_weighting(sigrc, weight_mf_cloud)
+    
+    # Add mass flux contributions if provided
+    if cf_mf is not None and rc_mf is not None and ri_mf is not None:
+        # Limit mass flux contributions to available water vapor
+        rc_mf_limited = rc_mf / timestep
+        ri_mf_limited = ri_mf / timestep
+        total_mf = rc_mf_limited + ri_mf_limited
+        
+        # Scale if total exceeds available water vapor
+        scale_factor = gtx.where(
+            total_mf > rv_source,
+            rv_source / gtx.maximum(total_mf, 1.0e-20),
+            1.0
+        )
+        
+        rc_mf_limited = rc_mf_limited * scale_factor
+        ri_mf_limited = ri_mf_limited * scale_factor
+        
+        # Add mass flux contributions
+        cloud_fraction = gtx.minimum(1.0, cloud_fraction + cf_mf)
+        rc_source = rc_source + rc_mf_limited
+        ri_source = ri_source + ri_mf_limited
+        rv_source = rv_source - (rc_mf_limited + ri_mf_limited)
+        
+        # Update theta source
+        theta_source = theta_source + (rc_mf_limited * lv + ri_mf_limited * ls) / (cph * exner_ref)
+    
+    # Compute source terms from adjustment
+    rc_source_adj, ri_source_adj = compute_source_terms(
+        rc_adjusted, rc, ri_adjusted, ri, timestep
+    )
+    
+    # Update source terms
+    rv_source_new = rv_source - rc_source_adj - ri_source_adj
+    rc_source_new = rc_source + rc_source_adj
+    ri_source_new = ri_source + ri_source_adj
+    
+    # Limit source terms to prevent negative mixing ratios
+    rv_source_limited, rc_source_limited, ri_source_limited = limit_source_terms(
+        rv_source_new, rc_source_new, ri_source_new, rv, rc, ri
+    )
+    
+    # Compute theta source from latent heat release
+    theta_source_adj = compute_theta_source(
+        rv_source_limited - rv_source, rc_source_limited - rc_source, 
+        ri_source_limited - ri_source, lv, ls, cph, exner_ref
+    )
+    theta_source_new = theta_source + theta_source_adj
+    
+    # Compute cloud fractions
+    if not use_subgrid_condensation:
+        # All-or-nothing scheme
+        cloud_fraction = compute_all_or_nothing_cloud_fraction(
+            rc_source_limited, ri_source_limited, timestep
+        )
+        sigrc = cloud_fraction
+    
+    # For now, set ice and water cloud fractions equal to total cloud fraction
+    # In a more complete implementation, these would be computed separately
+    ice_cloud_fraction = cloud_fraction
+    water_cloud_fraction = cloud_fraction
+    
+    return (rv_source_limited, rc_source_limited, ri_source_limited, 
+            theta_source_new, cloud_fraction, ice_cloud_fraction, water_cloud_fraction)

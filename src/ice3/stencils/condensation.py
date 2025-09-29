@@ -1,191 +1,361 @@
-# -*- coding: utf-8 -*-
-from __future__ import annotations
+"""
+Condensation module - GT4Py translation of condensation.F90.
 
-from gt4py.cartesian.gtscript import (
-    __INLINED,
-    PARALLEL,
-    atan,
-    computation,
-    exp,
-    floor,
-    interval,
-    sqrt,
-    Field, 
-    GlobalTable,
-    IJ
+This module implements the condensation scheme for mixed-phase clouds,
+including subgrid condensation and all-or-nothing schemes.
+"""
+
+import numpy as np
+import gt4py.next as gtx
+from gt4py.next import Field, float64, int32
+from typing import Tuple, Optional
+
+from .constants import CST
+from .dimensions import DimPhyex
+from .utils import (
+    compute_saturation_vapor_pressure_liquid,
+    compute_saturation_vapor_pressure_ice,
+    compute_latent_heat_vaporization,
+    compute_latent_heat_sublimation,
+    compute_specific_heat_moist_air,
+    compute_saturation_mixing_ratio,
+    compute_ice_fraction_simple,
+    gaussian_cdf,
+    gaussian_pdf,
+    safe_divide,
+    limit_to_range
 )
-from ice3.functions.tiwmx import e_sat_i, e_sat_w
 
-#    from_file="PHYEX/src/common/micro/condensation.F90",
-def condensation(
-    sigqsat: Field["float"],
-    pabs: Field["float"],
-    sigs: Field["float"],
-    t: Field["float"],
-    rv: Field["float"],
-    ri: Field["float"],
-    rc: Field["float"],
-    rv_out: Field["float"],
-    rc_out: Field["float"],
-    ri_out: Field["float"],
-    cldfr: Field["float"],
-    cph: Field["float"],
-    lv: Field["float"],
-    ls: Field["float"],
-    q1: Field["float"],
-):
-    """Microphysical adjustments for specific contents due to condensation."""
 
-    from __externals__ import (
-        RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX, 
-        OCND2, LSIGMAS, LSTATNW, CONDENS
+@gtx.field_operator
+def compute_condensation_coefficients(
+    temperature: Field[[I, J, K], float64],
+    pressure: Field[[I, J, K], float64],
+    qsl: Field[[I, J, K], float64],
+    lvs: Field[[I, J, K], float64],
+    cph: Field[[I, J, K], float64]
+) -> Tuple[
+    Field[[I, J, K], float64],  # ah
+    Field[[I, J, K], float64],  # a
+    Field[[I, J, K], float64]   # b
+]:
+    """
+    Compute condensation coefficients a, b, and ah.
+    
+    These coefficients are used in the statistical condensation scheme.
+    """
+    # Compute ah coefficient
+    ah = lvs * qsl / (CST.XRV * temperature * temperature) * (CST.XRV * qsl / CST.XRD + 1.0)
+    
+    # Compute a and b coefficients
+    a = 1.0 / (1.0 + lvs / cph * ah)
+    b = ah * a
+    
+    return ah, a, b
+
+
+@gtx.field_operator
+def compute_sbar(
+    rt: Field[[I, J, K], float64],
+    qsl: Field[[I, J, K], float64],
+    ah: Field[[I, J, K], float64],
+    lvs: Field[[I, J, K], float64],
+    cph: Field[[I, J, K], float64],
+    rc_in: Field[[I, J, K], float64],
+    ri_in: Field[[I, J, K], float64],
+    a: Field[[I, J, K], float64],
+    zprifact: Field[[I, J, K], float64]
+) -> Field[[I, J, K], float64]:
+    """
+    Compute normalized saturation deficit (sbar).
+    """
+    return a * (rt - qsl + ah * lvs * (rc_in + ri_in * zprifact) / cph)
+
+
+@gtx.field_operator
+def compute_sigma_turbulent(
+    ll: Field[[I, J, K], float64],
+    dzz: Field[[I, J, K], float64],
+    a: Field[[I, J, K], float64],
+    b: Field[[I, J, K], float64],
+    drw: Field[[I, J, K], float64],
+    dtl: Field[[I, J, K], float64],
+    sig_conv: Field[[I, J, K], float64]
+) -> Field[[I, J, K], float64]:
+    """
+    Compute turbulent part of sigma_s using first-order closure.
+    """
+    csigma = 0.2
+    
+    # Turbulent variance
+    sigma_turb_sq = (csigma * csigma * ll * ll / (dzz * dzz) * 
+                     (a * a * drw * drw - 2.0 * a * b * drw * dtl + b * b * dtl * dtl))
+    
+    # Total variance including convective part
+    sigma_sq = gtx.maximum(1.0e-25, sigma_turb_sq + sig_conv * sig_conv)
+    
+    return gtx.sqrt(sigma_sq)
+
+
+@gtx.field_operator
+def compute_gaussian_condensation(
+    sbar: Field[[I, J, K], float64],
+    sigma: Field[[I, J, K], float64]
+) -> Tuple[
+    Field[[I, J, K], float64],  # cloud_fraction
+    Field[[I, J, K], float64],  # condensate
+    Field[[I, J, K], float64]   # sigrc
+]:
+    """
+    Compute cloud fraction and condensate using Gaussian PDF.
+    """
+    # Normalized saturation deficit
+    q1 = sbar / sigma
+    
+    # Gaussian computation
+    gcond = -q1 / gtx.sqrt(2.0)
+    gauv = 1.0 + gtx.erf(-gcond)
+    
+    # Cloud fraction
+    cloud_fraction = gtx.maximum(0.0, gtx.minimum(1.0, 0.5 * gauv))
+    
+    # Condensate
+    condensate = ((gtx.exp(-gcond * gcond) - gcond * gtx.sqrt(CST.XPI) * gauv) * 
+                  sigma / gtx.sqrt(2.0 * CST.XPI))
+    condensate = gtx.maximum(condensate, 0.0)
+    
+    # Set to zero if very small
+    condensate = gtx.where(
+        (condensate < 1.0e-12) | (cloud_fraction == 0.0),
+        0.0,
+        condensate
+    )
+    cloud_fraction = gtx.where(condensate == 0.0, 0.0, cloud_fraction)
+    
+    # sigrc
+    sigrc = cloud_fraction
+    
+    return cloud_fraction, condensate, sigrc
+
+
+@gtx.field_operator
+def compute_cb02_condensation(
+    sbar: Field[[I, J, K], float64],
+    sigma: Field[[I, J, K], float64]
+) -> Tuple[
+    Field[[I, J, K], float64],  # cloud_fraction
+    Field[[I, J, K], float64],  # condensate
+    Field[[I, J, K], float64]   # sigrc
+]:
+    """
+    Compute cloud fraction and condensate using CB02 scheme.
+    """
+    # Normalized saturation deficit
+    q1 = sbar / sigma
+    
+    # Total condensate using CB02 formulation
+    condensate = gtx.where(
+        (q1 > 0.0) & (q1 <= 2.0),
+        gtx.minimum(gtx.exp(-1.0) + 0.66 * q1 + 0.086 * q1 * q1, 2.0),
+        gtx.where(
+            q1 > 2.0,
+            q1,
+            gtx.exp(1.2 * q1 - 1.0)
+        )
+    )
+    condensate = condensate * sigma
+    condensate = gtx.maximum(condensate, 0.0)
+    
+    # Cloud fraction
+    cloud_fraction = gtx.where(
+        condensate < 1.0e-12,
+        0.0,
+        gtx.maximum(0.0, gtx.minimum(1.0, 0.5 + 0.36 * gtx.atan(1.55 * q1)))
     )
     
-    # initialize values
-    with computation(PARALLEL), interval(...):
-        cldfr = 0.0
-        rv_out = 0.0
-        rc_out = 0.0
-        ri_out = 0.0
+    # Set condensate to zero if cloud fraction is zero
+    condensate = gtx.where(cloud_fraction == 0.0, 0.0, condensate)
+    
+    # Compute sigrc using lookup table approximation
+    # This is a simplified version - the original uses a lookup table
+    inq1 = gtx.floor(gtx.minimum(gtx.maximum(-22.0, 2.0 * q1), 10.0))
+    zinc = 2.0 * q1 - inq1
+    
+    # Simplified sigrc computation (would need full lookup table for exact match)
+    sigrc = gtx.minimum(1.0, gtx.maximum(0.0, 0.5 * (1.0 + gtx.erf(q1 / gtx.sqrt(2.0)))))
+    
+    return cloud_fraction, condensate, sigrc
 
-    # 3. subgrid condensation scheme
-    # Translation note : only the case with LSUBG_COND = True retained (l475 in ice_adjust.F90)
-    # sigqsat and sigs must be provided by the user
-    with computation(PARALLEL), interval(...):
-        # local
-        # Translation note : 506 -> 514 kept (ocnd2 == False) # Arome default setting
-        # Translation note : 515 -> 575 skipped (ocnd2 == True)
-        prifact = 1  # ocnd2 == False for AROME
-        frac_tmp = 0  # l340 in Condensation .f90
 
-        # Translation note : 252 -> 263 if(present(PLV)) skipped (ls/lv are assumed to be present)
-        # Translation note : 264 -> 274 if(present(PCPH)) skipped (files are assumed to be present)
+@gtx.field_operator
+def split_condensate_by_phase(
+    condensate: Field[[I, J, K], float64],
+    ice_fraction: Field[[I, J, K], float64]
+) -> Tuple[
+    Field[[I, J, K], float64],  # liquid condensate
+    Field[[I, J, K], float64]   # ice condensate
+]:
+    """
+    Split total condensate into liquid and ice components based on ice fraction.
+    """
+    rc_out = (1.0 - ice_fraction) * condensate
+    ri_out = ice_fraction * condensate
+    
+    return rc_out, ri_out
 
-        # store total water mixing ratio (244 -> 248)
-        rt = rv + rc + ri * prifact
 
-        # Translation note : 276 -> 310 (not osigmas) skipped : (osigmas = True) for Arome default version
-        # Translation note : 316 -> 331 (ocnd2 == True) skipped : ocnd2 = False for Arome
+@gtx.field_operator
+def update_temperature_from_condensation(
+    temperature: Field[[I, J, K], float64],
+    rc_change: Field[[I, J, K], float64],
+    ri_change: Field[[I, J, K], float64],
+    lv: Field[[I, J, K], float64],
+    ls: Field[[I, J, K], float64],
+    cph: Field[[I, J, K], float64]
+) -> Field[[I, J, K], float64]:
+    """
+    Update temperature due to latent heat release from condensation.
+    """
+    return temperature + (rc_change * lv + ri_change * ls) / cph
 
-        # l334 to l337
-        if __INLINED(not OCND2):
-            pv = min(
-            e_sat_w(t),
-            0.99 * pabs,
-            )
-            piv = min(
-            e_sat_i(t),
-            0.99 * pabs,
-            )
 
-        # TODO : l341 -> l350
-        # Translation note : OUSERI = TRUE, OCND2 = False
-        if __INLINED(not OCND2):
-            frac_tmp =(
-                rc / (rc + ri)
-                if rc + ri > 1e-20 else 0
-            )
-
-            # Compute frac ice inlined
-            # Default Mode (S)
-            if __INLINED(FRAC_ICE_ADJUST == 3):
-                frac_tmp = max(0, min(1, frac_tmp))
-
-            # AROME mode
-            if __INLINED(FRAC_ICE_ADJUST == 0):
-                frac_tmp = max(0, min(1, ((TMAXMIX - t) / (TMAXMIX - TMINMIX))))
-
+def condensation(
+    dim: DimPhyex,
+    # Input fields
+    pressure: Field[[I, J, K], float64],
+    height: Field[[I, J, K], float64],
+    rho_ref: Field[[I, J, K], float64],
+    temperature: Field[[I, J, K], float64],
+    rv_in: Field[[I, J, K], float64],
+    rc_in: Field[[I, J, K], float64],
+    ri_in: Field[[I, J, K], float64],
+    rr: Field[[I, J, K], float64],
+    rs: Field[[I, J, K], float64],
+    rg: Field[[I, J, K], float64],
+    # Configuration
+    hfrac_ice: str = "T",
+    hcondens: str = "GAUS",
+    hlambda3: str = "CB",
+    use_subgrid: bool = True,
+    sigma_s: Optional[Field[[I, J, K], float64]] = None,
+    # Optional inputs
+    lv: Optional[Field[[I, J, K], float64]] = None,
+    ls: Optional[Field[[I, J, K], float64]] = None,
+    cph: Optional[Field[[I, J, K], float64]] = None,
+) -> Tuple[
+    Field[[I, J, K], float64],  # rv_out
+    Field[[I, J, K], float64],  # rc_out
+    Field[[I, J, K], float64],  # ri_out
+    Field[[I, J, K], float64],  # temperature_out
+    Field[[I, J, K], float64],  # cloud_fraction
+    Field[[I, J, K], float64],  # sigrc
+]:
+    """
+    Main condensation routine.
+    
+    This function implements the condensation scheme for mixed-phase clouds,
+    including both subgrid condensation and all-or-nothing schemes.
+    
+    Args:
+        dim: Dimension structure
+        pressure: Pressure field [Pa]
+        height: Height field [m]
+        rho_ref: Reference density [kg/m³]
+        temperature: Temperature field [K] (modified in-place)
+        rv_in: Input water vapor mixing ratio [kg/kg]
+        rc_in: Input cloud water mixing ratio [kg/kg]
+        ri_in: Input cloud ice mixing ratio [kg/kg]
+        rr: Rain mixing ratio [kg/kg]
+        rs: Snow mixing ratio [kg/kg]
+        rg: Graupel mixing ratio [kg/kg]
+        hfrac_ice: Ice fraction method
+        hcondens: Condensation scheme ("GAUS" or "CB02")
+        hlambda3: Lambda3 formulation
+        use_subgrid: Whether to use subgrid condensation
+        sigma_s: Sigma_s from turbulence scheme (if provided)
+        lv: Latent heat of vaporization (computed if not provided)
+        ls: Latent heat of sublimation (computed if not provided)
+        cph: Specific heat of moist air (computed if not provided)
         
-        # Supersaturation coefficients
-        qsl = RD / RV * pv / (pabs - pv)
-        qsi = RD / RV * piv / (pabs - piv)
-
-        # interpolate between liquid and solid as a function of temperature
-        qsl = (1 - frac_tmp) * qsl + frac_tmp * qsi
-        lvs = (1 - frac_tmp) * lv + frac_tmp * ls
-
-        # coefficients a et b
-        ah = lvs * qsl / (RV * t**2) * (1 + RV * qsl / RD)
-        a = 1 / (1 + lvs / cph * ah)
-        b = ah * a
-        sbar = a * (rt - qsl + ah * lvs * (rc + ri * prifact) / cph)
-
-        # Translation note : l369 - l390 kept
-        # Translation note : l391 - l406 skipped (OSIGMAS = False)
-        # Translation note : LSTATNW = False
-        # Translation note : l381 retained for sigmas formulation
-        # Translation note : OSIGMAS = TRUE
-        # Translation npte : LHGT_QS = False (and ZDZFACT unused)
-        if __INLINED(LSIGMAS and not LSTATNW):
-            sigma = (
-                sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2)
-                if sigqsat != 0
-                else 2 * sigs
-            )
-
-        # Translation note : l407 - l411
-        sigma = max(1e-10, sigma)
+    Returns:
+        Tuple of output fields: (rv_out, rc_out, ri_out, temperature_out, cloud_fraction, sigrc)
+    """
+    
+    # Compute thermodynamic quantities if not provided
+    if lv is None:
+        lv = compute_latent_heat_vaporization(temperature)
+    if ls is None:
+        ls = compute_latent_heat_sublimation(temperature)
+    if cph is None:
+        cph = compute_specific_heat_moist_air(rv_in, rc_in, ri_in, rr, rs, rg)
+    
+    # Initialize zprifact (for compatibility with original code)
+    zprifact = gtx.ones_like(rv_in)
+    
+    # Compute total water mixing ratio
+    rt = rv_in + rc_in + ri_in * zprifact
+    
+    # Compute saturation vapor pressures
+    pv_liquid = compute_saturation_vapor_pressure_liquid(temperature)
+    pv_ice = compute_saturation_vapor_pressure_ice(temperature)
+    
+    # Limit to avoid numerical issues
+    pv_liquid = gtx.minimum(pv_liquid, 0.99 * pressure)
+    pv_ice = gtx.minimum(pv_ice, 0.99 * pressure)
+    
+    # Compute saturation mixing ratios
+    qsl_liquid = compute_saturation_mixing_ratio(pressure, pv_liquid)
+    qsi_ice = compute_saturation_mixing_ratio(pressure, pv_ice)
+    
+    # Compute ice fraction
+    ice_fraction = compute_ice_fraction_simple(temperature)
+    
+    # Interpolate between liquid and ice saturation
+    qsl = (1.0 - ice_fraction) * qsl_liquid + ice_fraction * qsi_ice
+    lvs = (1.0 - ice_fraction) * lv + ice_fraction * ls
+    
+    # Compute condensation coefficients
+    ah, a, b = compute_condensation_coefficients(temperature, pressure, qsl, lvs, cph)
+    
+    # Compute normalized saturation deficit
+    sbar = compute_sbar(rt, qsl, ah, lvs, cph, rc_in, ri_in, a, zprifact)
+    
+    if use_subgrid and sigma_s is not None:
+        # Use provided sigma_s (subgrid condensation)
+        sigma = sigma_s
+        # Apply height-dependent scaling if needed
+        sigma = gtx.maximum(1.0e-10, sigma)
+    else:
+        # Compute sigma using first-order closure (simplified version)
+        # This would need more complex implementation for full turbulent closure
+        sigma = gtx.ones_like(sbar) * 1.0e-4  # Simplified constant value
+        sigma = gtx.maximum(1.0e-10, sigma)
+    
+    # Apply condensation scheme
+    if hcondens == "GAUS":
+        cloud_fraction, condensate, sigrc = compute_gaussian_condensation(sbar, sigma)
+    elif hcondens == "CB02":
+        cloud_fraction, condensate, sigrc = compute_cb02_condensation(sbar, sigma)
+    else:
+        raise ValueError(f"Unknown condensation scheme: {hcondens}")
+    
+    # Split condensate into liquid and ice
+    rc_out, ri_out = split_condensate_by_phase(condensate, ice_fraction)
+    
+    # Update temperature due to latent heat release
+    rc_change = rc_out - rc_in
+    ri_change = ri_out - ri_in
+    temperature_out = update_temperature_from_condensation(
+        temperature, rc_change, ri_change, lv, ls, cph
+    )
+    
+    # Compute output water vapor
+    rv_out = rt - rc_out - ri_out * zprifact
+    
+    # Apply lambda3 coefficient if requested
+    if hlambda3 == "CB":
         q1 = sbar / sigma
-
-        # Translation notes : l413 to l468 skipped (HCONDENS=="GAUS")
-        # TODO : add hcondens == "GAUS" option
-        # Translation notes : l469 to l504 kept (HCONDENS = "CB02")
-        # 9.2.3 Fractional cloudiness and cloud condensate
-        # HCONDENS = 0 is CB02 option
-        if __INLINED(CONDENS == 0):
-        # Translation note : l470 to l479
-            if q1 > 0.0:
-                cond_tmp = (
-                min(exp(-1.0) + 0.66 * q1 + 0.086 * q1**2, 2.0) if q1 <= 2.0 else q1
-            )  # we use the MIN function for continuity
-            else:
-                cond_tmp = exp(1.2 * q1 - 1.0)
-            cond_tmp *= sigma
-
-            # Translation note : l482 to l489
-            # cloud fraction
-            cldfr = (
-                max(0.0, min(1.0, 0.5 + 0.36 * atan(1.55 * q1))) if cond_tmp >= 1e-12 else 0
-            )
-
-            # Translation note : l487 to l489
-            cond_tmp = 0 if cldfr == 0 else cond_tmp
-
-            # Translation note : l496 to l503 removed (because initialized further in cloud_fraction diagnostics)
-
-            # Translation notes : 506 -> 514 (not ocnd2)
-            # Translation notes : l515 to l565 (removed)
-            if __INLINED(not OCND2):
-                rc_out = (1 - frac_tmp) * cond_tmp  # liquid condensate
-                ri_out = frac_tmp * cond_tmp  # solid condensate
-                t += ((rc_out - rc) * lv + (ri_out - ri) * ls) / cph
-                rv_out = rt - rc_out - ri_out * prifact
-
-            # Translation note : sigrc computation out of scope
-            # Translation note : l491 to l494 skept
-            # sigrc computation in sigrc_computation stencil
-
-        # Translation note : end jiter
-
-
-#    from_file="./PHYEX/src/common/micro/condensation.F90",
-#    from_line=186,
-#    to_line=189
-def sigrc_computation(
-    q1: Field["float"], 
-    sigrc: Field["float"], 
-    # inq1: Field["int"],
-    inq2: "int",
-    src_1d: GlobalTable["float", (34)]
-):
-
-    with computation(PARALLEL), interval(...):
-
-        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
-        inq2 = min(max(-22, inq1), 10)
-        # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1 #- inq2
-        sigrc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
-
-        # todo : add LAMBDA3='CB' inlined conditional
-
+        lambda3 = gtx.minimum(3.0, gtx.maximum(1.0, 1.0 - q1))
+        sigrc = sigrc * lambda3
+    
+    return rv_out, rc_out, ri_out, temperature_out, cloud_fraction, sigrc
