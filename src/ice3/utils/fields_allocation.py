@@ -2,11 +2,9 @@
 import logging
 
 import numpy as np
-from ifs_physics_common.framework.components import ComputationalGridComponent
-from ifs_physics_common.utils.typingx import NDArrayLikeDict
-from ice3_gt4py.utils.array_dict_operations import remove_y_axis, unpack
-from ice3_gt4py.utils.initialize_fields import initialize_field
-from ice3_gt4py.utils.allocate_state import allocate_state
+from ice3.utils.array_dict_operations import remove_y_axis, unpack
+from ice3.utils.initialize_fields import initialize_field
+from ice3.utils.allocate_state import allocate_state
 from numpy.testing import assert_allclose
 from env import DEFAULT_GT4PY_CONFIG, TEST_GRID
 

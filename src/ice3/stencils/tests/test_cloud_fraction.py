@@ -1,5 +1,5 @@
-from ifs_physics_common.framework.stencil import compile_stencil
 from gt4py.storage import from_array
+from gt4py.cartesian.gtscript import stencil
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
@@ -8,7 +8,7 @@ from ctypes import c_float, c_double
 import logging 
 
 from ice3.utils.compile_fortran_stencil import compile_fortran_stencil
-from ice3.utils.config import BACKEND_LIST
+from ice3.utils.env import BACKEND_LIST
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -57,8 +57,13 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
         fortran_stencil = compile_fortran_stencil(
         "mode_thermo.F90", "mode_thermo", "latent_heat"
         )
-        thermo_fields = compile_stencil("thermodynamic_fields", gt4py_config, externals)
-        
+
+        from ice3.stencils.cloud_fraction import thermodynamic_fields
+        thermo_fields = stencil(definition=thermodynamic_fields,
+                                backend=backend,
+                                externals=externals
+                                )
+
         
         FloatFieldsIJK_Names = [
             "th",

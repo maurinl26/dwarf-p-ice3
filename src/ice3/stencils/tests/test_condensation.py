@@ -4,13 +4,12 @@ from ctypes import c_double, c_float
 import numpy as np
 import pytest
 from gt4py.storage import from_array
-from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
-from ice3_gt4py.phyex_common.tables import SRC_1D
+from ice3.phyex_common.lookup_table import SRC_1D
 
 from ice3.utils.compile_fortran_stencil import compile_fortran_stencil
-from ice3.utils.config import BACKEND_LIST
+from ice3.utils.env import BACKEND_LIST
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
