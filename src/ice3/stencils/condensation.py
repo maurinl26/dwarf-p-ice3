@@ -10,9 +10,9 @@ import gt4py.next as gtx
 from gt4py.next import Field, float64, int32
 from typing import Tuple, Optional
 
-from .constants import CST
-from .dimensions import DimPhyex
-from .utils import (
+from ice3.common.constants import CST
+from ice3.common.dimensions import DimPhyex
+from ice3.utils.next_tools import (
     compute_saturation_vapor_pressure_liquid,
     compute_saturation_vapor_pressure_ice,
     compute_latent_heat_vaporization,

@@ -10,7 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gt4py.next as gtx
 
-from gt4py_ice_adjust import ice_adjust, DimPhyex, CST
+from ice3.stencils.ice_adjust import ice_adjust
+from ice3.common.constants import CST
+from ice3.common.dimensions import DimPhyex
 
 
 def create_atmospheric_profile(nk=50):

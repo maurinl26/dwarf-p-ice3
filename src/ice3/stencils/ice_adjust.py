@@ -11,10 +11,10 @@ import gt4py.next as gtx
 from gt4py.next import Field, float64, int32
 from typing import Tuple, Optional
 
-from .constants import CST
-from .dimensions import DimPhyex
-from .condensation import condensation
-from .utils import (
+from ice3.common.constants import CST
+from ice3.common.dimensions import DimPhyex
+from ice3.stencils.condensation import condensation
+from ice3.utils.next_tools import (
     compute_latent_heat_vaporization,
     compute_latent_heat_sublimation,
     compute_specific_heat_moist_air,
