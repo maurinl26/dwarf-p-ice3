@@ -5,8 +5,9 @@ import numpy as np
 from ice3.utils.array_dict_operations import remove_y_axis, unpack
 from ice3.utils.initialize_fields import initialize_field
 from ice3.utils.allocate_state import allocate_state
+from ice3.utils.env import DEFAULT_GT4PY_CONFIG, TEST_GRID
+
 from numpy.testing import assert_allclose
-from env import DEFAULT_GT4PY_CONFIG, TEST_GRID
 
 ####### Field allocation functions #######
 def allocate_gt4py_fields(
