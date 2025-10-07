@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
-import subprocess
+import numpy as np
 
 from ice3.components.ice_adjust_split import IceAdjustSplit
 import typer
@@ -209,19 +209,46 @@ def ice_adjust_fortran(
 
     ####### Create state for AroAdjust #######
     reader = NetCDFReader(Path(dataset))
-
+    
     logging.info("Getting state for IceAdjust")
-    state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
-
-    # todo : setup check inputs with right interface
-    # setup xarray cupy
-
+    
+    # TODO : clean state
+    state = {
+        "prhodj":   reader.get_field("PRHODJ")[0:9472,:],
+        "pexnref":  reader.get_field("PEXNREF")[0:9472,:],
+        "prhodref": reader.get_field("PRHODREF")[0:9472,:],
+        "psigs":    reader.get_field("PSIGS")[0:9472,:],
+        "ppabst":   reader.get_field("PPABSM")[0:9472,:], 
+        "pexn":     reader.get_field("PEXNREF")[0:9472,:],
+        "pcf_mf":   reader.get_field("PCF_MF")[0:9472,:],
+        "prc_mf":   reader.get_field("PRC_MF")[0:9472,:],
+        "pri_mf":   reader.get_field("PRI_MF")[0:9472,:],
+        "pth":      reader.get_field("ZRS")[0:9472,:,0],
+        "prv":      reader.get_field("ZRS")[0:9472,:,1],
+        "prc":      reader.get_field("ZRS")[0:9472,:,2],
+        "prr":      reader.get_field("ZRS")[0:9472,:,3],
+        "pri":      reader.get_field("ZRS")[0:9472,:,4],
+        "prs":      reader.get_field("ZRS")[0:9472,:,5],
+        "prg":      reader.get_field("ZRS")[0:9472,:,6],
+        "pths":     reader.get_field("PTHS")[0:9472,:],
+        "prvs":     reader.get_field("PRS")[0:9472,:,0],
+        "prcs":     reader.get_field("PRS")[0:9472,:,1],
+        "pris":     reader.get_field("PRS")[0:9472,:,2], 
+        "psigqsat":  phyex.nebn.VSIGQSAT * np.ones((nx*ny, nz))    
+    }
+    
     ###### Launching IceAdjust ###############
     logging.info("Launching IceAdjust")
 
     # TODO: decorator for tracking
     start = time.time()
-    output = wrapper.ice_adjust(state)
+    output = wrapper.ice_adjust(
+        nijt=nx * ny,
+        nkt=nz, 
+        krr=6,
+        ptstep=50.0,
+        **state
+        )
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Execution duration for IceAdjust (Fortran) : {elapsed_time} s")
