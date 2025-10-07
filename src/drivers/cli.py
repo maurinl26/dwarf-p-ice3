@@ -178,6 +178,55 @@ def ice_adjust_split(
     # write_performance_tracking(gt4py_config, metrics, tracking_file)
 
 
+##################### Fortran drivers #########################
+@app.command()
+def ice_adjust_fortran(
+    dataset: str
+):
+    """Call and run main_ice_adjust (Fortran)"""
+    
+    ##### Grid #####
+    logging.info("Initializing grid ...")
+    nx = 9472
+    ny = 1
+    nz = 15
+    grid = ComputationalGrid(nx, ny, nz)
+    dt = datetime.timedelta(seconds=50)
+
+    ################## Phyex #################
+    logging.info("Initializing Phyex ...")
+    phyex = Phyex("AROME")
+
+    ######## Backend and gt4py config #######
+    # TODO : remove gt4py config
+    gt4py_config = GT4PyConfig(
+        backend="numpy", rebuild=False, validate_args=False, verbose=True
+    )
+    
+    #######
+    from pyphyex.ice_adjust_wrapper import IceAdjustWrapper
+    wrapper = IceAdjustWrapper()
+
+    ####### Create state for AroAdjust #######
+    reader = NetCDFReader(Path(dataset))
+
+    logging.info("Getting state for IceAdjust")
+    state = get_state_ice_adjust(grid, gt4py_config=gt4py_config, netcdf_reader=reader)
+
+    # todo : setup check inputs with right interface
+    # setup xarray cupy
+
+    ###### Launching IceAdjust ###############
+    logging.info("Launching IceAdjust")
+
+    # TODO: decorator for tracking
+    start = time.time()
+    output = wrapper.ice_adjust(state)
+    stop = time.time()
+    elapsed_time = stop - start
+    logging.info(f"Execution duration for IceAdjust (Fortran) : {elapsed_time} s")
+    
+
 @app.command()
 def rain_ice(
     backend: str,
@@ -266,36 +315,6 @@ def rain_ice(
 
     ################### Performance tracking ######################
     write_performance_tracking(gt4py_config, metrics, tracking_file)
-
-
-##################### Fortran drivers #########################
-@app.command()
-def ice_adjust_fortran(
-    testdir: str, name: str, archfile: str, checkOpt: str, extrapolation_opts: str
-):
-    """Call and run main_ice_adjust (Fortran)"""
-
-    try:
-        logging.info("Setting env variables")
-        subprocess.run(
-            ["source", f"{testdir}/{name}/build/with_fcm/arch_{archfile}/arch.env"]
-        )
-
-        logging.info("Job submit")
-        subprocess.run(
-            [
-                "submit",
-                "Output_run",
-                "Stderr_run",
-                f"{testdir}/{name}/build/with_fcm/arch_${archfile}/build/bin/main_ice_adjust.exe",
-                f"{checkOpt}",
-                f"{extrapolation_opts}",
-            ]
-        )
-
-    except RuntimeError as e:
-        logging.error("Fortran ice_adjust execution failed")
-        logging.error(f"{e}")
 
 
 @app.command()

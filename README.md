@@ -100,6 +100,13 @@ There are three components available for microphysical adjustments, under _/src/
   track_ice_adjust.json --no-rebuild 
 ```
 
+## Run Fortran model
+
+```bash
+  uv run standalone-model ice-adjust-fortran \
+    ./data/ice_adjust/reference.nc
+```
+
 ## (WIP) Integration with PHYEX
   
 - Option 1:

@@ -1,0 +1,3 @@
+[submodule "PHYEX"]
+	path = PHYEX
+	url = git@github.com:maurinl26/PHYEX.git
