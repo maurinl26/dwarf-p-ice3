@@ -15,7 +15,7 @@ from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid
 
 from drivers.compare import compare_fields
-from drivers.core import write_dataset, write_performance_tracking
+from drivers.core import write_dataset, write_2d_dataset, write_performance_tracking
 from ice3.components.ice_adjust import IceAdjust
 from ice3.initialisation.state_ice_adjust import (
     get_state_ice_adjust,
@@ -181,7 +181,7 @@ def ice_adjust_split(
 ##################### Fortran drivers #########################
 @app.command()
 def ice_adjust_fortran(
-    dataset: str
+    dataset: str, output_path: str
 ):
     """Call and run main_ice_adjust (Fortran)"""
     
@@ -190,8 +190,6 @@ def ice_adjust_fortran(
     nx = 9472
     ny = 1
     nz = 15
-    grid = ComputationalGrid(nx, ny, nz)
-    dt = datetime.timedelta(seconds=50)
 
     ################## Phyex #################
     logging.info("Initializing Phyex ...")
@@ -234,13 +232,12 @@ def ice_adjust_fortran(
         "prvs":     reader.get_field("PRS")[0:9472,:,0],
         "prcs":     reader.get_field("PRS")[0:9472,:,1],
         "pris":     reader.get_field("PRS")[0:9472,:,2], 
-        "psigqsat":  phyex.nebn.VSIGQSAT * np.ones((nx*ny, nz))    
+        "psigqsat": phyex.nebn.VSIGQSAT * np.ones((nx*ny, nz))    
     }
     
     ###### Launching IceAdjust ###############
     logging.info("Launching IceAdjust")
 
-    # TODO: decorator for tracking
     start = time.time()
     output = wrapper.ice_adjust(
         nijt=nx * ny,
@@ -252,6 +249,9 @@ def ice_adjust_fortran(
     stop = time.time()
     elapsed_time = stop - start
     logging.info(f"Execution duration for IceAdjust (Fortran) : {elapsed_time} s")
+    
+    write_2d_dataset(state, (nx, ny, nz), output_path)
+
     
 
 @app.command()

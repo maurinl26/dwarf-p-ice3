@@ -68,6 +68,30 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
         output_fields = output_fields.as_numpy()
     output_fields.to_netcdf(Path(output_path))
     logging.info(f"Data Array written to {output_path}")
+    
+def write_2d_dataset(state: DataArrayDict, shape, output_path):
+    
+    nx, ny, nz = shape
+
+    logging.info(f"Extracting state data to {output_path}")
+    output_fields = xr.Dataset(state)
+    for key, field in state.items():
+        if key not in ["time"]:
+            array = xr.DataArray(
+                data=field.data[:, :],
+                dims=["IJ", "K"],
+                coords={
+                    "IJ": range(nx*ny),
+                    "K": range(nz),
+                },
+                name=f"{key}",
+            )
+            output_fields[key] = array
+
+        output_fields = output_fields.as_numpy()
+    output_fields.to_netcdf(Path(output_path))
+    logging.info(f"Data Array written to {output_path}")
+    
 
 
 def initialize_state(
