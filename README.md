@@ -104,7 +104,8 @@ There are three components available for microphysical adjustments, under _/src/
 
 ```bash
   uv run standalone-model ice-adjust-fortran \
-    ./data/ice_adjust/reference.nc
+    ./data/ice_adjust/reference.nc \
+    ./data/ice_adjust/run_fortran.nc
 ```
 
 ## (WIP) Integration with PHYEX
@@ -191,6 +192,50 @@ simple (1 boucle ldsoft)
 un composant DaCe fournit sa librairie partagée à la compilation,
   - fortran-plugin : branche pour évaluer les branchements des composants DaCe (code complet)
 dans fortran
+
+# Phyex to GT4Py
+
+Wrapper of phyex functions aligned with CY50T1. 
+
+## Cleaning pipeline (loki)
+
+The cleaning pipeline transforms phyex to phyex_stencils.
+Tasks :
+
+- remove DrHook
+- transform derived datatypes arguments
+- inline (if possible) arrays
+
+```commandline
+    uv run loki-transform.py convert \
+        --config transforms/ice_adjust.config \
+        -s phyex/micro/ \
+        --out-path phyex_stencils/tmp/
+```
+
+## Phyex stencils
+
+Simplified versions of ice_adjust (more to come).
+
+
+## Wrapper
+
+The wrapper is built with ctypes.
+
+```bash
+  uv pip install -e .
+  uv run python pyphyex/tests/test_ice_adjust_wrapper.py
+```
+
+## Build 
+
+The project is built with ecbuild, based on IAL version.
+
+```bash
+  mkdir build && cd build
+  ecbuild ..
+  make -j8
+```
 
 
 

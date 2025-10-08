@@ -35,7 +35,7 @@ tests = [
 ]
 fortran = [
     "fprettify>=0.3.7",
-    "phyex",
+    "loki"
 ]
 test = [
     "pytest>=8.3.5",
@@ -43,4 +43,5 @@ test = [
 
 [tool.uv.sources]
 ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
-phyex = { path = "../PHYEX", editable = true }
+loki = { git = "https://github.com/ecmwf-ifs/loki.git" }
+
