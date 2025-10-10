@@ -1,0 +1,20 @@
+
+cdef extern from "ice_adjust_wrapper.h":
+    void ice_adjust_wrapper(int *d_nijb, int *d_nije, int *d_nijt, int *d_nkb, int *d_nke, int *d_nkl, int *d_nkt,
+        int *d_nktb, int *d_nkte, double *cst_xalpi, double *cst_xalpw, double *cst_xbetai, double *cst_xbetaw,
+        double *cst_xci, double *cst_xcl, double *cst_xcpd, double *cst_xcpv, double *cst_xepsilo,
+        double *cst_xg, double *cst_xgami, double *cst_xgamw, double *cst_xlstt, double *cst_xlvtt, 
+        double *cst_xpi, double *cst_xrd, double *cst_xrv, double *cst_xtt, double *icep_xacriauti, 
+        double *icep_xbcriauti, double *icep_xcriautc, double *icep_xcriauti, double *icep_xfrmin, 
+        char *nebn_ccondens, char *nebn_cfrac_ice_adjust, char *nebn_clambda3, double *nebn_xtmaxmix, double *nebn_xtminmix,
+        bool *nebn_lcondborn, bool *nebn_lhgt_qs, bool *nebn_lsigmas, bool *nebn_lstatnw, bool *nebn_lsubg_cond, 
+        char *parami_csubg_mf_pdf, bool *parami_locnd2, int *krr, char *hbuname, double *ptstep, 
+        double *psigqsat, double *prhodj, double *pexnref, double *prhodref, double *psigs, bool *lmfconv, 
+        double *pmfconv, double *ppabst, double *pzz, double *pexn, double *pcf_mf, double *prc_mf, double *pri_mf,
+        double *pweight_mf_cloud, double *picldfr, double *pwcldfr, double *pssio, double *pssiu, 
+        double *pifr, double *prv, double *prc, double *prvs, double *prcs, double *pth, double *pths, 
+        bool *ocompute_src, 
+        double *psrcs, double *pcldfr, double *prr, double *pri, double *pris, double *prs, double *prg, 
+        double *pice_cld_wgt, double *prh, double *pout_rv, double *pout_rc, double *pout_ri, double *pout_th, 
+        double *phlc_hrc, double *phlc_hcf, double *phli_hri, double *phli_hcf, double *phlc_hrc_mf, double *phlc_hcf_mf, 
+        double *phli_hri_mf, double *phli_hcf_mf);
