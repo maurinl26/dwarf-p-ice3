@@ -48,3 +48,5 @@ src/dwarf_ice3_gt4py.egg-info/
 
 .gt4py_cache
 rain_ice.tar.gz
+src/phyex_stencils/tmp
+build

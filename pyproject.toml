@@ -34,8 +34,9 @@ tests = [
     "pytest>=8.3.5",
 ]
 fortran = [
+    "cython>=3.1.4",
+    "fmodpy>=1.7.4",
     "fprettify>=0.3.7",
-    "loki"
 ]
 test = [
     "pytest>=8.3.5",
@@ -43,5 +44,4 @@ test = [
 
 [tool.uv.sources]
 ifs-physics-common = { git = "https://github.com/stubbiali/ifs-physics-common.git" }
-loki = { git = "https://github.com/ecmwf-ifs/loki.git" }
 
