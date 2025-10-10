@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
+import cython
 from enum import Enum
 from typing import Literal
 
@@ -44,37 +45,38 @@ class Lambda3(Enum):
 
 ########### PHYEX/src/common/aux/modd_nebn.F90 #############
 @dataclass
+@cython.cclass
 class Neb:
     """Declaration of
 
     Args:
-        tminmix (float): minimum temperature for mixed phase
-        tmaxmix (float): maximum temperature for mixed phase
-        hgt_qs (float): switch for height dependant VQSIGSAT
+        tminmix (InitVar[float]): minimum temperature for mixed phase
+        tmaxmix (InitVar[float]): maximum temperature for mixed phase
+        hgt_qs (InitVar[float]): switch for height dependant VQSIGSAT
         frac_ice_adjust (str): ice fraction for adjustments
         frac_ice_shallow (str): ice fraction for shallow_mf
-        vsigqsat (float): coeff applied to qsat variance contribution
+        vsigqsat (InitVar[float]): coeff applied to qsat variance contribution
         condens (str): subgrid condensation PDF
         lambda3 (str): lambda3 choice for subgrid cloud scheme
-        statnw (bool): updated full statistical cloud scheme
-        sigmas (bool): switch for using sigma_s from turbulence scheme
-        subg_cond (bool): switch for subgrid condensation
+        statnw (InitVar[bool]): updated full statistical cloud scheme
+        sigmas (InitVar[bool]): switch for using sigma_s from turbulence scheme
+        subg_cond (InitVar[bool]): switch for subgrid condensation
 
     """
 
     HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    TMINMIX: float = field(default=273.16)
-    TMAXMIX: float = field(default=253.16)
-    LHGT_QS: bool = field(default=False)
-    FRAC_ICE_ADJUST: int = field(default=FracIceAdjust.S.value)
-    FRAC_ICE_SHALLOW: int = field(default=FracIceShallow.S.value)
-    VSIGQSAT: float = field(default=0.02)
-    CONDENS: int = field(default=Condens.CB02.value)
-    LAMBDA3: int = field(default=Lambda3.CB.value)
-    LSTATNW: bool = field(default=False)
-    LSIGMAS: bool = field(default=True)
-    LSUBG_COND: bool = field(default=False)
+    TMINMIX: InitVar[float] = 273.16
+    TMAXMIX: InitVar[float] = 253.16
+    LHGT_QS: InitVar[bool] = False
+    FRAC_ICE_ADJUST: InitVar[int] = FracIceAdjust.S.value
+    FRAC_ICE_SHALLOW: InitVar[int] = FracIceShallow.S.value
+    VSIGQSAT: InitVar[float] = 0.02
+    CONDENS: InitVar[int] = Condens.CB02.value
+    LAMBDA3: InitVar[int] = Lambda3.CB.value
+    LSTATNW: InitVar[bool] = False
+    LSIGMAS: InitVar[bool] = True
+    LSUBG_COND: InitVar[bool] = False
 
     def __post_init__(self):
         if self.HPROGRAM == "AROME":

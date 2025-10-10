@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, InitVar
 from enum import Enum
 from typing import Literal
+import cython
 
 import numpy as np
 
@@ -66,7 +67,8 @@ class Sedim(Enum):
 
 
 ############ phyex/common/aux/modd_param_icen.F90 ###############
-@dataclass
+@dataclass(frozen=True)
+@cython.cclass
 class IceParameters:
     """
     Parameters for ice processes
@@ -135,85 +137,79 @@ class IceParameters:
 
     HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
 
-    LWARM: bool = field(default=True)  # Formation of rain by warm processes
-    LSEDIC: bool = field(default=True)  # Enable the droplets sedimentation
-    LDEPOSC: bool = field(
+    LWARM: InitVar[bool] = True  # Formation of rain by warm processes
+    LSEDIC: InitVar[bool] = True  # Enable the droplets sedimentation
+    LDEPOSC: InitVar[bool] = field(
         default=False
     )  # Enable cloud droplets deposition on vegetation
 
-    VDEPOSC: float = field(default=0.02)  # Droplet deposition velocity
+    VDEPOSC: float = 0.02  # Droplet deposition velocity
 
-    PRISTINE_ICE: Literal["PLAT", "COLU", "BURO"] = field(
-        default="PLAT"
-    )  # Pristine ice type PLAT, COLU, or BURO
-    SEDIM: int = field(default=Sedim.SPLI.value)  # Sedimentation calculation mode
+    PRISTINE_ICE: Literal["PLAT", "COLU", "BURO"] = "PLAT"
+    # Pristine ice type PLAT, COLU, or BURO
+    SEDIM: int = Sedim.SPLI.value  # Sedimentation calculation mode
 
     # To use modified ice3/ice4 - to reduce time step dependency
-    LRED: bool = field(default=True)
-    LFEEDBACKT: bool = field(default=True)
-    LEVLIMIT: bool = field(default=True)
-    LNULLWETG: bool = field(default=True)
-    LWETGPOST: bool = field(default=True)
+    LRED: InitVar[bool] = True
+    LFEEDBACKT: InitVar[bool] = True
+    LEVLIMIT: InitVar[bool] = True
+    LNULLWETG: InitVar[bool] = True
+    LWETGPOST: InitVar[bool] = True
 
-    SNOW_RIMING: int = field(default=SnowRiming.M90.value)
+    SNOW_RIMING: InitVar[int] = SnowRiming.M90.value
 
-    FRAC_M90: float = field(default=0.1)
-    NMAXITER_MICRO: int = field(default=5)
-    MRSTEP: float = field(default=5e-5)
+    FRAC_M90: InitVar[float] = 0.1
+    NMAXITER_MICRO: InitVar[int] = 5
+    MRSTEP: InitVar[float] = 5e-5
 
-    LCONVHG: bool = field(default=False)
-    LCRFLIMIT: bool = field(default=True)
+    LCONVHG: InitVar[bool] = False
+    LCRFLIMIT: InitVar[bool] = True
 
-    TSTEP_TS: float = field(default=0)
+    TSTEP_TS: InitVar[float] = 0
 
-    SUBG_RC_RR_ACCR: int = field(
-        default=SubgRRRCAccr.NONE.value
-    )  # subgrid rc-rr accretion
-    SUBG_RR_EVAP: int = field(default=SubgRREvap.NONE.value)  # subgrid rr evaporation
-    SUBG_PR_PDF: int = field(
-        default=SubgPRPDF.SIGM.value
-    )  # pdf for subgrid precipitation
-    SUBG_AUCV_RC: int = field(
-        default=SubgAucvRc.NONE.value
-    )  # type of subgrid rc->rr autoconv. method
-    SUBG_AUCV_RI: int = field(
-        default=SubgAucvRi.NONE.value
-    )  # type of subgrid ri->rs autoconv. method
+    SUBG_RC_RR_ACCR: InitVar[int] = SubgRRRCAccr.NONE.value  # subgrid rc-rr accretion
+    SUBG_RR_EVAP: InitVar[int] = SubgRREvap.NONE.value  # subgrid rr evaporation
+    SUBG_PR_PDF: InitVar[int] = SubgPRPDF.SIGM.value
+    # pdf for subgrid precipitation
+    SUBG_AUCV_RC: InitVar[int] = SubgAucvRc.NONE.value
+    # type of subgrid rc->rr autoconv. method
+    SUBG_AUCV_RI: InitVar[int] = SubgAucvRi.NONE.value
+    # type of subgrid ri->rs autoconv. method
 
     # PDF to use for MF cloud autoconversions
-    SUBG_MF_PDF: int = field(default=SubGridMassFluxPDF.TRIANGLE.value)
+    SUBG_MF_PDF: InitVar[int] = SubGridMassFluxPDF.TRIANGLE.value
 
     # key for adjustment before rain_ice call
-    LADJ_BEFORE: bool = field(default=True)
+    LADJ_BEFORE: InitVar[bool] = True
 
     # key for adjustment after rain_ice call
-    LADJ_AFTER: bool = field(default=True)
+    LADJ_AFTER: InitVar[bool] = True
 
     # switch to perform sedimentation
     # before (.FALSE.)
     # or after (.TRUE.) microphysics
-    LSEDIM_AFTER: bool = field(default=False)
+    LSEDIM_AFTER: InitVar[bool] = False
 
     # Maximum CFL number allowed for SPLIT scheme
-    SPLIT_MAXCFL: float = field(default=0.8)
+    SPLIT_MAXCFL: InitVar[float] = 0.8
 
     # Snow parameterization from Wurtz (2021)
-    LSNOW_T: bool = field(default=False)
+    LSNOW_T: InitVar[bool] = False
 
-    LPACK_INTERP: bool = field(default=True)
-    LPACK_MICRO: bool = field(default=True)
-    LCRIAUTI: bool = field(default=True)
+    LPACK_INTERP: InitVar[bool] = True
+    LPACK_MICRO: InitVar[bool] = True
+    LCRIAUTI: InitVar[bool] = True
 
-    NPROMICRO: int = field(default=0)
+    NPROMICRO: InitVar[int] = 0
 
-    CRIAUTI_NAM: float = field(default=0.2e-4)
-    ACRIAUTI_NAM: float = field(default=0.06)
-    BRCRIAUTI_NAM: float = field(default=-3.5)
-    T0CRIAUTI_NAM: float = field(init=False)
-    CRIAUTC_NAM: float = field(default=0.5e-3)
-    RDEPSRED_NAM: float = field(default=1)
-    RDEPGRED_NAM: float = field(default=1)
-    LCOND2: bool = field(default=False)
+    CRIAUTI_NAM: InitVar[float] = 0.2e-4
+    ACRIAUTI_NAM: InitVar[float] = 0.06
+    BRCRIAUTI_NAM: InitVar[float] = -3.5
+    T0CRIAUTI_NAM: InitVar[float] = False
+    CRIAUTC_NAM: InitVar[float] = 0.5e-3
+    RDEPSRED_NAM: InitVar[float] = 1
+    RDEPGRED_NAM: InitVar[float] = 1
+    LCOND2: InitVar[bool] = False
 
     # TODO : replace frmin_nam by a global table
     FRMIN_NAM: np.ndarray = field(init=False)
