@@ -1,12 +1,8 @@
-from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from pathlib import Path
-import fmodpy 
-import logging
 import pytest
 
 from ifs_physics_common.framework.config import GT4PyConfig
-from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3.phyex_common.phyex import Phyex
 
 # TODO : rework as fixtures
 BACKEND = "gt:cpu_ifirst"
@@ -29,8 +25,6 @@ def get_backends(gpu: bool = False):
         backends += ["gt:gpu","dace:gpu"]
     return backends
 
-
-
 # fixtures
 @pytest.fixture(name="computational_grid", scope="module")
 def computational_grid_fixture():
@@ -45,7 +39,6 @@ def gt4py_config_fixture():
             verbose=True
         )
 
-
 @pytest.fixture(name="grid", scope="module")
 def grid_fixture():
     return DEFAULT_GRID.grids[(I, J, K)]
@@ -57,7 +50,6 @@ def origin_fixture():
 @pytest.fixture(name="gt4py_config", scope="module")
 def gt4py_config_fixture():
     return DEFAULT_GT4PY_CONFIG
-
 
 @pytest.fixture(name="phyex", scope="module")
 def phyex_fixture():

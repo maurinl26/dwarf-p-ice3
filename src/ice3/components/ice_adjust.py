@@ -35,6 +35,8 @@ class IceAdjust:
         enable_checks: bool = True,
     ) -> None:
 
+        self.computational_grid = computational_grid
+
         externals = phyex.to_externals()
 
         from ice3.stencils.ice_adjust import ice_adjust

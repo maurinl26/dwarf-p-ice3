@@ -8,7 +8,7 @@ from ctypes import c_float, c_double
 import logging 
 
 from ice3.utils.compile_fortran_stencil import compile_fortran_stencil
-from ice3.utils.config import BACKEND_LIST
+from ice3.utils.env import BACKEND_LIST
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
@@ -82,68 +82,27 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
                 order="F",
             ) for name in FloatFieldsIJK_Names
         }
-        
-        
-        th_gt4py = from_array(
-            FloatFieldsIJK["th"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        exn_gt4py = from_array(
-            FloatFieldsIJK["exn"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        rv_gt4py = from_array(
-            FloatFieldsIJK["rv"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        rc_gt4py = from_array(
-            FloatFieldsIJK["rc"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        rr_gt4py = from_array(
-            FloatFieldsIJK["rr"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        ri_gt4py = from_array(
-            FloatFieldsIJK["ri"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        rs_gt4py = from_array(
-            FloatFieldsIJK["rs"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        rg_gt4py = from_array(
-            FloatFieldsIJK["rg"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        lv_gt4py = from_array(
-            FloatFieldsIJK["lv"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        ls_gt4py = from_array(
-            FloatFieldsIJK["ls"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        cph_gt4py = from_array(
-            FloatFieldsIJK["cph"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
-        t_gt4py = from_array(
-            FloatFieldsIJK["t"],
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
-        )
+
+        state_gt4py = {
+            key: from_array(
+                FloatFieldsIJK[key],
+                dtype=gt4py_config.dtypes.float,
+                backend=gt4py_config.backend
+            ) for key in [
+                "th",
+                "exn",
+                "rv",
+                "rc",
+                "rr",
+                "ri",
+                "rs",
+                "rg",
+                "lv",
+                "ls",
+                "cph",
+                "t"
+            ]
+        }
         
         Fortran_FloatFieldsIJK = {
             Py2F_Mapping[name]: field.reshape(grid.shape[0]*grid.shape[1], grid.shape[2])
@@ -151,18 +110,7 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
         }
 
         thermo_fields(
-            th=th_gt4py,
-            exn=exn_gt4py,
-            rv=rv_gt4py,
-            rc=rc_gt4py,
-            rr=rr_gt4py,
-            ri=ri_gt4py,
-            rs=rs_gt4py,
-            rg=rg_gt4py,
-            lv=lv_gt4py,
-            ls=ls_gt4py,
-            cph=cph_gt4py,
-            t=t_gt4py,
+            **state_gt4py,
             domain=grid.shape,
             origin=origin
         )
@@ -186,10 +134,10 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
             logging.info(f"{F2Py_Mapping[fname]} :: Mean gt4py      {FloatFieldsIJK[F2Py_Mapping[fname]].mean()}")
             logging.info(f"{F2Py_Mapping[fname]} :: Mean fortran    {Fields_Out[fname].mean()}")
         
-        assert_allclose(Fields_Out['zt'], t_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(Fields_Out['zlv'], lv_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(Fields_Out['zls'], ls_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(Fields_Out['zcph'], cph_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zt'], state_gt4py["t"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zlv'], state_gt4py["lv"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zls'], state_gt4py["ls"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(Fields_Out['zcph'], state_gt4py["cph"].reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
         
         
 @pytest.mark.parametrize("precision", ["double", "single"])

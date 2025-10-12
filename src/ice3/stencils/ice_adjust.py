@@ -14,8 +14,6 @@ from gt4py.cartesian.gtscript import (
     sqrt,
     Field,
     GlobalTable,
-    IJ,
-    K
 )
 from ice3.functions.tiwmx import e_sat_i, e_sat_w
 from ice3.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
