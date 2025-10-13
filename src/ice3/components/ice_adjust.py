@@ -41,7 +41,12 @@ class IceAdjust(ImplicitTendencyComponent):
         )
 
         externals = phyex.to_externals()
+        externals.update({
+            "OCND2": True
+        })
         self.ice_adjust = self.compile_stencil("ice_adjust", externals)
+
+
 
         logging.info(f"Keys")
         logging.info(f"SUBG_COND : {phyex.nebn.LSUBG_COND}")
@@ -171,6 +176,16 @@ class IceAdjust(ImplicitTendencyComponent):
                 "units": "",
                 "dtype": "float",
             },
+            "sigrc": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
+            "pv": {
+                "grid": (I, J, K),
+                "units": "",
+                "dtype": "float",
+            },
         }
 
     @cached_property
@@ -207,6 +222,7 @@ class IceAdjust(ImplicitTendencyComponent):
             },
             "hli_hcf": {
                 "grid": (I, J, K),
+                "units":"",
                 "dtype": "float",
             },
         }
@@ -219,115 +235,6 @@ class IceAdjust(ImplicitTendencyComponent):
             "ls": {"grid": (I, J, K), "units": ""},
             "cph": {"grid": (I, J, K), "units": ""},
             "criaut": {"grid": (I, J, K), "units": ""},
-        }
-
-    @cached_property
-    def fortran_mapping(self):
-        return {
-            "sigqsat": {
-                "fortran_name": None,
-            },
-            "exn": {
-                "fortran_name": "PEXNREF",
-            },
-            "exnref": {
-                "fortran_name": "PEXNREF",
-            },
-            "rhodref": {
-                "fortran_name": "PRHODREF",
-            },
-            "pabs": {
-                "fortran_name": "PPABSM",
-            },
-            "sigs": {
-                "fortran_name": "PSIGS",
-            },
-            "cf_mf": {
-                "fortran_name": "PCF_MF",
-            },
-            "rc_mf": {
-                "fortran_name": "PRC_MF",
-            },
-            "ri_mf": {
-                "fortran_name": "PRI_MF",
-            },
-            "th": {
-                "fortran_name": "ZRS",
-                "irr": 0,
-            },
-            "rv": {
-                "fortran_name": "ZRS",
-                "irr": 1,
-            },
-            "rc": {
-                "fortran_name": "ZRS",
-                "irr": 2,
-            },
-            "rr": {
-                "fortran_name": "ZRS",
-                "irr": 3,
-            },
-            "ri": {
-                "fortran_name": "ZRS",
-                "irr": 4,
-            },
-            "rs": {
-                "fortran_name": "ZRS",
-                "irr": 5,
-            },
-            "rg": {
-                "fortran_name": "ZRS",
-                "irr": 6,
-            },
-            "cldfr": {
-                "fortran_name": None,
-            },
-            "ifr": {
-                "fortran_name": None,
-            },
-            "hlc_hrc": {
-                "fortran_name": None,
-            },
-            "hlc_hcf": {
-                "fortran_name": None,
-            },
-            "hli_hri": {
-                "fortran_name": None,
-            },
-            "hli_hcf": {
-                "fortran_name": None,
-            },
-            "sigrc": {
-                "fortran_name": None,
-            },
-            "ths": {
-                "fortran_name": "PRS",
-                "irr": 0,
-            },
-            "rcs": {
-                "fortran_name": "PRS",
-                "irr": 1,
-            },
-            "rrs": {
-                "fortran_name": "PRS",
-                "irr": 2,
-            },
-            "ris": {
-                "fortran_name": "PRS",
-                "irr": 3,
-            },
-            "rss": {
-                "fortran_name": "PRS",
-                "irr": 4,
-            },
-            "rvs": {
-                "fortran_name": "PRS",
-                "irr": 5,
-            },
-            "rgs": {
-                "fortran_name": "PRS",
-                "irr": 6,
-            },
         }
 
     def array_call(

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import ice3.stencils.aro_filter
+import ice3.stencils.ice_adjust
 import ice3.stencils.ice4_fast_rg
 import ice3.stencils.ice4_fast_ri
 import ice3.stencils.ice4_fast_rs
