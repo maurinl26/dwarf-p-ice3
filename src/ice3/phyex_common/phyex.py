@@ -101,6 +101,11 @@ class Phyex:
         externals.update(asdict(self.rain_ice_descrn))
         externals.update(asdict(self.rain_ice_param))
         externals.update(asdict(self.nebn))
-        externals.update({"TSTEP": self.TSTEP, "NRR": self.NRR, "INV_TSTEP": self.INV_TSTEP})
+        externals.update({
+            "TSTEP": self.TSTEP, 
+            "NRR": self.NRR, 
+            "INV_TSTEP": self.INV_TSTEP,
+            "OCND2": False
+            })
 
         return externals

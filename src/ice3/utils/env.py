@@ -1,9 +1,18 @@
 from ifs_physics_common.framework.config import GT4PyConfig
-from pathlib import Path
 from ifs_physics_common.framework.grid import ComputationalGrid
+import os
+import logging
 
 
-BACKEND = "gt:cpu_kfirst"
+try:
+    BACKEND = os.environ("GT_BACKEND")
+    logging.info(f"Backend {BACKEND}")
+except KeyError:
+    logging.warning("Backend not found")
+    BACKEND = "gt:cpu_ifirst"
+
+
+
 REBUILD = True
 VALIDATE_ARGS = True
 SHAPE = (50, 50, 15)

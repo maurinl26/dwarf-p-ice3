@@ -7,6 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "ifs-physics-common",
     "numpy<2.0",
+    "pytest-benchmark>=5.1.0",
     "typer>=0.15.2",
     "xarray>=2025.4.0",
 ]
@@ -33,6 +34,10 @@ tests = [
 ]
 fortran = [
     "fprettify>=0.3.7",
+]
+test = [
+    "fmodpy>=1.7.4",
+    "pytest-benchmark>=5.1.0",
 ]
 
 [tool.uv.sources]

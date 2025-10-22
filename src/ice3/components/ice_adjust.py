@@ -248,14 +248,12 @@ class IceAdjust(ImplicitTendencyComponent):
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "float"), 4),
-            *repeat(((I, J, K), "int"), 1),
             gt4py_config=self.gt4py_config,
         ) as (
             lv,
             ls,
             cph,
             criaut,
-            inq1,
         ):
             state_ice_adjust = {
                 key: state[key]
