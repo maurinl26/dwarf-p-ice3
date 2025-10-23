@@ -6,7 +6,7 @@ import logging
 import pytest
 
 from ifs_physics_common.framework.config import GT4PyConfig
-from ice3_gt4py.phyex_common.phyex import Phyex
+from ice3.phyex_common.phyex import Phyex
 
 # TODO : rework as fixtures
 BACKEND = "gt:cpu_ifirst"

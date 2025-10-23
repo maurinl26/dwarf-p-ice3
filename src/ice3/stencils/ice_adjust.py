@@ -7,20 +7,16 @@ from gt4py.cartesian.gtscript import (
     atan,
     computation,
     exp,
-    floor,
     interval,
     sqrt,
     Field,
-    GlobalTable,
 )
-from ifs_physics_common.framework.stencil import stencil_collection
 
 from ice3.functions.tiwmx import e_sat_i, e_sat_w
 from ice3.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
 
 
 # PHYEX/src/common/micro/ice_adjust.F90
-@stencil_collection("ice_adjust")
 def ice_adjust(
         sigqsat: Field["float"],
         pabs: Field["float"],
@@ -54,11 +50,8 @@ def ice_adjust(
         cph: Field["float"],
         lv: Field["float"],
         ls: Field["float"],
-        q1: Field["float"],
-        sigma_rc: Field["float"],
         pv: Field["float"],
         piv: Field["float"],
-        src_1d: GlobalTable[("float", (34))],
         dt: "float"
 ):
     """Microphysical adjustments for specific contents due to condensation."""
@@ -229,12 +222,7 @@ def ice_adjust(
         # Translation note : end jiter
 
     # Compute sigma_rc using global table
-    with computation(PARALLEL), interval(...):
-        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
-        inq2 = min(max(-22, inq1), 10)
-        # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1  # - inq2
-        sigma_rc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
+    # TODO : solve sigma_rc computation, with global table
 
     # Cloud fraction 1
     with computation(PARALLEL), interval(...):
