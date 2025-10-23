@@ -1,45 +1,38 @@
-from gt4py.storage import from_array, zeros
-from gt4py.cartesian.gtscript import stencil
 import numpy as np
+import pytest
 import xarray as xr
+from gt4py.cartesian.gtscript import stencil
+from gt4py.storage import from_array, zeros
 from numpy.testing import assert_allclose
 
-from ice3.phyex_common.phyex import Phyex
+from ice3.utils.env import BACKEND_LIST
 
-def test_ice_adjust(benchmark):
+
+@pytest.mark.parametrize("backend", BACKEND_LIST)
+def test_ice_adjust(benchmark, backend, externals, sp_dtypes, ice_adjust_repro_ds):
 
     from ice3.stencils.ice_adjust import ice_adjust
-
-    externals = Phyex("AROME").to_externals()
-    backend = "gt:cpu_ifirst"
 
     ice_adjust_stencil = stencil(
         backend,
         definition=ice_adjust, 
         name="ice_adjust",
         externals=externals,
-        dtypes={
-            "float": np.float32,
-            "int": np.int32,
-            "bool": np.bool_
-        }
+        dtypes=sp_dtypes
         )
-    
-    ds = xr.open_dataset("./data/ice_adjust.nc", engine="netcdf4")
 
     shape = (
-        ds.sizes["ngpblks"],
-        ds.sizes["nproma"],
-        ds.sizes["nflevg"]
+        ice_adjust_repro_ds.sizes["ngpblks"],
+        ice_adjust_repro_ds.sizes["nproma"],
+        ice_adjust_repro_ds.sizes["nflevg"]
     )   
-    origin = (0, 0, 0)
 
     print("Reshaping inputs")
-    sigqsat = ds["ZSIGQSAT"].data[:,:,np.newaxis]
+    sigqsat = ice_adjust_repro_ds["ZSIGQSAT"].data[:,:,np.newaxis]
     sigqsat = np.broadcast_to(sigqsat, shape)
 
-    zrs = ds["ZRS"].data
-    prs = ds["PRS"].data
+    zrs = ice_adjust_repro_ds["ZRS"].data
+    prs = ice_adjust_repro_ds["PRS"].data
 
     prs = np.swapaxes(prs, axis1=1, axis2=2)
     prs = np.swapaxes(prs, axis1=2, axis2=3)
@@ -51,14 +44,14 @@ def test_ice_adjust(benchmark):
     zrs = np.swapaxes(zrs, axis1=1, axis2=2)
     print(f"ZRS shape {zrs.shape}")
 
-    ppabsm = np.swapaxes(ds["PPABSM"].data, axis1=1, axis2=2)
-    psigs = np.swapaxes(ds["PSIGS"].data, axis1=1, axis2=2)
-    pexnref = np.swapaxes(ds["PEXNREF"].data, axis1=1, axis2=2)
-    prhodref = np.swapaxes(ds["PRHODREF"].data, axis1=1, axis2=2)
-    pcf_mf = np.swapaxes(ds["PCF_MF"].data, axis1=1, axis2=2)
-    pri_mf = np.swapaxes(ds["PRI_MF"].data, axis1=1, axis2=2)
-    prc_mf = np.swapaxes(ds["PRC_MF"].data, axis1=1, axis2=2)
-    pths = np.swapaxes(ds["PTHS"].data, axis1=1, axis2=2)
+    ppabsm = np.swapaxes(ice_adjust_repro_ds["PPABSM"].data, axis1=1, axis2=2)
+    psigs = np.swapaxes(ice_adjust_repro_ds["PSIGS"].data, axis1=1, axis2=2)
+    pexnref = np.swapaxes(ice_adjust_repro_ds["PEXNREF"].data, axis1=1, axis2=2)
+    prhodref = np.swapaxes(ice_adjust_repro_ds["PRHODREF"].data, axis1=1, axis2=2)
+    pcf_mf = np.swapaxes(ice_adjust_repro_ds["PCF_MF"].data, axis1=1, axis2=2)
+    pri_mf = np.swapaxes(ice_adjust_repro_ds["PRI_MF"].data, axis1=1, axis2=2)
+    prc_mf = np.swapaxes(ice_adjust_repro_ds["PRC_MF"].data, axis1=1, axis2=2)
+    pths = np.swapaxes(ice_adjust_repro_ds["PTHS"].data, axis1=1, axis2=2)
 
 
     sigqsat = from_array(sigqsat, backend=backend, dtype=np.float32, aligned_index=(0,0,0))
@@ -157,17 +150,27 @@ def test_ice_adjust(benchmark):
         )
     
     benchmark(run_ice_adjust)
-    
 
     print("Reshaping output")
-    prs_out = ds["PRS_OUT"].data
+    prs_out = ice_adjust_repro_ds["PRS_OUT"].data
     prs_out = np.swapaxes(prs_out, axis1=2, axis2=3)
     rvs_out = prs_out[:,0,:,:]
     rcs_out = prs_out[:,1,:,:]
     ris_out = prs_out[:,3,:,:]
-    
 
+    phlc_hrc_out = ice_adjust_repro_ds["PHLC_HRC_OUT"].data
+    phlc_hcf_out = ice_adjust_repro_ds["PHLC_HCF_OUT"].data
+    phli_hri_out = ice_adjust_repro_ds["PHLI_HRI_OUT"].data
+    phli_hcf_out = ice_adjust_repro_ds["PHLI_HCF_OUT"].data
+
+    print("Check microphysical species tendencies")
     assert_allclose(rvs_out, rvs, atol=1e-4, rtol=1e-4)
     assert_allclose(rcs_out, rcs, atol=1e-4, rtol=1e-4)
     assert_allclose(ris_out, ris, atol=1e-4, rtol=1e-4)
+
+    print("Check microphysical species tendencies")
+    assert_allclose(phlc_hcf_out, hlc_hcf, atol=1e-4, rtol=1e-4)
+    assert_allclose(phlc_hrc_out, hlc_hrc, atol=1e-4, rtol=1e-4)
+    assert_allclose(phli_hcf_out, hli_hcf, atol=1e-4, rtol=1e-4)
+    assert_allclose(phli_hri_out, hli_hri, atol=1e-4, rtol=1e-4)
 

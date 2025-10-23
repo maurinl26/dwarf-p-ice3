@@ -3,16 +3,13 @@ from __future__ import annotations
 
 from gt4py.cartesian.gtscript import PARALLEL, computation, interval, Field, __INLINED
 from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
 
 from ice3.functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/ice_adjust.F90",
-    from_line=450,
-    to_line=473
-)
+    # from_file="PHYEX/src/common/micro/ice_adjust.F90",
+    # from_line=450,
+    # to_line=473
 @stencil_collection("thermodynamic_fields")
 def thermodynamic_fields(
     th: Field["float"],
@@ -58,11 +55,9 @@ def thermodynamic_fields(
             cph = CPD + CPV * rv + CL * rc + CI * ri
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/ice_adjust.F90",
-    from_line=278,
-    to_line=312
-)
+    # from_file="PHYEX/src/common/micro/ice_adjust.F90",
+    # from_line=278,
+    # to_line=312
 @stencil_collection("cloud_fraction_1")
 def cloud_fraction_1(
     lv: Field["float"],
@@ -100,11 +95,9 @@ def cloud_fraction_1(
         
         #### split
     
-@ported_method(
-    from_file="PHYEX/src/common/micro/ice_adjust.F90",
-    from_line=313,
-    to_line=419
-)
+    # from_file="PHYEX/src/common/micro/ice_adjust.F90",
+    # from_line=313,
+    # to_line=419
 @stencil_collection("cloud_fraction_2")        
 def cloud_fraction_2(
     rhodref: Field["float"],

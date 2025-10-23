@@ -12,16 +12,12 @@ from gt4py.cartesian.gtscript import (
     sqrt,
     Field, 
     GlobalTable,
-    IJ
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 from ice3.functions.tiwmx import e_sat_i, e_sat_w
-from ifs_physics_common.utils.f2py import ported_method
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/condensation.F90",
-)
+    # "PHYEX/src/common/micro/condensation.F90"
 @stencil_collection("condensation")
 def condensation(
     sigqsat: Field["float"],
@@ -174,11 +170,9 @@ def condensation(
         # Translation note : end jiter
 
 
-@ported_method(
-    from_file="./PHYEX/src/common/micro/condensation.F90",
-    from_line=186,
-    to_line=189
-)
+    # from_file="./PHYEX/src/common/micro/condensation.F90",
+    # from_line=186,
+    # to_line=189
 @stencil_collection("sigrc_diagnostic")
 def sigrc_computation(
     q1: Field["float"], 

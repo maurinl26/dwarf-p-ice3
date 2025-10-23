@@ -592,61 +592,55 @@ wheels = [
 ]
 
 [[package]]
-name = "dwarf-ice3-gt4py"
+name = "dwarf-p-ice3"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "ifs-physics-common" },
     { name = "numpy" },
-    { name = "pytest-benchmark" },
     { name = "typer" },
     { name = "xarray" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "fprettify" },
     { name = "isort" },
     { name = "ruff" },
-]
-fortran = [
-    { name = "fprettify" },
 ]
 gpu = [
     { name = "cupy" },
     { name = "cupy-xarray" },
 ]
-test = [
-    { name = "fmodpy" },
-    { name = "pytest-benchmark" },
-]
 tests = [
+    { name = "fmodpy" },
     { name = "pytest" },
+    { name = "pytest-benchmark" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "ifs-physics-common", git = "https://github.com/maurinl26/ifs-physics-common.git" },
     { name = "numpy", specifier = "<2.0" },
-    { name = "pytest-benchmark", specifier = ">=5.1.0" },
     { name = "typer", specifier = ">=0.15.2" },
     { name = "xarray", specifier = ">=2025.4.0" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "fprettify", specifier = ">=0.3.7" },
     { name = "isort", specifier = ">=6.0.1" },
     { name = "ruff", specifier = ">=0.11.11" },
 ]
-fortran = [{ name = "fprettify", specifier = ">=0.3.7" }]
 gpu = [
     { name = "cupy", specifier = "==14.0.0a1" },
     { name = "cupy-xarray", specifier = ">=0.1.4" },
 ]
-test = [
+tests = [
     { name = "fmodpy", specifier = ">=1.7.4" },
+    { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=5.1.0" },
 ]
-tests = [{ name = "pytest", specifier = ">=8.3.5" }]
 
 [[package]]
 name = "exceptiongroup"

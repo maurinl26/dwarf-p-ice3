@@ -1,9 +1,10 @@
 from ifs_physics_common.framework.stencil import compile_stencil
-from gt4py.storage import from_array
+from gt4py.storage import from_array, zeros
 import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 from ctypes import c_float, c_double
+from ice3.utils.env import BACKEND_LIST
 
 import logging 
 
@@ -11,8 +12,8 @@ from tests.conftest import compile_fortran_stencil, get_backends
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
+@pytest.mark.parametrize("backend", BACKEND_LIST)
+def test_thermo(benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
     
          # Setting backend and precision
         gt4py_config.backend = backend
@@ -81,7 +82,7 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
                 order="F",
             ) for name in FloatFieldsIJK_Names
         }
-        
+
         
         th_gt4py = from_array(
             FloatFieldsIJK["th"],
@@ -123,23 +124,22 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
-        lv_gt4py = from_array(
-            FloatFieldsIJK["lv"],
+        lv_gt4py = zeros(grid.shape,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
-        ls_gt4py = from_array(
-            FloatFieldsIJK["ls"],
+        ls_gt4py = zeros(
+            grid.shape,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
-        cph_gt4py = from_array(
-            FloatFieldsIJK["cph"],
+        cph_gt4py = zeros(
+            grid.shape,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
-        t_gt4py = from_array(
-            FloatFieldsIJK["t"],
+        t_gt4py = zeros(
+            grid.shape,
             dtype=gt4py_config.dtypes.float,
             backend=gt4py_config.backend
         )
@@ -149,51 +149,49 @@ def test_thermo(gt4py_config, externals, fortran_dims, precision, backend, grid,
             for name, field in FloatFieldsIJK.items()
         }
 
-        thermo_fields(
-            th=th_gt4py,
-            exn=exn_gt4py,
-            rv=rv_gt4py,
-            rc=rc_gt4py,
-            rr=rr_gt4py,
-            ri=ri_gt4py,
-            rs=rs_gt4py,
-            rg=rg_gt4py,
-            lv=lv_gt4py,
-            ls=ls_gt4py,
-            cph=cph_gt4py,
-            t=t_gt4py,
-            domain=grid.shape,
-            origin=origin
-        )
+        def run_thermo():
+            thermo_fields(
+                th=th_gt4py,
+                exn=exn_gt4py,
+                rv=rv_gt4py,
+                rc=rc_gt4py,
+                rr=rr_gt4py,
+                ri=ri_gt4py,
+                rs=rs_gt4py,
+                rg=rg_gt4py,
+                lv=lv_gt4py,
+                ls=ls_gt4py,
+                cph=cph_gt4py,
+                t=t_gt4py,
+                domain=grid.shape,
+                origin=origin
+            )
+
+            return (
+                t_gt4py, ls_gt4py, lv_gt4py, cph_gt4py
+            )
+
+        benchmark(run_thermo)
 
 
-        result = fortran_stencil(
+        zt, zlv, zls, zcph = fortran_stencil(
             krr=6,
             **Fortran_FloatFieldsIJK,
             **fortran_externals,
             **fortran_dims,
         )
         
-        Fields_OutNames = ['zt', 'zlv', 'zls', 'zcph']
-        Fields_Out = {
-            name: result[i] for i, name in enumerate(Fields_OutNames)
-        }
-        
         logging.info(f"Machine precision {np.finfo(float).eps}")
-        
-        for fname in Fields_OutNames:
-            logging.info(f"{F2Py_Mapping[fname]} :: Mean gt4py      {FloatFieldsIJK[F2Py_Mapping[fname]].mean()}")
-            logging.info(f"{F2Py_Mapping[fname]} :: Mean fortran    {Fields_Out[fname].mean()}")
-        
-        assert_allclose(Fields_Out['zt'], t_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(Fields_Out['zlv'], lv_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(Fields_Out['zls'], ls_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
-        assert_allclose(Fields_Out['zcph'], cph_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+
+        assert_allclose(zt, t_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(zlv, lv_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(zls, ls_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
+        assert_allclose(zcph, cph_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6)
         
         
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_cloud_fraction_1(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
+@pytest.mark.parametrize("backend", BACKEND_LIST)
+def test_cloud_fraction_1(benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
     
          # Setting backend and precision
         gt4py_config.backend = backend
@@ -265,25 +263,40 @@ def test_cloud_fraction_1(gt4py_config, externals, fortran_dims, precision, back
                 backend=gt4py_config.backend,dtype=gt4py_config.dtypes.float
             )
 
-        cloud_fraction_1(
-            lv=lv_gt4py,
-            ls=ls_gt4py,
-            cph=cph_gt4py,
-            exnref=exnref_gt4py,
-            rc=rc_gt4py,
-            ri=ri_gt4py,
-            ths=ths_gt4py,
-            rvs=rvs_gt4py,
-            rcs=rcs_gt4py,
-            ris=ris_gt4py,
-            rc_tmp=rc_tmp_gt4py,
-            ri_tmp=ri_tmp_gt4py,
-            dt=dt,
-            domain=grid.shape,
-            origin=origin
-        )
+        def run_cloud_fraction_1():
+            cloud_fraction_1(
+                lv=lv_gt4py,
+                ls=ls_gt4py,
+                cph=cph_gt4py,
+                exnref=exnref_gt4py,
+                rc=rc_gt4py,
+                ri=ri_gt4py,
+                ths=ths_gt4py,
+                rvs=rvs_gt4py,
+                rcs=rcs_gt4py,
+                ris=ris_gt4py,
+                rc_tmp=rc_tmp_gt4py,
+                ri_tmp=ri_tmp_gt4py,
+                dt=dt,
+                domain=grid.shape,
+                origin=origin
+            )
+            return (
+                ths_gt4py,
+                rvs_gt4py,
+                rcs_gt4py,
+                ris_gt4py,
+                rc_tmp_gt4py,
+                ri_tmp_gt4py
+            )
+
+        benchmark(run_cloud_fraction_1)
         
-        fortran_stencil = compile_fortran_stencil("mode_cloud_fraction_split.F90", "mode_cloud_fraction_split", "cloud_fraction_1")
+        fortran_stencil = compile_fortran_stencil(
+            "mode_cloud_fraction_split.F90",
+            "mode_cloud_fraction_split",
+            "cloud_fraction_1"
+        )
         logging.info(f"SUBG_MF_PDF  : {externals["SUBG_MF_PDF"]}")
         logging.info(f"LSUBG_COND   : {externals["LSUBG_COND"]}")
         
@@ -342,8 +355,8 @@ def test_cloud_fraction_1(gt4py_config, externals, fortran_dims, precision, back
         
 
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
+@pytest.mark.parametrize("backend", BACKEND_LIST)
+def test_cloud_fraction_2(benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
         
         # Setting backend and precision
         gt4py_config.backend = backend
@@ -408,8 +421,10 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         hlc_hcf_gt4py = from_array(FloatFieldsIJK["hlc_hcf"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
         hli_hri_gt4py = from_array(FloatFieldsIJK["hli_hri"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
         hli_hcf_gt4py = from_array(FloatFieldsIJK["hli_hcf"], backend=gt4py_config.backend, dtype=gt4py_config.dtypes.float)
-        
-        cloud_fraction_2(
+
+
+        def run_cloud_fraction_2():
+            cloud_fraction_2(
             rhodref=rhodref_gt4py,
             exnref=exnref_gt4py,
             t=t_gt4py,
@@ -432,6 +447,14 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
             domain=grid.shape,
             origin=origin
         )
+            return (
+                hlc_hrc_gt4py,
+                hlc_hcf_gt4py,
+                hli_hri_gt4py,
+                hli_hcf_gt4py
+            )
+
+        benchmark(run_cloud_fraction_2)
         
         logging.info(f"SUBG_MF_PDF  : {externals["SUBG_MF_PDF"]}")
         logging.info(f"LSUBG_COND   : {externals["LSUBG_COND"]}")
@@ -453,7 +476,7 @@ def test_cloud_fraction_2(gt4py_config, externals, fortran_dims, precision, back
         
         logging.info(f"csubg_mf_pdf : {fortran_externals['csubg_mf_pdf']}")
         
-        from ice3_gt4py.phyex_common.param_ice import SubGridMassFluxPDF
+        from ice3.phyex_common.param_ice import SubGridMassFluxPDF
         logging.info(f"csubg_mf_pdf : {SubGridMassFluxPDF(fortran_externals['csubg_mf_pdf'])}")
         logging.info(f"lsubg_cond   : {fortran_externals['lsubg_cond']}")
         

@@ -5,8 +5,8 @@ import numpy as np
 from numpy.testing import assert_allclose
 from tests.conftest import compile_fortran_stencil
 
-from ice3_gt4py.phyex_common.tables import SRC_1D
-from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+from ice3.phyex_common.tables import SRC_1D
+from ice3.stencils.sigma_rc_dace import sigrc_computation
 
 
 def test_sigrc_computation_dace(grid):

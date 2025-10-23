@@ -10,7 +10,6 @@ from gt4py.cartesian.gtscript import (
     FORWARD,
     interval,
     IJ,
-    log,
 )
 from ifs_physics_common.framework.stencil import stencil_collection
 from ifs_physics_common.utils.f2py import ported_method

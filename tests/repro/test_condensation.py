@@ -3,18 +3,18 @@ from ctypes import c_double, c_float
 
 import numpy as np
 import pytest
-from gt4py.storage import from_array, ones
+from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
-
-from ice3_gt4py.phyex_common.tables import SRC_1D
+from ice3.utils.env import BACKEND_LIST
+from ice3.phyex_common.tables import SRC_1D
 
 from tests.conftest import compile_fortran_stencil, get_backends
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_condensation(gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
+@pytest.mark.parametrize("backend", BACKEND_LIST)
+def test_condensation(benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin):
     
          # Setting backend and precision
         gt4py_config.backend = backend
@@ -172,26 +172,40 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
         a_gt4py = from_array(temporary_FloatFieldsIJK["a"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
         b_gt4py = from_array(temporary_FloatFieldsIJK["b"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)
         sbar_gt4py = from_array(temporary_FloatFieldsIJK["sbar"], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend)        
-        
-        condensation(
-            sigqsat=sigqsat_gt4py,
-            pabs=pabs_gt4py,
-            sigs=sigs_gt4py, 
-            t=t_gt4py,
-            rv=rv_in_gt4py,
-            ri=ri_in_gt4py,
-            rc=rc_in_gt4py,
-            rv_out=rv_out_gt4py,
-            rc_out=rc_out_gt4py,
-            ri_out=ri_out_gt4py,
-            cldfr=cldfr_gt4py,
-            cph=cph_gt4py,
-            lv=lv_gt4py,
-            ls=ls_gt4py,
-            q1=q1_gt4py,
-            domain=grid.shape,
-            origin=origin
-        )
+
+
+        def run_condensation():
+            condensation(
+                sigqsat=sigqsat_gt4py,
+                pabs=pabs_gt4py,
+                sigs=sigs_gt4py,
+                t=t_gt4py,
+                rv=rv_in_gt4py,
+                ri=ri_in_gt4py,
+                rc=rc_in_gt4py,
+                rv_out=rv_out_gt4py,
+                rc_out=rc_out_gt4py,
+                ri_out=ri_out_gt4py,
+                cldfr=cldfr_gt4py,
+                cph=cph_gt4py,
+                lv=lv_gt4py,
+                ls=ls_gt4py,
+                q1=q1_gt4py,
+                domain=grid.shape,
+                origin=origin
+            )
+            return (
+                rv_out_gt4py,
+                rc_out_gt4py,
+                ri_out_gt4py,
+                cldfr_gt4py,
+                cph_gt4py,
+                lv_gt4py,
+                ls_gt4py,
+                q1_gt4py
+             )
+
+        benchmark(run_condensation)
 
         logical_keys = {
             "osigmas":"LSIGMAS", 
@@ -355,7 +369,7 @@ def test_condensation(gt4py_config, externals, fortran_dims, precision, backend,
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
+@pytest.mark.parametrize("backend", BACKEND_LIST)
 def test_sigrc_computation(
     gt4py_config, externals, fortran_dims, grid, origin, precision, backend
 ):
@@ -380,7 +394,7 @@ def test_sigrc_computation(
 
     inq1 = np.zeros(grid.shape, dtype=np.int32)
 
-    from ice3_gt4py.stencils.sigma_rc_dace import sigrc_computation
+    from ice3.stencils.sigma_rc_dace import sigrc_computation
     compiled_sdfg = sigrc_computation.to_sdfg().compile()
 
     # dace
