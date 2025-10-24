@@ -1,7 +1,10 @@
 # ICE3 microphysics on gt4py.
 
-dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
+dwarf-p-ice3 is a porting of ice3 microphysics with Python and GT4Py dsl. 
+Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
 repository or updated as a submodule in this project -via _install.sh_ script.
+
+The official version for reproducibility is CY48t3.
 
 ## Installation and build
 

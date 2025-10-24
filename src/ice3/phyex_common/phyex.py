@@ -3,11 +3,9 @@ from dataclasses import asdict, dataclass, field
 from typing import Literal, Tuple
 from enum import Enum
 
-from ifs_physics_common.utils.f2py import ported_class
-
 from ice3.phyex_common.constants import Constants
 from ice3.phyex_common.nebn import Neb
-from ice3.phyex_common.rain_ice_param import ParamIce, RainIceDescr, RainIceParam
+from ice3.phyex_common.rain_ice_param import ParamIce, RainIceDescriptors, RainIceParameters
 
 
 class Boundary(Enum):
@@ -15,7 +13,7 @@ class Boundary(Enum):
     CYCL = 1
 
 
-@ported_class(from_file="PHYEX/src/common/aux/modd_phyex.F90")
+# from_file="PHYEX/src/common/aux/modd_phyex.F90"
 @dataclass
 class Phyex:
     """Data class for physics parametrizations
@@ -53,8 +51,8 @@ class Phyex:
 
     cst: Constants = field(init=False)
     param_icen: ParamIce = field(init=False)
-    rain_ice_descrn: RainIceDescr = field(init=False)
-    rain_ice_param: RainIceParam = field(init=False)
+    rain_ice_descrn: RainIceDescriptors = field(init=False)
+    rain_ice_param: RainIceParameters = field(init=False)
     nebn: Neb = field(init=False)
 
     ITERMAX: int = field(default=1)
@@ -87,8 +85,8 @@ class Phyex:
         self.cst = Constants()
         self.param_icen = ParamIce(self.PROGRAM)
         self.nebn = Neb(self.PROGRAM)
-        self.rain_ice_descrn = RainIceDescr(self.cst, self.param_icen)
-        self.rain_ice_param = RainIceParam(
+        self.rain_ice_descrn = RainIceDescriptors(self.cst, self.param_icen)
+        self.rain_ice_param = RainIceParameters(
             self.cst, self.rain_ice_descrn, self.param_icen
         )
         
@@ -109,3 +107,7 @@ class Phyex:
             })
 
         return externals
+    
+    @property
+    def externals(self):
+        return self.to_externals()

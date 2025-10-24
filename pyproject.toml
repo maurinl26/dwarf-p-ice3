@@ -1,15 +1,14 @@
 [project]
-name = "dwarf-ice3-gt4py"
+name = "dwarf-p-ice3"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "ifs-physics-common",
     "numpy<2.0",
-    "pytest-benchmark>=5.1.0",
-    "typer>=0.15.2",
     "xarray>=2025.4.0",
+    "ifs-physics-common",
+    "typer>=0.15.2",
 ]
 
 [build-system]
@@ -22,6 +21,7 @@ standalone-model = "drivers.cli:app"
 
 [dependency-groups]
 dev = [
+    "fprettify>=0.3.7",
     "isort>=6.0.1",
     "ruff>=0.11.11",
 ]
@@ -30,13 +30,8 @@ gpu = [
     "cupy-xarray>=0.1.4",
 ]
 tests = [
-    "pytest>=8.3.5",
-]
-fortran = [
-    "fprettify>=0.3.7",
-]
-test = [
     "fmodpy>=1.7.4",
+    "pytest>=8.3.5",
     "pytest-benchmark>=5.1.0",
 ]
 

@@ -66,7 +66,7 @@ class Sedim(Enum):
     STAT = 1
 
 
-@ported_class(from_file="PHYEX/src/common/aux/modd_param_icen.F90")
+# from_file="PHYEX/src/common/aux/modd_param_icen.F90"
 @dataclass
 class ParamIce:
     """
