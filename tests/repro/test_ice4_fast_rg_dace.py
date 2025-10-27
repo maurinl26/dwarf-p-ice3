@@ -1,6 +1,3 @@
-import logging
-from ctypes import c_double, c_float
-
 import numpy as np
 import pytest
 from tests.conftest import compile_fortran_stencil, get_backends

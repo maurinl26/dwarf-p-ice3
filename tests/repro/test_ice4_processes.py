@@ -1,21 +1,12 @@
-import logging
 from ctypes import c_double, c_float
 
 import numpy as np
 import pytest
 from tests.conftest import compile_fortran_stencil, get_backends
-from tests.allocate_random_fields import draw_fields, allocate_gt4py_fields, allocate_fields, allocate_fortran_fields
 from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
-import gt4py
 
-
-def allocate_random_fields(names, gt4py_config, grid, dtype=None):
-    dtype = dtype or (c_float if gt4py_config.dtypes.float == np.float32 else c_double)
-    fields = {name: np.array(np.random.rand(*grid.shape), dtype=dtype, order="F") for name in names}
-    gt4py_buffers = {name: from_array(fields[name], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend) for name in names}
-    return fields, gt4py_buffers
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize("backend", get_backends())

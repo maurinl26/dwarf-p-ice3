@@ -1,14 +1,10 @@
-import logging
-from ctypes import c_double, c_float
-
-import numpy as np
 import pytest
 
 from tests.allocate_random_fields import get_fields
 from tests.conftest import compile_fortran_stencil, get_backends
 from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
-from numpy.testing import assert_allclose
+
 
 @pytest.mark.skip("Not Implemented")
 @pytest.mark.parametrize("precision", ["double", "single"])
