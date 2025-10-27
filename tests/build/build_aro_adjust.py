@@ -4,9 +4,7 @@ from __future__ import annotations
 import datetime
 import json
 import logging
-from dataclasses import asdict
 from datetime import timedelta
-from typing import Dict
 
 from gt4py.storage import from_array, ones
 

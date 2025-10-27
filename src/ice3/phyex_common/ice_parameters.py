@@ -65,7 +65,11 @@ class Sedim(Enum):
     STAT = 1
 
 
+<<<<<<<< HEAD:src/ice3/phyex_common/ice_parameters.py
 ############ phyex/common/aux/modd_param_icen.F90 ###############
+========
+# from_file="PHYEX/src/common/aux/modd_param_icen.F90"
+>>>>>>>> repro:src/ice3/phyex_common/param_ice.py
 @dataclass
 class IceParameters:
     """

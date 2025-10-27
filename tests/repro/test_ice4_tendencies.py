@@ -7,8 +7,6 @@ from gt4py.storage import from_array
 from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
-from ice3.phyex_common.phyex import Phyex
-
 
 def allocate_random_fields(names, gt4py_config, grid, dtype=None):
     dtype = dtype or gt4py_config.dtypes.float

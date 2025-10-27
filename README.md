@@ -1,7 +1,10 @@
 # ICE3 microphysics on gt4py.
 
-dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
+dwarf-p-ice3 is a porting of ice3 microphysics with Python and GT4Py dsl. 
+Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
 repository or updated as a submodule in this project -via _install.sh_ script.
+
+The official version for reproducibility is CY48t3.
 
 ## Installation and build
 
@@ -141,9 +144,20 @@ derivate types from routines. Then both stencils are ran with random numpy array
 as an input.
 
 - conftest.py : 
-  - tous les utilitaires pour les tests : grille, domain, origine de test et config gt4py
+  - tous les utilitaires pour
+  - les tests : grille, domain, origine de test et config gt4py
   - compile_fortran_stencil(fichier, module, subroutine)
 
+
+## Python Wrapper
+
+```bash
+uv run standalone-model ice-adjust-fortran\
+  ../phyex/lib/libice-adjust.so \
+  ./data/ice_adjust/reference.nc \
+  ./data/ice_adjust/run.nc \
+  track_ice_adjust.json
+```
 
 ## Structure du projet 
 

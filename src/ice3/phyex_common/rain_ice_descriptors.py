@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass, field
 from math import gamma, sqrt
-from typing import List, Tuple
-
 import numpy as np
 
 from ice3.phyex_common.constants import Constants
+<<<<<<<< HEAD:src/ice3/phyex_common/rain_ice_descriptors.py
 <<<<<<<< HEAD:src/ice3/phyex_common/rain_ice_descr.py
 from ice3.phyex_common.param_ice import ParamIce
 ========
@@ -16,6 +15,14 @@ from ice3.phyex_common.ice_parameters import IceParameters
 ################# PHYEX/src/common/aux/modd_rain_ice_descrn.F90 ##############
 @dataclass
 class RainIceDescriptor:
+========
+from ice3.phyex_common.param_ice import ParamIce
+
+
+# from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90"
+@dataclass
+class RainIceDescriptors:
+>>>>>>>> repro:src/ice3/phyex_common/rain_ice_descr.py
     """Declaration of the microphysical descriptove constants for use in the warm and cold schemes.
 
     m(D)    = XAx * D ** Bx         : Mass-MaxDim relationship

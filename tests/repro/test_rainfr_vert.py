@@ -1,5 +1,3 @@
-import pytest
-from tests.conftest import get_backends
 from ctypes import  c_float
 
 import numpy as np
