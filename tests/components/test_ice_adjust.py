@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-import xarray as xr
 from gt4py.cartesian.gtscript import stencil
 from gt4py.storage import from_array, zeros
 from numpy.testing import assert_allclose
