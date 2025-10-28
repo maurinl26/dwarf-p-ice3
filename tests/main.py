@@ -6,8 +6,8 @@ import logging
 import typer
 
 from stencils.test_compile_stencils import STENCIL_COLLECTIONS, build
-from ice3_gt4py.phyex_common.phyex import Phyex
-from components.test_component import build_component
+from ice3.phyex_common.phyex import Phyex
+from tests.components.test_component import build_component
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -35,22 +35,22 @@ def test_compile_stencils(backend: str):
 def test_components(backend: str):
     """Test ImplicitTendencyComponents for parts of model"""
 
-    from ice3_gt4py.components.aro_adjust import AroAdjust
+    from ice3.components.aro_adjust import AroAdjust
 
     logging.info(f"Testing AroAdjust on backend {backend}")
     build_component(backend, AroAdjust)
 
-    from ice3_gt4py.components.aro_filter import AroFilter
+    from ice3.components.aro_filter import AroFilter
 
     logging.info(f"Testing AroFilter on backend {backend}")
     build_component(backend, AroFilter)
 
-    from ice3_gt4py.components.ice_adjust import IceAdjust
+    from ice3.components.ice_adjust import IceAdjust
 
     logging.info(f"Testing IceAdjust on backend {backend}")
     build_component(backend, IceAdjust)
 
-    from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
+    from ice3.components.ice4_tendencies import Ice4Tendencies
 
     logging.info(f"Testing Ice4Tendencies on backend {backend}")
     build_component(backend, Ice4Tendencies)

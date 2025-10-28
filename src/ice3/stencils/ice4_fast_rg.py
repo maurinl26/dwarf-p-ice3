@@ -187,6 +187,7 @@ def ice4_fast_rg(
             rg_ridry_tnd = 0
             rg_riwet_tnd = 0
 
+    # todo : move to dace
     # 6.2.1 wet and dry collection of rs on graupel
     # Translation note : l171 in mode_ice4_fast_rg.F90
     with computation(PARALLEL), interval(...):
@@ -230,7 +231,8 @@ def ice4_fast_rg(
 
             rg_rsdry_tnd = rg_rswet_tnd * COLSG * exp(t - TT)
 
-    # 6.2.6 accreation of raindrops on the graupeln
+    # todo : move to dace
+    # 6.2.6 accretion of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
         if rrt < R_RTMIN and rgt < G_RTMIN and ldcompute:
             gdry = True

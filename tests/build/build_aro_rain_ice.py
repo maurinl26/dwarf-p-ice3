@@ -2,14 +2,23 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import asdict
 from datetime import timedelta
+from functools import cached_property
+from itertools import repeat
+from typing import Dict
 
+from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
+from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.stencil import compile_stencil
+from ifs_physics_common.framework.storage import managed_temporary_storage
+from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+from ifs_physics_common.utils.f2py import ported_method
 
 
-from ice3.phyex_common.phyex import Phyex
+from ice3_gt4py.components.ice4_tendencies import Ice4Tendencies
+from ice3_gt4py.phyex_common.phyex import Phyex
 
 
 import numpy as np

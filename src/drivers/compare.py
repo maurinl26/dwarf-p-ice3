@@ -67,7 +67,6 @@ def compare_fields(
 
     metrics = dict()
     for run_name, ref_name in KEYS:
-
         if run_name in tendencies:
             run_field = run_reader.get_field(run_name)
 

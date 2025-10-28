@@ -12,7 +12,6 @@ from gt4py.cartesian.gtscript import (
     IJ,
 )
 from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
 
 from ice3.functions.sedimentation_flux import (
     other_species,
@@ -24,7 +23,7 @@ from ice3.functions.sea_town_masks import lbc, conc3d, ray, fsedc
 from ice3.functions.upwind_sedimentation import instant_precipitation, maximum_time_step, mixing_ratio_update, upper_air_flux
 
 
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90")
+# "PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90")
 @stencil_collection("statistical_sedimentation")
 def sedimentation_stat(
     rhodref: Field["float"],

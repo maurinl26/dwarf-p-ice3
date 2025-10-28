@@ -4,15 +4,15 @@ from __future__ import annotations
 import logging
 from datetime import timedelta
 import sys
-from typing import Tuple
+from functools import cached_property
 from itertools import repeat
 from typing import Dict
 from gt4py.storage import from_array
-from ifs_physics_common.framework.components import ComputationalGridComponent
+from ifs_physics_common.framework.components import ImplicitTendencyComponent
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
-from ifs_physics_common.utils.typingx import NDArrayLikeDict
+from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
 from ice3.phyex_common.phyex import Phyex
 from ice3.phyex_common.tables import SRC_1D
@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
 
 
-class IceAdjust(ComputationalGridComponent):
+class IceAdjust:
     """Implicit Tendency Component calling
     ice_adjust : saturation adjustment of temperature and mixing ratios
 
@@ -40,10 +40,13 @@ class IceAdjust(ComputationalGridComponent):
         backend: str = "gt:cpu_ifirst",
         enable_checks: bool = True,
     ) -> None:
+        super().__init__(
+            computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
+        )
 
-        self.domain = domain
+        externals = phyex.to_externals()
+        self.ice_adjust = self.compile_stencil("ice_adjust", externals)
 
-        self.ice_adjust = self.compile_stencil("ice_adjust", phyex.externals)
 
         logging.info(f"Keys")
         logging.info(f"SUBG_COND : {phyex.nebn.LSUBG_COND}")
@@ -51,17 +54,13 @@ class IceAdjust(ComputationalGridComponent):
         logging.info(f"SIGMAS : {phyex.nebn.LSIGMAS}")
         logging.info(f"LMFCONV : {phyex.LMFCONV}")
 
-    def __call__(
-        self,
-        state: NDArrayLikeDict,
-        timestep: timedelta,
-        out_tendencies: NDArrayLikeDict,
-        out_diagnostics: NDArrayLikeDict,
-        overwrite_tendencies: Dict[str, bool],
-    ) -> None:
+    def __call__(self, state):
+
+
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "float"), 4),
+            *repeat(((I, J, K), "int"), 1),
             gt4py_config=self.gt4py_config,
         ) as (
             lv,

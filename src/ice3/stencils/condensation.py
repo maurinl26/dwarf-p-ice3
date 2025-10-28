@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
@@ -10,7 +11,7 @@ from gt4py.cartesian.gtscript import (
     floor,
     interval,
     sqrt,
-    Field, 
+    Field,
     GlobalTable,
 )
 from ifs_physics_common.framework.stencil import stencil_collection
@@ -39,10 +40,10 @@ def condensation(
     """Microphysical adjustments for specific contents due to condensation."""
 
     from __externals__ import (
-        RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX, 
+        RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX,
         OCND2, LSIGMAS, LSTATNW, CONDENS
     )
-    
+
     # initialize values
     with computation(PARALLEL), interval(...):
         cldfr = 0.0
@@ -97,7 +98,7 @@ def condensation(
             if __INLINED(FRAC_ICE_ADJUST == 0):
                 frac_tmp = max(0, min(1, ((TMAXMIX - t) / (TMAXMIX - TMINMIX))))
 
-        
+
         # Supersaturation coefficients
         qsl = RD / RV * pv / (pabs - pv)
         qsi = RD / RV * piv / (pabs - piv)
@@ -175,8 +176,8 @@ def condensation(
     # to_line=189
 @stencil_collection("sigrc_diagnostic")
 def sigrc_computation(
-    q1: Field["float"], 
-    sigrc: Field["float"], 
+    q1: Field["float"],
+    sigrc: Field["float"],
     # inq1: Field["int"],
     inq2: "int",
     src_1d: GlobalTable["float", (34)]
@@ -191,4 +192,3 @@ def sigrc_computation(
         sigrc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
 
         # todo : add LAMBDA3='CB' inlined conditional
-

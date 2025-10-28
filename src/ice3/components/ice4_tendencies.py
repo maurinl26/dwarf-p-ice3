@@ -32,7 +32,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         gt4py_config: GT4PyConfig,
         phyex: Phyex,
         *,
-        enable_checks: bool = True,
+        enable_checks: bool = False,
     ) -> None:
         super().__init__(
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
@@ -43,6 +43,8 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         self.gaminc_rim1 = phyex.rain_ice_param.GAMINC_RIM1
         self.gaminc_rim2 = phyex.rain_ice_param.GAMINC_RIM2
         self.gaminc_rim4 = phyex.rain_ice_param.GAMINC_RIM4
+
+
 
 
         # Tendencies

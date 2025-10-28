@@ -7,52 +7,56 @@ from gt4py.cartesian.gtscript import (
     atan,
     computation,
     exp,
+    floor,
     interval,
     sqrt,
     Field,
+    GlobalTable,
+    IJ,
+    K
 )
-
 from ice3.functions.tiwmx import e_sat_i, e_sat_w
 from ice3.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
 
 
 # PHYEX/src/common/micro/ice_adjust.F90
 def ice_adjust(
-        sigqsat: Field["float"],
-        pabs: Field["float"],
-        sigs: Field["float"],
-        th: Field["float"],
-        exn: Field["float"],
-        exn_ref: Field["float"],
-        rho_dry_ref: Field["float"],
-        t: Field["float"],
-        rv: Field["float"],
-        ri: Field["float"],
-        rc: Field["float"],
-        rr: Field["float"],
-        rs: Field["float"],
-        rg: Field["float"],
-        cf_mf: Field["float"],
-        rc_mf: Field["float"],
-        ri_mf: Field["float"],
-        rv_out: Field["float"],
-        rc_out: Field["float"],
-        ri_out: Field["float"],
-        hli_hri: Field["float"],
-        hli_hcf: Field["float"],
-        hlc_hrc: Field["float"],
-        hlc_hcf: Field["float"],
-        ths: Field["float"],
-        rvs: Field["float"],
-        rcs: Field["float"],
-        ris: Field["float"],
-        cldfr: Field["float"],
-        cph: Field["float"],
-        lv: Field["float"],
-        ls: Field["float"],
-        pv: Field["float"],
-        piv: Field["float"],
-        dt: "float"
+        sigqsat: Field[IJ, K],
+        pabs: Field[IJ, K],
+        sigs: Field[IJ, K],
+        th: Field[IJ, K],
+        exn: Field[IJ, K],
+        exn_ref: Field[IJ, K],
+        rho_dry_ref: Field[IJ, K],
+        t: Field[IJ, K],
+        rv: Field[IJ, K],
+        ri: Field[IJ, K],
+        rc: Field[IJ, K],
+        rr: Field[IJ, K],
+        rs: Field[IJ, K],
+        rg: Field[IJ, K],
+        cf_mf: Field[IJ, K],
+        rc_mf: Field[IJ, K],
+        ri_mf: Field[IJ, K],
+        rv_out: Field[IJ, K],
+        rc_out: Field[IJ, K],
+        ri_out: Field[IJ, K],
+        hli_hri: Field[IJ, K],
+        hli_hcf: Field[IJ, K],
+        hlc_hrc: Field[IJ, K],
+        hlc_hcf: Field[IJ, K],
+        ths: Field[IJ, K],
+        rvs: Field[IJ, K],
+        rcs: Field[IJ, K],
+        ris: Field[IJ, K],
+        cldfr: Field[IJ, K],
+        cph: Field[IJ, K],
+        lv: Field[IJ, K],
+        ls: Field[IJ, K],
+        q1: Field[IJ, K],
+        sigma_rc: Field[IJ, K],
+        src_1d: GlobalTable[(34)],
+        dt: float
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
@@ -222,7 +226,12 @@ def ice_adjust(
         # Translation note : end jiter
 
     # Compute sigma_rc using global table
-    # TODO : solve sigma_rc computation, with global table
+    with computation(PARALLEL), interval(...):
+        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
+        inq2 = min(max(-22, inq1), 10)
+        # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
+        inc = 2 * q1  # - inq2
+        sigma_rc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
 
     # Cloud fraction 1
     with computation(PARALLEL), interval(...):
@@ -336,4 +345,3 @@ def ice_adjust(
                 hcf *= cf_mf
                 hli_hcf = min(1.0, hli_hcf + hcf)
                 hli_hri += hri
-

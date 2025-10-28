@@ -13,14 +13,17 @@ from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 from ifs_physics_common.utils.f2py import ported_method
+from ifs_physics_common.utils.numpyx import to_numpy
 import numpy as np
 import xarray as xr
+import logging
 
 
 from ice3.components.ice4_tendencies import Ice4Tendencies
 from ice3.phyex_common.phyex import Phyex
 
 
+# todo : merge with ice4_tendencies
 class Ice4Stepping(ImplicitTendencyComponent):
     """Component for step computation"""
 
@@ -30,7 +33,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         gt4py_config: GT4PyConfig,
         phyex: Phyex,
         *,
-        enable_checks: bool = True,
+        enable_checks: bool = False,
     ) -> None:
         super().__init__(
             computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
@@ -38,12 +41,13 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
         externals = phyex.to_externals()
 
-        # Stencil collections
+        # Switch between numpy and cupy
 
+        # Stencil collections
         self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
-        self.ice4_step_limiter = self.compile_stencil("step_limiter", externals)
+        self.ice4_step_limiter = self.compile_stencil("ice4_step_limiter", externals)
         self.ice4_mixing_ratio_step_limiter = self.compile_stencil(
-            "mixing_ratio_step_limiter", externals
+            "ice4_mixing_ratio_step_limiter", externals
         )
         self.ice4_state_update = self.compile_stencil("state_update", externals)
         self.external_tendencies_update = self.compile_stencil(
@@ -59,6 +63,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
         self.ice4_tendencies = Ice4Tendencies(
             self.computational_grid, self.gt4py_config, phyex
         )
+
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -76,9 +81,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
     @cached_property
     def _tendency_properties(self) -> PropertyDict:
-        return {
-
-        }
+        return {}
 
     @cached_property
     def _diagnostic_properties(self) -> PropertyDict:
@@ -230,7 +233,8 @@ class Ice4Stepping(ImplicitTendencyComponent):
             lsoft = False
 
             # l223 in f90
-            while np.any(t_micro[...] < dt):
+            _np_t_micro = to_numpy(t_micro)
+            while (_np_t_micro < dt).any():
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
@@ -243,7 +247,7 @@ class Ice4Stepping(ImplicitTendencyComponent):
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                while np.any(ldcompute[...]):
+                while ldcompute.any():
 
                     # Iterations limiter
                     if innerloop_counter >= max_innerloop_iterations:
@@ -251,20 +255,23 @@ class Ice4Stepping(ImplicitTendencyComponent):
 
                     ####### ice4_stepping_heat #############
                     state_stepping_heat = {
+                        **{
                         key: state[key]
                         for key in [
-                            "rv_t",
-                            "rc_t",
-                            "rr_t",
-                            "ri_t",
-                            "rs_t",
-                            "rg_t",
                             "exn",
-                            "th_t",
                             "ls_fact",
                             "lv_fact",
                             "t",
                         ]
+                    },**{
+                            "tht": state["th_t"],
+                            "rvt": state["rv_t"],
+                            "rct": state["rc_t"],
+                            "rrt": state["rr_t"],
+                            "rit": state["ri_t"],
+                            "rst": state["rs_t"],
+                            "rgt": state["rg_t"],
+                        }
                     }
 
                     self.ice4_stepping_heat(
@@ -289,19 +296,21 @@ class Ice4Stepping(ImplicitTendencyComponent):
                                 "sigma_rc",
                                 "ci_t",
                                 "t",
-                                "th_t",
-                                "rv_t",
-                                "rc_t",
-                                "rr_t",
-                                "ri_t",
-                                "rs_t",
-                                "rg_t",
                                 "hlc_hcf",
                                 "hlc_hrc",
                                 "hli_hcf",
                                 "hli_hri",
                             ]
                         },
+                        **{
+                              "tht": state["th_t"],
+                              "rvt": state["rv_t"],
+                              "rct": state["rc_t"],
+                              "rrt": state["rr_t"],
+                              "rit": state["ri_t"],
+                              "rst": state["rs_t"],
+                              "rgt": state["rg_t"],
+                          },
                         **{"pres": state["pabs_t"]},
                         **{
                             "ldcompute": ldcompute,
@@ -354,19 +363,18 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     )
 
                     # Translation note : l277 to l283 omitted, no external tendencies in AROME
-
+                    # todo: ice4_step_limiter
+                    #       ice4_mixing_ratio_step_limiter
+                    #       ice4_state_update in one stencil
                     ######### ice4_step_limiter ############################
                     state_step_limiter = {
-                        key: state[key]
-                        for key in [
-                            "exn",
-                            "rc_t",
-                            "rr_t",
-                            "ri_t",
-                            "rs_t",
-                            "rg_t",
-                            "th_t",
-                        ]
+                        "tht": state["th_t"],
+                        "rct": state["rc_t"],
+                        "rrt": state["rr_t"],
+                        "rit": state["ri_t"],
+                        "rst": state["rs_t"],
+                        "rgt": state["rg_t"],
+                        "exn": state["exn"]
                     }
 
                     tmps_step_limiter = {
@@ -399,8 +407,12 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     # l346 to l388
                     ############ ice4_mixing_ratio_step_limiter ############
                     state_mixing_ratio_step_limiter = {
-                        key: state[key]
-                        for key in ["rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]
+                        "rct": state["rc_t"],
+                        "rrt": state["rr_t"],
+                        "rit": state["ri_t"],
+                        "rst": state["rs_t"],
+                        "rgt": state["rg_t"],
+                        "cit": state["ci_t"],
                     }
 
                     temporaries_mixing_ratio_step_limiter = {
@@ -438,17 +450,15 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     # 4.7 new values for next iteration
                     ############### ice4_state_update ######################
                     state_state_update = {
-                        key: state[key]
-                        for key in [
-                            "th_t",
-                            "rc_t",
-                            "rr_t",
-                            "ri_t",
-                            "rs_t",
-                            "rg_t",
-                            "ci_t",
-                            "ldmicro",
-                        ]
+                        "tht": state["th_t"],
+                        "rct": state["rc_t"],
+                        "rrt": state["rr_t"],
+                        "rit": state["ri_t"],
+                        "rst": state["rs_t"],
+                        "rgt": state["rg_t"],
+                        "cit": state["ci_t"],
+                        "ldmicro": state["ldmicro"],
+
                     }
 
                     tmps_state_update = {
@@ -482,21 +492,26 @@ class Ice4Stepping(ImplicitTendencyComponent):
                     innerloop_counter += 1
                 outerloop_counter += 1
 
+            _np_t_micro = to_numpy(t_micro)
             # l440 to l452
             ################ external_tendencies_update ############
             # if ldext_tnd
 
-            state_external_tendencies_update = {
+            state_external_tendencies_update =  {
+                **{
                 key: state[key]
                 for key in [
-                    "th_t",
-                    "rc_t",
-                    "rr_t",
-                    "ri_t",
-                    "rs_t",
-                    "rg_t",
+
                     "ldmicro",
                 ]
+            }, **{
+                    "tht": state["th_t"],
+                    "rct": state["rc_t"],
+                    "rrt": state["rr_t"],
+                    "rit": state["ri_t"],
+                    "rst": state["rs_t"],
+                    "rgt": state["rg_t"],
+                }
             }
 
             tmps_external_tendencies_update = {

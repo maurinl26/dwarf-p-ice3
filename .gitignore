@@ -19,12 +19,14 @@ src/PHYEX/
 test/
 test_OLD/
 */__pycache__/*
+.idea/
 
 *.pyc
 src/ice3/drivers/tests.py
 src/ice3/stencils/ice4*
 src/testprogs_data/fortran/
 src/ice3/stencils_fortran/ref
+src/dwarf_ice3_gt4py.egg-info/
 src/drivers/cffi_driver
 output/
 dist/

@@ -17,14 +17,11 @@ from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.f2py import ported_method
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
-from ice3.components.ice4_stepping import Ice4Stepping
+# from ice3_gt4py.components.ice4_stepping import Ice4Stepping
+from ice3.components.ice4_tendencies import Ice4Tendencies
+
 from ice3.phyex_common.param_ice import (
     Sedim,
-    SubgAucvRc,
-    SubgAucvRi,
-    SubgPRPDF,
-    SubgRREvap,
-    SubgRRRCAccr,
 )
 from ice3.phyex_common.phyex import Phyex
 
@@ -54,21 +51,15 @@ class RainIce(ImplicitTendencyComponent):
         SEDIM = self.phyex.param_icen.SEDIM
 
         # 1. Generalites
-        self.rain_ice_init = self.compile_stencil("rain_ice_init", externals)
+        self.rain_ice_thermo = self.compile_stencil("rain_ice_thermo", externals)
+
+        self.rain_ice_mask = self.compile_stencil("rain_ice_mask", externals)
 
         # 3. Initial values saving
         self.initial_values_saving = self.compile_stencil(
             "initial_values_saving", externals
         )
 
-        # 4.1 Slow cold processes outside of ldmicro
-        self.rain_ice_nucleation_pre_processing = self.compile_stencil(
-            "rain_ice_nucleation_pre_processing", externals
-        )
-        self.ice4_nucleation = self.compile_stencil("ice4_nucleation", externals)
-        self.rain_ice_nucleation_post_processing = self.compile_stencil(
-            "rain_ice_nucleation_post_processing", externals
-        )
 
         # 4.2 Computes precipitation fraction
         self.ice4_precipitation_fraction_sigma = self.compile_stencil(
@@ -79,12 +70,6 @@ class RainIce(ImplicitTendencyComponent):
         )
         self.ice4_compute_pdf = self.compile_stencil("ice4_compute_pdf", externals)
         self.ice4_rainfr_vert = self.compile_stencil("ice4_rainfr_vert", externals)
-
-        # 5. Tendencies computation
-        # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
-        self.ice4_stepping = Ice4Stepping(
-            self.computational_grid, self.gt4py_config, phyex
-        )
 
         # 8. Total tendencies
         # 8.1 Total tendencies limited by available species
@@ -114,6 +99,31 @@ class RainIce(ImplicitTendencyComponent):
 
         # 10 Compute the fog deposition
         self.fog_deposition = self.compile_stencil("fog_deposition", externals)
+        
+        #####################################################################
+        ######################### Stepping ##################################
+        #####################################################################
+        # Stencil collections
+        self.ice4_stepping_heat = self.compile_stencil("ice4_stepping_heat", externals)
+        self.ice4_step_limiter = self.compile_stencil("ice4_step_limiter", externals)
+        self.ice4_mixing_ratio_step_limiter = self.compile_stencil(
+            "ice4_mixing_ratio_step_limiter", externals
+        )
+        self.ice4_state_update = self.compile_stencil("state_update", externals)
+        self.external_tendencies_update = self.compile_stencil(
+            "external_tendencies_update", externals
+        )
+        self.tmicro_init = self.compile_stencil("ice4_stepping_tmicro_init", externals)
+        self.tsoft_init = self.compile_stencil("ice4_stepping_tsoft_init", externals)
+        self.ldcompute_init = self.compile_stencil(
+            "ice4_stepping_ldcompute_init", externals
+        )
+
+        # Component for tendency update
+        self.ice4_tendencies = Ice4Tendencies(
+            self.computational_grid, self.gt4py_config, phyex
+        )
+        ###################################################################
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -426,20 +436,15 @@ class RainIce(ImplicitTendencyComponent):
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "bool"), 2),
-            *repeat(((I, J, K), "float"), 16),
+            *repeat(((I, J, K), "float"), 50),
             *repeat(((I, J), "float"), 2),
             gt4py_config=self.gt4py_config,
         ) as (
             ldmicro,
-            lw3d,
+            ldcompute,
             rvheni,
             lv_fact,
             ls_fact,
-            sigma_rc,
-            hlc_lcf,
-            hlc_lrc,
-            hli_lcf,
-            hli_lri,
             wr_th,
             wr_v,
             wr_c,
@@ -447,22 +452,56 @@ class RainIce(ImplicitTendencyComponent):
             wr_i,
             wr_s,
             wr_g,
+            remaining_time,
+            delta_t_micro,
+            t_micro,
+            delta_t_soft,
+            t_soft,
+            theta_a_tnd,
+            rv_a_tnd,
+            rc_a_tnd,
+            rr_a_tnd,
+            ri_a_tnd,
+            rs_a_tnd,
+            rg_a_tnd,
+            theta_b,
+            rv_b,
+            rc_b,
+            rr_b,
+            ri_b,
+            rs_b,
+            rg_b,
+            theta_ext_tnd,
+            rc_ext_tnd,
+            rr_ext_tnd,
+            ri_ext_tnd,
+            rs_ext_tnd,
+            rg_ext_tnd,
+            rc_0r_t,
+            rr_0r_t,
+            ri_0r_t,
+            rs_0r_t,
+            rg_0r_t,
+            ai,
+            cj,
+            ssi,
+            hlc_lcf,
+            hlc_lrc,
+            hli_lcf,
+            hli_lri,
+            fr,
+            sigma_rc,
+            cf,
             w3d,
             inpri,
-            remaining_time,
         ):
 
             # KEYS
-            SUBG_RC_RR_ACCR = self.phyex.param_icen.SUBG_RC_RR_ACCR
-            SUBG_RR_EVAP = self.phyex.param_icen.SUBG_RR_EVAP
-            SUBG_PR_PDF = self.phyex.param_icen.SUBG_PR_PDF
-            SUBG_AUCV_RC = self.phyex.param_icen.SUBG_AUCV_RC
-            SUBG_AUCV_RI = self.phyex.param_icen.SUBG_AUCV_RI
             LSEDIM_AFTER = self.phyex.param_icen.LSEDIM_AFTER
             LDEPOSC = self.phyex.param_icen.LDEPOSC
 
             # 1. Generalites
-            state_rain_ice_init = {
+            state_rain_ice_thermo = {
                 **{
                     key: state[key]
                     for key in [
@@ -477,17 +516,41 @@ class RainIce(ImplicitTendencyComponent):
                     ]
                 },
                 **{
-                    "ldmicro": ldmicro,
                     "ls_fact": ls_fact,
                     "lv_fact": lv_fact,
                 },
             }
-            self.rain_ice_init(
-                **state_rain_ice_init,
+            self.rain_ice_thermo(
+                **state_rain_ice_thermo,
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
                 exec_info=self.gt4py_config.exec_info,)
+            
+            # Compute the mask 
+            state_rain_ice_mask = {
+                **{
+                    key: state[key]
+                    for key in [
+                        "rc_t",
+                        "ri_t",
+                        "rr_t",
+                        "rs_t",
+                        "rg_t"
+                    ]
+                },
+                **{
+                    "ldmicro": ldmicro
+                }                
+            }
+            
+            self.rain_ice_mask(
+                **state_rain_ice_mask,
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info
+            )
 
             # 2. Compute the sedimentation source
             state_sed = {
@@ -559,188 +622,366 @@ class RainIce(ImplicitTendencyComponent):
                 exec_info=self.gt4py_config.exec_info,
             )
 
-            # 4.1 Slow cold processes outside of ldmicro
-            state_nuc_pre = {key: state[key] for key in ["exn", "ci_t"]}
-            tmps_nuc_pre = {"ldmicro": ldmicro, "w3d": w3d, "ls_fact": ls_fact}
-            self.rain_ice_nucleation_pre_processing(**state_nuc_pre, **tmps_nuc_pre)
+            # 5. Tendencies computation
+            
+            # ice4_stepping handles the tendency update with double while loop
+            logging.info("Call to stepping")
+            # 5. Tendencies computation
+            # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
+        
+            # Stepping replaced by its stencils + tendencies
+            state_tmicro_init = {
+                "ldmicro": ldmicro,
+                "t_micro": t_micro
+                }
 
-            state_nuc = {
-                key: state[key]
-                for key in [
-                    "th_t",
-                    "pabs_t",
-                    "rhodref",
-                    "exn",
-                    "t",
-                    "rv_t",
-                    "ci_t",
-                    "ssi",
-                ]
-            }
-            tmps_nuc = {
-                "ldcompute": lw3d,
-                "ls_fact": ls_fact,
-                "rvheni_mr": rvheni,
-            }
-            self.ice4_nucleation(
-                **state_nuc, 
-                **tmps_nuc,
+            self.tmicro_init(
+                **state_tmicro_init,
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
-            self.rain_ice_nucleation_post_processing(rvs=state["rvs"], rvheni=rvheni)
+                exec_info=self.gt4py_config.exec_info,
+                )
 
-            # 4.2 Computes precipitation fraction
-            if (
-                SUBG_RC_RR_ACCR == SubgRRRCAccr.PRFR.value
-                or SUBG_RR_EVAP == SubgRREvap.PRFR.value
-            ):
-                if (
-                    SUBG_AUCV_RC == SubgAucvRc.PDF.value
-                    and SUBG_PR_PDF == SubgPRPDF.SIGM.value
-                ):
-                    self.ice4_precipitation_fraction_sigma(
-                        sigs=state["sigs"], sigma_rc=sigma_rc
-                    )
-                if (
-                    SUBG_AUCV_RC == SubgAucvRc.ADJU.value
-                    and SUBG_AUCV_RI == SubgAucvRi.ADJU.value
-                ):
+            outerloop_counter = 0
+            max_outerloop_iterations = 10
+            lsoft = False
 
-                    state_lc = {
+            # l223 in f90
+            # _np_t_micro = to_numpy(t_micro)            
+            dt = timestep.total_seconds()
+            
+            logging.info("First loop")
+            while (t_micro < dt).any():
+                
+                logging.info(f"type, t_micro {type(t_micro)}, {type(t_micro[0, 0, 0])}")
+                logging.info(f"ldcompute, ldcompute {type(ldcompute)}, {type(ldcompute[0, 0, 0])}")                
+                logging.info(f"type, th_t {type(state["th_t"])}")
+
+                # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
+                innerloop_counter = 0
+                max_innerloop_iterations = 10
+                
+                logging.info(f"ldcompute {ldcompute}")
+
+                # Translation note : l230 to l237 in Fortran
+                self.ldcompute_init(ldcompute, t_micro)
+                
+                logging.info(f"ldcompute {ldcompute}")
+
+                # Iterations limiter
+                if outerloop_counter >= max_outerloop_iterations:
+                    break
+
+                logging.info("Second loop")
+                while ldcompute.any():
+                    
+                    # Iterations limiter
+                    if innerloop_counter >= max_innerloop_iterations:
+                        break
+
+                    ####### ice4_stepping_heat #############
+                    state_stepping_heat = {
                         **{
-                            key: state[key]
-                            for key in [
-                                "hlc_hrc",
-                                "hli_hri",
-                                "hlc_hcf",
-                                "hli_hcf",
-                                "rc_t",
-                                "ri_t",
-                                "cldfr",
-                            ]
-                        },
-                        "hlc_lrc": hlc_lrc,
-                        "hli_lri": hli_lri,
-                        "hlc_lcf": hlc_lcf,
-                        "hli_lcf": hli_lcf,
+                        key: state[key]
+                        for key in [
+                            "exn",
+                            "t",
+                            "th_t",
+                            "rv_t",
+                            "rc_t",
+                            "rr_t",
+                            "ri_t",
+                            "rs_t",
+                            "rg_t"
+                        ]
+                        },**{
+                            "lv_fact": lv_fact,
+                            "ls_fact": ls_fact,
+                        }
                     }
 
-                    self.ice4_precipitation_fraction_liquid_content(
-                        **state_lc,
+                    self.ice4_stepping_heat(
+                        **state_stepping_heat,
                         origin=(0, 0, 0),
                         domain=self.computational_grid.grids[I, J, K].shape,
                         validate_args=self.gt4py_config.validate_args,
-                        exec_info=self.gt4py_config.exec_info,)
+                        exec_info=self.gt4py_config.exec_info,
+                        )
 
-                state_compute_pdf = {
-                    **{
-                        key: state[key]
-                        for key in [
-                            "rhodref",
-                            "rc_t",
-                            "ri_t",
-                            "cf",
-                            "t",
-                            "hlc_hcf",
-                            "hlc_hrc",
-                            "hli_hcf",
-                            "hli_hri",
-                            "rf",
-                        ]
-                    },
-                    "hli_lri": hli_lri,
-                    "hli_lcf": hli_lcf,
-                    "hlc_lrc": hlc_lrc,
-                    "hlc_lcf": hlc_lcf,
-                    "sigma_rc": sigma_rc,
-                    "ldmicro": ldmicro,
-                }
-
-                self.ice4_compute_pdf(
-                    **state_compute_pdf,
-                    origin=(0, 0, 0),
-                    domain=self.computational_grid.grids[I, J, K].shape,
-                    validate_args=self.gt4py_config.validate_args,
-                    exec_info=self.gt4py_config.exec_info,)
-
-                state_rainfr_vert = {
-                    **{
-                        key: state[key]
-                        for key in [
-                            "rrs",
-                            "rss",
-                            "rgs",
-                        ]
-                    },
-                    "wr_r": wr_r,
-                    "wr_s": wr_s,
-                    "wr_g": wr_g,
-                }
-                self.ice4_rainfr_vert(
-                    **state_rainfr_vert,
-                    origin=(0, 0, 0),
-                    domain=self.computational_grid.grids[I, J, K].shape,
-                    validate_args=self.gt4py_config.validate_args,
-                    exec_info=self.gt4py_config.exec_info,)
-
-            # 5. Tendencies computation
-            # Translation note : rain_ice.F90 calls Ice4Stepping inside Ice4Pack packing operations
-            state_stepping = {
-                **{
-                    key: state[key]
-                    for key in [
-                        "rhodref",
-                        "pabs_t",
-                        "th_t",
-                        "ci_t",
-                        "t",
-                        "rv_t",
-                        "rc_t",
-                        "rr_t",
-                        "ri_t",
-                        "rs_t",
-                        "rg_t",
-                        "exn",
-                        "hlc_hcf",
-                        "hlc_hrc",
-                        "hli_hcf",
-                        "hli_hri",
-                    ]
-                },
-                # Translation note : variables follow naming from mode_ice4_pack.F90
-                **{"cf": state["cldfr"], "sigma_rc": state["sigs"]},
-                **{
-                    "ldmicro": ldmicro,
-                    "ls_fact": ls_fact,
-                    "lv_fact": lv_fact,
-                },
-            }
-
-            state_stepping_dataarrays = {
-                **{
-                    key: xr.DataArray(
-                        data=field,
-                        dims=["x", "y", "z"],
-                        coords={
-                            "x": range(field.shape[0]),
-                            "y": range(field.shape[1]),
-                            "z": range(field.shape[2]),
+                    ####### tendencies #######
+                    state_ice4_tendencies = {
+                        **{
+                            key: state[key]
+                            for key in [
+                                "rhodref",
+                                "exn",
+                                "rv_t",
+                                "ci_t",
+                                "t",
+                                "hlc_hcf",
+                                "hlc_hrc",
+                                "hli_hcf",
+                                "hli_hri",
+                            ]
                         },
-                        name=f"{key}",
+                        **{
+                              "tht": state["th_t"],
+                              "rvt": state["rv_t"],
+                              "rct": state["rc_t"],
+                              "rrt": state["rr_t"],
+                              "rit": state["ri_t"],
+                              "rst": state["rs_t"],
+                              "rgt": state["rg_t"],
+                          },
+                        **{"pres": state["pabs_t"]},
+                        **{
+                            "ls_fact": ls_fact,
+                            "lv_fact": lv_fact,
+                            "ldcompute": ldcompute,
+                            "theta_tnd": theta_a_tnd,
+                            "rv_tnd": rv_a_tnd,
+                            "rc_tnd": rc_a_tnd,
+                            "rr_tnd": rr_a_tnd,
+                            "ri_tnd": ri_a_tnd,
+                            "rs_tnd": rs_a_tnd,
+                            "rg_tnd": rg_a_tnd,
+                            "theta_increment": theta_b,
+                            "rv_increment": rv_b,
+                            "rc_increment": rc_b,
+                            "rr_increment": rr_b,
+                            "ri_increment": ri_b,
+                            "rs_increment": rs_b,
+                            "rg_increment": rg_b,
+                            "ai": ai,
+                            "cj": cj,
+                            "ssi": ssi,
+                            "hlc_lcf": hlc_lcf,
+                            "hlc_lrc": hlc_lrc,
+                            "hli_lcf": hli_lcf,
+                            "hli_lri": hli_lri,
+                            "fr": fr,
+                            "cf": cf,
+                            "sigma_rc": sigma_rc,
+                        },
+                    }
+
+                    state_tendencies_xr = {
+                        **{
+                            key: xr.DataArray(
+                                data=field,
+                                dims=["x", "y", "z"],
+                                coords={
+                                    "x": range(field.shape[0]),
+                                    "y": range(field.shape[1]),
+                                    "z": range(field.shape[2]),
+                                },
+                                name=f"{key}",
+                            )
+                            for key, field in state_ice4_tendencies.items()
+                        },
+                        "time": datetime.datetime(year=2024, month=1, day=1),
+                    }
+
+                    # logging.info("Call tendencies")
+                    # _, _ = self.ice4_tendencies(
+                    #     state=state_tendencies_xr, 
+                    #     timestep=timestep
+                    # )
+                    
+                    logging.info(f"ldcompute {ldcompute}")
+
+                    # Translation note : l277 to l283 omitted, no external tendencies in AROME
+                    # TODO : ice4_step_limiter
+                    #       ice4_mixing_ratio_step_limiter
+                    #       ice4_state_update in one stencil
+                    ######### ice4_step_limiter ############################
+                    state_step_limiter = {
+                        **{
+                            key: state[key] 
+                        for key in [
+                            "th_t",
+                            "rc_t",
+                            "rr_t",
+                            "ri_t",
+                            "rs_t",
+                            "rg_t",
+                            "exn"
+                        ]
+                        },
+                        **{
+                            "t_micro": t_micro,
+                            "t_soft": t_soft,
+                            "delta_t_micro": delta_t_micro,
+                            "delta_t_soft": delta_t_soft,
+                            "ldcompute": ldcompute,
+                            "theta_a_tnd": theta_a_tnd,
+                            "rc_a_tnd": rc_a_tnd,
+                            "rr_a_tnd": rr_a_tnd,
+                            "ri_a_tnd": ri_a_tnd,
+                            "rs_a_tnd": rs_a_tnd,
+                            "rg_a_tnd": rg_a_tnd,
+                            "theta_b": theta_b,
+                            "rc_b": rc_b,
+                            "rr_b": rr_b,
+                            "ri_b": ri_b,
+                            "rs_b": rs_b,
+                            "rg_b": rg_b,
+                            "theta_ext_tnd": theta_ext_tnd,
+                            "rc_ext_tnd": rc_ext_tnd,
+                            "rr_ext_tnd": rr_ext_tnd,
+                            "ri_ext_tnd": ri_ext_tnd,
+                            "rs_ext_tnd": rs_ext_tnd,
+                            "rg_ext_tnd": rg_ext_tnd,
+                        } 
+                    }
+                    
+                    logging.info("Call step limiter")
+                    self.ice4_step_limiter(
+                        **state_step_limiter, 
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
                     )
-                    for key, field in state_stepping.items()
-                },
-                "time": datetime.datetime(year=2024, month=1, day=1),
+
+                    # l346 to l388
+                    ############ ice4_mixing_ratio_step_limiter ############
+                    logging.info(f"ldcompute : {ldcompute}")
+                    state_mixing_ratio_step_limiter = {
+                        **{
+                            state[key] for key in [
+                                "rc_t",
+                                "rr_t",
+                                "ri_t",
+                                "rs_t",
+                                "rg_t",
+                                "ci_t"
+                            ]
+                        },
+                        **{
+                            "ldcompute": ldcompute,
+                            "theta_a_tnd": theta_a_tnd,
+                            "rc_a_tnd": rc_a_tnd,
+                            "rr_a_tnd": rr_a_tnd,
+                            "ri_a_tnd": ri_a_tnd,
+                            "rs_a_tnd": rs_a_tnd,
+                            "rg_a_tnd": rg_a_tnd,
+                            "theta_b": theta_b,
+                            "rc_b": rc_b,
+                            "rr_b": rr_b,
+                            "ri_b": ri_b,
+                            "rs_b": rs_b,
+                            "rg_b": rg_b,
+                            "rc_0r_t": rc_0r_t,
+                            "rr_0r_t": rr_0r_t,
+                            "ri_0r_t": ri_0r_t,
+                            "rs_0r_t": rs_0r_t,
+                            "rg_0r_t": rg_0r_t,
+                            "delta_t_micro": delta_t_micro,
+                        }   
+                    }
+                    
+                    logging.info("Call mixing ratio step limiter")
+                    self.ice4_mixing_ratio_step_limiter(
+                        **state_mixing_ratio_step_limiter,
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
+                    )
+
+                    # l394 to l404
+                    # 4.7 new values for next iteration
+                    ############### ice4_state_update ######################
+                    state_state_update = {
+                        **{
+                           key: state[key] for key in [
+                                "th_t",
+                                "rc_t",
+                                "rr_t",
+                                "ri_t",
+                                "rs_t",
+                                "rg_t",
+                                "ci_t",
+                           ] 
+                        },
+                        **{
+                            "ldmicro": ldmicro,
+                            "theta_a_tnd": theta_a_tnd,
+                            "rc_a_tnd": rc_a_tnd,
+                            "rr_a_tnd": rr_a_tnd,
+                            "ri_a_tnd": ri_a_tnd,
+                            "rs_a_tnd": rs_a_tnd,
+                            "rg_a_tnd": rg_a_tnd,
+                            "theta_b": theta_b,
+                            "rc_b": rc_b,
+                            "rr_b": rr_b,
+                            "ri_b": ri_b,
+                            "rs_b": rs_b,
+                            "rg_b": rg_b,
+                            "delta_t_micro": delta_t_micro,
+                            "t_micro": t_micro,
+                        }
+                    }
+
+                    self.ice4_state_update(
+                        **state_state_update, 
+                        origin=(0, 0, 0),
+                        domain=self.computational_grid.grids[I, J, K].shape,
+                        validate_args=self.gt4py_config.validate_args,
+                        exec_info=self.gt4py_config.exec_info,
+                    )
+
+                    # TODO : next loop
+                    lsoft = True
+                    innerloop_counter += 1
+                    logging.info("Loop 2 end")
+                    
+                outerloop_counter += 1
+                
+            logging.info("Loop 1 end")
+
+            # l440 to l452
+            ################ external_tendencies_update ############
+            # if ldext_tnd
+
+            state_external_tendencies_update =  {
+                **{
+                key: state[key]
+                for key in [
+                    "th_t",
+                    "rc_t",
+                    "rr_t",
+                    "ri_t",
+                    "rs_t",
+                    "rg_t",
+                    ]
+            }, **{
+                    "ldmicro": ldmicro,
+                    "theta_tnd_ext": theta_ext_tnd,
+                    "rc_tnd_ext": rc_ext_tnd,
+                    "rr_tnd_ext": rr_ext_tnd,
+                    "ri_tnd_ext": ri_ext_tnd,
+                    "rs_tnd_ext": rs_ext_tnd,
+                    "rg_tnd_ext": rg_ext_tnd,
+                }
             }
 
-            # TODO : transform state to pass as a DataArray
-            _, _ = self.ice4_stepping(state_stepping_dataarrays, timestep)
+
+            self.external_tendencies_update(
+                **state_external_tendencies_update, 
+                origin=(0, 0, 0),
+                domain=self.computational_grid.grids[I, J, K].shape,
+                validate_args=self.gt4py_config.validate_args,
+                exec_info=self.gt4py_config.exec_info,
+            )
+            # end of stepping
 
             # 8. Total tendencies
             # 8.1 Total tendencies limited by available species
             state_total_tendencies = {
+                **{
                 key: state[key]
                 for key in [
                     "exnref",
@@ -758,9 +999,8 @@ class RainIce(ImplicitTendencyComponent):
                     "rs_t",
                     "rg_t",
                 ]
-            }
-
-            tmps_total_tendencies = {
+                },
+                **{
                 "rvheni": rvheni,
                 "ls_fact": ls_fact,
                 "lv_fact": lv_fact,
@@ -771,11 +1011,11 @@ class RainIce(ImplicitTendencyComponent):
                 "wr_i": wr_i,
                 "wr_s": wr_s,
                 "wr_g": wr_g,
+                }
             }
 
             self.total_tendencies(
                 **state_total_tendencies, 
-                **tmps_total_tendencies,
                 origin=(0, 0, 0),
                 domain=self.computational_grid.grids[I, J, K].shape,
                 validate_args=self.gt4py_config.validate_args,
@@ -805,6 +1045,8 @@ class RainIce(ImplicitTendencyComponent):
 
             # 9. Compute the sedimentation source
             if LSEDIM_AFTER:
+                # sedimentation switch is handled in initialisation
+                # self.sedimentation is can be either statistical_sedimentation or upwind_sedimentation
                 self.sedimentation(**state_sed, **tmps_sedim)
 
                 state_frac_sed = {
@@ -833,3 +1075,4 @@ class RainIce(ImplicitTendencyComponent):
                     domain=self.computational_grid.grids[I, J, K].shape,
                     validate_args=self.gt4py_config.validate_args,
                     exec_info=self.gt4py_config.exec_info,)
+

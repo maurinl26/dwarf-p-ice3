@@ -25,7 +25,7 @@ def test_ice_adjust(benchmark, backend, externals, sp_dtypes, ice_adjust_repro_d
         ice_adjust_repro_ds.sizes["ngpblks"],
         ice_adjust_repro_ds.sizes["nproma"],
         ice_adjust_repro_ds.sizes["nflevg"]
-    )   
+    )
 
     print("Reshaping inputs")
     sigqsat = ice_adjust_repro_ds["ZSIGQSAT"].data[:,:,np.newaxis]

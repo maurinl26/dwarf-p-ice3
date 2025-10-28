@@ -1,0 +1,39 @@
+phyex:
+  misc:
+    PTSTEP: 50
+    HBUNAME: "DEPI"
+    LMFCONV: True
+    KRR: 6
+    OCOMPUTE_SRC: True
+  nebn:
+    LSUBG_COND: True
+    LSIGMAS: True
+    CFRAC_ICE_ADJUST: "S"
+    CFRAC_ICE_SHALLOW_MF: "S"
+
+  param_icen:
+    LCRIAUTI: True
+    XCRIAUTI_NAM: 0.2e-3
+    XT0CRIAUTI_NAM: -5
+    XCRIAUTC_NAM: 0.1e-2
+    LOCND2: False
+    CSEDIM: "STAT"
+    LWARM: True
+    LSEDIC: True
+    CSNOWRIMING: "M90"
+    XFRACM90: 0.1
+    LCONVHG: True
+    LCRFLIMIT: True
+    LFEEDBACKT: True
+    LEVLIMIT: True
+    LNULLWETG: True
+    LWETGPOST: True
+    LNULLWTH: True
+    LWETHPOST: True
+    LSEDIM_AFTER: False
+    XSPLIT_MAXCFL: 0.8
+    LDEPOSC: False
+    XVDEPOSC: 0.02
+    CSUBG_RC_RR_ACCR: "NONE"
+    CSUBG_RR_EVAP: "NONE"
+    CSUBG_PR_PDF: "SIGM"
