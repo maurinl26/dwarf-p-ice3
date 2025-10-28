@@ -6,7 +6,7 @@ from enum import Enum
 from ice3.phyex_common.constants import Constants
 from ice3.phyex_common.nebn import Neb
 from ice3.phyex_common.rain_ice_parameters import IceParameters
-from ice3.phyex_common.rain_ice_descriptors import RainIceDescriptor
+from ice3.phyex_common.rain_ice_descriptors import RainIceDescriptors
 from ice3.phyex_common.rain_ice_parameters import RainIceParameters
 
 
@@ -53,7 +53,7 @@ class Phyex:
 
     cst: Constants = field(init=False)
     param_icen: IceParameters = field(init=False)
-    rain_ice_descrn: RainIceDescriptor = field(init=False)
+    rain_ice_descrn: RainIceDescriptors = field(init=False)
     rain_ice_param: RainIceParameters = field(init=False)
     nebn: Neb = field(init=False)
 
@@ -87,7 +87,7 @@ class Phyex:
         self.cst = Constants()
         self.param_icen = IceParameters(self.PROGRAM)
         self.nebn = Neb(self.PROGRAM)
-        self.rain_ice_descrn = RainIceDescriptor(self.cst, self.param_icen)
+        self.rain_ice_descrn = RainIceDescriptors(self.cst, self.param_icen)
         self.rain_ice_param = RainIceParameters(
             self.cst, self.rain_ice_descrn, self.param_icen
         )

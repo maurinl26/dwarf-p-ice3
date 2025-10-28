@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import PARALLEL, computation, interval, Field, __INLINED
-from ifs_physics_common.framework.stencil import stencil_collection
-
+from gt4py.cartesian.gtscript import __INLINED, PARALLEL, Field, computation, interval
 from ice3.functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
 
 
-    # from_file="PHYEX/src/common/micro/ice_adjust.F90",
-    # from_line=450,
-    # to_line=473
-@stencil_collection("thermodynamic_fields")
+# from_file="PHYEX/src/common/micro/ice_adjust.F90",
+# from_line=450,
+# to_line=473
 def thermodynamic_fields(
     th: Field["float"],
     exn: Field["float"],
@@ -25,7 +22,7 @@ def thermodynamic_fields(
     cph: Field["float"],
     t: Field["float"],
 ):
-    from __externals__ import NRR, CPV, CPD, CL, CI
+    from __externals__ import CI, CL, CPD, CPV, NRR
 
     # 2.3 Compute the variation of mixing ratio
     with computation(PARALLEL), interval(...):
@@ -55,10 +52,9 @@ def thermodynamic_fields(
             cph = CPD + CPV * rv + CL * rc + CI * ri
 
 
-    # from_file="PHYEX/src/common/micro/ice_adjust.F90",
-    # from_line=278,
-    # to_line=312
-@stencil_collection("cloud_fraction_1")
+# from_file="PHYEX/src/common/micro/ice_adjust.F90",
+# from_line=278,
+# to_line=312
 def cloud_fraction_1(
     lv: Field["float"],
     ls: Field["float"],
@@ -92,13 +88,13 @@ def cloud_fraction_1(
         rvs -= w2
         ris += w2
         ths += w2 * ls / (cph * exnref)
-        
+
         #### split
-    
-    # from_file="PHYEX/src/common/micro/ice_adjust.F90",
-    # from_line=313,
-    # to_line=419
-@stencil_collection("cloud_fraction_2")        
+
+
+# from_file="PHYEX/src/common/micro/ice_adjust.F90",
+# from_line=313,
+# to_line=419
 def cloud_fraction_2(
     rhodref: Field["float"],
     exnref: Field["float"],
@@ -118,24 +114,22 @@ def cloud_fraction_2(
     hlc_hcf: Field["float"],
     hli_hri: Field["float"],
     hli_hcf: Field["float"],
-    dt: "float"
+    dt: "float",
 ):
-      
     from __externals__ import (
-        LSUBG_COND,
-        SUBG_MF_PDF,
-        CRIAUTC,
-        CRIAUTI,
         ACRIAUTI,
         BCRIAUTI,
-        TT
+        CRIAUTC,
+        CRIAUTI,
+        LSUBG_COND,
+        SUBG_MF_PDF,
+        TT,
     )
 
     # 5.2  compute the cloud fraction cldfr
     with computation(PARALLEL), interval(...):
-        
         if __INLINED(not LSUBG_COND):
-            cldfr = 1.0 if ((rcs + ris)*dt > 1e-12) else 0.0
+            cldfr = 1.0 if ((rcs + ris) * dt > 1e-12) else 0.0
         # Translation note : OCOMPUTE_SRC is taken False
         # Translation note : l320 to l322 removed
 
@@ -151,14 +145,14 @@ def cloud_fraction_2(
             cldfr = min(1, cldfr + cf_mf)
             rcs += w1
             ris += w2
-            rvs -= (w1 + w2)
+            rvs -= w1 + w2
             ths += (w1 * lv + w2 * ls) / (cph * exnref)
 
             # Droplets subgrid autoconversion
             # LLHLC_H is True (AROME like) phlc_hrc and phlc_hcf are present
             # LLHLI_H is True (AROME like) phli_hri and phli_hcf are present
             criaut = CRIAUTC / rhodref
-            
+
             # ice_adjust.F90 IF LLNONE; IF CSUBG_MF_PDF is None
             if __INLINED(SUBG_MF_PDF == 0):
                 if w1 * dt > cf_mf * criaut:
@@ -184,7 +178,7 @@ def cloud_fraction_2(
                     hr = (
                         4.0 * (w1 * dt) ** 3
                         - 3.0 * w1 * dt * (criaut * cf_mf) ** 2
-                        + (criaut * cf_mf ** 3)
+                        + (criaut * cf_mf**3)
                     ) / (3 * max(1.0e-20, w1 * dt) ** 2)
 
                 hcf *= cf_mf
@@ -214,9 +208,7 @@ def cloud_fraction_2(
                     hri = 0.0
 
                 else:
-                    hcf = (2.0 * w2 * dt - criaut * cf_mf) ** 2 / (
-                        2.0 * (w2 * dt) ** 2
-                    )
+                    hcf = (2.0 * w2 * dt - criaut * cf_mf) ** 2 / (2.0 * (w2 * dt) ** 2)
                     hri = (
                         4.0 * (w2 * dt) ** 3
                         - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
@@ -227,4 +219,3 @@ def cloud_fraction_2(
                 hli_hcf = min(1.0, hli_hcf + hcf)
                 hli_hri += hri
     # Translation note : 402 -> 427 (removed pout_x not present )
-

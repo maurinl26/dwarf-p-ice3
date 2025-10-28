@@ -1,10 +1,11 @@
 .vscode
 .venv
+.idea
 namelists
+
 src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
 src/testprogs_data/main_ice_adjust
-
 src/drivers/build
 
 dwarf-p-ice3
@@ -24,13 +25,14 @@ test_OLD/
 *.pyc
 src/ice3/drivers/tests.py
 src/ice3/stencils/ice4*
-src/testprogs_data/fortran/
-src/ice3/stencils_fortran/ref
-src/dwarf_ice3_gt4py.egg-info/
 src/drivers/cffi_driver
+src/ice3/stencils_fortran/ref
+venv*
+
+src/testprogs_data/fortran/
+src/dwarf_ice3_gt4py.egg-info/
 output/
 dist/
-venv*
 .venv*
 scripts
 

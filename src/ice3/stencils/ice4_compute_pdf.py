@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, computation, interval, PARALLEL, IJ
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import PARALLEL, Field, computation, interval
 
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_compute_pdf.F90")
-@stencil_collection("ice4_compute_pdf")
+
+# "PHYEX/src/common/micro/mode_ice4_compute_pdf.F90
 def ice4_compute_pdf(
     ldmicro: Field["bool"],
     rhodref: Field["float"],
@@ -45,18 +43,9 @@ def ice4_compute_pdf(
         rf (Field[float]): _description_
     """
 
-    from __externals__ import (
-        CRIAUTC,
-        C_RTMIN,
-        SUBG_AUCV_RC,
-        SUBG_PR_PDF,
-        CRIAUTI,
-        ACRIAUTI,
-        BCRIAUTI,
-        TT,
-        SUBG_AUCV_RI,
-        I_RTMIN,
-    )
+    from __externals__ import (ACRIAUTI, BCRIAUTI, C_RTMIN, CRIAUTC, CRIAUTI,
+                               I_RTMIN, SUBG_AUCV_RC, SUBG_AUCV_RI,
+                               SUBG_PR_PDF, TT)
 
     with computation(PARALLEL), interval(...):
         rcrautc_tmp = CRIAUTC / rhodref if ldmicro else 0

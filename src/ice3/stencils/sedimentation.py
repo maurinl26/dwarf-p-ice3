@@ -2,29 +2,25 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
-    Field,
-    function,
-    computation,
-    PARALLEL,
     BACKWARD,
     FORWARD,
-    interval,
     IJ,
+    PARALLEL,
+    Field,
+    computation,
+    function,
+    interval,
 )
-from ifs_physics_common.framework.stencil import stencil_collection
 
-from ice3.functions.sedimentation_flux import (
-    other_species,
-    pristine_ice,
-    weighted_sedimentation_flux_1,
-    weighted_sedimentation_flux_2,
+from ice3.functions.upwind_sedimentation import (
+    instant_precipitation,
+    maximum_time_step,
+    mixing_ratio_update,
+    upper_air_flux,
 )
-from ice3.functions.sea_town_masks import lbc, conc3d, ray, fsedc
-from ice3.functions.upwind_sedimentation import instant_precipitation, maximum_time_step, mixing_ratio_update, upper_air_flux
 
 
-# "PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90")
-@stencil_collection("statistical_sedimentation")
+# "PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90"
 def sedimentation_stat(
     rhodref: Field["float"],
     dzz: Field["float"],
@@ -72,23 +68,22 @@ def sedimentation_stat(
     """
     from __externals__ import (
         C_RTMIN,
-        RHOLW,
-        EXSEDR,
-        FSEDR,
-        R_RTMIN,
-        TSTEP,
-        FSEDS,
-        EXSEDS,
-        S_RTMIN,
-        FSEDG,
-        G_RTMIN,
         EXSEDG,
+        EXSEDR,
+        EXSEDS,
+        FSEDG,
+        FSEDR,
+        FSEDS,
+        G_RTMIN,
+        R_RTMIN,
+        RHOLW,
+        S_RTMIN,
+        TSTEP,
     )
 
     # Note Hail is omitted
     # Note : lsedic = True in Arome
     # Note : frp is sed
-
     # "PHYEX/src/common/micro/mode_ice4_sedimentation.F90", from_line=169, to_line=178
     with computation(PARALLEL), interval(...):
         rc_t = rcs * TSTEP
@@ -129,7 +124,6 @@ def sedimentation_stat(
 
     # TODO  compute ray, lbc, fsedc, conc3d
     with computation(PARALLEL), interval(...):
-
         # 2.1 cloud
         qp = fpr_c[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
         wsedw1 = (
@@ -301,7 +295,6 @@ def upwind_sedimentation(
 
     from __externals__ import (
         C_RTMIN,
-        TT,
         CC,
         CEXVT,
         CPD,
@@ -313,6 +306,7 @@ def upwind_sedimentation(
         RD,
         S_RTMIN,
         TSTEP,
+        TT,
     )
 
     with computation(PARALLEL), interval(...):
@@ -416,4 +410,3 @@ def upwind_sedimentation(
     with computation(PARALLEL), interval(...):
         rcs = mixing_ratio_update(max_tstep, oorhodz, wsed_g, rgs, rg_t, TSTEP)
         fpr_g += upper_air_flux(wsed_g, max_tstep, TSTEP)
-

@@ -4,22 +4,25 @@ from __future__ import annotations
 from datetime import timedelta
 from functools import cached_property
 from itertools import repeat
-from typing import Dict
-from gt4py.storage import from_array
-from ice3.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
-from ice3.phyex_common.xker_sdryg import KER_SDRYG
-from ice3.phyex_common.xker_rdryg import KER_RDRYG
+from typing import Dict, Tuple
+from functools import partial
 
-from ifs_physics_common.framework.components import ImplicitTendencyComponent
+from gt4py.storage import from_array
+from gt4py.cartesian.gtscript import stencil
 from ifs_physics_common.framework.config import GT4PyConfig
 from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
 from ifs_physics_common.framework.storage import managed_temporary_storage
 from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
 
-from ice3.phyex_common.phyex import Phyex
+from ..phyex_common.phyex import Phyex
+from ..phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
+from ..phyex_common.xker_rdryg import KER_RDRYG
+from ..phyex_common.xker_sdryg import KER_SDRYG
+from ..stencils.ice4_compute_pdf import ice4_compute_pdf
+from ..utils.env import sp_dtypes
 
 
-class Ice4Tendencies(ImplicitTendencyComponent):
+class Ice4Tendencies:
     """Implicit Tendency Component calling
     ice_adjust : saturation adjustment of temperature and mixing ratios
 
@@ -28,70 +31,111 @@ class Ice4Tendencies(ImplicitTendencyComponent):
 
     def __init__(
         self,
-        computational_grid: ComputationalGrid,
-        gt4py_config: GT4PyConfig,
-        phyex: Phyex,
-        *,
-        enable_checks: bool = False,
+        phyex: Phyex = Phyex("AROME"),
+        dtypes: Dict = sp_dtypes,
+        backend: str = "gt:cpu_ifirst",
     ) -> None:
-        super().__init__(
-            computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
-        )
 
-        externals = phyex.to_externals()
+        compile_stencil = partial(
+            stencil,
+            backend=backend,
+            externals=phyex.externals,
+            dtypes=dtypes
+
+        )
 
         self.gaminc_rim1 = phyex.rain_ice_param.GAMINC_RIM1
         self.gaminc_rim2 = phyex.rain_ice_param.GAMINC_RIM2
         self.gaminc_rim4 = phyex.rain_ice_param.GAMINC_RIM4
 
-
-
-
         # Tendencies
-        self.ice4_nucleation = self.compile_stencil("ice4_nucleation", externals)
-        self.ice4_nucleation_post_processing = self.compile_stencil(
-            "ice4_nucleation_post_processing", externals
+        from ..stencils.ice4_nucleation import ice4_nucleation
+        from ..stencils.ice4_tendencies import (
+            ice4_nucleation_post_processing, ice4_rrhong_post_processing, ice4_rimltc_post_processing,
+            ice4_slope_parameters, ice4_fast_rg_pre_post_processing, ice4_total_tendencies_update,
+            ice4_increment_update, ice4_derived_fields
+        )
+        from ..stencils.ice4_rrhong import ice4_rrhong
+        from ..stencils.ice4_rimltc import ice4_rimltc
+        from ..stencils.ice4_slow import ice4_slow
+        from ..stencils.ice4_warm import ice4_warm
+        from ..stencils.ice4_fast_rs import ice4_fast_rs
+        from ..stencils.ice4_fast_ri import ice4_fast_ri
+        from ..stencils.ice4_fast_rg import ice4_fast_rg
+
+        self.ice4_nucleation = compile_stencil(
+            name="ice4_nucleation",
+            definition=ice4_nucleation
+        )
+        self.ice4_nucleation_post_processing = compile_stencil(
+            name="ice4_nucleation_post_processing",
+            definition=ice4_nucleation_post_processing
+        )
+        self.ice4_rrhong = compile_stencil(
+            name="ice4_rrhong",
+            definition=ice4_rrhong
+        )
+        self.ice4_rrhong_post_processing = compile_stencil(
+            name="ice4_rrhong_post_processing",
+            definition=ice4_rrhong_post_processing
+        )
+        self.ice4_rimltc = compile_stencil(
+            name="ice4_rimltc",
+            definition=ice4_rimltc
+
+        )
+        self.ice4_rimltc_post_processing = compile_stencil(
+            name="ice4_rimltc_post_processing",
+            definition=ice4_rimltc_post_processing
         )
 
-        self.ice4_rrhong = self.compile_stencil("ice4_rrhong", externals)
-        self.ice4_rrhong_post_processing = self.compile_stencil(
-            "ice4_rrhong_post_processing", externals
+        self.ice4_increment_update = compile_stencil(
+            name="ice4_increment_update",
+            definition=ice4_increment_update
         )
-
-        self.ice4_rimltc = self.compile_stencil("ice4_rimltc", externals)
-        self.ice4_rimltc_post_processing = self.compile_stencil(
-            "ice4_rimltc_post_processing"
-        )
-
-        self.ice4_increment_update = self.compile_stencil(
-            "ice4_increment_update", externals
-        )
-        self.ice4_derived_fields = self.compile_stencil(
-            "ice4_derived_fields", externals
+        self.ice4_derived_fields = compile_stencil(
+            name="ice4_derived_fields",
+            definition=ice4_derived_fields
         )
 
         # TODO: add ice4_compute_pdf
-        self.ice4_slope_parameters = self.compile_stencil(
-            "ice4_slope_parameters", externals
+        self.ice4_slope_parameters = compile_stencil(
+            name="ice4_slope_parameters",
+            definition=ice4_slope_parameters
+        )
+        self.ice4_slow = compile_stencil(
+            name="ice4_slow",
+            definition=ice4_slow
+        )
+        self.ice4_warm = compile_stencil(
+            name="ice4_warm",
+            definition=ice4_warm
+        )
+        self.ice4_fast_rs = compile_stencil(
+            name="ice4_fast_rs",
+            definition=ice4_fast_rs
+        )
+        self.ice4_fast_rg_pre_processing = compile_stencil(
+            name="ice4_fast_rg_pre_processing",
+            definition=ice4_fast_rg_pre_post_processing
+        )
+        self.ice4_fast_rg = compile_stencil(
+            name="ice4_fast_rg",
+            definition=ice4_fast_rg
+        )
+        self.ice4_fast_ri = compile_stencil(
+            name="ice4_fast_ri",
+            definition=ice4_fast_ri
+        )
+        self.ice4_total_tendencies_update = compile_stencil(
+            name="ice4_total_tendencies_update",
+            definition=ice4_total_tendencies_update
         )
 
-        self.ice4_slow = self.compile_stencil("ice4_slow", externals)
-        self.ice4_warm = self.compile_stencil("ice4_warm", externals)
-
-        self.ice4_fast_rs = self.compile_stencil("ice4_fast_rs", externals)
-
-        self.ice4_fast_rg_pre_processing = self.compile_stencil(
-            "ice4_fast_rg_pre_processing", externals
+        self.ice4_compute_pdf = compile_stencil(
+            name="ice4_compute_pdf",
+            definition=ice4_compute_pdf
         )
-        self.ice4_fast_rg = self.compile_stencil("ice4_fast_rg", externals)
-
-        self.ice4_fast_ri = self.compile_stencil("ice4_fast_ri", externals)
-
-        self.ice4_total_tendencies_update = self.compile_stencil(
-            "ice4_total_tendencies_update", externals
-        )
-
-        self.ice4_compute_pdf = self.compile_stencil("ice4_compute_pdf", externals)
 
     @cached_property
     def _input_properties(self) -> PropertyDict:
@@ -232,7 +276,7 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             "index_floor_g": {"grid": (I, J, K), "dtype": "int", "unit": ""},
         }
 
-    def array_call(
+    def __call__(
         self,
         ldsoft: bool,
         state: NDArrayLikeDict,
@@ -240,7 +284,12 @@ class Ice4Tendencies(ImplicitTendencyComponent):
         out_tendencies: NDArrayLikeDict,
         out_diagnostics: NDArrayLikeDict,
         overwrite_tendencies: Dict[str, bool],
+        domain: Tuple,
+        exec_info: Dict,
+        validate_args: bool = True
     ) -> None:
+
+        # todo : replace managed context
         with managed_temporary_storage(
             self.computational_grid,
             *repeat(((I, J, K), "float"), 63),
@@ -348,9 +397,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_nucleation, 
                 **temporaries_nucleation,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
                 )
 
             ############## ice4_nucleation_post_processing ####################
@@ -377,9 +426,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_nucleation_pp, 
                 **tmps_nucleation_pp,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
             )
 
             ########################### ice4_rrhong #################################
@@ -397,9 +446,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_rrhong, 
                 **rrhong_mr,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
                 )
 
             ########################### ice4_rrhong_post_processing #################
@@ -422,9 +471,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_rrhong_pp, 
                 **tmps_rrhong,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ########################## ice4_rimltc ##################################
             state_rimltc = {
@@ -448,9 +497,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_rimltc, 
                 **tmps_rimltc,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ####################### ice4_rimltc_post_processing #####################
 
@@ -473,9 +522,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_rimltc_pp, 
                 **tmps_rimltc,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_increment_update ##########################
             state_increment_update = {
@@ -505,9 +554,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_increment_update, 
                 **tmps_increment_update,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
             )
 
             ######################## ice4_compute_pdf ###############################
@@ -536,9 +585,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             self.ice4_compute_pdf(
                 **state_compute_pdf,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             # l263 to l278 omitted because LLRFR is False in AROME
 
@@ -561,9 +610,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             self.ice4_derived_fields(
                 **state_derived_fields,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_slope_parameters ##########################
             state_slope_parameters = {
@@ -581,9 +630,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_slope_parameters, 
                 **tmps_slopes,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_slow ######################################
             state_slow = {
@@ -624,9 +673,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_slow, 
                 **tmps_slow,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_warm ######################################
             state_warm = {
@@ -668,9 +717,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_warm, 
                 **tmps_warm,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_fast_rs ###################################
             state_fast_rs = {
@@ -720,20 +769,20 @@ class Ice4Tendencies(ImplicitTendencyComponent):
             }
 
             gaminc_rim1 = from_array(
-                self.gaminc_rim1, backend=self.gt4py_config.backend
+                self.gaminc_rim1, backend=self.backend
             )
             gaminc_rim2 = from_array(
-                self.gaminc_rim2, backend=self.gt4py_config.backend
+                self.gaminc_rim2, backend=self.backend
             )
             gaminc_rim4 = from_array(
-                self.gaminc_rim4, backend=self.gt4py_config.backend
+                self.gaminc_rim4, backend=self.backend
             )
 
-            ker_raccs = from_array(KER_RACCS, backend=self.gt4py_config.backend)
+            ker_raccs = from_array(KER_RACCS, backend=self.backend)
             ker_raccss = from_array(
-                KER_RACCSS, backend=self.gt4py_config.backend
+                KER_RACCSS, backend=self.backend
             )
-            ker_saccrg = from_array(KER_SACCRG, backend=self.gt4py_config.backend)
+            ker_saccrg = from_array(KER_SACCRG, backend=self.backend)
 
             self.ice4_fast_rs(
                 ldsoft=ldsoft,
@@ -746,9 +795,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_fast_rs,
                 **temporaries_fast_rs,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
             )
 
             ######################## ice4_fast_rg_pre_processing ####################
@@ -777,9 +826,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_fast_rg_pp, 
                 **tmps_fast_rg_pp,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_fast_rg ###################################
             state_fast_rg = {
@@ -825,8 +874,8 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 "index_floor_r": index_floor_r,
             }
 
-            ker_sdryg = from_array(KER_SDRYG, backend=self.gt4py_config.backend)
-            ker_rdryg = from_array(KER_RDRYG, backend=self.gt4py_config.backend)
+            ker_sdryg = from_array(KER_SDRYG, backend=self.backend)
+            ker_rdryg = from_array(KER_RDRYG, backend=self.backend)
 
             self.ice4_fast_rg(
                 ldsoft=ldsoft,
@@ -835,9 +884,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_fast_rg,
                 **temporaries_fast_rg,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
             )
 
             ######################## ice4_fast_ri ###################################
@@ -868,9 +917,9 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_fast_ri, 
                 **tmps_fast_ri,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)
 
             ######################## ice4_total_tendencies_update #########################
 
@@ -930,6 +979,6 @@ class Ice4Tendencies(ImplicitTendencyComponent):
                 **state_tendencies_update, 
                 **tmps_tnd_update,
                 origin=(0, 0, 0),
-                domain=self.computational_grid.grids[I, J, K].shape,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,)
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,)

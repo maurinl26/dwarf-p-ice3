@@ -1,25 +1,23 @@
-
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
     __INLINED,
     PARALLEL,
+    Field,
+    GlobalTable,
     atan,
     computation,
     exp,
     floor,
     interval,
     sqrt,
-    Field,
-    GlobalTable,
 )
-from ifs_physics_common.framework.stencil import stencil_collection
+
 from ice3.functions.tiwmx import e_sat_i, e_sat_w
 
 
-    # "PHYEX/src/common/micro/condensation.F90"
-@stencil_collection("condensation")
+# "PHYEX/src/common/micro/condensation.F90"
 def condensation(
     sigqsat: Field["float"],
     pabs: Field["float"],
@@ -40,8 +38,15 @@ def condensation(
     """Microphysical adjustments for specific contents due to condensation."""
 
     from __externals__ import (
-        RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX,
-        OCND2, LSIGMAS, LSTATNW, CONDENS
+        CONDENS,
+        FRAC_ICE_ADJUST,
+        LSIGMAS,
+        LSTATNW,
+        OCND2,
+        RD,
+        RV,
+        TMAXMIX,
+        TMINMIX,
     )
 
     # initialize values
@@ -73,21 +78,18 @@ def condensation(
         # l334 to l337
         if __INLINED(not OCND2):
             pv = min(
-            e_sat_w(t),
-            0.99 * pabs,
+                e_sat_w(t),
+                0.99 * pabs,
             )
             piv = min(
-            e_sat_i(t),
-            0.99 * pabs,
+                e_sat_i(t),
+                0.99 * pabs,
             )
 
         # TODO : l341 -> l350
         # Translation note : OUSERI = TRUE, OCND2 = False
         if __INLINED(not OCND2):
-            frac_tmp =(
-                rc / (rc + ri)
-                if rc + ri > 1e-20 else 0
-            )
+            frac_tmp = rc / (rc + ri) if rc + ri > 1e-20 else 0
 
             # Compute frac ice inlined
             # Default Mode (S)
@@ -97,7 +99,6 @@ def condensation(
             # AROME mode
             if __INLINED(FRAC_ICE_ADJUST == 0):
                 frac_tmp = max(0, min(1, ((TMAXMIX - t) / (TMAXMIX - TMINMIX))))
-
 
         # Supersaturation coefficients
         qsl = RD / RV * pv / (pabs - pv)
@@ -136,11 +137,11 @@ def condensation(
         # 9.2.3 Fractional cloudiness and cloud condensate
         # HCONDENS = 0 is CB02 option
         if __INLINED(CONDENS == 0):
-        # Translation note : l470 to l479
+            # Translation note : l470 to l479
             if q1 > 0.0:
                 cond_tmp = (
-                min(exp(-1.0) + 0.66 * q1 + 0.086 * q1**2, 2.0) if q1 <= 2.0 else q1
-            )  # we use the MIN function for continuity
+                    min(exp(-1.0) + 0.66 * q1 + 0.086 * q1**2, 2.0) if q1 <= 2.0 else q1
+                )  # we use the MIN function for continuity
             else:
                 cond_tmp = exp(1.2 * q1 - 1.0)
             cond_tmp *= sigma
@@ -148,7 +149,9 @@ def condensation(
             # Translation note : l482 to l489
             # cloud fraction
             cldfr = (
-                max(0.0, min(1.0, 0.5 + 0.36 * atan(1.55 * q1))) if cond_tmp >= 1e-12 else 0
+                max(0.0, min(1.0, 0.5 + 0.36 * atan(1.55 * q1)))
+                if cond_tmp >= 1e-12
+                else 0
             )
 
             # Translation note : l487 to l489
@@ -170,25 +173,21 @@ def condensation(
 
         # Translation note : end jiter
 
-
-    # from_file="./PHYEX/src/common/micro/condensation.F90",
-    # from_line=186,
-    # to_line=189
-@stencil_collection("sigrc_diagnostic")
+# from_file="./PHYEX/src/common/micro/condensation.F90",
+# from_line=186,
+# to_line=189
 def sigrc_computation(
     q1: Field["float"],
     sigrc: Field["float"],
     # inq1: Field["int"],
     inq2: "int",
-    src_1d: GlobalTable["float", (34)]
+    src_1d: GlobalTable["float", (34)],
 ):
-
     with computation(PARALLEL), interval(...):
-
-        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
+        inq1 = floor(min(100.0, max(-100.0, 2 * q1[0, 0, 0])))
         inq2 = min(max(-22, inq1), 10)
         # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
-        inc = 2 * q1 #- inq2
+        inc = 2 * q1  # - inq2
         sigrc = min(1, (1 - inc) * src_1d.A[inq2 + 22] + inc * src_1d.A[inq2 + 23])
 
         # todo : add LAMBDA3='CB' inlined conditional

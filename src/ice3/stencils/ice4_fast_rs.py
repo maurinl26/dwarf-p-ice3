@@ -1,30 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import (
-    Field,
-    GlobalTable,
-    __externals__,
-    exp,
-    log,
-    computation,
-    interval,
-    PARALLEL,
-)
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
-
-from ice3.functions.interp_micro import (
-    index_interp_micro_1d,
-    index_micro2d_acc_r,
-    index_micro2d_acc_s,
-)
-from ice3.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
+from gt4py.cartesian.gtscript import (PARALLEL, Field, GlobalTable,
+                                      computation, exp,
+                                      interval, log)
+from ice3.functions.interp_micro import (index_interp_micro_1d,
+                                         index_micro2d_acc_r,
+                                         index_micro2d_acc_s)
 from ice3.functions.sign import sign
+from ice3.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 
 
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rs.F90")
-@stencil_collection("ice4_fast_rs")
+# from_file="PHYEX/src/common/micro/mode_ice4_fast_rs.F90"
 def ice4_fast_rs(
     ldsoft: "bool",
     ldcompute: Field["bool"],
@@ -98,53 +85,14 @@ def ice4_fast_rs(
         index_floor_r (Field[int]): integer index for accretion look up tables
         index_floor_s (Field[int]): integer index for accretion look up tables
     """
-    from __externals__ import (
-        ALPI,
-        ALPW,
-        BETAI,
-        BETAW,
-        BS,
-        C_RTMIN,
-        CEXVT,
-        CI,
-        CL,
-        CPV,
-        CRIMSG,
-        CRIMSS,
-        CXS,
-        EPSILO,
-        ESTT,
-        EX0DEPS,
-        EX1DEPS,
-        EXCRIMSG,
-        EXCRIMSS,
-        EXSRIMCG,
-        EXSRIMCG2,
-        FRACCSS,
-        FSACCRG,
-        FSCVMG,
-        GAMI,
-        GAMW,
-        LBRACCS1,
-        LBRACCS2,
-        LBRACCS3,
-        LBSACCR1,
-        LBSACCR2,
-        LBSACCR3,
-        LEVLIMIT,
-        LMTT,
-        LVTT,
-        O0DEPS,
-        O1DEPS,
-        R_RTMIN,
-        RV,
-        S_RTMIN,
-        SNOW_RIMING,
-        SRIMCG,
-        SRIMCG2,
-        SRIMCG3,
-        TT,
-    )
+    from __externals__ import (ALPI, ALPW, BETAI, BETAW, BS, C_RTMIN, CEXVT,
+                               CI, CL, CPV, CRIMSG, CRIMSS, CXS, EPSILO, ESTT,
+                               EX0DEPS, EX1DEPS, EXCRIMSG, EXCRIMSS, EXSRIMCG,
+                               EXSRIMCG2, FRACCSS, FSACCRG, FSCVMG, GAMI, GAMW,
+                               LBRACCS1, LBRACCS2, LBRACCS3, LBSACCR1,
+                               LBSACCR2, LBSACCR3, LEVLIMIT, LMTT, LVTT,
+                               O0DEPS, O1DEPS, R_RTMIN, RV, S_RTMIN,
+                               SNOW_RIMING, SRIMCG, SRIMCG2, SRIMCG3, TT)
 
     # 5.0 maximum freezing rate
     with computation(PARALLEL), interval(...):

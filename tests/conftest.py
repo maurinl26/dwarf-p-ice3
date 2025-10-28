@@ -23,6 +23,14 @@ def sp_dtypes_fixture():
             "bool": np.bool_
         }
 
+@pytest.fixture(name="dp_dtypes", scope="module")
+def dp_dtypes_fixtures():
+    return {
+        "float": np.float64,
+        "int": np.int64,
+        "bool": np.bool_
+    }
+
 @pytest.fixture(name="domain", scope="module")
 def domain_fixture():
     return (50, 50, 15)

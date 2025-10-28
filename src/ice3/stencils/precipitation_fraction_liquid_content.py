@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, computation, interval, PARALLEL, IJ
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import IJ, PARALLEL, Field, computation, interval
 
 # stencil introduced in cy49
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=492, to_line=498
-)
-@stencil_collection("ice4_precipitation_fraction_liquid_content")
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=492,
+# to_line=498
 def ice4_precipitation_fraction_liquid_content(
     hlc_lrc: Field["float"],
     hlc_hrc: Field["float"],

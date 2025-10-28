@@ -1,26 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import (
-    Field,
-    exp,
-    log,
-    sqrt,
-    computation,
-    PARALLEL,
-    interval,
-    __INLINED,
-)
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import (__INLINED, PARALLEL, Field, computation,
+                                      exp, interval, log, sqrt)
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=129,
-    to_line=134
-)
-@stencil_collection("init_tendencies")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=129,
+# to_line=134
 def init_tendencies(
     rv_t: Field["float"],
     rc_t: Field["float"],
@@ -63,12 +50,9 @@ def init_tendencies(
         rs_tnd = 0.0
         rg_tnd = 0.0
         
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=136,
-    to_line=140,
-)
-@stencil_collection("mixing_ratio_init")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=136,
+# to_line=140,
 def mixing_ratio_init(
     rvheni_mr: Field["float"],
     rrhong_mr: Field["float"],
@@ -85,12 +69,9 @@ def mixing_ratio_init(
             rsrimcg_mr = 0.0
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=152,
-    to_line=157,
-)
-@stencil_collection("ice4_nucleation_post_processing")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=152,
+# to_line=157,
 def ice4_nucleation_post_processing(
     t: Field["float"],
     exn: Field["float"],
@@ -119,12 +100,9 @@ def ice4_nucleation_post_processing(
         rit += rvheni_mr
         
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=166,
-    to_line=171,
-)
-@stencil_collection("ice4_rrhong_post_processing")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=166,
+# to_line=171,
 def ice4_rrhong_post_processing(
     t: Field["float"],
     exn: Field["float"],
@@ -154,12 +132,9 @@ def ice4_rrhong_post_processing(
         rgt += rrhong_mr
         
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=180,
-    to_line=185,
-)
-@stencil_collection("ice4_rimltc_post_processing")
+# from_file=("PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=180,
+# to_line=185,
 def ice4_rimltc_post_processing(
     t: Field["float"],
     exn: Field["float"],
@@ -189,12 +164,9 @@ def ice4_rimltc_post_processing(
         rit -= rimltc_mr
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=386,
-    to_line=390,
-)
-@stencil_collection("ice4_fast_rg_pre_processing")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=386,
+# to_line=390,
 def ice4_fast_rg_pre_post_processing(
     rgsi: Field["float"],
     rgsi_mr: Field["float"],
@@ -213,12 +185,9 @@ def ice4_fast_rg_pre_post_processing(
         rgsi_mr = rrhong_mr + rsrimcg_mr
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=220,
-    to_line=238,
-)
-@stencil_collection("ice4_increment_update")
+#    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+#    from_line=220,
+#    to_line=238,
 def ice4_increment_update(
     lsfact: Field["float"],
     lvfact: Field["float"],
@@ -269,12 +238,9 @@ def ice4_increment_update(
         rg_increment += rrhong_mr + rsrimcg_mr
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=220,
-    to_line=238,
-)
-@stencil_collection("ice4_derived_fields")
+#    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+#    from_line=220,
+#    to_line=238,
 def ice4_derived_fields(
     t: Field["float"],
     rhodref: Field["float"],
@@ -288,19 +254,8 @@ def ice4_derived_fields(
     zw: Field["float"]
 ):
 
-    from __externals__ import (
-        ALPI,
-        BETAI,
-        GAMI,
-        EPSILO,
-        TT,
-        CI,
-        CPV,
-        RV,
-        P00,
-        LSTT,
-        SCFAC,
-    )
+    from __externals__ import (ALPI, BETAI, CI, CPV, EPSILO, GAMI, LSTT, P00,
+                               RV, SCFAC, TT)
 
     with computation(PARALLEL), interval(...):
 
@@ -314,12 +269,9 @@ def ice4_derived_fields(
         cj = SCFAC * rhodref**0.3 / sqrt(1.718e-5 + 4.9e-8 * (t - TT))
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=285,
-    to_line=329,
-)
-@stencil_collection("ice4_slope_parameters")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=285,
+# to_line=329,
 def ice4_slope_parameters(
     rhodref: Field["float"],
     t: Field["float"],
@@ -345,24 +297,9 @@ def ice4_slope_parameters(
         lbdag (Field[float]): lambda parameter for graupel distribution
     """
 
-    from __externals__ import (
-        TRANS_MP_GAMMAS,
-        LBR,
-        LBEXR,
-        R_RTMIN,
-        LSNOW_T,
-        LBDAG_MAX,
-        LBDAS_MIN,
-        LBDAS_MAX,
-        LBDAS_MIN,
-        LBS,
-        LBG,
-        LBEXS,
-        LBEXG,
-        G_RTMIN,
-        R_RTMIN,
-        S_RTMIN,
-    )
+    from __externals__ import (G_RTMIN, LBDAG_MAX, LBDAS_MAX, LBDAS_MIN, LBEXG,
+                               LBEXR, LBEXS, LBG, LBR, LBS, LSNOW_T, R_RTMIN,
+                               S_RTMIN, TRANS_MP_GAMMAS)
 
     with computation(PARALLEL), interval(...):
 
@@ -398,12 +335,9 @@ def ice4_slope_parameters(
         )
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-    from_line=454,
-    to_line=559,
-)
-@stencil_collection("ice4_total_tendencies_update")
+# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
+# from_line=454,
+# to_line=559,
 def ice4_total_tendencies_update(
     lsfact: Field["float"],
     lvfact: Field["float"],

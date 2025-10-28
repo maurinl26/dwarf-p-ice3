@@ -2,12 +2,8 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import Field, exp
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
 
-
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_slow.F90")
-@stencil_collection("ice4_slow")
+# "PHYEX/src/common/micro/mode_ice4_slow.F90"
 def ice4_slow(
     ldcompute: Field["bool"],
     rhodref: Field["float"],
@@ -57,34 +53,11 @@ def ice4_slow(
         rv_depg_tnd (Field[float]): deposition on graupel
     """
 
-    from __externals__ import (
-        ACRIAUTI,
-        ALPHA3,
-        BCRIAUTI,
-        BETA3,
-        C_RTMIN,
-        CEXVT,
-        COLEXIS,
-        CRIAUTI,
-        EX0DEPG,
-        EX0DEPS,
-        EX1DEPG,
-        EX1DEPS,
-        EXIAGGS,
-        FIAGGS,
-        G_RTMIN,
-        HON,
-        I_RTMIN,
-        O0DEPG,
-        O0DEPS,
-        O1DEPG,
-        O1DEPS,
-        S_RTMIN,
-        TEXAUTI,
-        TIMAUTI,
-        TT,
-        V_RTMIN,
-    )
+    from __externals__ import (ACRIAUTI, ALPHA3, BCRIAUTI, BETA3, C_RTMIN,
+                               CEXVT, COLEXIS, CRIAUTI, EX0DEPG, EX0DEPS,
+                               EX1DEPG, EX1DEPS, EXIAGGS, FIAGGS, G_RTMIN, HON,
+                               I_RTMIN, O0DEPG, O0DEPS, O1DEPG, O1DEPS,
+                               S_RTMIN, TEXAUTI, TIMAUTI, TT, V_RTMIN)
 
     # 3.2 compute the homogeneous nucleation source : RCHONI
     with computation(PARALLEL), interval(...):

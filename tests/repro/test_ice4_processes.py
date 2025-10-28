@@ -1,27 +1,42 @@
-from ctypes import c_double, c_float
+from ctypes import c_float
 
 import numpy as np
 import pytest
+from gt4py.cartesian.gtscript import stencil
+from gt4py.next import domain
 from gt4py.storage import from_array
-from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
-from ice3.utils.env import BACKEND
+from ice3.utils.allocate_random_fields import allocate_random_fields
+from ice3.utils.compile_fortran import compile_fortran_stencil
+from ice3.utils.env import (CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND, dp_dtypes,
+                            sp_dtypes)
 
-from tests.conftest import compile_fortran_stencil, get_backends
 
-
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
 def test_ice4_nucleation(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
+    backend, externals, fortran_packed_dims, precision, dtypes, grid, origin
 ):
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    ice4_nucleation_gt4py = compile_stencil("ice4_nucleation", gt4py_config, externals)
+    from ice3.stencils.ice4_nucleation import ice4_nucleation
+
+    ice4_nucleation_gt4py = stencil(
+        name="ice4_nucleation",
+        definition=ice4_nucleation,
+        dtypes=dtypes,
+        externals=externals,
+    )
     fortran_stencil = compile_fortran_stencil(
         "mode_ice4_nucleation.F90", "mode_ice4_nucleation", "ice4_nucleation"
     )
+
     ldcompute = np.array(np.random.rand(*grid.shape), dtype=bool, order="F")
     field_names = [
         "tht",
@@ -35,12 +50,11 @@ def test_ice4_nucleation(
         "rvheni_mr",
         "ssi",
     ]
+
     fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
-    ldcompute_gt4py = from_array(
-        ldcompute, dtype=np.bool_, backend=gt4py_config.backend
-    )
+    ldcompute_gt4py = from_array(ldcompute, dtype=np.bool_, backend=backend)
     ice4_nucleation_gt4py(
-        ldcompute=ldcompute_gt4py, **gt4py_buffers, domain=grid.shape, origin=origin
+        ldcompute=ldcompute_gt4py, **gt4py_buffers, domain=domain, origin=origin
     )
     externals_mapping = {
         "xtt": "TT",
@@ -89,23 +103,35 @@ def test_ice4_nucleation(
     assert_allclose(rvheni_mr_out, gt4py_buffers["rvheni_mr"].ravel(), 10e-6)
 
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_rimltc(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    ice4_rimltc_gt4py = compile_stencil("ice4_rimltc", gt4py_config, externals)
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
+def test_ice4_rimltc(backend, domain, dtypes, externals, fortran_packed_dims, origin):
+    from ice3.stencils.ice4_rimltc import ice4_rimltc
+
+    ice4_rimltc_gt4py = stencil(
+        backend,
+        definition=ice4_rimltc,
+        name="ice4_rimltc",
+        dtypes=dtypes,
+        externals=externals,
+    )
     fortran_stencil = compile_fortran_stencil(
         "mode_ice4_rimltc.F90", "mode_ice4_rimltc", "ice4_rimltc"
     )
+
     ldcompute = np.array(np.random.rand(*grid.shape), dtype=bool, order="F")
     field_names = ["t", "exn", "lvfact", "lsfact", "tht", "rit", "rimltc_mr"]
     fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, grid)
-    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
+    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=backend)
     ice4_rimltc_gt4py(
-        ldcompute=ldcompute_gt4py, **gt4py_buffers, domain=grid.shape, origin=origin
+        ldcompute=ldcompute_gt4py, **gt4py_buffers, domain=domain, origin=origin
     )
     fortran_externals = {"xtt": externals["TT"], "lfeedbackt": externals["LFEEDBACKT"]}
     f2py_mapping = {
@@ -130,18 +156,29 @@ def test_ice4_rimltc(
     assert_allclose(rimltc_mr_out, gt4py_buffers["rimltc_mr"].ravel(), rtol=10e-6)
 
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_slow(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    ice4_slow_gt4py = compile_stencil("ice4_slow", gt4py_config, externals)
+@pytest.mark.parametrize("dtypes", [dp_dtypes, sp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
+def test_ice4_slow(externals, fortran_packed_dims, dtypes, backend, domain, origin):
+    from ice3.stencils.ice4_slow import ice4_slow
+
+    ice4_slow_gt4py = stencil(
+        backend,
+        definition=ice4_slow,
+        name="ice4_slow",
+        dtypes=dtypes,
+        externals=externals,
+    )
     fortran_stencil = compile_fortran_stencil(
         "mode_ice4_slow.F90", "mode_ice4_slow", "ice4_slow"
     )
-    ldcompute = np.array(np.random.rand(*grid.shape), dtype=bool, order="F")
+    ldcompute = np.array(np.random.rand(*domain), dtype=bool, order="F")
     field_names = [
         "rhodref",
         "t",
@@ -166,7 +203,7 @@ def test_ice4_slow(
     fields, gt4py_buffers = allocate_random_fields(
         field_names, gt4py_config, grid, dtype=c_float
     )
-    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
+    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=backend)
     ldsoft = True
     ice4_slow_gt4py(
         ldcompute=ldcompute_gt4py,
@@ -227,14 +264,16 @@ def test_ice4_slow(
     fortran_FloatFieldsIJK = {
         name: fields[value].ravel() for name, value in f2py_mapping.items()
     }
-    result = fortran_stencil(
+    (
+        prchoni_out, prvdeps_out, priaggs_out, priauts_out, prvdepg_out
+    ) = fortran_stencil(
         ldsoft=ldsoft,
         ldcompute=ldcompute.ravel(),
         **fortran_FloatFieldsIJK,
         **fortran_externals,
         **fortran_packed_dims,
     )
-    prchoni_out, prvdeps_out, priaggs_out, priauts_out, prvdepg_out = result[:5]
+
     assert_allclose(prchoni_out, gt4py_buffers["rc_honi_tnd"].ravel(), 10e-6)
     assert_allclose(prvdeps_out, gt4py_buffers["rv_deps_tnd"].ravel(), 10e-6)
     assert_allclose(priaggs_out, gt4py_buffers["ri_aggs_tnd"].ravel(), 10e-6)
@@ -242,18 +281,29 @@ def test_ice4_slow(
     assert_allclose(prvdepg_out, gt4py_buffers["rv_depg_tnd"].ravel(), 10e-6)
 
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", get_backends())
-def test_ice4_warm(
-    gt4py_config, externals, fortran_packed_dims, precision, backend, grid, origin
-):
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    ice4_warm_gt4py = compile_stencil("ice4_warm", gt4py_config, externals)
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
+def test_ice4_warm(externals, fortran_packed_dims, dtypes, backend, grid, origin):
+    from ice3.stencils.ice4_warm import ice4_warm
+
+    ice4_warm_gt4py = stencil(
+        backend,
+        name="ice4_warm",
+        definition=ice4_warm,
+        dtypes=dtypes,
+        externals=externals,
+    )
     fortran_stencil = compile_fortran_stencil(
         "mode_ice4_warm.F90", "mode_ice4_warm", "ice4_warm"
     )
-    ldcompute = np.array(np.random.rand(*grid.shape), dtype=bool, order="F")
+    ldcompute = np.array(np.random.rand(*domain), dtype=bool, order="F")
     field_names = [
         "rhodref",
         "t",
@@ -278,7 +328,7 @@ def test_ice4_warm(
     fields, gt4py_buffers = allocate_random_fields(
         field_names, gt4py_config, grid, dtype=c_float
     )
-    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=gt4py_config.backend)
+    ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=backend)
     ldsoft = False
     ice4_warm_gt4py(ldcompute=ldcompute_gt4py, ldsoft=ldsoft, **gt4py_buffers)
     fortran_externals = {

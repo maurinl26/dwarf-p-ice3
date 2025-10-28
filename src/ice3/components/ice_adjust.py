@@ -2,22 +2,18 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
 import sys
-from functools import cached_property
+from functools import partial
 from itertools import repeat
-from typing import Dict
-from gt4py.storage import from_array
-from ifs_physics_common.framework.components import ImplicitTendencyComponent
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from ifs_physics_common.framework.storage import managed_temporary_storage
-from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+from typing import Tuple, Dict
 
-from ice3.phyex_common.phyex import Phyex
-from ice3.phyex_common.tables import SRC_1D
-from ice3.stencils.ice_adjust import ice_adjust
-from gt4py.cartesian import gtscript
+from gt4py.cartesian.gtscript import stencil
+from gt4py.storage import from_array
+from ifs_physics_common.framework.storage import managed_temporary_storage
+
+from ..phyex_common.lookup_table import SRC_1D
+from ..phyex_common.phyex import Phyex
+from ..utils.env import sp_dtypes
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logging.getLogger()
@@ -32,21 +28,23 @@ class IceAdjust:
 
     def __init__(
         self,
-        computational_grid: ComputationalGrid,
-        gt4py_config: GT4PyConfig,
-        phyex: Phyex,
-        domain: Tuple[int],
-        *,
+        phyex: Phyex = Phyex("AROME"),
+        dtypes: Dict = sp_dtypes,
         backend: str = "gt:cpu_ifirst",
-        enable_checks: bool = True,
     ) -> None:
-        super().__init__(
-            computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
+
+        compile_stencil = partial(
+            backend=backend,
+            externals=phyex.externals,
+            dtypes=dtypes,
         )
 
-        externals = phyex.to_externals()
-        self.ice_adjust = self.compile_stencil("ice_adjust", externals)
+        from ..stencils.ice_adjust import ice_adjust
 
+        self.ice_adjust = compile_stencil(
+            name="ice_adjust",
+            definition=ice_adjust
+        )
 
         logging.info(f"Keys")
         logging.info(f"SUBG_COND : {phyex.nebn.LSUBG_COND}")
@@ -54,8 +52,14 @@ class IceAdjust:
         logging.info(f"SIGMAS : {phyex.nebn.LSIGMAS}")
         logging.info(f"LMFCONV : {phyex.LMFCONV}")
 
-    def __call__(self, state):
-
+    def __call__(self,
+                 computational_grid,
+                 state,
+                 timestep,
+                 domain: Tuple ,
+                 exec_info: Dict,
+                 validate_args: bool = False,
+                 ):
 
         with managed_temporary_storage(
             self.computational_grid,
@@ -110,7 +114,7 @@ class IceAdjust:
 
             # Global Table
             logging.info("Loading src_1d GlobalTable")
-            src_1D = from_array(SRC_1D, backend=self.gt4py_config.backend)
+            src_1D = from_array(SRC_1D, backend=self.backend)
 
             # Timestep
             logging.info("Launching ice_adjust")
@@ -120,7 +124,7 @@ class IceAdjust:
                 src_1d=src_1D,
                 dt=timestep.total_seconds(),
                 origin=(0, 0, 0),
-                domain=self.domain,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
             )

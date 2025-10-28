@@ -2,19 +2,15 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
-    Field,
-    min,
-    max,
-    computation,
-    interval,
-    PARALLEL,
-)
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+                                        PARALLEL,
+                                        Field,
+                                        computation,
+                                        interval,
+                                        max,
+                                        min
+                                    )
 
-
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_correct_negativities.F90")
-@stencil_collection("ice4_correct_negativities")
+# "PHYEX/src/common/micro/mode_ice4_correct_negativities.F90"
 def ice4_correct_negativities(
     th_t: Field["float"],
     rv_t: Field["float"],
@@ -39,10 +35,7 @@ def ice4_correct_negativities(
         ls_fact (Field[float]): latent heat of sublimation (over cph)
     """
 
-    from __externals__ import (
-        S_RTMIN,
-        G_RTMIN,
-    )
+    from __externals__ import G_RTMIN, S_RTMIN
 
     with computation(PARALLEL), interval(...):
 

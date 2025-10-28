@@ -2,26 +2,14 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
-    Field,
-    GlobalTable,
-    exp,
-    log,
-    computation,
-    interval,
-    PARALLEL,
-)
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
-
-from ice3.functions.interp_micro import (
-    index_micro2d_dry_g,
-    index_micro2d_dry_r,
-    index_micro2d_dry_s,
-)
+                                        PARALLEL, Field, GlobalTable,
+                                      computation, exp, interval, log)
+from ice3.functions.interp_micro import (index_micro2d_dry_g,
+                                         index_micro2d_dry_r,
+                                         index_micro2d_dry_s)
 
 
-@ported_method(from_file="PHYEX/src/common/micro/mode_ice4_fast_rg.F90")
-@stencil_collection("ice4_fast_rg")
+# "PHYEX/src/common/micro/mode_ice4_fast_rg.F90"
 def ice4_fast_rg(
     ldsoft: "bool",  # bool to update tendencies
     ldcompute: Field["bool"],
@@ -88,54 +76,14 @@ def ice4_fast_rg(
         gdry (Field[int]): boolean field
     """
 
-    from __externals__ import (
-        LCRFLIMIT,
-        ALPI,
-        ALPW,
-        BETAI,
-        BETAW,
-        BS,
-        CEXVT,
-        CI,
-        CL,
-        COLEXIG,
-        COLIG,
-        COLSG,
-        CPV,
-        CXG,
-        CXS,
-        DG,
-        EPSILO,
-        ESTT,
-        EX0DEPG,
-        EX1DEPG,
-        EXICFRR,
-        EXRCFRI,
-        FCDRYG,
-        FIDRYG,
-        FRDRYG,
-        FSDRYG,
-        G_RTMIN,
-        GAMI,
-        GAMW,
-        I_RTMIN,
-        ICFRR,
-        LBSDRYG1,
-        LBSDRYG2,
-        LBSDRYG3,
-        LEVLIMIT,
-        LMTT,
-        LNULLWETG,
-        LVTT,
-        LWETGPOST,
-        O0DEPG,
-        O1DEPG,
-        R_RTMIN,
-        RCFRI,
-        RV,
-        S_RTMIN,
-        TT,
-    )
+    from __externals__ import (ALPI, ALPW, BETAI, BETAW, BS, CEXVT, CI, CL,
+                               COLEXIG, COLIG, COLSG, CPV, CXG, CXS, DG,
+                               EPSILO, ESTT, EX0DEPG, EX1DEPG, EXICFRR,
+                               EXRCFRI, FCDRYG, FIDRYG, FRDRYG, FSDRYG,
+                               G_RTMIN, GAMI, GAMW, I_RTMIN, ICFRR, LBSDRYG1,
+                               LBSDRYG2, LBSDRYG3, LCRFLIMIT, LEVLIMIT, LMTT,
+                               LNULLWETG, LVTT, LWETGPOST, O0DEPG, O1DEPG,
+                               R_RTMIN, RCFRI, RV, S_RTMIN, TT)
 
     # 6.1 rain contact freezing
     with computation(PARALLEL), interval(...):

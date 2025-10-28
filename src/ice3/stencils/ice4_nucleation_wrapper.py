@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, computation, interval, PARALLEL, IJ
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import PARALLEL, Field, computation, interval
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=452, to_line=463
-)
-@stencil_collection("rain_ice_nucleation_pre_processing")
+# "PHYEX/src/common/micro/rain_ice.F90",
+# from_line=452,
+# to_line=463
 def rain_ice_nucleation_pre_processing(
     ldmicro: Field["bool"],
     ci_t: Field["float"],
@@ -35,10 +32,9 @@ def rain_ice_nucleation_pre_processing(
             ci_t = 0
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=473, to_line=477
-)
-@stencil_collection("rain_ice_nucleation_post_processing")
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=473,
+# to_line=477
 def rain_ice_nucleation_post_processing(
     rvs: Field["float"],
     rvheni: Field["float"],

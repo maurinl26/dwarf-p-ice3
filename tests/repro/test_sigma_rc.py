@@ -1,27 +1,28 @@
 import logging
-from ctypes import c_double, c_float
+from ctypes import c_float
 
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
+from ice3.phyex_common.lookup_table import SRC_1D
 from ice3.utils.compile_fortran import compile_fortran_stencil
-from ice3.utils.env import CPU_BACKENDS, DEBUG_BACKEND, GPU_BACKENDS
+from ice3.utils.env import CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize(
     "backend",
-    pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-    pytest.param(GPU_BACKENDS, marks=pytest.mark.gpu),
-    pytest.param(CPU_BACKENDS, marks=pytest.mark.cpu),
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+    ],
 )
-def test_sigrc_computation(
-    gt4py_config, externals, fortran_dims, grid, origin, precision, backend
-):
+def test_sigrc_computation(externals, fortran_dims, domain, origin, precision, backend):
     logging.info(f"HLAMBDA3 {externals['LAMBDA3']}")
 
-    I, J, K = grid.shape
+    I, J, K = domain
 
     fortran_stencil = compile_fortran_stencil(
         "mode_condensation.F90", "mode_condensation", "sigrc_computation"
@@ -30,14 +31,14 @@ def test_sigrc_computation(
     FloatFieldsIJK_Names = ["q1", "sigrc"]
     FloatFieldsIJK = {
         name: np.array(
-            np.random.rand(*grid.shape),
+            np.random.rand(*domain),
             dtype=c_float,
             order="F",
         )
         for name in FloatFieldsIJK_Names
     }
 
-    inq1 = np.zeros(grid.shape, dtype=np.int32)
+    inq1 = np.zeros(domain, dtype=np.int32)
 
     from ice3.stencils.sigma_rc_dace import sigrc_computation
 
@@ -95,7 +96,15 @@ def test_sigrc_computation(
     )
 
 
-def test_global_table():
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+    ],
+)
+def test_global_table(backend):
     fortran_global_table = compile_fortran_stencil(
         "mode_condensation.F90", "mode_condensation", "global_table"
     )

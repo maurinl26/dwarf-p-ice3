@@ -1,5 +1,3 @@
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
 import os
 import logging
 import numpy as np
@@ -18,8 +16,8 @@ dp_dtypes = {
     "bool": np.bool_
 }
 DEBUG_BACKEND = "numpy"
-CPU_BACKENDS = "gt:cpu_kfirst"
-GPU_BACKENDS = "gt:gpu"
+CPU_BACKEND = "dace:cpu"
+GPU_BACKEND = "dace:gpu"
 
 try:
     BACKEND = os.environ["GT_BACKEND"]

@@ -4,7 +4,7 @@ from math import gamma, sqrt
 import numpy as np
 
 from ice3.phyex_common.constants import Constants
-from ice3.phyex_common.param_ice import ParamIce
+from ice3.phyex_common.ice_parameters import IceParameters
 
 
 # from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90"
@@ -28,7 +28,7 @@ class RainIceDescriptors:
     """
 
     cst: Constants
-    parami: ParamIce
+    parami: IceParameters
 
     CEXVT: float = 0.4  # Air density fall speed correction
 

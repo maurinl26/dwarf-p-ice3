@@ -6,9 +6,9 @@ import logging
 import numpy as np
 
 from ice3.phyex_common.constants import Constants
-from ice3.phyex_common.gamma_inc import generalized_incomplete_gamma
-from ice3.phyex_common.param_ice import ParamIce
-from ice3.phyex_common.rain_ice_descr import RainIceDescriptors
+from ice3.phyex_common.incomplete_gamma import generalized_incomplete_gamma
+from ice3.phyex_common.ice_parameters import IceParameters
+from ice3.phyex_common.rain_ice_descriptors import RainIceDescriptors
 
 logging.getLogger()
 
@@ -116,7 +116,7 @@ class RainIceParameters:
     # Constants dependencies
     cst: Constants
     rid: RainIceDescriptors
-    parami: ParamIce
+    parami: IceParameters
 
     # Parameters for microphysical sources and transformations
     FSEDC_1: float = field(init=False)  # Constants for sedimentation fluxes of C

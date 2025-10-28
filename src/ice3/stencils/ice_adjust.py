@@ -3,74 +3,86 @@ from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
     __INLINED,
+    IJ,
     PARALLEL,
+    Field,
+    GlobalTable,
+    K,
     atan,
     computation,
     exp,
     floor,
     interval,
     sqrt,
-    Field,
-    GlobalTable,
-    IJ,
-    K
 )
+
+from ice3.functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
 from ice3.functions.tiwmx import e_sat_i, e_sat_w
-from ice3.functions.ice_adjust import vaporisation_latent_heat, sublimation_latent_heat
 
 
 # PHYEX/src/common/micro/ice_adjust.F90
 def ice_adjust(
-        sigqsat: Field[IJ, K],
-        pabs: Field[IJ, K],
-        sigs: Field[IJ, K],
-        th: Field[IJ, K],
-        exn: Field[IJ, K],
-        exn_ref: Field[IJ, K],
-        rho_dry_ref: Field[IJ, K],
-        t: Field[IJ, K],
-        rv: Field[IJ, K],
-        ri: Field[IJ, K],
-        rc: Field[IJ, K],
-        rr: Field[IJ, K],
-        rs: Field[IJ, K],
-        rg: Field[IJ, K],
-        cf_mf: Field[IJ, K],
-        rc_mf: Field[IJ, K],
-        ri_mf: Field[IJ, K],
-        rv_out: Field[IJ, K],
-        rc_out: Field[IJ, K],
-        ri_out: Field[IJ, K],
-        hli_hri: Field[IJ, K],
-        hli_hcf: Field[IJ, K],
-        hlc_hrc: Field[IJ, K],
-        hlc_hcf: Field[IJ, K],
-        ths: Field[IJ, K],
-        rvs: Field[IJ, K],
-        rcs: Field[IJ, K],
-        ris: Field[IJ, K],
-        cldfr: Field[IJ, K],
-        cph: Field[IJ, K],
-        lv: Field[IJ, K],
-        ls: Field[IJ, K],
-        q1: Field[IJ, K],
-        sigma_rc: Field[IJ, K],
-        src_1d: GlobalTable[(34)],
-        dt: float
+    sigqsat: Field[IJ, K],
+    pabs: Field[IJ, K],
+    sigs: Field[IJ, K],
+    th: Field[IJ, K],
+    exn: Field[IJ, K],
+    exn_ref: Field[IJ, K],
+    rho_dry_ref: Field[IJ, K],
+    t: Field[IJ, K],
+    rv: Field[IJ, K],
+    ri: Field[IJ, K],
+    rc: Field[IJ, K],
+    rr: Field[IJ, K],
+    rs: Field[IJ, K],
+    rg: Field[IJ, K],
+    cf_mf: Field[IJ, K],
+    rc_mf: Field[IJ, K],
+    ri_mf: Field[IJ, K],
+    rv_out: Field[IJ, K],
+    rc_out: Field[IJ, K],
+    ri_out: Field[IJ, K],
+    hli_hri: Field[IJ, K],
+    hli_hcf: Field[IJ, K],
+    hlc_hrc: Field[IJ, K],
+    hlc_hcf: Field[IJ, K],
+    ths: Field[IJ, K],
+    rvs: Field[IJ, K],
+    rcs: Field[IJ, K],
+    ris: Field[IJ, K],
+    cldfr: Field[IJ, K],
+    cph: Field[IJ, K],
+    lv: Field[IJ, K],
+    ls: Field[IJ, K],
+    q1: Field[IJ, K],
+    sigma_rc: Field[IJ, K],
+    src_1d: GlobalTable[(34)],
+    dt: float,
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
     from __externals__ import (
-        RD, RV, FRAC_ICE_ADJUST, TMAXMIX, TMINMIX,
-        OCND2, LSIGMAS, LSTATNW, CONDENS,
-        NRR, CPV, CPD, CL, CI,
-        LSUBG_COND,
-        SUBG_MF_PDF,
-        CRIAUTC,
-        CRIAUTI,
         ACRIAUTI,
         BCRIAUTI,
-        TT
+        CI,
+        CL,
+        CONDENS,
+        CPD,
+        CPV,
+        CRIAUTC,
+        CRIAUTI,
+        FRAC_ICE_ADJUST,
+        LSIGMAS,
+        LSTATNW,
+        LSUBG_COND,
+        NRR,
+        OCND2,
+        RD,
+        RV,
+        SUBG_MF_PDF,
+        TMAXMIX,
+        TMINMIX,
+        TT,
     )
 
     # 2.3 Compute the variation of mixing ratio
@@ -140,10 +152,7 @@ def ice_adjust(
         # TODO : l341 -> l350
         # Translation note : OUSERI = TRUE, OCND2 = False
         if __INLINED(not OCND2):
-            frac_tmp = (
-                rc / (rc + ri)
-                if rc + ri > 1e-20 else 0
-            )
+            frac_tmp = rc / (rc + ri) if rc + ri > 1e-20 else 0
 
             # Compute frac ice inlined
             # Default Mode (S)
@@ -163,7 +172,7 @@ def ice_adjust(
         lvs = (1 - frac_tmp) * lv + frac_tmp * ls
 
         # coefficients a et b
-        ah = lvs * qsl / (RV * t ** 2) * (1 + RV * qsl / RD)
+        ah = lvs * qsl / (RV * t**2) * (1 + RV * qsl / RD)
         a = 1 / (1 + lvs / cph * ah)
         b = ah * a
         sbar = a * (rt - qsl + ah * lvs * (rc + ri * prifact) / cph)
@@ -194,7 +203,7 @@ def ice_adjust(
             # Translation note : l470 to l479
             if q1 > 0.0:
                 cond_tmp = (
-                    min(exp(-1.0) + 0.66 * q1 + 0.086 * q1 ** 2, 2.0) if q1 <= 2.0 else q1
+                    min(exp(-1.0) + 0.66 * q1 + 0.086 * q1**2, 2.0) if q1 <= 2.0 else q1
                 )  # we use the MIN function for continuity
             else:
                 cond_tmp = exp(1.2 * q1 - 1.0)
@@ -203,7 +212,9 @@ def ice_adjust(
             # Translation note : l482 to l489
             # cloud fraction
             cldfr = (
-                max(0.0, min(1.0, 0.5 + 0.36 * atan(1.55 * q1))) if cond_tmp >= 1e-12 else 0
+                max(0.0, min(1.0, 0.5 + 0.36 * atan(1.55 * q1)))
+                if cond_tmp >= 1e-12
+                else 0
             )
 
             # Translation note : l487 to l489
@@ -227,7 +238,7 @@ def ice_adjust(
 
     # Compute sigma_rc using global table
     with computation(PARALLEL), interval(...):
-        inq1 = floor(min(100., max(-100., 2 * q1[0, 0, 0])))
+        inq1 = floor(min(100.0, max(-100.0, 2 * q1[0, 0, 0])))
         inq2 = min(max(-22, inq1), 10)
         # inner min/max prevents sigfpe when 2*zq1 does not fit dtype_into an "int"
         inc = 2 * q1  # - inq2
@@ -252,7 +263,6 @@ def ice_adjust(
 
     # Cloud fraction 2
     with computation(PARALLEL), interval(...):
-
         if __INLINED(not LSUBG_COND):
             cldfr = 1.0 if ((rcs + ris) * dt > 1e-12) else 0.0
         # Translation note : OCOMPUTE_SRC is taken False
@@ -270,7 +280,7 @@ def ice_adjust(
             cldfr = min(1, cldfr + cf_mf)
             rcs += w1
             ris += w2
-            rvs -= (w1 + w2)
+            rvs -= w1 + w2
             ths += (w1 * lv + w2 * ls) / (cph * exn_ref)
 
             # Droplets subgrid autoconversion
@@ -289,7 +299,7 @@ def ice_adjust(
                 if w1 * dt > cf_mf * criaut:
                     hcf = 1.0 - 0.5 * (criaut * cf_mf / max(1e-20, w1 * dt)) ** 2
                     hr = w1 * dt - (criaut * cf_mf) ** 3 / (
-                            3 * max(1e-20, w1 * dt) ** 2
+                        3 * max(1e-20, w1 * dt) ** 2
                     )
 
                 elif 2.0 * w1 * dt <= cf_mf * criaut:
@@ -298,13 +308,13 @@ def ice_adjust(
 
                 else:
                     hcf = (2.0 * w1 * dt - criaut * cf_mf) ** 2 / (
-                            2.0 * max(1.0e-20, w1 * dt) ** 2
+                        2.0 * max(1.0e-20, w1 * dt) ** 2
                     )
                     hr = (
-                                 4.0 * (w1 * dt) ** 3
-                                 - 3.0 * w1 * dt * (criaut * cf_mf) ** 2
-                                 + (criaut * cf_mf ** 3)
-                         ) / (3 * max(1.0e-20, w1 * dt) ** 2)
+                        4.0 * (w1 * dt) ** 3
+                        - 3.0 * w1 * dt * (criaut * cf_mf) ** 2
+                        + (criaut * cf_mf**3)
+                    ) / (3 * max(1.0e-20, w1 * dt) ** 2)
 
                 hcf *= cf_mf
                 hlc_hcf = min(1.0, hlc_hcf + hcf)
@@ -333,14 +343,12 @@ def ice_adjust(
                     hri = 0.0
 
                 else:
-                    hcf = (2.0 * w2 * dt - criaut * cf_mf) ** 2 / (
-                            2.0 * (w2 * dt) ** 2
-                    )
+                    hcf = (2.0 * w2 * dt - criaut * cf_mf) ** 2 / (2.0 * (w2 * dt) ** 2)
                     hri = (
-                                  4.0 * (w2 * dt) ** 3
-                                  - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
-                                  + (criaut * cf_mf) ** 3
-                          ) / (3.0 * (w2 * dt) ** 2)
+                        4.0 * (w2 * dt) ** 3
+                        - 3.0 * w2 * dt * (criaut * cf_mf) ** 2
+                        + (criaut * cf_mf) ** 3
+                    ) / (3.0 * (w2 * dt) ** 2)
 
                 hcf *= cf_mf
                 hli_hcf = min(1.0, hli_hcf + hcf)
