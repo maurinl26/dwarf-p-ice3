@@ -1,10 +1,9 @@
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
 import os
 import logging
 import numpy as np
+from pathlib import Path
 
-BACKEND_LIST = ["numpy", "gt:cpu_ifirst", "gt:gpu", "dace:cpu", "dace:gpu"]
+ROOT_PATH = Path(__file__).parents[2]
 
 sp_dtypes = {
     "float": np.float32,
@@ -17,10 +16,15 @@ dp_dtypes = {
     "int": np.int64,
     "bool": np.bool_
 }
-DEBUG_BACKEND = "numpy"
-CPU_BACKENDS = "gt:cpu_kfirst"
-GPU_BACKENDS = "gt:gpu"
 
+BACKEND_LIST = ["numpy", "gt:cpu_ifirst", "gt:gpu", "dace:cpu", "dace:gpu"]
+
+DEBUG_BACKEND = "numpy"
+CPU_BACKEND = "dace:cpu"
+GPU_BACKEND = "dace:gpu"
+
+
+############# Set BACKEND ##############
 try:
     BACKEND = os.environ["GT_BACKEND"]
     logging.info(f"Backend {BACKEND}")
@@ -28,4 +32,24 @@ except KeyError:
     logging.warning("Backend not found")
     BACKEND = "gt:cpu_ifirst"
 
+
+############ Set DTYPES ###############
+try:
+    PRECISION = os.environ["PRECISION"]
+    match PRECISION:
+        case "single":
+            DTYPES = sp_dtypes
+        case "double":
+            DTYPES = dp_dtypes
+        case _:
+            DTYPES = sp_dtypes
+except KeyError:
+    DTYPES = sp_dtypes
+
+
+######## Consistent stencil compilation ##########
+from functools import partial
+from gt4py.cartesian.gtscript import stencil
+
+compile_stencil = partial(stencil, backend=BACKEND, dtypes=DTYPES)
 

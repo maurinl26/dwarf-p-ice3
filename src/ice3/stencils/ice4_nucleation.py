@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, exp, log, computation, interval, PARALLEL
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import (PARALLEL, Field, computation, exp,
+                                      interval, log)
 
 
-@ported_method(from_file="PHYEX/src/common/micro/ice4_nucleation.func.h")
-@stencil_collection("ice4_nucleation")
+# "PHYEX/src/common/micro/ice4_nucleation.func.h"
 def ice4_nucleation(
     ldcompute: Field["bool"],
     tht: Field["float"],
@@ -36,25 +34,9 @@ def ice4_nucleation(
         rvheni_mr (Field[float]): mixing ratio change of vapour
     """
 
-    from __externals__ import (
-        ALPHA1,
-        ALPHA2,
-        ALPI,
-        ALPW,
-        BETA1,
-        BETA2,
-        BETAI,
-        BETAW,
-        EPSILO,
-        GAMI,
-        GAMW,
-        LFEEDBACKT,
-        MNU0,
-        NU10,
-        NU20,
-        TT,
-        V_RTMIN,
-    )
+    from __externals__ import (ALPHA1, ALPHA2, ALPI, ALPW, BETA1, BETA2, BETAI,
+                               BETAW, EPSILO, GAMI, GAMW, LFEEDBACKT, MNU0,
+                               NU10, NU20, TT, V_RTMIN)
     
     with computation(PARALLEL), interval(...):
         usw = 0.0

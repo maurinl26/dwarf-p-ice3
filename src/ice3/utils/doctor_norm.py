@@ -9,11 +9,11 @@ def field_doctor_norm(key: str, dtype: str) -> str:
     Returns:
         str: field fortran name
     """
-    if dtype == "float":
-        fortran_key = f"p{key}"
-    elif dtype == "bool":
-        fortran_key = f"{key}"
-    return fortran_key
+    match dtype:
+        case "float":
+            return f"p{key}"
+        case "bool":
+            return f"l{key}"
 
 
 def var_doctor_norm(key: str, dtype: str) -> str:
@@ -26,10 +26,10 @@ def var_doctor_norm(key: str, dtype: str) -> str:
     Returns:
         str: name with doctor norm
     """
-    if dtype == "float":
-        fortran_key = f"x{key}"
-    elif dtype == "bool":
-        fortran_key = f"l{key}"
-    elif dtype == "int":
-        fortran_key = f"n{key}"
-    return fortran_key
+    match dtype:
+        case "float":
+            return f"x{key}"
+        case "bool":
+            return f"l{key}"
+        case "int":
+            return f"n{key}"

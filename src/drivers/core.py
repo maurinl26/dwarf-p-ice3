@@ -1,32 +1,22 @@
 # -*- coding: utf-8 -*-
 import json
-from pathlib import Path
-from typing import Tuple
 import logging
-import datetime
-import time
-import sys
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, Literal
+
+import numpy as np
 import xarray as xr
-
 from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid
-from ifs_physics_common.framework.components import ImplicitTendencyComponent
 
-from ice3.phyex_common.phyex import Phyex
+from ..ice3.utils.reader import NetCDFReader
 
-from ifs_physics_common.utils.typingx import (
-    DataArrayDict,
-)
+if TYPE_CHECKING:
+    from ifs_physics_common.utils.typingx import DataArrayDict
 
-from ice3.utils.reader import NetCDFReader
-
-
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logging.getLogger()
-
+log = logging.getLogger(__name__)
 
 def write_performance_tracking(
-    gt4py_config: GT4PyConfig, metrics: dict, tracking_file: str
+    gt4py_config: GT4PyConfig, metrics: Dict[str, float], tracking_file: Path
 ):
     """Write performance tracking in a log file
 
@@ -35,12 +25,12 @@ def write_performance_tracking(
         tracking_file (str): tracking file to write in
     """
 
-    logging.info(f"Extracting exec tracking to {tracking_file}")
+    log.info(f"Extracting exec tracking to {tracking_file}")
     with open(tracking_file, "w") as file:
         json.dump({"performances": gt4py_config.exec_info, "metrics": metrics}, file)
 
 
-def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
+def write_dataset(state: DataArrayDict, output_path: Path):
     """Write output state to netCDF
 
     Args:
@@ -48,106 +38,99 @@ def write_dataset(state: DataArrayDict, shape: Tuple[int], output_path: str):
         keys (_type_): keys to write in netCDF
         output_path (_type_): path to write field
     """
-    nx, ny, nz = shape
-
-    logging.info(f"Extracting state data to {output_path}")
+    log.info(f"Extracting state data to {output_path}")
     output_fields = xr.Dataset(state)
-    for key, field in state.items():
-        if key not in ["time"]:
-            array = xr.DataArray(
-                data=field.data[:, :, 1:],
-                dims=["I", "J", "K"],
-                coords={
-                    "I": range(nx),
-                    "J": range(ny),
-                    "K": range(nz),
-                },
-                name=f"{key}",
-            )
-            output_fields[key] = array
-
-        output_fields = output_fields.as_numpy()
-    output_fields.to_netcdf(Path(output_path))
-    logging.info(f"Data Array written to {output_path}")
+    output_fields.to_netcdf(output_path)
+    log.info(f"Data Array written to {output_path}")
 
 
-def initialize_state(
-    component: ImplicitTendencyComponent,
-    reader: NetCDFReader,
-    grid: ComputationalGrid,
-    config: GT4PyConfig,
-):
-    """_summary_
+def compare_fields(
+    ref_path: Path, run_path: Path, component: Literal["ice_adjust", "rain_ice"]
+) -> Dict[str, float]:
+    """Read and compare fields in reference and run datasets and write results in output.
 
     Args:
-        component (_type_): _description_
-        reader (_type_): _description_
-        grid (_type_): _description_
-        config (_type_): _description_
+        ref_reader (str): path of reference dataset
+        run_reader (str): path of run dataset
+        output (str): output file to write comparison results
     """
-    # TODO : function to implement
-    pass
+    run_reader = NetCDFReader(run_path)
+    ref_reader = NetCDFReader(ref_path)
 
+    inf_error = lambda ref, run: np.max(np.abs(ref - run))
+    l2_error = lambda ref, run: np.sum((ref - run) ** 2) / run.size
 
-def core(
-    component: ImplicitTendencyComponent,
-    gt4py_config: GT4PyConfig,
-    grid: ComputationalGrid,
-    state: DataArrayDict,
-    output_path: str,
-    dt: datetime.timedelta,
-    tracking_file: str,
-):
-    """Core for component execution drivers
+    KEYS_ICE_ADJUST = [
+        ("hli_hcf", "PHLI_HCF_OUT"),
+        ("hli_hri", "PHLI_HRI_OUT"),
+        ("hlc_hcf", "PHLC_HCF_OUT"),
+        ("hlc_hrc", "PHLC_HRC_OUT"),
+        ("cldfr", "PCLDFR_OUT"),
+        ("ths", "PRS_OUT"),
+        ("rvs", "PRS_OUT"),
+        ("rcs", "PRS_OUT"),
+        ("ris", "PRS_OUT"),
+    ]
 
-    Args:
-        component (ImplicitTendencyComponent): component to run
-        gt4py_config (GT4PyConfig): gt4py_configuration
-        state (DataArrayDict): state for the component
-        output_path (str): path for output dataset
-    """
+    KEYS_RAIN_ICE = [
+        ("rainfr", "ZRAINFR_OUT"),
+        ("fpr", "PFPR_OUT"),
+        ("indep", "ZINDEP_OUT"),
+        ("inprg", "PINPRG_OUT"),
+        ("inprs", "PINPRS_OUT"),
+        ("evap3d", "PEVAP_OUT"),
+        ("inprr", "PINPRR_OUT"),
+        ("inprc", "ZINPRC_OUT"),
+        ("rvs", "PRS_OUT"),
+        ("rcs", "PRS_OUT"),
+        ("rrs", "PRS_OUT"),
+        ("ris", "PRS_OUT"),
+        ("rss", "PRS_OUT"),
+        ("rgs", "PRS_OUT"),
+        ("ci_t", "PCIT_OUT"),
+    ]
 
-    nx, ny, nz = grid[("I", "J", "K")].shape
+    KEYS = KEYS_ICE_ADJUST if component == "ice_adjust" else KEYS_RAIN_ICE
+    tendencies = ["ths", "rvs", "rcs", "rrs", "ris", "rss", "rgs"]
 
-    ################## Phyex #################
-    logging.info("Initializing Phyex ...")
-    cprogram = "AROME"
-    phyex = Phyex(cprogram)
+    metrics = dict()
+    for run_name, ref_name in KEYS:
+        if run_name in tendencies:
+            run_field = run_reader.get_field(run_name)
 
-    ######## Instanciation + compilation #####
-    logging.info(f"Compilation for AroAdjust stencils")
-    start = time.time()
-    comp = component(grid, gt4py_config, phyex)
-    stop = time.time()
-    elapsed_time = stop - start
-    logging.info(f"Compilation duration for AroAdjust : {elapsed_time} s")
+            if component == "ice_adjust":
+                # ths is in the tendencies
+                ref_field = ref_reader.get_field(ref_name)[
+                    :, :, tendencies.index(run_name)
+                ]
+            elif component == "rain_ice":
+                # ths is not in the tendencies
+                ref_field = ref_reader.get_field(ref_name)[
+                    :, :, tendencies.index(run_name) - 1
+                ]
+        else:
+            run_field = run_reader.get_field(run_name)
+            ref_field = ref_reader.get_field(ref_name)
 
-    ###### Launching AroAdjust ###############
-    logging.info("Launching IceAdjust")
+        log.info(
+            f"Field {run_name}, ref : {ref_field.shape}, run : {run_field.shape}"
+        )
+        e_inf = inf_error(ref_field, run_field)
+        e_l2 = l2_error(ref_field, run_field)
+        relative_e_inf = e_inf / np.max(ref_field)
+        relative_e_l2 = ref_field.size * e_l2 / np.sum(ref_field**2)
 
-    start = time.time()
-    tends, diags = comp(state, dt)
-    stop = time.time()
-    elapsed_time = stop - start
-    logging.info(f"Execution duration for IceAdjust : {elapsed_time} s")
+        metrics.update(
+            {
+                f"{run_name}": {
+                    "mean_ref": np.mean(ref_field),
+                    "mean_run": np.mean(run_field),
+                    "e_inf": e_inf,
+                    "e_2": e_l2,
+                    "relative_e_inf": relative_e_inf,
+                    "relative_e_2": relative_e_l2,
+                }
+            }
+        )
 
-    # TODO : replace with write output
-    logging.info(f"Extracting state data to {output_path}")
-    output_fields = xr.Dataset(state)
-    for key, field in state.items():
-        if key not in ["time"]:
-            array = xr.DataArray(
-                data=field.data[:, :, 1:],
-                dims=["I", "J", "K"],
-                coords={
-                    "I": range(nx),
-                    "J": range(ny),
-                    "K": range(nz),
-                },
-                name=f"{key}",
-            )
-            output_fields[key] = array
-    output_fields.to_netcdf(Path(output_path))
-
-    with open(f"{tracking_file}", "w") as file:
-        json.dump(gt4py_config.exec_info, file)
+    return metrics

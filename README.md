@@ -127,15 +127,30 @@ There are three components available for rain_ice (one-moment microphysical proc
 - Ice4Stepping (ice4_stepping.py) : responsible for orchestration of processes computations (handling soft and heavy cycles plus accumulating tendencies).
 - To launch rain_ice (with cli):
 
-```
-python src/drivers/cli.py run-rain-ice gt:cpu_ifirst ./data/rain_ice/reference.nc ./data/rain_ice/run.nc track_rain_ice.json
+```bash
+    uv run standalone-model ice-adjust-split \
+    gt:cpu_kfirst \
+    ./data/ice_adjust/reference.nc \
+    ./data/ice_adjust/run.nc \
+    track_ice_adjust.json --no-rebuild 
 ```
 
 ## Unit tests
 
-Unit tests for reproductibility are using pytest. 
+Unit tests for reproductibility are using pytest. Numpy, CPU and GPU backends can be activated :
 
-They test the components for every backend.
+- Numpy :
+  ```bash
+  uv run pytest tests/repro -m debug 
+  ```
+- CPU :
+  ```bash
+  uv run pytest tests/repro -m cpu
+  ```
+- GPU :
+  ```bash
+  uv run pytest tests/repro -m gpu
+  ```
 
 Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
 
@@ -152,7 +167,7 @@ as an input.
 ## Python Wrapper
 
 ```bash
-uv run standalone-model ice-adjust-fortran\
+  uv run standalone-model ice-adjust-fortran\
   ../phyex/lib/libice-adjust.so \
   ./data/ice_adjust/reference.nc \
   ./data/ice_adjust/run.nc \
@@ -191,6 +206,7 @@ uv run standalone-model ice-adjust-fortran\
   - les tests unitaires sur le stepping ne sont pas nécessaire -> il est préférable de tester le composant dans un cas 
 simple (1 boucle ldsoft)
   - les tests unitaires des rain_fr et sedimentation sont à réaliser
+
 
 - branches expérimentales :
   - dace-interpolation : intégration des interpolations DaCe dans le stencil

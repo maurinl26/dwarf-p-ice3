@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-import xarray as xr
 from gt4py.cartesian.gtscript import stencil
 from gt4py.storage import from_array, zeros
 from numpy.testing import assert_allclose
@@ -13,12 +12,17 @@ def test_ice_adjust(benchmark, backend, externals, sp_dtypes, ice_adjust_repro_d
 
     from ice3.stencils.ice_adjust import ice_adjust
 
+    externals.update(
+        {"OCND2": False}
+    )
+
     ice_adjust_stencil = stencil(
         backend,
         definition=ice_adjust, 
         name="ice_adjust",
         externals=externals,
-        dtypes=sp_dtypes
+        dtypes=sp_dtypes,
+        validate_args=False
         )
 
     shape = (

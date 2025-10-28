@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-zcoef = tuple()
+zcoef = np.empty(6)
 zcoef[0] = 76.18009172947146
 zcoef[1] = -86.50532032941677
 zcoef[2] = 24.01409824083091

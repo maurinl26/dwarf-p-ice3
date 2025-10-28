@@ -1,12 +1,7 @@
 import xarray as xr
-from pathlib import Path
-import fmodpy
-import logging
 import pytest
 import numpy as np
 
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from ifs_physics_common.framework.config import GT4PyConfig
 from ice3.phyex_common.phyex import Phyex
 
 # fixtures
@@ -23,13 +18,21 @@ def sp_dtypes_fixture():
             "bool": np.bool_
         }
 
+@pytest.fixture(name="dp_dtypes", scope="module")
+def dp_dtypes_fixtures():
+    return {
+        "float": np.float64,
+        "int": np.int64,
+        "bool": np.bool_
+    }
+
 @pytest.fixture(name="domain", scope="module")
 def domain_fixture():
-    return (50, 50, 15)
+    return 50, 50, 15
 
 @pytest.fixture(name="origin", scope="module")
 def origin_fixture():
-    return (0, 0, 0)
+    return 0, 0, 0
 
 @pytest.fixture(name="phyex", scope="module")
 def phyex_fixture():
@@ -39,47 +42,6 @@ def phyex_fixture():
 def externals_fixture(phyex):
     return phyex.to_externals()
 
-
-############### IFS-PHYSICS-COMMON fixtures ##############
-@pytest.fixture(name="computational_grid", scope="module")
-def computational_grid_fixture(domain):
-    return ComputationalGrid(*domain)
-
-@pytest.fixture(name="domain", scope="module")
-def domain_fixture():
-    return (50, 50, 15)
-
-@pytest.fixture(name="gt4py_config", scope="module")
-def gt4py_config_fixture():
-    return GT4PyConfig(
-            backend="gt:cpu_ifirst",
-            rebuild=True,
-            validate_args=True,
-            verbose=True
-        )
-
-
-@pytest.fixture(name="grid", scope="module")
-def grid_fixture(computational_grid):
-    return computational_grid.grids[(I, J, K)]
-
-@pytest.fixture(name="origin", scope="module")
-def origin_fixture():
-    return (0, 0, 0)
-
-@pytest.fixture(name="gt4py_config", scope="module")
-def gt4py_config_fixture():
-    return GT4PyConfig(
-            backend="gt:cpu_ifirst",
-            rebuild=True,
-            validate_args=True,
-            verbose=True
-        )
-
-
-@pytest.fixture(name="phyex", scope="module")
-def phyex_fixture():
-    return Phyex("AROME")
 
 ################ Fortran for fixtures ##############
 @pytest.fixture(name="fortran_dims", scope="module")

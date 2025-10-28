@@ -1,28 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, interval, computation, PARALLEL
-from ifs_physics_common.framework.stencil import stencil_collection
-
-from ifs_physics_common.utils.f2py import ported_method
-
-from ice3.functions.ice_adjust import (
-    constant_pressure_heat_capacity,
-    sublimation_latent_heat,
-    vaporisation_latent_heat,
-)
-from ice3.functions.temperature import theta2temperature
+from gt4py.cartesian.gtscript import PARALLEL, Field, computation, interval
+from ice3.functions.ice_adjust import (constant_pressure_heat_capacity,
+                                       sublimation_latent_heat,
+                                       vaporisation_latent_heat)
 from ice3.functions.sign import sign
-from ice3.functions.stepping import mixing_ratio_step_limiter
+from ice3.functions.temperature import theta2temperature
 
 
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=215,
-    to_line=221,
-)
-@stencil_collection("ice4_stepping_tmicro_init")
+# from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+# from_line=215,
+# to_line=221,
 def ice4_stepping_tmicro_init(t_micro: Field["float"], ldmicro: Field["bool"]):
     """Initialise t_soft with value of t_micro after each loop
     on LSOFT condition.
@@ -39,12 +28,9 @@ def ice4_stepping_tmicro_init(t_micro: Field["float"], ldmicro: Field["bool"]):
         t_micro = 0 if ldmicro else TSTEP
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=225,
-    to_line=228,
-)
-@stencil_collection("ice4_stepping_tsoft_init")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=225,
+#    to_line=228,
 def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
     """Initialise t_soft with value of t_micro after each loop
     on LSOFT condition.
@@ -58,12 +44,9 @@ def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
         t_soft = t_micro
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=244,
-    to_line=254,
-)
-@stencil_collection("ice4_stepping_heat")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=244,
+#    to_line=254,
 def ice4_stepping_heat(
     rv_t: Field["float"],
     rc_t: Field["float"],
@@ -99,12 +82,9 @@ def ice4_stepping_heat(
         lv_fact = vaporisation_latent_heat(t) / specific_heat
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=230,
-    to_line=237,
-)
-@stencil_collection("ice4_stepping_ldcompute_init")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=230,
+#    to_line=237,
 def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float"]):
     """Initialize ldcompute mask
 
@@ -120,12 +100,9 @@ def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float
         
 
 ############################ MRSTEP != 0 ################################
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=346,
-    to_line=388,
-)
-@stencil_collection("ice4_mixing_ratio_step_limiter")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=346,
+#    to_line=388,
 def ice4_mixing_ratio_step_limiter(
     rc_0r_t: Field["float"],
     rr_0r_t: Field["float"],
@@ -176,7 +153,8 @@ def ice4_mixing_ratio_step_limiter(
         delta_t_micro (Field[float]): _description_
         time_threshold_tmp (Field[float]): _description_
     """
-    from __externals__ import C_RTMIN, G_RTMIN, I_RTMIN, MRSTEP, R_RTMIN, S_RTMIN
+    from __externals__ import (C_RTMIN, G_RTMIN, I_RTMIN, MRSTEP, R_RTMIN,
+                               S_RTMIN)
 
     ############## (c) ###########
     # l356
@@ -292,12 +270,9 @@ def ice4_mixing_ratio_step_limiter(
             ldcompute = False
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=290,
-    to_line=332,
-)
-@stencil_collection("ice4_step_limiter")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=290,
+#    to_line=332,
 def ice4_step_limiter(
     exn: Field["float"],
     th_t: Field["float"],
@@ -330,17 +305,8 @@ def ice4_step_limiter(
     t_soft: Field["float"],
     ldcompute: Field["bool"],
 ):
-    from __externals__ import (
-        C_RTMIN,
-        G_RTMIN,
-        I_RTMIN,
-        MNH_TINY,
-        R_RTMIN,
-        S_RTMIN,
-        TSTEP,
-        TSTEP_TS,
-        TT,
-    )
+    from __externals__ import (C_RTMIN, G_RTMIN, I_RTMIN, MNH_TINY, R_RTMIN,
+                               S_RTMIN, TSTEP, TSTEP_TS, TT)
 
     # Adding externals tendencies
     with computation(PARALLEL), interval(...):
@@ -405,12 +371,9 @@ def ice4_step_limiter(
                 ldcompute = False
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=391,
-    to_line=404,
-)
-@stencil_collection("state_update")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=391,
+#    to_line=404,
 def state_update(
     th_t: Field["float"],
     theta_b: Field["float"],
@@ -479,12 +442,9 @@ def state_update(
     # Translation note : l409 to 431 have been omitted since no budget calculations
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
-    from_line=440,
-    to_line=452,
-)
-@stencil_collection("external_tendencies_update")
+#    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
+#    from_line=440,
+#    to_line=452,
 def external_tendencies_update(
     th_t: Field["float"],
     theta_tnd_ext: Field["float"],

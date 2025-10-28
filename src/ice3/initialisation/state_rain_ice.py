@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from functools import partial
 from typing import TYPE_CHECKING
 
+import numpy as np
 from ifs_physics_common.framework.grid import I, J, K
 from ifs_physics_common.framework.storage import allocate_data_array
-import numpy as np
 
-from ice3.initialisation.utils import initialize_field
-from ice3.utils.reader import NetCDFReader
-import logging
+from ..utils.allocate_state import initialize_field
+from ..utils.reader import NetCDFReader
 
 if TYPE_CHECKING:
     from typing import Literal, Tuple

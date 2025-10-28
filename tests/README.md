@@ -1,52 +1,45 @@
-# ICE3 microphysics on gt4py.
+# Tests 
 
-dwarf-ice3-gt4py is a porting of PHYEX microphysics on gt4py dsl. Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
-repository or updated as a submodule in this project -via _install.sh_ script.
-
-## Installation and build
-
-[uv](https://docs.astral.sh/uv/#highlights) is required to manage project and virtual environment
-    
-uv can be download through :
+Launch tests :
 
 ```bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh
+    uv run pytest tests/repro/ -m debug
 ```
 
-Virtual environnement setup :
+On DaCe CPU backend :
 
 ```bash
-    uv init
-    uv venv --python 3.10
-    source .venv/bin/activate
-    uv add --editable .
+    uv run pytest tests/repro/ -m cpu
 ```
 
-## Rain Ice
-
-There are three components available for rain_ice (one-moment microphysical processes computation), under _/src/ice3_gt4py/components_ directory:
-
-- RainIce (rain_ice.py) : calls stencils involved in RainIce computation,
-- AroRainIce (aro_rain_ice.py) : calls RainIce common computation plus non-negative filters for model coupling,
-- Ice4Tendencies (ice4_tendencies.py) : responsible for processes computation,
-- Ice4Stepping (ice4_stepping.py) : responsible for orchestration of processes computations (handling soft and heavy cycles plus accumulating tendencies).
-- To launch rain_ice (with cli):
+On DaCe GPU backend :
 
 ```bash
-  uv run standalone-model \
-  gt:cpu_ifirst \
-  ./data/rain_ice/reference.nc \
-  ./data/rain_ice/run.nc \
-  track_rain_ice.json
+    uv run pytest tests/repro/ -m gpu
+```
+
+## Components
+
+Test the reproducibility of components based on netcdf reference datasets.
+See [data](../data) directory.
+
+```bash
+    uv run pytest tests/components/ -m debug
 ```
 
 ## Unit tests
 
-Unit tests for reproductibility are using pytest. 
+Unit tests for reproducibility are using pytest. They test both single and 
+double precision codes.
+
+```bash
+    uv run pytest tests/repro/ -m debug
+```
 
 Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
 
 Fortran routines are issued from CY49T0 version of the code and reworked to eliminate
 derivate types from routines. Then both stencils are ran with random numpy arrays
 as an input.
+
 

@@ -2,26 +2,17 @@
 from __future__ import annotations
 
 import logging
-from datetime import timedelta
-import sys
-from functools import cached_property
+from functools import partial
 from itertools import repeat
-from typing import Dict
-from gt4py.storage import from_array
-from ifs_physics_common.framework.components import ImplicitTendencyComponent
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import ComputationalGrid, I, J, K
-from ifs_physics_common.framework.storage import managed_temporary_storage
-from ifs_physics_common.utils.typingx import NDArrayLikeDict, PropertyDict
+from typing import Tuple, Dict
+from numpy.typing import NDArray
+from gt4py.cartesian.gtscript import stencil
 
-from ice3.phyex_common.phyex import Phyex
-from ice3.phyex_common.tables import SRC_1D
-from ice3.stencils.ice_adjust import ice_adjust
-from gt4py.cartesian import gtscript
+from ..phyex_common.phyex import Phyex
+from ..utils.env import DTYPES, BACKEND
+from ..utils.storage import managed_temporaries
 
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-logging.getLogger()
-
+log  = logging.getLogger(__name__)
 
 class IceAdjust:
     """Implicit Tendency Component calling
@@ -32,95 +23,108 @@ class IceAdjust:
 
     def __init__(
         self,
-        computational_grid: ComputationalGrid,
-        gt4py_config: GT4PyConfig,
-        phyex: Phyex,
-        domain: Tuple[int],
-        *,
-        backend: str = "gt:cpu_ifirst",
-        enable_checks: bool = True,
+        phyex: Phyex = Phyex("AROME"),
+        dtypes: Dict = DTYPES,
+        backend: str = BACKEND,
     ) -> None:
-        super().__init__(
-            computational_grid, enable_checks=enable_checks, gt4py_config=gt4py_config
+
+        compile_stencil = partial(stencil,
+            backend=backend,
+            externals=phyex.externals,
+            dtypes=dtypes,
         )
 
-        externals = phyex.to_externals()
-        self.ice_adjust = self.compile_stencil("ice_adjust", externals)
+        from ..stencils.ice_adjust import ice_adjust
 
+        self.ice_adjust = compile_stencil(
+            name="ice_adjust",
+            definition=ice_adjust
+        )
 
-        logging.info(f"Keys")
-        logging.info(f"SUBG_COND : {phyex.nebn.LSUBG_COND}")
-        logging.info(f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}")
-        logging.info(f"SIGMAS : {phyex.nebn.LSIGMAS}")
-        logging.info(f"LMFCONV : {phyex.LMFCONV}")
+        log.info(
+            f"Phyex Keys"
+            f"SUBG_COND : {phyex.nebn.LSUBG_COND}"
+            f"SUBG_MF_PDF : {phyex.param_icen.SUBG_MF_PDF}" 
+            f"SIGMAS : {phyex.nebn.LSIGMAS}"
+            f"LMFCONV : {phyex.LMFCONV}"
+        )
 
-    def __call__(self, state):
+    def __call__(self,
+                 sigqsat: NDArray,
+                 exn: NDArray,
+                 exnref: NDArray,
+                 rhodref: NDArray,
+                 pabs: NDArray,
+                 sigs: NDArray,
+                 cf_mf: NDArray,
+                 rc_mf: NDArray,
+                 ri_mf: NDArray,
+                 th: NDArray,
+                 rv: NDArray,
+                 rc: NDArray,
+                 rr: NDArray,
+                 ri: NDArray,
+                 rs: NDArray,
+                 rg: NDArray,
+                 cldfr: NDArray,
+                 hlc_hrc: NDArray,
+                 hlc_hcf: NDArray,
+                 hli_hri: NDArray,
+                 hli_hcf: NDArray,
+                 sigrc: NDArray,
+                 ths: NDArray,
+                 rvs: NDArray,
+                 rcs:NDArray,
+                 ris: NDArray,
+                 timestep: float,
+                 domain: Tuple[int, ...] ,
+                 exec_info: Dict,
+                 validate_args: bool = False,
+                 ):
 
-
-        with managed_temporary_storage(
-            self.computational_grid,
-            *repeat(((I, J, K), "float"), 4),
-            *repeat(((I, J, K), "int"), 1),
-            gt4py_config=self.gt4py_config,
+        with managed_temporaries(
+            *repeat((domain, "float"), 4)
         ) as (
+            t,
             lv,
             ls,
-            cph,
-            criaut,
+            cph
         ):
-            state_ice_adjust = {
-                key: state[key]
-                for key in [
-                    "sigqsat",
-                    "exn",
-                    "exnref",
-                    "rhodref",
-                    "pabs",
-                    "sigs",
-                    "cf_mf",
-                    "rc_mf",
-                    "ri_mf",
-                    "th",
-                    "rv",
-                    "rc",
-                    "rr",
-                    "ri",
-                    "rs",
-                    "rg",
-                    "cldfr",
-                    "ifr",
-                    "hlc_hrc",
-                    "hlc_hcf",
-                    "hli_hri",
-                    "hli_hcf",
-                    "sigrc",
-                    "ths",
-                    "rvs",
-                    "rcs",
-                    "ris",
-                ]
-            }
 
-            temporaries_ice_adjust = {
-                "criaut": criaut,
-                "cph": cph,
-                "lv": lv,
-                "ls": ls,
-            }
-
-            # Global Table
-            logging.info("Loading src_1d GlobalTable")
-            src_1D = from_array(SRC_1D, backend=self.gt4py_config.backend)
-
-            # Timestep
-            logging.info("Launching ice_adjust")
             self.ice_adjust(
-                **state_ice_adjust,
-                **temporaries_ice_adjust,
-                src_1d=src_1D,
-                dt=timestep.total_seconds(),
+                sigqsat=sigqsat,
+                exn=exn,
+                exnref=exnref,
+                rhodref=rhodref,
+                pabs=pabs,
+                sigs=sigs,
+                cf_mf=cf_mf,
+                rc_mf=rc_mf,
+                ri_mf=ri_mf,
+                th=th,
+                rv=rv,
+                rc=rc,
+                rr=rr,
+                ri=ri,
+                rs=rs,
+                rg=rg,
+                cldfr=cldfr,
+                hlc_hrc=hlc_hrc,
+                hlc_hcf=hlc_hcf,
+                hli_hri=hli_hri,
+                hli_hcf=hli_hcf,
+                sigrc=sigrc,
+                ths=ths,
+                rvs=rvs,
+                rcs=rcs,
+                ris=ris,
+                lv=lv,
+                ls=ls,
+                cph=cph,
+                t=t,
+                dt=timestep,
                 origin=(0, 0, 0),
-                domain=self.domain,
-                validate_args=self.gt4py_config.validate_args,
-                exec_info=self.gt4py_config.exec_info,
+                domain=domain,
+                validate_args=validate_args,
+                exec_info=exec_info,
             )

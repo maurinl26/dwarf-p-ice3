@@ -1,19 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import (
-    Field,
-    exp,
-    log,
-    computation,
-    PARALLEL,
-    interval,
-    __externals__,
-)
-from ifs_physics_common.framework.stencil import stencil_collection
+from gt4py.cartesian.gtscript import (PARALLEL, Field,
+                                      computation, exp, interval, log)
 
 
-@stencil_collection("ice4_warm")
 def ice4_warm(
     ldcompute: Field["bool"],  # boolean field for microphysics computation
     rhodref: Field["float"],
@@ -46,30 +37,10 @@ def ice4_warm(
         tht (Field[float]): _description_
         lbdar (Field[float]): _description_
     """
-    from __externals__ import (
-        ALPW,
-        BETAW,
-        C_RTMIN,
-        CEXVT,
-        CL,
-        CPD,
-        CPV,
-        CRIAUTC,
-        EPSILO,
-        EX0EVAR,
-        EX1EVAR,
-        EXCACCR,
-        FCACCR,
-        GAMW,
-        LVTT,
-        O0EVAR,
-        O1EVAR,
-        R_RTMIN,
-        RV,
-        SUBG_RR_EVAP,
-        TIMAUTC,
-        TT,
-    )
+    from __externals__ import (ALPW, BETAW, C_RTMIN, CEXVT, CL, CPD, CPV,
+                               CRIAUTC, EPSILO, EX0EVAR, EX1EVAR, EXCACCR,
+                               FCACCR, GAMW, LVTT, O0EVAR, O1EVAR, R_RTMIN, RV,
+                               SUBG_RR_EVAP, TIMAUTC, TT)
 
     # 4.2 compute the autoconversion of r_c for r_r : RCAUTR
     with computation(PARALLEL), interval(...):

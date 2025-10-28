@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import Field, computation, interval, PARALLEL, IJ
-from ifs_physics_common.framework.stencil import stencil_collection
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import IJ, PARALLEL, Field, computation, interval
 
 # 8. Total tendencies
 # 8.1 Total tendencies limited by available species
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=693, to_line=728
-)
-@stencil_collection("rain_ice_total_tendencies")
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=693,
+# to_line=728
 def rain_ice_total_tendencies(
     wr_th: Field["float"],
     wr_v: Field["float"],
@@ -69,7 +66,6 @@ def rain_ice_total_tendencies(
     from __externals__ import INV_TSTEP
 
     with computation(PARALLEL), interval(...):
-
         # Translation note ls, lv replaced by ls_fact, lv_fact
 
         # Hydrometeor tendency
@@ -93,10 +89,9 @@ def rain_ice_total_tendencies(
         rgs += wr_g
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=367, to_line=396
-)
-@stencil_collection("rain_ice_thermo")
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=367,
+# to_line=396
 def rain_ice_thermo(
     exn: Field["float"],
     ls_fact: Field["float"],
@@ -125,15 +120,7 @@ def rain_ice_thermo(
         rg_t (Field[float]): graupel m.r.
     """
 
-    from __externals__ import (
-        CPD,
-        CPV,
-        CI,
-        CL,
-        TT,
-        LSTT,
-        LVTT,
-    )
+    from __externals__ import CI, CL, CPD, CPV, LSTT, LVTT, TT
 
     with computation(PARALLEL), interval(...):
         divider = CPD + CPV * rv_t + CL * (rc_t + rr_t) + CI * (ri_t + rs_t + rg_t)
@@ -142,26 +129,17 @@ def rain_ice_thermo(
         lv_fact = (LVTT + (CPV - CL) * (t - TT)) / divider
 
 
-@stencil_collection("rain_ice_mask")
 def rain_ice_mask(
     rc_t: Field["float"],
     rr_t: Field["float"],
     ri_t: Field["float"],
     rs_t: Field["float"],
     rg_t: Field["float"],
-    ldmicro: Field["bool"]
+    ldmicro: Field["bool"],
 ):
-
-    from __externals__ import (
-        C_RTMIN,
-        R_RTMIN,
-        I_RTMIN, 
-        S_RTMIN,
-        G_RTMIN
-    )
+    from __externals__ import C_RTMIN, G_RTMIN, I_RTMIN, R_RTMIN, S_RTMIN
 
     with computation(PARALLEL), interval(...):
-
         ldmicro = (
             rc_t > C_RTMIN
             or rr_t > R_RTMIN
@@ -170,11 +148,11 @@ def rain_ice_mask(
             or rg_t > G_RTMIN
         )
 
+
 # 3. Initial values saving
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=424, to_line=444
-)
-@stencil_collection("initial_values_saving")
+#    from_file="PHYEX/src/common/micro/rain_ice.F90",
+#    from_line=424,
+#    to_line=444
 def initial_values_saving(
     wr_th: Field["float"],
     wr_v: Field["float"],
@@ -193,7 +171,6 @@ def initial_values_saving(
     evap3d: Field["float"],
     rainfr: Field["float"],
 ):
-
     from __externals__ import LWARM
 
     with computation(PARALLEL), interval(...):
@@ -211,12 +188,13 @@ def initial_values_saving(
         rainfr = 0
 
 
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=492, to_line=498
-)
-@stencil_collection("ice4_precipitation_fraction_sigma")
-def ice4_precipitation_fraction_sigma(sigs: Field["float"], sigma_rc: Field["float"]):
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=492,
+# to_line=498
+def ice4_precipitation_fraction_sigma(
+        sigs: Field["float"],
+        sigma_rc: Field["float"]
+):
     """Compute supersaturation variance with supersaturation standard deviation.
 
     In rain_ice.F90
@@ -230,10 +208,9 @@ def ice4_precipitation_fraction_sigma(sigs: Field["float"], sigma_rc: Field["flo
         sigma_rc = sigs**2
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=792, to_line=801
-)
-@stencil_collection("rain_fraction_sedimentation")
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=792,
+# to_line=801
 def rain_fraction_sedimentation(
     wr_r: Field["float"],
     wr_s: Field["float"],
@@ -261,18 +238,16 @@ def rain_fraction_sedimentation(
         wr_g = rgs * TSTEP
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90", from_line=792, to_line=801
-)
-@stencil_collection("ice4_rainfr_vert")
+# from_file="PHYEX/src/common/micro/rain_ice.F90",
+# from_line=792,
+# to_line=801
 def ice4_rainfr_vert(
     prfr: Field["float"], rr: Field["float"], rs: Field["float"], rg: Field["float"]
 ):
-    from __externals__ import S_RTMIN, R_RTMIN, G_RTMIN
+    from __externals__ import G_RTMIN, R_RTMIN, S_RTMIN
 
     with computation(BACKWARD), interval(0, -1):
         if rr > R_RTMIN or rs > S_RTMIN or rg > G_RTMIN:
-
             prfr[0, 0, 0] = max(prfr[0, 0, 0], prfr[0, 0, 1])
             if prfr == 0:
                 prfr = 1
@@ -280,10 +255,9 @@ def ice4_rainfr_vert(
             prfr = 0
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/rain_ice.F90.func.h", from_line=816, to_line=830
-)
-@stencil_collection("fog_deposition")
+#  from_file="PHYEX/src/common/micro/rain_ice.F90.func.h",
+#  from_line=816,
+#  to_line=830
 def fog_deposition(
     rcs: Field["float"],
     rc_t: Field["float"],
@@ -302,11 +276,9 @@ def fog_deposition(
         inprc (Field[IJ, float]): deposition on vegetation
     """
 
-    from __externals__ import VDEPOSC, RHOLW
+    from __externals__ import RHOLW, VDEPOSC
 
     # Note : activated if LDEPOSC is True in rain_ice.F90
     with computation(FORWARD), interval(0, 1):
         rcs -= VDEPOSC * rc_t / dzz
         inprc[0, 0] += VDEPOSC * rc_t[0, 0, 0] * rhodref[0, 0, 0] / RHOLW
-
-

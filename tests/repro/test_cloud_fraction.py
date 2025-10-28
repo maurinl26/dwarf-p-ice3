@@ -3,60 +3,40 @@ from ctypes import c_double, c_float
 
 import numpy as np
 import pytest
+from gt4py.cartesian.gtscript import stencil
 from gt4py.storage import from_array, zeros
-from ifs_physics_common.framework.stencil import compile_stencil
 from numpy.testing import assert_allclose
 
 from ice3.utils.compile_fortran import compile_fortran_stencil
-from ice3.utils.env import BACKEND_LIST
+from ice3.utils.env import (CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND, dp_dtypes,
+                            sp_dtypes)
 
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", BACKEND_LIST)
-def test_thermo(
-    benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin
-):
-    # Setting backend and precision
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
-
-    F2Py_Mapping = {
-        "prv": "rv",
-        "prc": "rc",
-        "pri": "ri",
-        "prr": "rr",
-        "prs": "rs",
-        "prg": "rg",
-        "pth": "th",
-        "pexn": "exn",
-        "zt": "t",
-        "zls": "ls",
-        "zlv": "lv",
-        "zcph": "cph",
-    }
-
-    Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
-
-    externals_mapping = {
-        "xlvtt": "LVTT",
-        "xlstt": "LSTT",
-        "xcpv": "CPV",
-        "xci": "CI",
-        "xcl": "CL",
-        "xtt": "TT",
-        "xcpd": "CPD",
-    }
-
-    fortran_externals = {
-        fname: externals[pyname] for fname, pyname in externals_mapping.items()
-    }
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
+def test_thermo(benchmark, dtypes, externals, fortran_dims, backend, domain, origin):
 
     # Compilation of both gt4py and fortran stencils
+    from ice3.stencils.cloud_fraction import thermodynamic_fields
+
+    thermo_stencil = stencil(
+        backend,
+        definition=thermodynamic_fields,
+        name="thermo",
+        externals=externals,
+        dtypes=dtypes,
+    )
+
     fortran_stencil = compile_fortran_stencil(
         "mode_thermo.F90", "mode_thermo", "latent_heat"
     )
-    thermo_fields = compile_stencil("thermodynamic_fields", gt4py_config, externals)
 
     FloatFieldsIJK_Names = [
         "th",
@@ -75,8 +55,8 @@ def test_thermo(
 
     FloatFieldsIJK = {
         name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            np.random.rand(*domain),
+            dtype=(c_float if dtypes["float"] == np.float32 else c_double),
             order="F",
         )
         for name in FloatFieldsIJK_Names
@@ -84,64 +64,52 @@ def test_thermo(
 
     th_gt4py = from_array(
         FloatFieldsIJK["th"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     exn_gt4py = from_array(
         FloatFieldsIJK["exn"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     rv_gt4py = from_array(
         FloatFieldsIJK["rv"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     rc_gt4py = from_array(
         FloatFieldsIJK["rc"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     rr_gt4py = from_array(
         FloatFieldsIJK["rr"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     ri_gt4py = from_array(
         FloatFieldsIJK["ri"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     rs_gt4py = from_array(
         FloatFieldsIJK["rs"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
+        dtype=dtypes["float"],
+        backend=backend,
     )
     rg_gt4py = from_array(
         FloatFieldsIJK["rg"],
-        dtype=gt4py_config.dtypes.float,
-        backend=gt4py_config.backend,
-    )
-    lv_gt4py = zeros(
-        grid.shape, dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend
-    )
-    ls_gt4py = zeros(
-        grid.shape, dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend
-    )
-    cph_gt4py = zeros(
-        grid.shape, dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend
-    )
-    t_gt4py = zeros(
-        grid.shape, dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend
+        dtype=dtypes["float"],
+        backend=backend,
     )
 
-    Fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.reshape(grid.shape[0] * grid.shape[1], grid.shape[2])
-        for name, field in FloatFieldsIJK.items()
-    }
+    lv_gt4py = zeros(domain, dtype=dtypes["float"], backend=backend)
+    ls_gt4py = zeros(domain, dtype=dtypes["float"], backend=backend)
+    cph_gt4py = zeros(domain, dtype=dtypes["float"], backend=backend)
+    t_gt4py = zeros(domain, dtype=dtypes["float"], backend=backend)
 
     def run_thermo():
-        thermo_fields(
+        thermo_stencil(
             th=th_gt4py,
             exn=exn_gt4py,
             rv=rv_gt4py,
@@ -154,7 +122,7 @@ def test_thermo(
             ls=ls_gt4py,
             cph=cph_gt4py,
             t=t_gt4py,
-            domain=grid.shape,
+            domain=domain,
             origin=origin,
         )
 
@@ -164,41 +132,58 @@ def test_thermo(
 
     zt, zlv, zls, zcph = fortran_stencil(
         krr=6,
-        **Fortran_FloatFieldsIJK,
-        **fortran_externals,
+        prv= FloatFieldsIJK["rv"],
+        prc=FloatFieldsIJK["rc"],
+        pri=FloatFieldsIJK["ri"],
+        prr=FloatFieldsIJK["rr"],
+        prs=FloatFieldsIJK["rs"],
+        prg=FloatFieldsIJK["rg"],
+        pth=FloatFieldsIJK["th"],
+        pexn=FloatFieldsIJK["exn"],
+        xlvtt=externals["LVTT"],
+        xlstt=externals["LSTT"],
+        xcpv=externals["CPV"],
+        xci=externals["CI"],
+        xcl=externals["CL"],
+        xtt=externals["TT"],
+        xcpd=externals["CPD"],
         **fortran_dims,
     )
 
-    logging.info(f"Machine precision {np.finfo(float).eps}")
+    logging.info(f"Machine dtypes {np.finfo(float).eps}")
 
+    assert_allclose(zt, t_gt4py.reshape(domain[0] * domain[1], domain[2]), rtol=1e-6)
+    assert_allclose(zlv, lv_gt4py.reshape(domain[0] * domain[1], domain[2]), rtol=1e-6)
+    assert_allclose(zls, ls_gt4py.reshape(domain[0] * domain[1], domain[2]), rtol=1e-6)
     assert_allclose(
-        zt, t_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6
-    )
-    assert_allclose(
-        zlv, lv_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6
-    )
-    assert_allclose(
-        zls, ls_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6
-    )
-    assert_allclose(
-        zcph, cph_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]), rtol=1e-6
+        zcph, cph_gt4py.reshape(domain[0] * domain[1], domain[2]), rtol=1e-6
     )
 
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", BACKEND_LIST)
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
 def test_cloud_fraction_1(
-    benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin
+    benchmark, externals, fortran_dims, dtypes, backend, domain, origin
 ):
-    # Setting backend and precision
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-    logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
+    externals.update({"LSUBG_COND": True})
 
-    externals["LSUBG_COND"] = True
-    cloud_fraction_1 = compile_stencil("cloud_fraction_1", gt4py_config, externals)
+    from ice3.stencils.cloud_fraction import cloud_fraction_1
 
-    dt = gt4py_config.dtypes.float(50.0)
+    cloud_fraction_1 = stencil(
+        backend,
+        definition=cloud_fraction_1,
+        name="cloud_fraction_1",
+        externals=externals,
+    )
+
+    dt = dtypes["float"](50.0)
 
     FloatFieldsIJK_Names = [
         "lv",
@@ -217,8 +202,8 @@ def test_cloud_fraction_1(
 
     FloatFieldsIJK = {
         name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            np.random.rand(*domain),
+            dtype=(c_float if dtypes["float"] == np.float32 else c_double),
             order="F",
         )
         for name in FloatFieldsIJK_Names
@@ -226,63 +211,63 @@ def test_cloud_fraction_1(
 
     lv_gt4py = from_array(
         FloatFieldsIJK["lv"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ls_gt4py = from_array(
         FloatFieldsIJK["ls"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     cph_gt4py = from_array(
         FloatFieldsIJK["cph"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     exnref_gt4py = from_array(
         FloatFieldsIJK["exnref"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rc_gt4py = from_array(
         FloatFieldsIJK["rc"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ri_gt4py = from_array(
         FloatFieldsIJK["ri"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ths_gt4py = from_array(
         FloatFieldsIJK["ths"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rvs_gt4py = from_array(
         FloatFieldsIJK["rvs"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rcs_gt4py = from_array(
         FloatFieldsIJK["rcs"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ris_gt4py = from_array(
         FloatFieldsIJK["ris"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rc_tmp_gt4py = from_array(
         FloatFieldsIJK["rc_tmp"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ri_tmp_gt4py = from_array(
         FloatFieldsIJK["ri_tmp"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
 
     def run_cloud_fraction_1():
@@ -300,7 +285,7 @@ def test_cloud_fraction_1(
             rc_tmp=rc_tmp_gt4py,
             ri_tmp=ri_tmp_gt4py,
             dt=dt,
-            domain=grid.shape,
+            domain=domain,
             origin=origin,
         )
         return (ths_gt4py, rvs_gt4py, rcs_gt4py, ris_gt4py, rc_tmp_gt4py, ri_tmp_gt4py)
@@ -313,90 +298,78 @@ def test_cloud_fraction_1(
     logging.info(f"SUBG_MF_PDF  : {externals['SUBG_MF_PDF']}")
     logging.info(f"LSUBG_COND   : {externals['LSUBG_COND']}")
 
-    F2Py_Mapping = {
-        "zrc": "rc_tmp",
-        "zri": "ri_tmp",
-        "pexnref": "exnref",
-        "zcph": "cph",
-        "zlv": "lv",
-        "zls": "ls",
-        "prc": "rc",
-        "pri": "ri",
-        "prvs": "rvs",
-        "prcs": "rcs",
-        "pths": "ths",
-        "pris": "ris",
-    }
 
-    Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
+    (pths_out, prvs_out, prcs_out, pris_out)\
+        = fortran_stencil(ptstep=dt,
+                            zrc=FloatFieldsIJK["rc_tmp"].reshape(domain[0]*domain[1], domain[2]),
+                            zri=FloatFieldsIJK["ri_tmp"].reshape(domain[0]*domain[1], domain[2]),
+                            pexnref=FloatFieldsIJK["exnref"].reshape(domain[0]*domain[1], domain[2]),
+                            zcph=FloatFieldsIJK["cph"].reshape(domain[0]*domain[1], domain[2]),
+                            zlv=FloatFieldsIJK["lv"].reshape(domain[0]*domain[1], domain[2]),
+                            zls=FloatFieldsIJK["ls"].reshape(domain[0]*domain[1], domain[2]),
+                            prc=FloatFieldsIJK["rc"].reshape(domain[0]*domain[1], domain[2]),
+                            pri=FloatFieldsIJK["ri"].reshape(domain[0]*domain[1], domain[2]),
+                            prvs=FloatFieldsIJK["rvs"].reshape(domain[0]*domain[1], domain[2]),
+                            prcs=FloatFieldsIJK["rcs"].reshape(domain[0]*domain[1], domain[2]),
+                            pths=FloatFieldsIJK["ths"].reshape(domain[0]*domain[1], domain[2]),
+                            pris=FloatFieldsIJK["ris"].reshape(domain[0]*domain[1], domain[2]),
+                            **fortran_dims)
 
-    Fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.reshape(grid.shape[0] * grid.shape[1], grid.shape[2])
-        for name, field in FloatFieldsIJK.items()
-    }
 
-    result = fortran_stencil(ptstep=dt, **Fortran_FloatFieldsIJK, **fortran_dims)
-
-    FieldsOut_Names = ["pths", "prvs", "prcs", "pris"]
-
-    FieldsOut = {name: result[i] for i, name in enumerate(FieldsOut_Names)}
-
-    logging.info(f"Machine precision {np.finfo(float).eps}")
-
-    logging.info(f"Mean ths_gt4py       {ths_gt4py.mean()}")
-    logging.info(f"Mean pths_out        {FieldsOut['pths'].mean()}")
-
-    logging.info(f"Mean rvs_gt4py       {rvs_gt4py.mean()}")
-    logging.info(f"Mean prvs_out        {FieldsOut['prvs'].mean()}")
-
-    logging.info(f"Mean rcs_gt4py       {rcs_gt4py.mean()}")
-    logging.info(f"Mean prcs_out        {FieldsOut['prcs'].mean()}")
-
-    logging.info(f"Mean ris_gt4py       {ris_gt4py.mean()}")
-    logging.info(f"Mean pris_out        {FieldsOut['pris'].mean()}")
+    logging.info(f"Machine dtypes {np.finfo(float).eps}")
 
     assert_allclose(
-        FieldsOut["pths"],
-        ths_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        pths_out,
+        ths_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
-        FieldsOut["prvs"],
-        rvs_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        prvs_out,
+        rvs_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
-        FieldsOut["prcs"],
-        rcs_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        prcs_out,
+        rcs_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
-        FieldsOut["pris"],
-        ris_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        pris_out,
+        ris_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
 
 
-@pytest.mark.parametrize("precision", ["double", "single"])
-@pytest.mark.parametrize("backend", BACKEND_LIST)
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+    ],
+)
 def test_cloud_fraction_2(
-    benchmark, gt4py_config, externals, fortran_dims, precision, backend, grid, origin
+    benchmark, dtypes, externals, fortran_dims, backend, domain, origin
 ):
-    # Setting backend and precision
-    gt4py_config.backend = backend
-    gt4py_config.dtypes = gt4py_config.dtypes.with_precision(precision)
-
-    logging.info(f"GT4PyConfig types {gt4py_config.dtypes}")
     externals["LSUBG_COND"] = True
     externals.update({"SUBG_MF_PDF": 0})
 
-    # Fortran and GT4Py stencils compilation
-    cloud_fraction_2 = compile_stencil("cloud_fraction_2", gt4py_config, externals)
+    from ice3.stencils.cloud_fraction import cloud_fraction_2
+
+    cloud_fraction_2 = stencil(
+        backend,
+        definition=cloud_fraction_2,
+        name="cloud_fraction_1",
+        externals=externals,
+    )
     fortran_stencil = compile_fortran_stencil(
-        "mode_cloud_fraction_split.F90", "mode_cloud_fraction_split", "cloud_fraction_2"
+        "mode_cloud_fraction_split.F90",
+        "mode_cloud_fraction_split",
+        "cloud_fraction_2"
     )
 
-    dt = gt4py_config.dtypes.float(50.0)
+    dt = dtypes["float"](50.0)
 
     FloatFieldsIJK_Names = [
         "rhodref",
@@ -421,8 +394,8 @@ def test_cloud_fraction_2(
 
     FloatFieldsIJK = {
         name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            np.random.rand(*domain),
+            dtype=(c_float if dtypes["float"] == np.float32 else c_double),
             order="F",
         )
         for name in FloatFieldsIJK_Names
@@ -430,93 +403,93 @@ def test_cloud_fraction_2(
 
     rhodref_gt4py = from_array(
         FloatFieldsIJK["rhodref"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     exnref_gt4py = from_array(
         FloatFieldsIJK["exnref"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     t_gt4py = from_array(
         FloatFieldsIJK["t"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     cph_gt4py = from_array(
         FloatFieldsIJK["cph"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     lv_gt4py = from_array(
         FloatFieldsIJK["lv"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ls_gt4py = from_array(
         FloatFieldsIJK["ls"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ths_gt4py = from_array(
         FloatFieldsIJK["ths"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rvs_gt4py = from_array(
         FloatFieldsIJK["rvs"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rcs_gt4py = from_array(
         FloatFieldsIJK["rcs"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ris_gt4py = from_array(
         FloatFieldsIJK["ris"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     rc_mf_gt4py = from_array(
         FloatFieldsIJK["rc_mf"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     ri_mf_gt4py = from_array(
         FloatFieldsIJK["ri_mf"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     cf_mf_gt4py = from_array(
         FloatFieldsIJK["cf_mf"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     cldfr_gt4py = from_array(
         FloatFieldsIJK["cldfr"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     hlc_hrc_gt4py = from_array(
         FloatFieldsIJK["hlc_hrc"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     hlc_hcf_gt4py = from_array(
         FloatFieldsIJK["hlc_hcf"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     hli_hri_gt4py = from_array(
         FloatFieldsIJK["hli_hri"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
     hli_hcf_gt4py = from_array(
         FloatFieldsIJK["hli_hcf"],
-        backend=gt4py_config.backend,
-        dtype=gt4py_config.dtypes.float,
+        backend=backend,
+        dtype=dtypes["float"],
     )
 
     def run_cloud_fraction_2():
@@ -540,7 +513,7 @@ def test_cloud_fraction_2(
             hli_hri=hli_hri_gt4py,
             hli_hcf=hli_hcf_gt4py,
             dt=dt,
-            domain=grid.shape,
+            domain=domain,
             origin=origin,
         )
         return (hlc_hrc_gt4py, hlc_hcf_gt4py, hli_hri_gt4py, hli_hcf_gt4py)
@@ -549,72 +522,58 @@ def test_cloud_fraction_2(
 
     logging.info(f"SUBG_MF_PDF  : {externals['SUBG_MF_PDF']}")
     logging.info(f"LSUBG_COND   : {externals['LSUBG_COND']}")
-
-    keys_mapping = {
-        "xcriautc": "CRIAUTC",
-        "xcriauti": "CRIAUTI",
-        "xacriauti": "ACRIAUTI",
-        "xbcriauti": "BCRIAUTI",
-        "xtt": "TT",
-        "csubg_mf_pdf": "SUBG_MF_PDF",
-        "lsubg_cond": "LSUBG_COND",
-    }
+    logging.info(f"csubg_mf_pdf : {fortran_externals['csubg_mf_pdf']}")
 
     fortran_externals = {key: externals[value] for key, value in keys_mapping.items()}
 
-    logging.info(f"csubg_mf_pdf : {fortran_externals['csubg_mf_pdf']}")
-
-    from ice3.phyex_common.param_ice import SubGridMassFluxPDF
+    from ice3.phyex_common.ice_parameters import SubGridMassFluxPDF
 
     logging.info(
         f"csubg_mf_pdf : {SubGridMassFluxPDF(fortran_externals['csubg_mf_pdf'])}"
     )
     logging.info(f"lsubg_cond   : {fortran_externals['lsubg_cond']}")
 
-    F2Py_Mapping = {
-        "pexnref": "exnref",
-        "prhodref": "rhodref",
-        "zcph": "cph",
-        "zlv": "lv",
-        "zls": "ls",
-        "zt": "t",
-        "pcf_mf": "cf_mf",
-        "prc_mf": "rc_mf",
-        "pri_mf": "ri_mf",
-        "pths": "ths",
-        "prvs": "rvs",
-        "prcs": "rcs",
-        "pris": "ris",
-        "pcldfr": "cldfr",
-        "phlc_hrc": "hlc_hrc",
-        "phlc_hcf": "hlc_hcf",
-        "phli_hri": "hli_hri",
-        "phli_hcf": "hli_hcf",
-    }
-
-    Py2F_Mapping = dict(map(reversed, F2Py_Mapping.items()))
-
-    Fortran_FloatFieldsIJK = {
-        Py2F_Mapping[name]: field.reshape(grid.shape[0] * grid.shape[1], grid.shape[2])
-        for name, field in FloatFieldsIJK.items()
-    }
-
-    result = fortran_stencil(
-        ptstep=dt, **Fortran_FloatFieldsIJK, **fortran_dims, **fortran_externals
+    (
+        pths_out,
+        prvs_out,
+        prcs_out,
+        pris_out,
+        pcldfr_out,
+        phlc_hrc_out,
+        phlc_hcf_out,
+        phli_hri_out,
+        phli_hcf_out,
+    ) = fortran_stencil(
+        ptstep=dt,
+        pexnref=FloatFieldsIJK["exnref"].reshape(domain[0] * domain[1], domain[2]),
+        prhodref=FloatFieldsIJK["rhodref"].reshape(domain[0] * domain[1], domain[2]),
+        zcph=FloatFieldsIJK["cph"].reshape(domain[0] * domain[1], domain[2]),
+        zlv=FloatFieldsIJK["lv"].reshape(domain[0] * domain[1], domain[2]),
+        zls=FloatFieldsIJK["ls"].reshape(domain[0] * domain[1], domain[2]),
+        zt=FloatFieldsIJK[""].reshape(domain[0] * domain[1], domain[2]),
+        pcf_mf=FloatFieldsIJK["cf_mf"].reshape(domain[0] * domain[1], domain[2]),
+        prc_mf=FloatFieldsIJK["rc_mf"].reshape(domain[0] * domain[1], domain[2]),
+        pri_mf=FloatFieldsIJK["ri_mf"].reshape(domain[0] * domain[1], domain[2]),
+        pths=FloatFieldsIJK["ths"].reshape(domain[0] * domain[1], domain[2]),
+        prvs=FloatFieldsIJK["rvs"].reshape(domain[0] * domain[1], domain[2]),
+        prcs=FloatFieldsIJK["rcs"].reshape(domain[0] * domain[1], domain[2]),
+        pris=FloatFieldsIJK["ris"].reshape(domain[0] * domain[1], domain[2]),
+        pcldfr=FloatFieldsIJK["cldfr"].reshape(domain[0] * domain[1], domain[2]),
+        phlc_hrc=FloatFieldsIJK["hlc_hrc"].reshape(domain[0] * domain[1], domain[2]),
+        phlc_hcf=FloatFieldsIJK["hlc_hcf"].reshape(domain[0] * domain[1], domain[2]),
+        phli_hri=FloatFieldsIJK["hli_hrc"].reshape(domain[0] * domain[1], domain[2]),
+        phli_hcf=FloatFieldsIJK["hli_hcf"].reshape(domain[0] * domain[1], domain[2]),
+        xcriautc=externals["CRIAUTC"],
+        xcriauti=externals["CRIAUTI"],
+        xacriauti=externals["ACRIAUTI"],
+        xbcriauti=externals["BCRIAUTI"],
+        xtt=externals["TT"],
+        csubg_mf_pdf=externals["SUBG_MF_PDF"],
+        lsubg_cond=externals["LSUBG_COND"],
+        **fortran_dims,
     )
 
-    pths_out = result[0]
-    prvs_out = result[1]
-    prcs_out = result[2]
-    pris_out = result[3]
-
-    pcldfr_out = result[4]
-    phlc_hrc_out = result[5]
-    phlc_hcf_out = result[6]
-    phli_hri_out = result[7]
-    phli_hcf_out = result[8]
-
-    logging.info(f"Machine precision {np.finfo(float).eps}")
+    logging.info(f"Machine dtypes {np.finfo(float).eps}")
 
     logging.info(f"Mean cldfr_gt4py     {cldfr_gt4py.mean()}")
     logging.info(f"Mean pcldfr_out      {pcldfr_out.mean()}")
@@ -633,26 +592,26 @@ def test_cloud_fraction_2(
 
     assert_allclose(
         pcldfr_out,
-        cldfr_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        cldfr_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
         phlc_hcf_out,
-        hlc_hcf_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        hlc_hcf_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
         phlc_hrc_out,
-        hlc_hrc_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        hlc_hrc_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
         phli_hri_out,
-        hli_hri_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        hli_hri_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )
     assert_allclose(
         phli_hcf_out,
-        hli_hcf_gt4py.reshape(grid.shape[0] * grid.shape[1], grid.shape[2]),
+        hli_hcf_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
     )

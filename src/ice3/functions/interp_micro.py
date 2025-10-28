@@ -3,13 +3,11 @@ from __future__ import annotations
 
 from typing import Tuple
 
-from gt4py.cartesian.gtscript import Field, GlobalTable, floor, function, log, max, min
-from ifs_physics_common.utils.f2py import ported_method
+from gt4py.cartesian.gtscript import Field, floor, function, log, max, min
 
-
-@ported_method(
-    from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=5, to_line=124
-)
+#    from_file="PHYEX/src/common/micro/interp_micro.func.h",
+#    from_line=5,
+#    to_line=124
 @function
 def index_interp_micro_1d(
     zw: Field["float"],
@@ -31,9 +29,9 @@ def index_interp_micro_1d(
 
 
 ######################### Index 2D ###############################
-@ported_method(
-    from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
-)
+#    from_file="PHYEX/src/common/micro/interp_micro.func.h",
+#    from_line=126,
+#    to_line=269
 @function
 def index_micro2d_acc_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
@@ -56,9 +54,9 @@ def index_micro2d_acc_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
     return floor(index), index - floor(index)
 
 
-@ported_method(
-    from_file="PHYEX/src/common/micro/interp_micro.func.h", from_line=126, to_line=269
-)
+#    from_file="PHYEX/src/common/micro/interp_micro.func.h",
+#    from_line=126,
+#    to_line=269
 @function
 def index_micro2d_acc_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
     """Compute index in logspace for table
