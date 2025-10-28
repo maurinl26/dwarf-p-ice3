@@ -3,9 +3,6 @@ import ice3.stencils.ice_adjust
 import ice3.stencils.ice4_compute_pdf
 import ice3.stencils.ice4_correct_negativities
 import ice3.stencils.ice4_fast_rg
-import ice3.stencils.ice4_fast_rg
-import ice3.stencils.ice4_fast_rg_split
-import ice3.stencils.ice4_fast_rg_dace
 import ice3.stencils.ice4_fast_ri
 import ice3.stencils.ice4_fast_rs
 import ice3.stencils.ice4_nucleation
