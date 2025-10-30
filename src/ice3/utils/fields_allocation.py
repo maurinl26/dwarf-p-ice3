@@ -4,11 +4,12 @@ import logging
 import numpy as np
 from ifs_physics_common.framework.components import ComputationalGridComponent
 from ifs_physics_common.utils.typingx import NDArrayLikeDict
-from ice3.utils.array_dict_operations import remove_y_axis, unpack
-from ice3.utils.initialize_fields import initialize_field
-from ice3.utils.allocate_state import allocate_state
 from numpy.testing import assert_allclose
-from env import DEFAULT_GT4PY_CONFIG, TEST_GRID
+
+from ..utils.allocate_state import allocate_state
+from ..utils.array_dict_operations import remove_y_axis, unpack
+from ..utils.initialize_fields import initialize_field
+
 
 ####### Field allocation functions #######
 def allocate_gt4py_fields(
@@ -97,14 +98,19 @@ def compare_output(
 
     fields_to_compare = {**component.fields_inout, **component.fields_out}
     for field_name in fields_to_compare.keys():
-    
         # Removing nijt dimension
         assert gt4py_fields[field_name].shape == fortran_fields[field_name].shape
-        assert_allclose(a=gt4py_fields[field_name], b=fortran_fields[field_name], rtol=rtol)
+        assert_allclose(
+            gt4py_fields[field_name],
+            fortran_fields[field_name], rtol=rtol
+        )
 
 
 def compare_input(
-    component, fortran_fields: dict, gt4py_state: dict, atol: float = 10e-10
+    component: ComputationalGridComponent,
+    fortran_fields: NDArrayLikeDict,
+    gt4py_state: NDArrayLikeDict,
+    atol: float = 10e-10
 ) -> None:
     """Compare fortran and gt4py field mean on inout and out fields for a TestComponent
 

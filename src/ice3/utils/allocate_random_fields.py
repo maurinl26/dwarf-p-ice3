@@ -1,36 +1,34 @@
 import numpy as np
 
-from ifs_physics_common.framework.config import GT4PyConfig
-from ifs_physics_common.framework.grid import Grid
 from gt4py.storage import from_array
 from ctypes import c_float, c_double
-from typing import List, Dict
+from typing import List, Dict, Tuple
 import gt4py
 
 
-def allocate_random_fields(names, gt4py_config, grid, dtype=None):
-    dtype = dtype or (c_float if gt4py_config.dtypes.float == np.float32 else c_double)
-    fields = {name: np.array(np.random.rand(*grid.shape), dtype=dtype, order="F") for name in names}
-    gt4py_buffers = {name: from_array(fields[name], dtype=gt4py_config.dtypes.float, backend=gt4py_config.backend) for name in names}
+def allocate_random_fields(names, dtypes, backend, domain):
+    dtype = (c_float if dtypes["float"] == np.float32 else c_double)
+    fields = {name: np.array(np.random.rand(*domain), dtype=dtype["float"], order="F") for name in names}
+    gt4py_buffers = {name: from_array(fields[name], dtype=dtypes["float"], backend=backend) for name in names}
     return fields, gt4py_buffers
 
 
-def draw_fields(names: List[str], gt4py_config: GT4PyConfig, grid: Grid):
+def draw_fields(names: List[str], dtypes: Dict[str, type], domain: Tuple[int]):
     return {
         name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            np.random.rand(*domain),
+            dtype=(c_float if dtypes["float"] == np.float32 else c_double),
             order="F",
         )
         for name in names
     }
 
-def allocate_gt4py_fields(names: List[str], gt4py_config: GT4PyConfig, grid: Grid):
+def allocate_gt4py_fields(names: List[str], domain: Tuple[int], dtypes: Dict[str, type], backend: str):
     return {
         name: gt4py.storage.zeros(
-            shape=grid.shape,
-            dtype=gt4py_config.dtypes.float,
-            backend=gt4py_config.backend
+            shape=domain,
+            dtype=dtypes["float"],
+            backend=backend
         )
         for name in names
     }

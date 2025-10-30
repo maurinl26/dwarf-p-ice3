@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from ifs_physics_common.framework.grid import I, J, K
 import numpy as np
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from ifs_physics_common.framework.grid import ComputationalGrid
+from typing import TYPE_CHECKING, Dict, Tuple, List
+from numpy.typing import NDArray
 
 
 ############# Utils #############
 def absolute_differences(
-    fortran_fields, gt4py_fields, fields_to_compare
+    fortran_fields: Dict[str, NDArray],
+    gt4py_fields: Dict[str, NDArray],
+    fields_to_compare: List[str]
 ):
     """Compute absolute difference on a list of fields
 
@@ -30,11 +29,11 @@ def absolute_differences(
     }
 
 
-def remove_y_axis(fields):
+def remove_y_axis(fields: Dict[str, NDArray]):
     return {key: np.squeeze(array, axis=1) for key, array in fields.items()}
 
 
-def unpack(fields, component_grid):
+def unpack(fields: Dict[str, NDArray], domain: Tuple[int, int, int]):
     """Unpack as a 2d field
 
     Args:
@@ -45,5 +44,5 @@ def unpack(fields, component_grid):
         _type_: _description_
     """
 
-    nit, njt, nkt = component_grid.grids[(I, J, K)].shape
+    nit, njt, nkt = domain
     return {key: array.reshape(nit * njt, nkt) for key, array in fields.items()}
