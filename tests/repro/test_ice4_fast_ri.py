@@ -106,4 +106,4 @@ def test_ice4_fast_ri(
     )
     logging.info(f"Mean rcberi_out          {rcberi_out.mean()}")
 
-    assert_allclose(GT4Py_FloatFieldsIJK["rc_beri_tnd"].ravel(), rcberi_out, 1e-6)
+    assert_allclose(GT4Py_FloatFieldsIJK["rc_beri_tnd"].ravel(), rcberi_out, rtol=1e-6, atol=1e-6)

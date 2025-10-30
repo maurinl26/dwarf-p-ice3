@@ -31,7 +31,6 @@ def ice4_stepping_tmicro_init(t_micro: Field["float"], ldmicro: Field["bool"]):
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=225,
 #    to_line=228,
-@stencil_collection("ice4_stepping_tsoft_init")
 def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
     """Initialise t_soft with value of t_micro after each loop
     on LSOFT condition.
@@ -48,7 +47,6 @@ def ice4_stepping_init_tsoft(t_micro: Field["float"], t_soft: Field["float"]):
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=244,
 #    to_line=254,
-@stencil_collection("ice4_stepping_heat")
 def ice4_stepping_heat(
     rv_t: Field["float"],
     rc_t: Field["float"],
@@ -87,7 +85,6 @@ def ice4_stepping_heat(
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=230,
 #    to_line=237,
-@stencil_collection("ice4_stepping_ldcompute_init")
 def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float"]):
     """Initialize ldcompute mask
 
@@ -106,7 +103,6 @@ def ice4_stepping_ldcompute_init(ldcompute: Field["bool"], t_micro: Field["float
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=346,
 #    to_line=388,
-@stencil_collection("ice4_mixing_ratio_step_limiter")
 def ice4_mixing_ratio_step_limiter(
     rc_0r_t: Field["float"],
     rr_0r_t: Field["float"],
@@ -277,7 +273,6 @@ def ice4_mixing_ratio_step_limiter(
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=290,
 #    to_line=332,
-@stencil_collection("ice4_step_limiter")
 def ice4_step_limiter(
     exn: Field["float"],
     th_t: Field["float"],
@@ -379,7 +374,6 @@ def ice4_step_limiter(
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=391,
 #    to_line=404,
-@stencil_collection("state_update")
 def state_update(
     th_t: Field["float"],
     theta_b: Field["float"],
@@ -451,7 +445,6 @@ def state_update(
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=440,
 #    to_line=452,
-@stencil_collection("external_tendencies_update")
 def external_tendencies_update(
     th_t: Field["float"],
     theta_tnd_ext: Field["float"],

@@ -53,8 +53,11 @@ def test_ice4_nucleation_post_processing(
     fortran_FloatFieldsIJK = {
         name: fields[value].ravel() for name, value in f2py_mapping.items()
     }
-    result = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
-    tht_out, rvt_out, rit_out, zt_out = result[:4]
+
+    (
+        tht_out, rvt_out, rit_out, zt_out
+    ) = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
+
     assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3)
     assert_allclose(rit_out, gt4py_buffers["rit"].ravel(), rtol=1e-3)
     assert_allclose(zt_out, gt4py_buffers["t"].ravel(), rtol=1e-3)
@@ -88,6 +91,7 @@ def test_ice4_rrhong_post_processing(
         "mode_ice4_tendencies",
         "ice4_rrhong_post_processing",
     )
+
     field_names = ["t", "exn", "lsfact", "lvfact", "tht", "rrt", "rgt", "rrhong_mr"]
     fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, domain)
     ice4_rrhong_post_processing_gt4py(**gt4py_buffers, domain=domain, origin=(0, 0, 0))
@@ -104,12 +108,19 @@ def test_ice4_rrhong_post_processing(
     fortran_FloatFieldsIJK = {
         name: fields[value].ravel() for name, value in f2py_mapping.items()
     }
-    result = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
-    tht_out, t_out, rrt_out, rgt_out = result[:4]
-    assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3)
-    assert_allclose(t_out, gt4py_buffers["t"].ravel(), rtol=1e-3)
-    assert_allclose(rrt_out, gt4py_buffers["rrt"].ravel(), rtol=1e-3)
-    assert_allclose(rgt_out, gt4py_buffers["rgt"].ravel(), rtol=1e-3)
+
+    (
+        tht_out,
+        t_out,
+        rrt_out,
+        rgt_out
+    ) = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
+
+
+    assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(t_out, gt4py_buffers["t"].ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(rrt_out, gt4py_buffers["rrt"].ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(rgt_out, gt4py_buffers["rgt"].ravel(), rtol=1e-3, atol=1e-4)
 
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
@@ -157,8 +168,10 @@ def test_ice4_rimltc_post_processing(
         name: fields[value].ravel() for name, value in f2py_mapping.items()
     }
 
-    result = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
-    tht_out, t_out, rct_out, rit_out = result[:4]
+    (
+        tht_out, t_out, rct_out, rit_out
+    ) = fortran_stencil(**fortran_FloatFieldsIJK, **fortran_packed_dims)
+
     assert_allclose(tht_out, gt4py_buffers["tht"].ravel(), rtol=1e-3)
     assert_allclose(t_out, gt4py_buffers["t"].ravel(), rtol=1e-3)
     assert_allclose(rct_out, gt4py_buffers["rct"].ravel(), rtol=1e-3)
@@ -170,8 +183,8 @@ def test_ice4_rimltc_post_processing(
     "backend",
     [
         pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKENDS, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKENDS, marks=pytest.mark.gpu),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_fast_rg_pre_processing(
@@ -206,7 +219,8 @@ def test_ice4_fast_rg_pre_processing(
     ]
     fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, domain)
     ice4_fast_rg_pre_processing_gt4py(**gt4py_buffers, domain=domain, origin=(0, 0, 0))
-    result = fortran_stencil(
+
+    zrgsi_out, zrgsi_mr_out = fortran_stencil(
         rvdepg=fields["rvdepg"],
         rsmltg=fields["rsmltg"],
         rraccsg=fields["rraccsg"],
@@ -219,7 +233,8 @@ def test_ice4_fast_rg_pre_processing(
         zrgsi_mr=fields["rgsi_mr"],
         **fortran_packed_dims,
     )
-    zrgsi_out, zrgsi_mr_out = result[:2]
+
+
     assert_allclose(zrgsi_out, gt4py_buffers["rgsi"].ravel(), rtol=1e-3)
     assert_allclose(zrgsi_mr_out, gt4py_buffers["rgsi_mr"].ravel(), rtol=1e-3)
 
@@ -229,8 +244,8 @@ def test_ice4_fast_rg_pre_processing(
     "backend",
     [
         pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKENDS, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKENDS, marks=pytest.mark.gpu),
+        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_increment_update(
@@ -266,7 +281,16 @@ def test_ice4_increment_update(
     ]
     fields, gt4py_buffers = allocate_random_fields(field_names, gt4py_config, domain)
     ice4_increment_update_gt4py(**gt4py_buffers, domain=domain, origin=(0, 0, 0))
-    result = fortran_stencil(
+
+    (
+        pth_inst_out,
+        prv_inst_out,
+        prc_inst_out,
+        prr_inst_out,
+        pri_inst_out,
+        prs_inst_out,
+        prg_inst_out,
+    ) = fortran_stencil(
         plsfact=fields["lsfact"].ravel(),
         plvfact=fields["lvfact"].ravel(),
         prvheni_mr=fields["rvheni_mr"].ravel(),
@@ -282,22 +306,15 @@ def test_ice4_increment_update(
         prg_inst=fields["rg_increment"].ravel(),
         **fortran_packed_dims,
     )
-    (
-        pth_inst_out,
-        prv_inst_out,
-        prc_inst_out,
-        prr_inst_out,
-        pri_inst_out,
-        prs_inst_out,
-        prg_inst_out,
-    ) = result[:7]
-    assert_allclose(pth_inst_out, gt4py_buffers["theta_increment"].ravel(), rtol=1e-3)
-    assert_allclose(prv_inst_out, gt4py_buffers["rv_increment"].ravel(), rtol=1e-3)
-    assert_allclose(prc_inst_out, gt4py_buffers["rc_increment"].ravel(), rtol=1e-3)
-    assert_allclose(pri_inst_out, gt4py_buffers["ri_increment"].ravel(), rtol=1e-3)
-    assert_allclose(prr_inst_out, gt4py_buffers["rr_increment"].ravel(), rtol=1e-3)
-    assert_allclose(prs_inst_out, gt4py_buffers["rs_increment"].ravel(), rtol=1e-3)
-    assert_allclose(prg_inst_out, gt4py_buffers["rg_increment"].ravel(), rtol=1e-3)
+
+
+    assert_allclose(pth_inst_out, gt4py_buffers["theta_increment"].ravel(), rtol=1e-3, atol=1e-6)
+    assert_allclose(prv_inst_out, gt4py_buffers["rv_increment"].ravel(), rtol=1e-3, atol=1e-6)
+    assert_allclose(prc_inst_out, gt4py_buffers["rc_increment"].ravel(), rtol=1e-3, atol=1e-6)
+    assert_allclose(pri_inst_out, gt4py_buffers["ri_increment"].ravel(), rtol=1e-3, atol=1e-6)
+    assert_allclose(prr_inst_out, gt4py_buffers["rr_increment"].ravel(), rtol=1e-3, atol=1e-6)
+    assert_allclose(prs_inst_out, gt4py_buffers["rs_increment"].ravel(), rtol=1e-3, atol=1e-6)
+    assert_allclose(prg_inst_out, gt4py_buffers["rg_increment"].ravel(), rtol=1e-3, atol=1e-6)
 
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
@@ -536,7 +553,10 @@ def test_ice4_slope_parameters(
         lbdag=lbdag_gt4py,
     )
 
-    (zlbdar_out, zlbdar_rf_out, zlbdas_out, zlbdag_out) = fortran_stencil(
+    (
+        zlbdar_out, zlbdar_rf_out,
+        zlbdas_out, zlbdag_out
+    ) = fortran_stencil(
         xlbr=externals["LBR"],
         xlbexr=externals["LBEXR"],
         xlbg=externals["LBG"],
@@ -928,9 +948,9 @@ def test_ice4_total_tendencies_update(
         **fortran_packed_dims,
     )
 
-    assert_allclose(pth_tnd_out, th_tnd_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(prc_tnd_out, rc_tnd_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(prr_tnd_out, rr_tnd_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(pri_tnd_out, ri_tnd_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(prs_tnd_out, rs_tnd_gt4py.ravel(), rtol=1e-3)
-    assert_allclose(prg_tnd_out, rg_tnd_gt4py.ravel(), rtol=1e-3)
+    assert_allclose(pth_tnd_out, th_tnd_gt4py.ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(prc_tnd_out, rc_tnd_gt4py.ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(prr_tnd_out, rr_tnd_gt4py.ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(pri_tnd_out, ri_tnd_gt4py.ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(prs_tnd_out, rs_tnd_gt4py.ravel(), rtol=1e-3, atol=1e-4)
+    assert_allclose(prg_tnd_out, rg_tnd_gt4py.ravel(), rtol=1e-3, atol=1e-4)

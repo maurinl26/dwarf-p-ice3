@@ -12,7 +12,7 @@ from gt4py.cartesian.gtscript import (
     interval,
 )
 
-from ice3.functions.upwind_sedimentation import (
+from ..functions.upwind_sedimentation import (
     instant_precipitation,
     maximum_time_step,
     mixing_ratio_update,
@@ -230,7 +230,6 @@ def terminal_velocity(
     return wsedw1
 
 
-@stencil_collection("upwind_sedimentation")
 def upwind_sedimentation(
     rhodref: Field["float"],
     dzz: Field["float"],

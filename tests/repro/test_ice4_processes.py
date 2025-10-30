@@ -56,51 +56,40 @@ def test_ice4_nucleation(
     ice4_nucleation_gt4py(
         ldcompute=ldcompute_gt4py, **gt4py_buffers, domain=domain, origin=origin
     )
-    externals_mapping = {
-        "xtt": "TT",
-        "v_rtmin": "V_RTMIN",
-        "xalpw": "ALPW",
-        "xbetaw": "BETAW",
-        "xgamw": "GAMW",
-        "xalpi": "ALPI",
-        "xbetai": "BETAI",
-        "xgami": "GAMI",
-        "xepsilo": "EPSILO",
-        "xnu10": "NU10",
-        "xnu20": "NU20",
-        "xalpha1": "ALPHA1",
-        "xalpha2": "ALPHA2",
-        "xbeta1": "BETA1",
-        "xbeta2": "BETA2",
-        "xmnu0": "MNU0",
-        "lfeedbackt": "LFEEDBACKT",
-    }
-    fortran_externals = {
-        fkey: externals[pykey] for fkey, pykey in externals_mapping.items()
-    }
-    f2py_mapping = {
-        "ptht": "tht",
-        "ppabst": "pabst",
-        "prhodref": "rhodref",
-        "pexn": "exn",
-        "plsfact": "lsfact",
-        "pt": "t",
-        "prvt": "rvt",
-        "pcit": "cit",
-        "prvheni_mr": "rvheni_mr",
-    }
-    fortran_FloatFieldsIJK = {
-        name: fields[value].ravel() for name, value in f2py_mapping.items()
-    }
+
     result = fortran_stencil(
         ldcompute=ldcompute.ravel(),
-        **fortran_FloatFieldsIJK,
+        ptht=fields["tht"].ravel(),
+        ppabst=fields["pabst"].ravel(),
+        prhodref=fields["rhodref"].ravel(),
+        pexn=fields["exn"].ravel(),
+        plsfact=fields["lsfact"].ravel(),
+        pt=fields["t"].ravel(),
+        prvt=fields["rvt"].ravel(),
+        pcit=fields["cit"].ravel(),
+        prvheni_mr=fields["rvheni_mr"].ravel(),
+        xtt=externals["TT"],
+        v_rtmin=externals["V_RTMIN"],
+        xalpw=externals["ALPW"],
+        xbetaw=externals["BETAW"],
+        xgamw=externals["GAMW"],
+        xalpi=externals["ALPI"],
+        xbetai=externals["BETAI"],
+        xgami=externals["GAMI"],
+        xepsilo=externals["EPSILO"],
+        xnu10=externals["NU10"],
+        xnu20=externals["NU20"],
+        xalpha1=externals["ALPHA1"],
+        xalpha2=externals["ALPHA2"],
+        xbeta1=externals["BETA1"],
+        xbeta2=externals["BETA2"],
+        xmnu0=externals["MNU0"],
+        lfeedbackt=externals["LFEEDBACKT"],
         **fortran_packed_dims,
-        **fortran_externals,
     )
     cit_out, rvheni_mr_out = result[0], result[1]
-    assert_allclose(cit_out, gt4py_buffers["cit"].ravel(), 10e-6)
-    assert_allclose(rvheni_mr_out, gt4py_buffers["rvheni_mr"].ravel(), 10e-6)
+    assert_allclose(cit_out, gt4py_buffers["cit"].ravel(), rtol=10e-6)
+    assert_allclose(rvheni_mr_out, gt4py_buffers["rvheni_mr"].ravel(), rtol=10e-6)
 
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])

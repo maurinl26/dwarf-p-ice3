@@ -12,9 +12,11 @@ from ice3.utils.allocate_random_fields import allocate_random_fields
 from ice3.utils.compile_fortran import compile_fortran_stencil
 from ice3.utils.env import CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND
 
+from src.ice3.utils.env import sp_dtypes, dp_dtypes
+
 
 @pytest.mark.parametrize("ldsoft", False)
-@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
 @pytest.mark.parametrize(
     "backend",
     [
@@ -24,7 +26,7 @@ from ice3.utils.env import CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND
     ],
 )
 def test_ice4_fast_rs(
-    externals, fortran_packed_dims, dtypes, backend, grid, origin, ldsoft
+    externals, fortran_packed_dims, dtypes, backend, domain, origin, ldsoft
 ):
     from ice3.stencils.ice4_fast_rs import ice4_fast_rs
 
@@ -71,13 +73,13 @@ def test_ice4_fast_rs(
     fields, gt4py_buffers = allocate_random_fields(
         field_names, gt4py_config, grid, c_float
     )
-    ldcompute = np.ones(grid.shape, dtype=bool, order="F")
+    ldcompute = np.ones(domain, dtype=bool, order="F")
     ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=backend)
     ice4_fast_rs(
         ldsoft=ldsoft,
         ldcompute=ldcompute_gt4py,
         **gt4py_buffers,
-        domain=grid.shape,
+        domain=domain,
         origin=origin,
     )
     # Fortran externals and mapping
@@ -199,7 +201,7 @@ def test_ice4_fast_rs(
 
 
 @pytest.mark.parametrize("ldsoft", False)
-@pytest.mark.parametrize("precision", ["double", "single"])
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
 @pytest.mark.parametrize(
     "backend",
     [
@@ -209,10 +211,12 @@ def test_ice4_fast_rs(
     ],
 )
 def test_ice4_fast_rg(
-    gt4py_config, externals, fortran_packed_dims, dtypes, backend, grid, origin
+    gt4py_config, externals, fortran_packed_dims, dtypes, backend, domain, origin
 ):
     # Setting backend and precision
     from ice3.stencils.ice4_fast_rg import ice4_fast_rg
+
+    print("compile stencil")
 
     ice4_fast_rg = stencil(
         backend,
@@ -221,6 +225,8 @@ def test_ice4_fast_rg(
         externals=externals,
         dtypes=dtypes,
     )
+
+    print("compile fortran stencil")
 
     fortran_stencil = compile_fortran_stencil(
         "mode_ice4_fast_rg.F90", "mode_ice4_fast_rg", "ice4_fast_rg"
@@ -267,16 +273,16 @@ def test_ice4_fast_rg(
 
     FloatFieldsIJK = {
         name: np.array(
-            np.random.rand(*grid.shape),
-            dtype=(c_float if gt4py_config.dtypes.float == np.float32 else c_double),
+            np.random.rand(*domain),
+            dtype=(c_float if dtypes["float"] == np.float32 else c_double),
             order="F",
         )
         for name in FloatFieldsIJK_names
     }
 
-    index_floor = np.ones(grid.shape, dtype=c_int, order="F")
-    index_floor_r = np.ones(grid.shape, dtype=c_int, order="F")
-    index_floor_s = np.ones(grid.shape, dtype=c_int, order="F")
+    index_floor = np.ones(domain, dtype=c_int, order="F")
+    index_floor_r = np.ones(domain, dtype=c_int, order="F")
+    index_floor_s = np.ones(domain, dtype=c_int, order="F")
 
     gaminc_rim1 = externals["GAMINC_RIM1"]
     gaminc_rim2 = externals["GAMINC_RIM2"]
@@ -287,163 +293,163 @@ def test_ice4_fast_rg(
     ldcompute_gt4py = from_array(ldcompute, dtype=bool, backend=backend)
     rhodref_gt4py = from_array(
         FloatFieldsIJK["rhodref"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     pres_gt4py = from_array(
         FloatFieldsIJK["pres"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     dv_gt4py = from_array(
         FloatFieldsIJK["dv"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     ka_gt4py = from_array(
         FloatFieldsIJK["ka"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     cj_gt4py = from_array(
         FloatFieldsIJK["cj"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     lbdar_gt4py = from_array(
         FloatFieldsIJK["lbdar"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     lbdas_gt4py = from_array(
         FloatFieldsIJK["lbdas"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     t_gt4py = from_array(
         FloatFieldsIJK["t"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rvt_gt4py = from_array(
         FloatFieldsIJK["rvt"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rct_gt4py = from_array(
         FloatFieldsIJK["rct"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rrt_gt4py = from_array(
         FloatFieldsIJK["rrt"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rst_gt4py = from_array(
         FloatFieldsIJK["rst"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rcrimss_gt4py = from_array(
         FloatFieldsIJK["rcrimss"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rcrimsg_gt4py = from_array(
         FloatFieldsIJK["rcrimsg"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rsrimcg_gt4py = from_array(
         FloatFieldsIJK["rsrimcg"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rraccss_gt4py = from_array(
         FloatFieldsIJK["rraccss"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rraccsg_gt4py = from_array(
         FloatFieldsIJK["rraccsg"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rsaccrg_gt4py = from_array(
         FloatFieldsIJK["rsaccrg"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_mltg_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_mltg_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rc_mltsr_tnd_gt4py = from_array(
         FloatFieldsIJK["rc_mltsr_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_rcrims_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_rcrims_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_rcrimss_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_rcrimss_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_rsrimcg_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_rsaccrg_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_rraccs_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_rraccs_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_rraccss_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_rraccss_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_rsaccrg_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_rsaccrg_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_freez1_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_freez1_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
     rs_freez2_tnd_gt4py = from_array(
         FloatFieldsIJK["rs_freez2_tnd"],
-        dtype=gt4py_config.dtypes.float,
+        dtype=dtypes["float"],
         backend=backend,
     )
 
     index_floor_gt4py = from_array(
-        index_floor, dtype=gt4py_config.dtypes.float, backend=backend
+        index_floor, dtype=dtypes["float"], backend=backend
     )
     index_floor_r_gt4py = from_array(
-        index_floor_r, dtype=gt4py_config.dtypes.float, backend=backend
+        index_floor_r, dtype=dtypes["float"], backend=backend
     )
     index_floor_s_gt4py = from_array(
-        index_floor_s, dtype=gt4py_config.dtypes.float, backend=backend
+        index_floor_s, dtype=dtypes["float"], backend=backend
     )
 
     gaminc_rim1_gt4py = from_array(
-        gaminc_rim1, dtype=gt4py_config.dtypes.float, backend=backend
+        gaminc_rim1, dtype=dtypes["float"], backend=backend
     )
     gaminc_rim2_gt4py = from_array(
-        gaminc_rim2, dtype=gt4py_config.dtypes.float, backend=backend
+        gaminc_rim2, dtype=dtypes["float"], backend=backend
     )
     gaminc_rim4_gt4py = from_array(
-        gaminc_rim4, dtype=gt4py_config.dtypes.float, backend=backend
+        gaminc_rim4, dtype=dtypes["float"], backend=backend
     )
 
     ice4_fast_rg(
