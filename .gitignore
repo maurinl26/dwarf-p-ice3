@@ -47,3 +47,6 @@ mode_*/
 cloud_fraction/
 sandbox/
 src/dwarf_ice3_gt4py.egg-info/
+
+requirements.txt
+requirements_gpu.txt
