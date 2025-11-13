@@ -51,6 +51,21 @@ It works well with cupy 14.0 and the last versions of gt4py.cartesian (see confi
 
 ### Leonardo
 
+## Working with Containers
+
+[container](./container) is defined to run dwarf-p-ice3 inside a container with nvidia runtime and python dependencies.
+
+### Build 
+```bash
+    sudo docker build -t ice3 ./dwarf-p-ice3/container
+```
+
+### WIP
+- Push / Pull from registry
+- Setup .devcontainer to develop ice3 inside an isolated virtual env with access to gpus
+- Setup singularity image to run on an HPC cluster
+- (Nice to have) install dependencies with spack
+
 ## Data generation for reproductibility
 
 Data generation script is made to transform _.dat_ files from PHYEX to netcdf with named fields. _.dat_ files are retrieved from PHYEX reproductibility sets (testprogs_data).

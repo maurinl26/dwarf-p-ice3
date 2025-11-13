@@ -4,25 +4,14 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import Literal, Tuple, Dict
 
 import numpy as np
-from ifs_physics_common.framework.grid import I, J, K
-from ifs_physics_common.framework.storage import allocate_data_array
+import xarray as xr
+from gt4py.storage import zeros
 
 from ..utils.allocate_state import initialize_field
-from ..utils.reader import NetCDFReader
-
-if TYPE_CHECKING:
-    from typing import Literal, Tuple
-
-    from ifs_physics_common.framework.config import GT4PyConfig
-    from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
-    from ifs_physics_common.utils.typingx import (
-        DataArray,
-        DataArrayDict,
-        NDArrayLikeDict,
-    )
+from ..utils.env import DTYPES, BACKEND
 
 KEYS = {
     "exn": "PEXNREF",
@@ -99,8 +88,10 @@ ice_adjust_fields_keys = [
 
 
 def allocate_state_ice_adjust(
-    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
-) -> NDArrayLikeDict:
+        domain: Tuple[int, ...],
+        backend: str,
+        dtypes: Dict[str, type]
+) -> xr.Dataset:
     """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
 
     Args:
@@ -112,19 +103,24 @@ def allocate_state_ice_adjust(
     """
 
     def _allocate(
-        grid_id: Tuple[DimSymbol, ...],
-        units: str,
+        domain: Tuple[int, ...],
         dtype: Literal["bool", "float", "int"],
-    ) -> DataArray:
-        return allocate_data_array(
-            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
+    ) -> xr.DataArray:
+
+        # todo : replace allocate data array by zeros
+        return zeros(
+            domain, backend=backend, dtype=DTYPES[dtype], aligned_index=(0,0,0)
         )
 
-    allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
-    allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
-    allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
-    allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
-    allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
+    allocate_b_ij = partial(_allocate, shape=domain[0:2], dtype="bool")
+    allocate_f = partial(_allocate, shape=domain, units="", dtype="float")
+    allocate_h = partial(_allocate, shape=(
+        domain[0],
+        domain[1],
+        domain[2]),
+        dtype="float")
+    allocate_ij = partial(_allocate, shape=domain[0:2], dtype="float")
+    allocate_i_ij = partial(_allocate, shape=domain[0:2], dtype="int")
 
     return {
         "time": datetime(year=2024, month=1, day=1),
@@ -165,11 +161,11 @@ def allocate_state_ice_adjust(
 
 
 def get_state_ice_adjust(
-    computational_grid: ComputationalGrid,
+    domain: Tuple[int, ...],
     *,
-    gt4py_config: GT4PyConfig,
-    netcdf_reader: NetCDFReader,
-) -> DataArrayDict:
+    backend: str,
+    netcdf_reader: xr.Dataset,
+) -> xr.Dataset:
     """Create a state with reproductibility data set.
 
     Args:
@@ -180,16 +176,13 @@ def get_state_ice_adjust(
     Returns:
         DataArrayDict: dictionnary of data array containing reproductibility data
     """
-    state = allocate_state_ice_adjust(computational_grid, gt4py_config=gt4py_config)
+    state = allocate_state_ice_adjust(domain, BACKEND, DTYPES)
     initialize_state(state, netcdf_reader)
-
-    logging.info("Slicing for reproductibility tests with ice_adjust")
-    state = slicing(state)
 
     return state
 
 
-def slicing(state: DataArrayDict) -> DataArrayDict:
+def slicing(state: xr.Dataset) -> xr.Dataset:
     logging.info("Slicing equivalent to PHYEX")
     new_state = {}
     for key in state.keys():
@@ -199,10 +192,10 @@ def slicing(state: DataArrayDict) -> DataArrayDict:
 
     return new_state
 
-
+# todo : simplify
 def initialize_state(
-    state: DataArrayDict,
-    netcdreader: NetCDFReader,
+    state: xr.Dataset,
+    netcdreader: xr.Dataset,
 ) -> None:
     """Initialize fields of state dictionnary with a constant field.
 

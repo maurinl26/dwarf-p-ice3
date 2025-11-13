@@ -4,25 +4,14 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import Literal, Tuple
 
 import numpy as np
-from ifs_physics_common.framework.grid import I, J, K
-from ifs_physics_common.framework.storage import allocate_data_array
+import xarray as xr
+from gt4py.storage import zeros
 
 from ..utils.allocate_state import initialize_field
-from ..utils.reader import NetCDFReader
-
-if TYPE_CHECKING:
-    from typing import Literal, Tuple
-
-    from ifs_physics_common.framework.config import GT4PyConfig
-    from ifs_physics_common.framework.grid import ComputationalGrid, DimSymbol
-    from ifs_physics_common.utils.typingx import (
-        DataArray,
-        DataArrayDict,
-        NDArrayLikeDict,
-    )
+from ..utils.env import DTYPES, BACKEND
 
 KEYS = {
     "exnref": "PEXNREF",
@@ -58,8 +47,10 @@ KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
 
 
 def allocate_state_rain_ice(
-    computational_grid: ComputationalGrid, gt4py_config: GT4PyConfig
-) -> NDArrayLikeDict:
+    domain: Tuple[int, 3],
+    backend: str = BACKEND,
+
+) -> xr.Dataset:
     """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
 
     Args:
@@ -71,19 +62,26 @@ def allocate_state_rain_ice(
     """
 
     def _allocate(
-        grid_id: Tuple[DimSymbol, ...],
-        units: str,
+        shape: Tuple[int, ...],
+        backend: str,
         dtype: Literal["bool", "float", "int"],
-    ) -> DataArray:
-        return allocate_data_array(
-            computational_grid, grid_id, units, gt4py_config=gt4py_config, dtype=dtype
+    ) -> xr.DataArray:
+        return zeros(
+            shape,
+            DTYPES[dtype],
+            backend,
+            aligned_index=(0, 0, 0)
         )
 
-    allocate_b_ij = partial(_allocate, grid_id=(I, J), units="", dtype="bool")
-    allocate_f = partial(_allocate, grid_id=(I, J, K), units="", dtype="float")
-    allocate_h = partial(_allocate, grid_id=(I, J, K - 1 / 2), units="", dtype="float")
-    allocate_ij = partial(_allocate, grid_id=(I, J), units="", dtype="float")
-    allocate_i_ij = partial(_allocate, grid_id=(I, J), units="", dtype="int")
+    allocate_b_ij = partial(_allocate, shape=domain[0:2], dtype="bool")
+    allocate_f = partial(_allocate, shape=domain,  dtype="float")
+    allocate_h = partial(_allocate, shape=(
+        domain[0],
+        domain[1],
+        domain[2] + 1
+    ), dtype="float")
+    allocate_ij = partial(_allocate, shape=domain, dtype="float")
+    allocate_i_ij = partial(_allocate, grid_id=domain, dtype="int")
 
     return {
         "time": datetime(year=2024, month=1, day=1),
@@ -141,11 +139,11 @@ def allocate_state_rain_ice(
 
 
 def get_state_rain_ice(
-    computational_grid: ComputationalGrid,
+    domain: Tuple[int, 3],
+    ds: xr.Dataset,
     *,
-    gt4py_config: GT4PyConfig,
-    netcdf_reader: NetCDFReader,
-) -> DataArrayDict:
+    backend: str,
+) -> None:
     """Create a state with reproductibility data set.
 
     Args:
@@ -156,14 +154,14 @@ def get_state_rain_ice(
     Returns:
         DataArrayDict: dictionnary of data array containing reproductibility data
     """
-    state = allocate_state_rain_ice(computational_grid, gt4py_config=gt4py_config)
-    initialize_state(state, netcdf_reader)
+    state = allocate_state_rain_ice()
+    initialize_state(state, ds)
     return state
 
-
+# todo : remove netcdf reader
 def initialize_state(
-    state: DataArrayDict,
-    netcdreader: NetCDFReader,
+    state: xr.Dataset ,
+    ds: xr.Dataset,
 ) -> None:
     """Initialize fields of state dictionnary with a constant field.
 

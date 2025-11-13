@@ -2,35 +2,29 @@
 import json
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING, Dict, Literal
+from typing import Dict, Literal
 
 import numpy as np
 import xarray as xr
-from ifs_physics_common.framework.config import GT4PyConfig
-
-from ..ice3.utils.reader import NetCDFReader
-
-if TYPE_CHECKING:
-    from ifs_physics_common.utils.typingx import DataArrayDict
 
 log = logging.getLogger(__name__)
 
 def write_performance_tracking(
-    gt4py_config: GT4PyConfig, metrics: Dict[str, float], tracking_file: Path
+    exec_info: Dict[str, float], metrics: Dict[str, float], tracking_file: Path
 ):
     """Write performance tracking in a log file
 
     Args:
-        gt4py_config (GT4PyConfig): gt4py_config to retrieve exec info
+        exec_info (str) : gt4py exec infos
         tracking_file (str): tracking file to write in
     """
 
     log.info(f"Extracting exec tracking to {tracking_file}")
     with open(tracking_file, "w") as file:
-        json.dump({"performances": gt4py_config.exec_info, "metrics": metrics}, file)
+        json.dump({"performances": exec_info, "metrics": metrics}, file)
 
 
-def write_dataset(state: DataArrayDict, output_path: Path):
+def write_dataset(state: xr.Dataset, output_path: Path):
     """Write output state to netCDF
 
     Args:
