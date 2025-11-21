@@ -10,8 +10,36 @@ on:
 permissions:
   contents: write
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Install uv
+      run: astral-sh/setup-uv@v6
+
+    - name: Install dependencies
+      run: uv sync locked --all-extras --dev
+      
+    - name: Unit reproducibility test
+      run: uv run pytest tests/repro -m debug
+      
+    - name: Component reproducibility tests
+      run: uv run pytest tests/components -m debug
+      
+    - name: CPU performance tests
+      run: uv run pytest tests/components -m cpu
+      
+    - name: GPU performance tests
+      run: uv run pytest pytest tests/components -m gpu
+    
+  deploy:
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - name: Configure Git Credentials

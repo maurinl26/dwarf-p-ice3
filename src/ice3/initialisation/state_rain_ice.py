@@ -49,7 +49,6 @@ KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
 def allocate_state_rain_ice(
     domain: Tuple[int, 3],
     backend: str = BACKEND,
-
 ) -> xr.Dataset:
     """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
 

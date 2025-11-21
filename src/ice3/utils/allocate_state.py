@@ -4,6 +4,8 @@ import xarray as xr
 from numpy.typing import NDArray
 
 # todo : implement assign
+def assign(rhs: NDArray, lhs: NDArray):
+    ...
 
 def initialize_storage_2d(storage: NDArray, buffer: NDArray) -> None:
     """Assign storage for 2D field in buffer

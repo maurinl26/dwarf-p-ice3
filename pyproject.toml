@@ -5,7 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "gt4py==1.0.4",
+    "gt4py>=1.0.7",
     "numpy<2.0",
     "typer>=0.15.2",
     "xarray>=2025.4.0",
@@ -29,11 +29,17 @@ gpu = [
     "cupy==14.0.0a1",
     "cupy-xarray>=0.1.4",
 ]
-tests = [
+test = [
     "pytest>=8.3.5",
     "fmodpy>=1.7.4",
-    "pytest>=8.3.5",
     "pytest-benchmark>=5.1.0",
+    "coverage>=7.12.0",
+]
+doc = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.7.0",
+    "mkdocstrings>=0.30.1",
+    "mkdocstrings-python>=1.19.0",
 ]
 
 [tools.pytest.ini_options]
