@@ -14,6 +14,7 @@ dwarf_p_ice3.egg-info
 .dacecache/
 .venv-prod/
 .gt_cache/
+.gt4py_cache/
 .pytest_cache/
 src/ice3/__pycache__/
 src/PHYEX/
@@ -50,3 +51,5 @@ src/dwarf_ice3_gt4py.egg-info/
 
 requirements.txt
 requirements_gpu.txt
+
+PHYEX-IAL_CY50T1
