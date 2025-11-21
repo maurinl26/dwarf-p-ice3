@@ -26,6 +26,21 @@ def dp_dtypes_fixtures():
         "bool": np.bool_
     }
 
+@pytest.fixture(name="tol", scope="module")
+def sp_tol_fixture():
+    return {
+        "atol": 1e-6,
+        "rtol": 1e-6,
+    }
+
+@pytest.fixture(name="tol", scope="module")
+def dp_tol_fixture():
+    return {
+        "atol": 1e-8,
+        "rtol": 1e-10,
+    }
+
+
 @pytest.fixture(name="domain", scope="module")
 def domain_fixture():
     return 50, 50, 15
@@ -45,19 +60,19 @@ def externals_fixture(phyex):
 
 ################ Fortran for fixtures ##############
 @pytest.fixture(name="fortran_dims", scope="module")
-def fortran_dims_fixture(grid):
+def fortran_dims_fixture(domain):
     return {
-        "nkt": grid.shape[2],
-        "nijt": grid.shape[0] * grid.shape[1],
+        "nkt": domain[2],
+        "nijt": domain[0] * domain[1],
         "nktb": 1,
-        "nkte": grid.shape[2],
+        "nkte": domain[2],
         "nijb": 1,
-        "nije": grid.shape[0] * grid.shape[1],
+        "nije": domain[0] * domain[1],
     }
     
 @pytest.fixture(name="packed_dims", scope="module")
-def packed_dims_fixture(grid):
+def packed_dims_fixture(domain):
     return {
-        "kproma": grid.shape[0] * grid.shape[1] * grid.shape[2],
-        "ksize": grid.shape[0] * grid.shape[1] * grid.shape[2]
+        "kproma": domain[0] * domain[1] * domain[2],
+        "ksize": domain[0] * domain[1] * domain[2]
     }

@@ -7,16 +7,16 @@ from numpy.testing import assert_allclose
 
 from ice3.phyex_common.lookup_table import SRC_1D
 from ice3.utils.compile_fortran import compile_fortran_stencil
-from ice3.utils.env import CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND
 
 
 @pytest.mark.parametrize("precision", ["double", "single"])
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_sigrc_computation(externals, fortran_dims, domain, origin, precision, backend):
@@ -62,12 +62,12 @@ def test_sigrc_computation(externals, fortran_dims, domain, origin, precision, b
 
     fortran_FloatFieldsIJK = {
         Py2F_Mapping[name]: FloatFieldsIJK[name].reshape(
-            grid.shape[0] * grid.shape[1], grid.shape[2]
+            domain[0] * domain[1], domain[2]
         )
         for name in FloatFieldsIJK.keys()
     }
 
-    inq1 = np.ones((grid.shape[0] * grid.shape[1], grid.shape[2]))
+    inq1 = np.ones((domain[0] * domain[1], domain[2]))
 
     result = fortran_stencil(
         inq1=inq1,
@@ -99,9 +99,10 @@ def test_sigrc_computation(externals, fortran_dims, domain, origin, precision, b
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_global_table(backend):

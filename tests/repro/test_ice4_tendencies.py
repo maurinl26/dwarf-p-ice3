@@ -6,21 +6,21 @@ from numpy.testing import assert_allclose
 
 from ice3.utils.allocate_random_fields import allocate_random_fields
 from ice3.utils.compile_fortran import compile_fortran_stencil
-from ice3.utils.env import (CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND, dp_dtypes,
-                            sp_dtypes)
+from ice3.utils.env import dp_dtypes, sp_dtypes
 
 
 @pytest.mark.parametrize("dtypes", [dp_dtypes, sp_dtypes])
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_nucleation_post_processing(
-    gt4py_config, externals, fortran_packed_dims, dtypes, backend, domain, origin
+    gt4py_config, externals, fortran_packed_dims, dtypes, backend, domain
 ):
     from ice3.stencils.ice4_tendencies import ice4_nucleation_post_processing
 
@@ -68,9 +68,10 @@ def test_ice4_nucleation_post_processing(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_rrhong_post_processing(
@@ -127,9 +128,10 @@ def test_ice4_rrhong_post_processing(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_rimltc_post_processing(
@@ -182,9 +184,10 @@ def test_ice4_rimltc_post_processing(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_fast_rg_pre_processing(
@@ -243,9 +246,10 @@ def test_ice4_fast_rg_pre_processing(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_increment_update(
@@ -321,9 +325,10 @@ def test_ice4_increment_update(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_derived_fields(
@@ -463,9 +468,10 @@ def test_ice4_derived_fields(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_slope_parameters(
@@ -592,9 +598,10 @@ def test_ice4_slope_parameters(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_total_tendencies_update(

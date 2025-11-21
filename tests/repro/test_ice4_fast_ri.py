@@ -7,23 +7,25 @@ from gt4py.storage import from_array
 from numpy.testing import assert_allclose
 
 from ice3.utils.compile_fortran import compile_fortran_stencil
-from ice3.utils.env import (CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND, dp_dtypes,
-                            sp_dtypes)
+from ice3.utils.env import dp_dtypes, sp_dtypes
 
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_ice4_fast_ri(
-    externals, fortran_packed_dims, dtypes, backend, domain, origin, ldsoft = False
+    externals, fortran_packed_dims, dtypes, backend, domain, origin, 
 ):
     # Setting backend and precision
+    ldsoft = False
+
     from ice3.stencils.ice4_fast_ri import ice4_fast_ri
 
     ice4_fast_ri = stencil(
@@ -90,19 +92,12 @@ def test_ice4_fast_ri(
     )
 
     logging.info(f"ldsoft fortran {ldsoft}")
-    result = fortran_stencil(
+    rcberi_out = fortran_stencil(
         ldsoft=ldsoft,
         ldcompute=ldcompute,
         **Fortran_FloatFieldsIJK,
         **fexternals,
         **fortran_packed_dims,
     )
-
-    rcberi_out = result
-
-    logging.info(
-        f"Mean rc_beri_tnd_gt4py   {GT4Py_FloatFieldsIJK['rc_beri_tnd'].mean()}"
-    )
-    logging.info(f"Mean rcberi_out          {rcberi_out.mean()}")
 
     assert_allclose(GT4Py_FloatFieldsIJK["rc_beri_tnd"].ravel(), rcberi_out, rtol=1e-6, atol=1e-6)

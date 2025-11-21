@@ -1,3 +1,9 @@
+from gt4py.cartesian.stencil_object import StencilObject
+
+
+from typing import Callable
+
+
 import os
 import logging
 import numpy as np
@@ -16,12 +22,6 @@ dp_dtypes = {
     "int": np.int64,
     "bool": np.bool_
 }
-
-BACKEND_LIST = ["numpy", "gt:cpu_ifirst", "gt:gpu", "dace:cpu", "dace:gpu"]
-
-DEBUG_BACKEND = "numpy"
-CPU_BACKEND = "dace:cpu"
-GPU_BACKEND = "dace:gpu"
 
 
 ############# Set BACKEND ##############
@@ -51,5 +51,5 @@ except KeyError:
 from functools import partial
 from gt4py.cartesian.gtscript import stencil
 
-compile_stencil = partial(stencil, backend=BACKEND, dtypes=DTYPES)
+compile_stencil: Callable[..., StencilObject] = partial(stencil, backend=BACKEND, dtypes=DTYPES)
 

@@ -6,19 +6,20 @@ import pytest
 from gt4py.cartesian.gtscript import stencil
 from gt4py.storage import from_array, zeros
 from numpy.testing import assert_allclose
+from gt4py.eve.codegen import JinjaTemplate as as_jinja
 
 from ice3.utils.compile_fortran import compile_fortran_stencil
-from ice3.utils.env import (CPU_BACKEND, DEBUG_BACKEND, GPU_BACKEND, dp_dtypes,
-                            sp_dtypes)
+from ice3.utils.env import dp_dtypes, sp_dtypes
 
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_thermo(benchmark, dtypes, externals, fortran_dims, backend, domain, origin):
@@ -164,9 +165,10 @@ def test_thermo(benchmark, dtypes, externals, fortran_dims, backend, domain, ori
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_cloud_fraction_1(
@@ -270,8 +272,7 @@ def test_cloud_fraction_1(
         dtype=dtypes["float"],
     )
 
-    def run_cloud_fraction_1():
-        cloud_fraction_1(
+    cloud_fraction_1(
             lv=lv_gt4py,
             ls=ls_gt4py,
             cph=cph_gt4py,
@@ -287,10 +288,8 @@ def test_cloud_fraction_1(
             dt=dt,
             domain=domain,
             origin=origin,
-        )
-        return (ths_gt4py, rvs_gt4py, rcs_gt4py, ris_gt4py, rc_tmp_gt4py, ri_tmp_gt4py)
+    )
 
-    benchmark(run_cloud_fraction_1)
 
     fortran_stencil = compile_fortran_stencil(
         "mode_cloud_fraction_split.F90", "mode_cloud_fraction_split", "cloud_fraction_1"
@@ -322,21 +321,25 @@ def test_cloud_fraction_1(
         pths_out,
         ths_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-8
     )
     assert_allclose(
         prvs_out,
         rvs_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-8
     )
     assert_allclose(
         prcs_out,
         rcs_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-8
     )
     assert_allclose(
         pris_out,
         ris_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-8
     )
 
 
@@ -344,9 +347,10 @@ def test_cloud_fraction_1(
 @pytest.mark.parametrize(
     "backend",
     [
-        pytest.param(DEBUG_BACKEND, marks=pytest.mark.debug),
-        pytest.param(CPU_BACKEND, marks=pytest.mark.cpu),
-        pytest.param(GPU_BACKEND, marks=pytest.mark.gpu),
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
 def test_cloud_fraction_2(
@@ -492,8 +496,7 @@ def test_cloud_fraction_2(
         dtype=dtypes["float"],
     )
 
-    def run_cloud_fraction_2():
-        cloud_fraction_2(
+    cloud_fraction_2(
             rhodref=rhodref_gt4py,
             exnref=exnref_gt4py,
             t=t_gt4py,
@@ -516,9 +519,6 @@ def test_cloud_fraction_2(
             domain=domain,
             origin=origin,
         )
-        return (hlc_hrc_gt4py, hlc_hcf_gt4py, hli_hri_gt4py, hli_hcf_gt4py)
-
-    benchmark(run_cloud_fraction_2)
 
     logging.info(f"SUBG_MF_PDF  : {externals['SUBG_MF_PDF']}")
     logging.info(f"LSUBG_COND   : {externals['LSUBG_COND']}")

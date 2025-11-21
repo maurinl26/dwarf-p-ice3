@@ -7,8 +7,9 @@ requires-python = ">=3.10"
 dependencies = [
     "gt4py>=1.0.7",
     "numpy<2.0",
+    "scipy>=1.15.3",
     "typer>=0.15.2",
-    "xarray>=2025.4.0",
+    "xarray[io]>=2025.4.0",
 ]
 
 [build-system]
@@ -19,7 +20,7 @@ requires = ['setuptools>=65.5.0', 'wheel']
 testprogs-data = "testprogs_data.main:app"
 standalone-model = "drivers.cli:app"
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "fprettify>=0.3.7",
     "isort>=6.0.1",
@@ -44,7 +45,8 @@ doc = [
 
 [tools.pytest.ini_options]
 markers = [
-    "debug: run on numpy debug backend",
+    "debug: run on debug debug backend",
+    "numpy: run on numpy backend",
     "cpu: run on dace:cpu backend",
     "gpu: run on dace:gpu backend"
 ]

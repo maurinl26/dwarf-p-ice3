@@ -5,6 +5,8 @@ import logging
 from datetime import datetime
 from functools import partial
 from typing import Literal, Tuple, Dict
+from xarray.core.dataarray import DataArray
+
 
 import numpy as np
 import xarray as xr
@@ -112,15 +114,15 @@ def allocate_state_ice_adjust(
             domain, backend=backend, dtype=DTYPES[dtype], aligned_index=(0,0,0)
         )
 
-    allocate_b_ij = partial(_allocate, shape=domain[0:2], dtype="bool")
-    allocate_f = partial(_allocate, shape=domain, units="", dtype="float")
-    allocate_h = partial(_allocate, shape=(
+    allocate_b_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="bool")
+    allocate_f = partial[DataArray](_allocate, shape=domain, units="", dtype="float")
+    allocate_h = partial[DataArray](_allocate, shape=(
         domain[0],
         domain[1],
-        domain[2]),
+        domain[2] + 1),
         dtype="float")
-    allocate_ij = partial(_allocate, shape=domain[0:2], dtype="float")
-    allocate_i_ij = partial(_allocate, shape=domain[0:2], dtype="int")
+    allocate_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="float")
+    allocate_i_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="int")
 
     return {
         "time": datetime(year=2024, month=1, day=1),
@@ -164,7 +166,7 @@ def get_state_ice_adjust(
     domain: Tuple[int, ...],
     *,
     backend: str,
-    netcdf_reader: xr.Dataset,
+    dataset: xr.Dataset,    
 ) -> xr.Dataset:
     """Create a state with reproductibility data set.
 
@@ -177,25 +179,14 @@ def get_state_ice_adjust(
         DataArrayDict: dictionnary of data array containing reproductibility data
     """
     state = allocate_state_ice_adjust(domain, BACKEND, DTYPES)
-    initialize_state(state, netcdf_reader)
+    initialize_state_ice_adjust(state, dataset)
 
     return state
 
 
-def slicing(state: xr.Dataset) -> xr.Dataset:
-    logging.info("Slicing equivalent to PHYEX")
-    new_state = {}
-    for key in state.keys():
-        new_state[key] = (
-            state[key].isel(x=slice(0, 9472)) if key != "time" else state[key]
-        )
-
-    return new_state
-
-# todo : simplify
-def initialize_state(
+def initialize_state_ice_adjust(
     state: xr.Dataset,
-    netcdreader: xr.Dataset,
+    dataset: xr.Dataset,
 ) -> None:
     """Initialize fields of state dictionnary with a constant field.
 
@@ -205,25 +196,22 @@ def initialize_state(
     """
 
     for name, FORTRAN_NAME in KEYS.items():
-        logging.info(f"name={name}, FORTRAN_NAME={FORTRAN_NAME}")
-        if FORTRAN_NAME is not None:
-            if FORTRAN_NAME == "ZRS":
-                buffer = netcdreader.get_field(FORTRAN_NAME)[
-                    :, :, KRR_MAPPING[name[-1]]
-                ]
-
-            if FORTRAN_NAME == "PRS":
-                buffer = netcdreader.get_field(FORTRAN_NAME)[
-                    :, :, KRR_MAPPING[name[-2]]
-                ]
-
-            elif FORTRAN_NAME not in ["ZRS", "PRS"]:
-                buffer = netcdreader.get_field(FORTRAN_NAME)
-
-        else:
-            dims = netcdreader.get_dims()
-            n_IJ, n_K = dims["IJ"], dims["K"]
-            buffer = np.zeros((n_IJ, n_K))
-
+        match FORTRAN_NAME:
+            case "PRS":
+                buffer = dataset[FORTRAN_NAME].values[:,:,KRR_MAPPING[name[-2]]]
+                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+                buffer = np.swapaxes(buffer, axis1=2, axis2=3)
+                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+            case "ZRS":
+                buffer = dataset[FORTRAN_NAME].values[:,:,KRR_MAPPING[name[-1]]]
+                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+                buffer = np.swapaxes(buffer, axis1=2, axis2=3)
+                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+            case _:
+                buffer = dataset[FORTRAN_NAME].values
+                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+                buffer = np.swapaxes(buffer, axis1=2, axis2=3)
+                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+   
         logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
         initialize_field(state[name], buffer)
