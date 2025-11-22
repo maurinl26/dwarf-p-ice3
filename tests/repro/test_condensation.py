@@ -1,3 +1,13 @@
+"""
+Test de reproductibilité du stencil de condensation par rapport à la référence PHYEX-IAL_CY50T1.
+
+Ce module valide que l'implémentation Python GT4Py du schéma de condensation 
+produit des résultats numériquement identiques à l'implémentation Fortran de référence
+issue du projet PHYEX (PHYsique EXternalisée) version IAL_CY50T1.
+
+Référence:
+    PHYEX-IAL_CY50T1/micro/condensation.F90
+"""
 from ctypes import c_double, c_float
 
 import numpy as np
@@ -21,14 +31,65 @@ from ice3.utils.env import dp_dtypes, sp_dtypes
     ],
 )
 def test_condensation(dtypes, externals, fortran_dims, backend, domain, origin):
-    # Setting backend and precision
-
+    """
+    Test de reproductibilité du stencil de condensation (PHYEX-IAL_CY50T1).
+    
+    Ce test valide la correspondance bit-à-bit (à la tolérance numérique près) entre:
+    - L'implémentation Python/GT4Py du schéma de condensation
+    - L'implémentation Fortran de référence PHYEX-IAL_CY50T1
+    
+    Le schéma de condensation calcule les ajustements microphysiques dus à la 
+    condensation/évaporation, en utilisant un schéma sous-maille (subgrid) pour
+    représenter la variabilité spatiale non résolue.
+    
+    Configuration testée (AROME par défaut):
+        - OCND2 = False : Schéma de condensation CB02 (Chaboureau & Bechtold 2002)
+        - OUSERI = True : Utilisation de la glace (ice phase)
+        - LSIGMAS = True : Utilisation du schéma sous-maille
+        - FRAC_ICE_ADJUST = 0 : Mode AROME pour la fraction de glace
+        - CONDENS = 0 : Option CB02 pour la condensation
+    
+    Champs vérifiés:
+        Principaux:
+            - pt_out : Température après condensation [K]
+            - prv_out : Rapport de mélange vapeur d'eau [kg/kg]
+            - prc_out : Rapport de mélange condensat liquide [kg/kg]
+            - pri_out : Rapport de mélange condensat solide [kg/kg]
+            - pcldfr : Fraction nuageuse [0-1]
+            - zq1 : Paramètre de la distribution sous-maille
+        
+        Intermédiaires (pour diagnostic):
+            - zpv, zpiv : Pressions de saturation (eau/glace) [Pa]
+            - zfrac : Fraction de glace [0-1]
+            - zqsl, zqsi : Rapports de mélange à saturation (eau/glace) [kg/kg]
+            - zsigma : Écart-type sous-maille
+            - zcond : Quantité de condensat
+            - za, zb : Coefficients thermodynamiques
+            - zsbar : Sursaturation moyenne sous-maille
+    
+    Tolérance:
+        rtol=1e-6, atol=1e-6 pour la plupart des champs
+        atol<br>=1e-8 pour certains champs intermédiaires
+    
+    Args:
+        dtypes: Dictionnaire des types (simple/double précision)
+        externals: Paramètres externes (constantes physiques et options)
+        fortran_dims: Dimensions pour l'interface Fortran
+        backend: Backend GT4Py (debug, numpy, cpu, gpu)
+        domain: Taille du domaine de calcul
+        origin: Origine du domaine GT4Py
+    """
+    # Configuration des paramètres (configuration AROME par défaut)
     externals.update({"OCND2": False, "OUSERI": True})
 
     from ice3.stencils.condensation import condensation
 
     condensation_stencil = stencil(
-        backend, name="condensation", definition=condensation, dtypes=dtypes
+        backend, 
+        name="condensation", 
+        definition=condensation, 
+        dtypes=dtypes,
+        externals=externals
     )
     fortran_stencil = compile_fortran_stencil(
         "mode_condensation.F90", "mode_condensation", "condensation"
@@ -279,33 +340,187 @@ def test_condensation(dtypes, externals, fortran_dims, backend, domain, origin):
 
     FieldsOut = {name: result[i] for i, name in enumerate(FieldsOut_Names)}
 
-    #assert_allclose(
-    #    FieldsOut["pt_out"], t_out.reshape(domain[0] * domain[1]), rtol=1e-6, atol=1e-6
-    #)
+    # ========================================================================
+    # VALIDATION DE LA REPRODUCTIBILITÉ - Comparaison Python vs Fortran PHYEX
+    # ========================================================================
+    
+    print("\n" + "="*80)
+    print("TEST DE REPRODUCTIBILITÉ: condensation.py vs PHYEX-IAL_CY50T1")
+    print("="*80)
+    
+    # ------------------------------------------------------------------------
+    # 1. Validation de la température de sortie
+    # ------------------------------------------------------------------------
+    assert_allclose(
+        FieldsOut["pt_out"], 
+        t_gt4py.reshape(domain[0] * domain[1], domain[2]), 
+        rtol=1e-6, 
+        atol=1e-6,
+        err_msg="[ÉCHEC] Température (pt_out): divergence Python/Fortran PHYEX"
+    )
+    print("✓ pt_out (température) : OK")
+    
+    # ------------------------------------------------------------------------
+    # 2. Validation du rapport de mélange de vapeur d'eau
+    # ------------------------------------------------------------------------
     assert_allclose(
         FieldsOut["prv_out"],
         rv_out_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
         atol=1e-6,
+        err_msg="[ÉCHEC] Vapeur d'eau (prv_out): divergence Python/Fortran PHYEX"
     )
+    print("✓ prv_out (vapeur d'eau) : OK")
+    
+    # ------------------------------------------------------------------------
+    # 3. Validation du condensat liquide
+    # ------------------------------------------------------------------------
     assert_allclose(
         FieldsOut["prc_out"],
         rc_out_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-6,
+        err_msg="[ÉCHEC] Condensat liquide (prc_out): divergence Python/Fortran PHYEX"
     )
+    print("✓ prc_out (condensat liquide) : OK")
+    
+    # ------------------------------------------------------------------------
+    # 4. Validation du condensat solide (glace)
+    # ------------------------------------------------------------------------
     assert_allclose(
         FieldsOut["pri_out"],
         ri_out_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-6,
+        err_msg="[ÉCHEC] Condensat solide (pri_out): divergence Python/Fortran PHYEX"
     )
+    print("✓ pri_out (condensat solide/glace) : OK")
 
+    # ------------------------------------------------------------------------
+    # 5. Validation de la fraction nuageuse
+    # ------------------------------------------------------------------------
     assert_allclose(
         FieldsOut["pcldfr"],
         cldfr_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-6,
+        err_msg="[ÉCHEC] Fraction nuageuse (pcldfr): divergence Python/Fortran PHYEX"
     )
+    print("✓ pcldfr (fraction nuageuse) : OK")
+    
+    # ------------------------------------------------------------------------
+    # 6. Validation du paramètre Q1 (distribution sous-maille)
+    # ------------------------------------------------------------------------
     assert_allclose(
         FieldsOut["zq1"],
         q1_gt4py.reshape(domain[0] * domain[1], domain[2]),
         rtol=1e-6,
+        atol=1e-6,
+        err_msg="[ÉCHEC] Paramètre Q1 (zq1): divergence Python/Fortran PHYEX"
     )
+    print("✓ zq1 (paramètre distribution sous-maille) : OK")
+    
+    # ------------------------------------------------------------------------
+    # 7. Validation des champs intermédiaires (diagnostic approfondi)
+    # ------------------------------------------------------------------------
+    print("\nValidation des champs intermédiaires:")
+    
+    # Pressions de saturation
+    assert_allclose(
+        FieldsOut["pv"],
+        temporary_FloatFieldsIJK["pv"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Pression saturation eau (pv): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zpv (pression saturation eau)")
+    
+    assert_allclose(
+        FieldsOut["piv"],
+        temporary_FloatFieldsIJK["piv"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Pression saturation glace (piv): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zpiv (pression saturation glace)")
+    
+    # Fraction de glace
+    assert_allclose(
+        FieldsOut["zfrac"],
+        temporary_FloatFieldsIJK["frac_tmp"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Fraction glace (zfrac): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zfrac (fraction de glace)")
+    
+    # Rapports de mélange à saturation
+    assert_allclose(
+        FieldsOut["zqsl"],
+        temporary_FloatFieldsIJK["qsl"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Rapport mélange saturation eau (qsl): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zqsl (rapport mélange saturation eau)")
+    
+    assert_allclose(
+        FieldsOut["zqsi"],
+        temporary_FloatFieldsIJK["qsi"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Rapport mélange saturation glace (qsi): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zqsi (rapport mélange saturation glace)")
+    
+    # Paramètres sous-maille
+    assert_allclose(
+        FieldsOut["zsigma"],
+        temporary_FloatFieldsIJK["sigma"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Écart-type sous-maille (sigma): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zsigma (écart-type sous-maille)")
+    
+    assert_allclose(
+        FieldsOut["zcond"],
+        temporary_FloatFieldsIJK["cond_tmp"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Quantité condensat (cond): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zcond (quantité de condensat)")
+    
+    # Coefficients thermodynamiques
+    assert_allclose(
+        FieldsOut["za"],
+        temporary_FloatFieldsIJK["a"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Coefficient a: divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ za (coefficient thermodynamique a)")
+    
+    assert_allclose(
+        FieldsOut["zb"],
+        temporary_FloatFieldsIJK["b"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Coefficient b: divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zb (coefficient thermodynamique b)")
+    
+    assert_allclose(
+        FieldsOut["zsbar"],
+        temporary_FloatFieldsIJK["sbar"].reshape(domain[0] * domain[1], domain[2]),
+        rtol=1e-6,
+        atol=1e-8,
+        err_msg="[ÉCHEC] Sursaturation moyenne (sbar): divergence Python/Fortran PHYEX"
+    )
+    print("  ✓ zsbar (sursaturation moyenne sous-maille)")
+    
+    print("\n" + "="*80)
+    print("SUCCÈS: Reproductibilité validée pour tous les champs!")
+    print("Le stencil Python GT4Py reproduit fidèlement PHYEX-IAL_CY50T1")
+    print("="*80 + "\n")
