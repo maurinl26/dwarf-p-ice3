@@ -51,4 +51,8 @@ markers = [
     "gpu: run on dace:gpu backend"
 ]
 
-
+[[tool.uv.index]]
+name = "ice3"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
