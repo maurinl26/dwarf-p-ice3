@@ -37,7 +37,7 @@ CONTAINS
 !     ##############################################################################
       SUBROUTINE THERMODYNAMIC_FIELDS(NIJB, NIJE, NKTB, NKTE, NIJT, NKT, &
                                      NRR, &
-                                     CI, CL, CPD, CPV, &
+                                     CPD, &
                                      PTH, PEXN, PRV, PRC, PRR, PRI, PRS, PRG, &
                                      PLV, PLS, PCPH, PT)
 !     ##############################################################################
@@ -71,7 +71,7 @@ IMPLICIT NONE
 !
 INTEGER, INTENT(IN) :: NIJB, NIJE, NKTB, NKTE, NIJT, NKT
 INTEGER, INTENT(IN) :: NRR
-REAL, INTENT(IN) :: CI, CL, CPD, CPV
+REAL, INTENT(IN) :: CPD
 
 REAL, DIMENSION(NIJT,NKT), INTENT(IN) :: PTH, PEXN
 REAL, DIMENSION(NIJT,NKT), INTENT(IN) :: PRV, PRC, PRR, PRI, PRS, PRG
@@ -121,19 +121,19 @@ DO JK = NKTB, NKTE
     
     ! Number of moist variables fixed to NRR parameter
     IF (NRR == 6) THEN
-      PCPH(JIJ,JK) = CPD + CPV * PRV(JIJ,JK) + &
-                     CL * (PRC(JIJ,JK) + PRR(JIJ,JK)) + &
-                     CI * (PRI(JIJ,JK) + PRS(JIJ,JK) + PRG(JIJ,JK))
+      PCPH(JIJ,JK) = CPD + XCPV * PRV(JIJ,JK) + &
+                     XCL * (PRC(JIJ,JK) + PRR(JIJ,JK)) + &
+                     XCI * (PRI(JIJ,JK) + PRS(JIJ,JK) + PRG(JIJ,JK))
     ELSE IF (NRR == 5) THEN
-      PCPH(JIJ,JK) = CPD + CPV * PRV(JIJ,JK) + &
-                     CL * (PRC(JIJ,JK) + PRR(JIJ,JK)) + &
-                     CI * (PRI(JIJ,JK) + PRS(JIJ,JK))
+      PCPH(JIJ,JK) = CPD + XCPV * PRV(JIJ,JK) + &
+                     XCL * (PRC(JIJ,JK) + PRR(JIJ,JK)) + &
+                     XCI * (PRI(JIJ,JK) + PRS(JIJ,JK))
     ELSE IF (NRR == 4) THEN
-      PCPH(JIJ,JK) = CPD + CPV * PRV(JIJ,JK) + &
-                     CL * (PRC(JIJ,JK) + PRR(JIJ,JK))
+      PCPH(JIJ,JK) = CPD + XCPV * PRV(JIJ,JK) + &
+                     XCL * (PRC(JIJ,JK) + PRR(JIJ,JK))
     ELSE IF (NRR == 2) THEN
-      PCPH(JIJ,JK) = CPD + CPV * PRV(JIJ,JK) + &
-                     CL * PRC(JIJ,JK) + CI * PRI(JIJ,JK)
+      PCPH(JIJ,JK) = CPD + XCPV * PRV(JIJ,JK) + &
+                     XCL * PRC(JIJ,JK) + XCI * PRI(JIJ,JK)
     END IF
     
   END DO

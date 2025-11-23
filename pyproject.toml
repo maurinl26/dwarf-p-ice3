@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "dace>=1.0.2",
     "gt4py>=1.0.7",
     "numpy<2.0",
     "scipy>=1.15.3",
