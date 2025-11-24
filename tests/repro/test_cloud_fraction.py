@@ -12,7 +12,6 @@ nuageuse en tenant compte de la variabilité sous-maille.
 Référence:
     PHYEX-IAL_CY50T1/micro/ice_adjust.F90
 """
-import logging
 from ctypes import c_double, c_float
 
 import numpy as np
