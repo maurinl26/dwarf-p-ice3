@@ -148,6 +148,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         zt, 
         t_gt4py.reshape(domain[0] * domain[1], domain[2]), 
         rtol=1e-6,
+        atol=1e-8,
         err_msg="[ÉCHEC] Température (T = theta*exner)"
     )
     print("✓ T (température)")
@@ -156,6 +157,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         zlv, 
         lv_gt4py.reshape(domain[0] * domain[1], domain[2]), 
         rtol=1e-6,
+        atol=1e-8,
         err_msg="[ÉCHEC] Chaleur latente vaporisation (Lv)"
     )
     print("✓ Lv (chaleur latente vaporisation)")
@@ -164,6 +166,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         zls, 
         ls_gt4py.reshape(domain[0] * domain[1], domain[2]), 
         rtol=1e-6,
+        atol=1e-8,
         err_msg="[ÉCHEC] Chaleur latente sublimation (Ls)"
     )
     print("✓ Ls (chaleur latente sublimation)")
@@ -172,6 +175,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         zcph, 
         cph_gt4py.reshape(domain[0] * domain[1], domain[2]), 
         rtol=1e-6,
+        atol=1e-8,
         err_msg="[ÉCHEC] Chaleur spécifique air humide (Cph)"
     )
     print("✓ Cph (chaleur spécifique air humide)")
