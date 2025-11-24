@@ -119,7 +119,6 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         ls=ls_gt4py,
         cph=cph_gt4py,
         t=t_gt4py,
-        cpd=externals["CPD"],
         domain=domain,
         origin=origin,
     )
@@ -135,6 +134,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         prg=FloatFieldsIJK["rg"],
         pth=FloatFieldsIJK["th"],
         pexn=FloatFieldsIJK["exn"],
+        cpd=externals["CPD"],
         **fortran_dims,
     )
 
