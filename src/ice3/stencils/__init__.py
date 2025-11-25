@@ -7,7 +7,7 @@ import ice3.stencils.ice4_fast_rg
 import ice3.stencils.ice4_fast_ri
 import ice3.stencils.ice4_fast_rs
 import ice3.stencils.ice4_nucleation
-import ice3.stencils.ice4_nucleation_wrapper
+import ice3.stencils.ice4_nucleation_processing
 import ice3.stencils.ice4_rimltc
 import ice3.stencils.ice4_rrhong
 import ice3.stencils.ice4_slow

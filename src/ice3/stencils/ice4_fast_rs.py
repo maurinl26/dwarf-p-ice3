@@ -27,6 +27,7 @@ def ice4_fast_rs(
     rct: Field["float"],
     rrt: Field["float"],
     rst: Field["float"],
+    riaggs: Field["float"],
     rcrimss: Field["float"],
     rcrimsg: Field["float"],
     rsrimcg: Field["float"],
@@ -97,7 +98,7 @@ def ice4_fast_rs(
     # 5.0 maximum freezing rate
     with computation(PARALLEL), interval(...):
         # Translation note l106 removed not LDSOFT
-        if rst < S_RTMIN and ldcompute:
+        if rst > S_RTMIN and ldcompute:
             rs_freez1_tnd = rvt * pres / (EPSILO + rvt)
             if LEVLIMIT:
                 rs_freez1_tnd = min(
@@ -119,7 +120,9 @@ def ice4_fast_rs(
             )
 
             # Translation note l129 removed
-            freez_rate_tmp = 0
+            freez_rate_tmp = max(
+                0, max(0, rs_freez1_tnd + rs_freez2_tnd * riaggs) - riaggs
+            )
 
         else:
             rs_freez1_tnd = 0
@@ -215,7 +218,7 @@ def ice4_fast_rs(
             freez_rate_tmp = max(0, freez_rate_tmp - rcrimsg)
             rsrimcg = zw0_tmp * rs_rsrimcg_tnd
 
-            rsrimcg *= max(0, -sign(1, -rcrimsg))
+            rsrimcg *= max(0, sign(rcrimsg))
             rcrimsg = max(0, rcrimsg)
 
         else:
@@ -279,7 +282,7 @@ def ice4_fast_rs(
             zw_tmp = (
                 FRACCSS
                 * (lbdas**CXS)
-                * (rhodref ** (-CEXVT))
+                * (rhodref ** (-CEXVT - 1))
                 * (
                     LBRACCS1 / (lbdas**2)
                     + LBRACCS2 / (lbdas * lbdar)
@@ -287,6 +290,9 @@ def ice4_fast_rs(
                 )
                 / lbdar**4
             )
+            
+            rs_rraccss_tnd = zw1_tmp * zw_tmp
+            rs_rraccs_tnd = zw2_tmp * zw_tmp
 
     # 5.2.6 raindrop accretion-conversion of the large sized aggregates
     with computation(PARALLEL), interval(...):
@@ -312,7 +318,7 @@ def ice4_fast_rs(
             freez_rate_tmp = max(0, freez_rate_tmp - rraccss)
 
             # proportion we are able to freeze
-            zw_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rraccss_tnd - rraccss))
+            zw_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rraccs_tnd - rraccss))
             rraccsg = zw_tmp * max(0, rs_rraccs_tnd - rraccss)
             freez_rate_tmp = max(0, freez_rate_tmp - rraccsg)
             rsaccrg = zw_tmp * rs_rsaccrg_tnd
@@ -327,7 +333,7 @@ def ice4_fast_rs(
 
     # 5.3 Conversion-Melting of the aggregates
     with computation(PARALLEL), interval(...):
-        if rst < S_RTMIN and t > TT and ldcompute:
+        if rst > S_RTMIN and t > TT and ldcompute:
             if not ldsoft:
                 rs_mltg_tnd = rvt * pres / (EPSILO + rvt)
                 if LEVLIMIT:
@@ -347,7 +353,7 @@ def ice4_fast_rs(
                     0,
                     (
                         -rs_mltg_tnd
-                        * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas * EX1DEPS)
+                        * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS)
                         - (rs_rcrims_tnd + rs_rraccs_tnd) * (rhodref * CL * (TT - t))
                     )
                     / (rhodref * LMTT),

@@ -60,7 +60,7 @@ def ice4_nucleation(
             # supersaturation over ice
 
             usw = min(pabst / 2, usw)
-            usw = (usw / zw) * ((pabst - zw) / (pabst - usw))
+            usw = (usw / zw) * ((pabst - zw) / (pabst - usw)) - 1.0
             # supersaturation of saturated water vapor over ice
 
             ssi = min(ssi, usw)  # limitation of ssi according to ssw = 0
@@ -68,10 +68,12 @@ def ice4_nucleation(
     # l96
     with computation(PARALLEL), interval(...):
         zw = 0.0
+
+    with computation(PARALLEL), interval(...):
         if t < TT and rvt > V_RTMIN and ldcompute:
             if t < TT - 5 and ssi > 0:
                 zw = NU20 * exp(ALPHA2 * ssi - BETA2)
-            elif t < TT - 2.0 and t > TT - 5.0 and ssi > 0.0:
+            elif t <= TT - 2.0 and t >= TT - 5.0 and ssi > 0.0:
                 zw = max(
                     NU20 * exp(-BETA2),
                     NU10 * exp(-BETA1 * (t - TT)) * (ssi / usw) ** ALPHA1,
@@ -79,8 +81,9 @@ def ice4_nucleation(
 
     # l107
     with computation(PARALLEL), interval(...):
-        zw = zw - cit
-        zw = min(zw, 5e4)
+        if t < TT and rvt > V_RTMIN and ldcompute:
+            zw = zw - cit
+            zw = min(zw, 5e4)
 
     # l114
     with computation(PARALLEL), interval(...):
@@ -91,21 +94,21 @@ def ice4_nucleation(
 
     # l122
     with computation(PARALLEL), interval(...):
-        
         if LFEEDBACKT:
-            w1 = 0
+            w1 = 0.0
             if t < TT and rvt > V_RTMIN and ldcompute:
                 w1 = min(rvheni_mr, 
                          max(0.0, (TT / exn - tht)) / lsfact) / max(
                     rvheni_mr, 1e-20
                 )
-
-            rvheni_mr *= w1
-            zw *= w1
+        else:
+            w1 = 1.0
+            
+        if LFEEDBACKT:
+            rvheni_mr = rvheni_mr * w1
+            zw = zw * w1
 
     # l134
     with computation(PARALLEL), interval(...):
         if t < TT and rvt > V_RTMIN and ldcompute:
             cit = max(zw + cit, cit)
-
-

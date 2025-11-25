@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import datetime
 import logging
 from datetime import timedelta
 from functools import partial
@@ -14,8 +15,10 @@ from gt4py.cartesian.gtscript import stencil
 from ..components.ice4_tendencies import Ice4Tendencies
 from ..phyex_common.ice_parameters import Sedim
 from ..phyex_common.phyex import Phyex
-from ..utils.env import DTYPES,BACKEND
+from ..utils.env import DTYPES, BACKEND
 from ..utils.storage import managed_temporaries
+
+log = logging.getLogger(__name__)
 
 
 class RainIce:
@@ -27,6 +30,9 @@ class RainIce:
         backend: str = BACKEND,
         dtypes: Dict = DTYPES,
     ) -> None:
+
+        self.phyex = phyex
+        self.backend = backend
 
         compile_stencil = partial(
             stencil,
@@ -102,7 +108,7 @@ class RainIce:
         )
         # 8.2 Negative corrections
         self.ice4_correct_negativities = compile_stencil(
-            definitions=ice4_correct_negativities,
+            definition=ice4_correct_negativities,
             name="ice4_correct_negativities",
         )
 
@@ -177,8 +183,9 @@ class RainIce:
 
         # Component for tendency update
         self.ice4_tendencies = Ice4Tendencies(
-            phyex,
-            backend=backend
+            phyex=phyex,
+            backend=backend,
+            dtypes=dtypes
         )
         ###################################################################
 
@@ -394,7 +401,7 @@ class RainIce:
             state_tmicro_init = {
                 "ldmicro": ldmicro,
                 "t_micro": t_micro
-                }
+            }
 
             self.tmicro_init(
                 **state_tmicro_init,
@@ -402,39 +409,46 @@ class RainIce:
                 domain=domain,
                 validate_args=validate_args,
                 exec_info=exec_info,
-                )
+            )
 
             outerloop_counter = 0
             max_outerloop_iterations = 10
             lsoft = False
 
             # l223 in f90
-            # _np_t_micro = to_numpy(t_micro)            
+            # _np_t_micro = to_numpy(t_micro)
             dt = timestep.total_seconds()
-            
-            logging.info("First loop")
+
+            log.info("First loop")
             while (t_micro < dt).any():
-                
-                logging.info(f"type, t_micro {type(t_micro)}, {type(t_micro[0, 0, 0])}")
-                logging.info(f"ldcompute, ldcompute {type(ldcompute)}, {type(ldcompute[0, 0, 0])}")                
-                logging.info(f"type, th_t {type(state["th_t"])}")
+
+                log.info(f"type, t_micro {type(t_micro)}, {type(t_micro[0, 0, 0])}")
+                log.info(f"ldcompute, ldcompute {type(ldcompute)}, {type(ldcompute[0, 0, 0])}")
+                log.info(f"type, th_t {type(state['th_t'])}")
 
                 # Translation note XTSTEP_TS == 0 is assumed implying no loops over t_soft
                 innerloop_counter = 0
                 max_innerloop_iterations = 10
-                
-                logging.info(f"ldcompute {ldcompute}")
+
+                log.info(f"ldcompute {ldcompute}")
 
                 # Translation note : l230 to l237 in Fortran
-                self.ldcompute_init(ldcompute, t_micro)
-                
-                logging.info(f"ldcompute {ldcompute}")
+                self.ldcompute_init(
+                    ldcompute=ldcompute,
+                    t_micro=t_micro,
+                    origin=(0, 0, 0),
+                    domain=domain,
+                    validate_args=validate_args,
+                    exec_info=exec_info,
+                )
+
+                log.info(f"ldcompute {ldcompute}")
 
                 # Iterations limiter
                 if outerloop_counter >= max_outerloop_iterations:
                     break
 
-                logging.info("Second loop")
+                log.info("Second loop")
                 while ldcompute.any():
                     
                     # Iterations limiter
@@ -468,7 +482,7 @@ class RainIce:
                         domain=domain,
                         validate_args=validate_args,
                         exec_info=exec_info,
-                        )
+                    )
 
                     ####### tendencies #######
                     state_ice4_tendencies = {
@@ -487,14 +501,14 @@ class RainIce:
                             ]
                         },
                         **{
-                              "tht": state["th_t"],
-                              "rvt": state["rv_t"],
-                              "rct": state["rc_t"],
-                              "rrt": state["rr_t"],
-                              "rit": state["ri_t"],
-                              "rst": state["rs_t"],
-                              "rgt": state["rg_t"],
-                          },
+                            "th_t": state["th_t"],
+                            "rv_t": state["rv_t"],
+                            "rc_t": state["rc_t"],
+                            "rr_t": state["rr_t"],
+                            "ri_t": state["ri_t"],
+                            "rs_t": state["rs_t"],
+                            "rg_t": state["rg_t"],
+                        },
                         **{"pres": state["pabs_t"]},
                         **{
                             "ls_fact": ls_fact,
@@ -544,13 +558,20 @@ class RainIce:
                         "time": datetime.datetime(year=2024, month=1, day=1),
                     }
 
-                    # logging.info("Call tendencies")
+                    # log.info("Call tendencies")
                     # _, _ = self.ice4_tendencies(
-                    #     state=state_tendencies_xr, 
-                    #     timestep=timestep
+                    #     ldsoft=lsoft,
+                    #     state=state_ice4_tendencies,
+                    #     timestep=timestep,
+                    #     out_tendencies={},
+                    #     out_diagnostics={},
+                    #     overwrite_tendencies={},
+                    #     domain=domain,
+                    #     exec_info=exec_info,
+                    #     validate_args=validate_args,
                     # )
-                    
-                    logging.info(f"ldcompute {ldcompute}")
+
+                    log.info(f"ldcompute {ldcompute}")
 
                     # Translation note : l277 to l283 omitted, no external tendencies in AROME
                     # TODO : ice4_step_limiter
@@ -596,8 +617,8 @@ class RainIce:
                             "rg_ext_tnd": rg_ext_tnd,
                         } 
                     }
-                    
-                    logging.info("Call step limiter")
+
+                    log.info("Call step limiter")
                     self.ice4_step_limiter(
                         **state_step_limiter, 
                         origin=(0, 0, 0),
@@ -608,10 +629,10 @@ class RainIce:
 
                     # l346 to l388
                     ############ ice4_mixing_ratio_step_limiter ############
-                    logging.info(f"ldcompute : {ldcompute}")
+                    log.info(f"ldcompute : {ldcompute}")
                     state_mixing_ratio_step_limiter = {
                         **{
-                            state[key] for key in [
+                            key: state[key] for key in [
                                 "rc_t",
                                 "rr_t",
                                 "ri_t",
@@ -642,8 +663,8 @@ class RainIce:
                             "delta_t_micro": delta_t_micro,
                         }   
                     }
-                    
-                    logging.info("Call mixing ratio step limiter")
+
+                    log.info("Call mixing ratio step limiter")
                     self.ice4_mixing_ratio_step_limiter(
                         **state_mixing_ratio_step_limiter,
                         origin=(0, 0, 0),
@@ -657,7 +678,7 @@ class RainIce:
                     ############### ice4_state_update ######################
                     state_state_update = {
                         **{
-                           key: state[key] for key in [
+                            key: state[key] for key in [
                                 "th_t",
                                 "rc_t",
                                 "rr_t",
@@ -665,7 +686,7 @@ class RainIce:
                                 "rs_t",
                                 "rg_t",
                                 "ci_t",
-                           ] 
+                            ]
                         },
                         **{
                             "ldmicro": ldmicro,
@@ -687,7 +708,7 @@ class RainIce:
                     }
 
                     self.ice4_state_update(
-                        **state_state_update, 
+                        **state_state_update,
                         origin=(0, 0, 0),
                         domain=domain,
                         validate_args=validate_args,
@@ -697,28 +718,29 @@ class RainIce:
                     # TODO : next loop
                     lsoft = True
                     innerloop_counter += 1
-                    logging.info("Loop 2 end")
-                    
+                    log.info("Loop 2 end")
+
                 outerloop_counter += 1
-                
-            logging.info("Loop 1 end")
+
+            log.info("Loop 1 end")
 
             # l440 to l452
             ################ external_tendencies_update ############
             # if ldext_tnd
 
-            state_external_tendencies_update =  {
+            state_external_tendencies_update = {
                 **{
-                key: state[key]
-                for key in [
-                    "th_t",
-                    "rc_t",
-                    "rr_t",
-                    "ri_t",
-                    "rs_t",
-                    "rg_t",
+                    key: state[key]
+                    for key in [
+                        "th_t",
+                        "rc_t",
+                        "rr_t",
+                        "ri_t",
+                        "rs_t",
+                        "rg_t",
                     ]
-            }, **{
+                },
+                **{
                     "ldmicro": ldmicro,
                     "theta_tnd_ext": theta_ext_tnd,
                     "rc_tnd_ext": rc_ext_tnd,
@@ -731,7 +753,7 @@ class RainIce:
 
 
             self.external_tendencies_update(
-                **state_external_tendencies_update, 
+                **state_external_tendencies_update,
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,
@@ -743,44 +765,45 @@ class RainIce:
             # 8.1 Total tendencies limited by available species
             state_total_tendencies = {
                 **{
-                key: state[key]
-                for key in [
-                    "exnref",
-                    "ths",
-                    "rvs",
-                    "rcs",
-                    "rrs",
-                    "ris",
-                    "rss",
-                    "rgs",
-                    "rv_t",
-                    "rc_t",
-                    "rr_t",
-                    "ri_t",
-                    "rs_t",
-                    "rg_t",
-                ]
+                    key: state[key]
+                    for key in [
+                        "exnref",
+                        "ths",
+                        "rvs",
+                        "rcs",
+                        "rrs",
+                        "ris",
+                        "rss",
+                        "rgs",
+                        "rv_t",
+                        "rc_t",
+                        "rr_t",
+                        "ri_t",
+                        "rs_t",
+                        "rg_t",
+                    ]
                 },
                 **{
-                "rvheni": rvheni,
-                "ls_fact": ls_fact,
-                "lv_fact": lv_fact,
-                "wr_th": wr_th,
-                "wr_v": wr_v,
-                "wr_c": wr_c,
-                "wr_r": wr_r,
-                "wr_i": wr_i,
-                "wr_s": wr_s,
-                "wr_g": wr_g,
+                    "rvheni": rvheni,
+                    "ls_fact": ls_fact,
+                    "lv_fact": lv_fact,
+                    "wr_th": wr_th,
+                    "wr_v": wr_v,
+                    "wr_c": wr_c,
+                    "wr_r": wr_r,
+                    "wr_i": wr_i,
+                    "wr_s": wr_s,
+                    "wr_g": wr_g,
                 }
             }
 
             self.total_tendencies(
-                **state_total_tendencies, 
+                **state_total_tendencies,
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,
-                exec_info=exec_info,)
+                exec_info=exec_info,
+            )
 
             # 8.2 Negative corrections
             state_neg = {
@@ -797,24 +820,38 @@ class RainIce:
             }
             tmps_neg = {"lv_fact": lv_fact, "ls_fact": ls_fact}
             self.ice4_correct_negativities(
-                **state_neg, 
+                **state_neg,
                 **tmps_neg,
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,
-                exec_info=exec_info,)
+                exec_info=exec_info,
+            )
 
             # 9. Compute the sedimentation source
             if LSEDIM_AFTER:
                 # sedimentation switch is handled in initialisation
                 # self.sedimentation is can be either statistical_sedimentation or upwind_sedimentation
-                self.sedimentation(**state_sed, **tmps_sedim)
+                self.sedimentation(
+                    **state_sed,
+                    **tmps_sedim,
+                    origin=(0, 0, 0),
+                    domain=domain,
+                    validate_args=validate_args,
+                    exec_info=exec_info,
+                )
 
                 state_frac_sed = {
                     **{key: state[key] for key in ["rrs", "rss", "rgs"]},
                     **{"wr_r": wr_r, "wr_s": wr_s, "wr_g": wr_g},
                 }
-                self.rain_fraction_sedimentation(**state_frac_sed)
+                self.rain_fraction_sedimentation(
+                    **state_frac_sed,
+                    origin=(0, 0, 0),
+                    domain=domain,
+                    validate_args=validate_args,
+                    exec_info=exec_info,
+                )
 
                 state_rainfr = {**{key: state[key] for key in ["prfr", "rr_t", "rs_t"]}}
                 self.ice4_rainfr_vert(
@@ -822,7 +859,8 @@ class RainIce:
                     origin=(0, 0, 0),
                     domain=domain,
                     validate_args=validate_args,
-                    exec_info=exec_info,)
+                    exec_info=exec_info,
+                )
 
             # 10 Compute the fog deposition
             if LDEPOSC:
@@ -837,4 +875,3 @@ class RainIce:
                     validate_args=validate_args,
                     exec_info=exec_info
                 )
-

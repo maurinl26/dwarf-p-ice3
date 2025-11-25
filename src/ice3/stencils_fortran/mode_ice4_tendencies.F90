@@ -72,6 +72,33 @@ contains
 
    end subroutine ice4_rimltc_post_processing
 
+   subroutine ice4_fast_rg_pre_processing(kproma, ksize, &
+                                          rvdepg, rsmltg, rraccsg, rsaccrg, &
+                                          rcrimsg, rsrimcg, rrhong_mr, rsrimcg_mr, &
+                                          zgrsi, zrgsi_mr)
+      ! Compute instantaneous graupel sources before ice4_fast_rg call
+      ! Reference: PHYEX-IAL_CY50T1/common/micro/mode_ice4_tendencies.F90:386-390
+      
+      implicit none
+
+      integer, intent(in) :: kproma, ksize
+      real, dimension(kproma), intent(in) :: rvdepg, rsmltg, rraccsg, rsaccrg
+      real, dimension(kproma), intent(in) :: rcrimsg, rsrimcg, rrhong_mr, rsrimcg_mr
+      real, dimension(kproma), intent(out) :: zgrsi, zrgsi_mr
+
+      integer :: jl
+
+      do jl = 1, ksize
+         ! Sum of all graupel sources from various processes
+         zgrsi(jl) = rvdepg(jl) + rsmltg(jl) + rraccsg(jl) + rsaccrg(jl) &
+                     + rcrimsg(jl) + rsrimcg(jl)
+         
+         ! Mixing ratio sources
+         zrgsi_mr(jl) = rrhong_mr(jl) + rsrimcg_mr(jl)
+      end do
+
+   end subroutine ice4_fast_rg_pre_processing
+
    subroutine ice4_increment_update(kproma, ksize, &
                                     plsfact, plvfact, prvheni_mr, primltc_mr, &
                                     prrhong_mr, prsrimcg_mr, &

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import logging
 from datetime import timedelta
-from functools import cached_property
+from functools import cached_property, partial
 from itertools import repeat
 from typing import Dict, Tuple
-from functools import partial
 from numpy.typing import NDArray
 
 from gt4py.storage import from_array
@@ -16,8 +16,10 @@ from ..phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 from ..phyex_common.xker_rdryg import KER_RDRYG
 from ..phyex_common.xker_sdryg import KER_SDRYG
 from ..stencils.ice4_compute_pdf import ice4_compute_pdf
-from ..utils.env import sp_dtypes
+from ..utils.env import DTYPES, BACKEND
 from ..utils.storage import managed_temporaries
+
+log = logging.getLogger(__name__)
 
 
 class Ice4Tendencies:
@@ -30,16 +32,17 @@ class Ice4Tendencies:
     def __init__(
         self,
         phyex: Phyex = Phyex("AROME"),
-        dtypes: Dict = sp_dtypes,
-        backend: str = "gt:cpu_ifirst",
+        dtypes: Dict = DTYPES,
+        backend: str = BACKEND,
     ) -> None:
+
+        self.backend = backend
 
         compile_stencil = partial(
             stencil,
             backend=backend,
             externals=phyex.externals,
             dtypes=dtypes
-
         )
 
         self.gaminc_rim1 = phyex.rain_ice_param.GAMINC_RIM1
@@ -135,144 +138,6 @@ class Ice4Tendencies:
             definition=ice4_compute_pdf
         )
 
-    @cached_property
-    def _input_properties(self) -> PropertyDict:
-        return {
-            "ldcompute": {"grid": (I, J, K), "dtype":"bool", "unit": ""},
-            "pres": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rhodref": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "exn": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ls_fact": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "lv_fact": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rv_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "cf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "sigma_rc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ci_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ai": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "cj": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ssi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "th_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-        }
-
-    @cached_property
-    def _tendency_properties(self) -> PropertyDict:
-        return {
-            # Tendencies
-            "theta_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rv_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rc_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rr_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ri_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-        }
-
-    @cached_property
-    def _diagnostic_properties(self) -> PropertyDict:
-        return {
-            # Diagnosis for microphysical species
-            "theta_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rv_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rc_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rr_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ri_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_increment": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # Mixing ratio at t + dt
-            "rv_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rc_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rr_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ri_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_t": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # High and Low cloud contents
-            "hlc_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hlc_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hlc_hrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hlc_lrc": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hli_hcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hli_lcf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hli_hri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "hli_lri": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # Rain Fraction
-            "fr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-        }
-
-    @cached_property
-    def _temporaries(self) -> PropertyDict:
-        return {
-            "rvheni_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rrhong_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rimltc_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rgsi_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rsrimcg_mr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # slopes
-            "lbdar": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "lbdar_rf": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "lbdas": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "lbdag": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # tnd
-            "rc_honi_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rv_deps_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ri_aggs_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "ri_auts_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rv_depg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_mltg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rc_mltsr_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_rcrims_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_rcrimss_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_rsrimcg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_rraccs_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_rraccss_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_rsaccrg_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_freez1_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rs_freez2_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_rcdry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_ridry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_rsdry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_rrdry_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_riwet_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_rswet_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_freez1_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rg_freez2_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rc_beri_tnd": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            # transfos
-            "rgsi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rchoni": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rvdeps": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "riaggs": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "riauts": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rvdepg": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rcautr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rcaccr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rrevav": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rcberi": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rsmltg": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rcmltsr": {"grid": (I, J, K), "dtype": "float", "unit": ""},
-            "rraccss": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 13
-            "rraccsg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 14
-            "rsaccrg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 15
-            "rcrimss": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 16
-            "rcrimsg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 17
-            "rsrimcg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 18
-            "ricfrrg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 19
-            "rrcfrig": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 20
-            "ricfrr": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 21
-            "rcwetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 22
-            "riwetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 23
-            "rrwetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 24
-            "rswetg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 25
-            "rcdryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 26
-            "ridryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 27
-            "rrdryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 28
-            "rsdryg": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 29
-            "rgmltr": {"grid": (I, J, K), "dtype": "float", "unit": ""},  # 31
-            "index_floor": {"grid": (I, J, K), "dtype": "int", "unit": ""},
-            "index_floor_r": {"grid": (I, J, K), "dtype": "int", "unit": ""},
-            "index_floor_s": {"grid": (I, J, K), "dtype": "int", "unit": ""},
-            "index_floor_g": {"grid": (I, J, K), "dtype": "int", "unit": ""},
-        }
 
     def __call__(
         self,
@@ -280,7 +145,7 @@ class Ice4Tendencies:
         state: Dict[str, NDArray],
         timestep: timedelta,
         out_tendencies: Dict[str, NDArray],
-        out_diagnostics:,
+        out_diagnostics: Dict[str, NDArray],
         overwrite_tendencies: Dict[str, bool],
         domain: Tuple,
         exec_info: Dict,
@@ -440,12 +305,12 @@ class Ice4Tendencies:
 
             self.ice4_rrhong(
                 **state_rrhong, 
-                **rrhong_mr,
+                **tmps_rrhong,
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,
                 exec_info=exec_info,
-                )
+            )
 
             ########################### ice4_rrhong_post_processing #################
             state_rrhong_pp = {
@@ -974,7 +839,9 @@ class Ice4Tendencies:
             self.ice4_total_tendencies_update(
                 **state_tendencies_update, 
                 **tmps_tnd_update,
+                rwetgh=state.get("rwetgh", 0.0),
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,
-                exec_info=exec_info,)
+                exec_info=exec_info,
+            )
