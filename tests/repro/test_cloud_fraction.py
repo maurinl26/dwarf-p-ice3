@@ -195,7 +195,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
-def test_cloud_fraction_1_repro(externals, fortran_dims, dtypes, backend, domain, origin):
+def test_cloud_fraction_1(externals, fortran_dims, dtypes, backend, domain, origin):
     """
     Test de reproductibilité du schéma de fraction nuageuse #1 (PHYEX-IAL_CY50T1).
     
@@ -289,17 +289,16 @@ def test_cloud_fraction_1_repro(externals, fortran_dims, dtypes, backend, domain
 
     # Exécution référence Fortran
     fortran_stencil = compile_fortran_stencil(
-        "mode_cloud_fraction_split.F90", "mode_cloud_fraction_split", "cloud_fraction_1"
+        "mode_cloud_fraction.F90", "mode_cloud_fraction", "cloud_fraction_1"
     )
 
     (pths_out, prvs_out, prcs_out, pris_out) = fortran_stencil(
-        ptstep=dt,
-        zrc=FloatFieldsIJK["rc_tmp"].reshape(domain[0]*domain[1], domain[2]),
-        zri=FloatFieldsIJK["ri_tmp"].reshape(domain[0]*domain[1], domain[2]),
+        prc_tmp=FloatFieldsIJK["rc_tmp"].reshape(domain[0]*domain[1], domain[2]),
+        pri_tmp=FloatFieldsIJK["ri_tmp"].reshape(domain[0]*domain[1], domain[2]),
         pexnref=FloatFieldsIJK["exnref"].reshape(domain[0]*domain[1], domain[2]),
-        zcph=FloatFieldsIJK["cph"].reshape(domain[0]*domain[1], domain[2]),
-        zlv=FloatFieldsIJK["lv"].reshape(domain[0]*domain[1], domain[2]),
-        zls=FloatFieldsIJK["ls"].reshape(domain[0]*domain[1], domain[2]),
+        pcph=FloatFieldsIJK["cph"].reshape(domain[0]*domain[1], domain[2]),
+        plv=FloatFieldsIJK["lv"].reshape(domain[0]*domain[1], domain[2]),
+        pls=FloatFieldsIJK["ls"].reshape(domain[0]*domain[1], domain[2]),
         prc=FloatFieldsIJK["rc"].reshape(domain[0]*domain[1], domain[2]),
         pri=FloatFieldsIJK["ri"].reshape(domain[0]*domain[1], domain[2]),
         prvs=FloatFieldsIJK["rvs"].reshape(domain[0]*domain[1], domain[2]),

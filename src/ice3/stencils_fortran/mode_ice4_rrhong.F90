@@ -25,16 +25,16 @@ contains
       integer :: jl
       !
       do jl = 1, ksize
-         ! if (pt(jl) < xtt - 35.0 &
-         !    .and. prrt(jl) > r_rtmin &
-         !    .and. ldcompute(jl)) then
-         !    prrhong_mr(jl) = prrt(jl)
-         !    if (lfeedbackt) then
-         !       prrhong_mr(jl) = min(prrhong_mr(jl), max(0., ((xtt - 35.)/pexn(jl) - ptht(jl))/(plsfact(jl) - plvfact(jl))))
-         !    end if
-         ! else
+         if (pt(jl) < xtt - 35.0 &
+            .and. prrt(jl) > r_rtmin &
+            .and. ldcompute(jl)) then
+            prrhong_mr(jl) = prrt(jl)
+            if (lfeedbackt) then
+               prrhong_mr(jl) = min(prrhong_mr(jl), max(0., ((xtt - 35.)/pexn(jl) - ptht(jl))/(plsfact(jl) - plvfact(jl))))
+            end if
+         else
             prrhong_mr(jl) = 0.
-         ! end if
+         end if
       end do
       !
    end subroutine ice4_rrhong
