@@ -6,6 +6,7 @@ This module contains tests for the sign function implementation in gt4py,
 which returns the absolute value of a scalar with the sign determined by
 the input scalar's sign.
 """
+
 from __future__ import annotations
 from ctypes import c_size_t
 
@@ -23,10 +24,10 @@ from numpy.testing import assert_array_equal
 def sign_stencil(a: "float", b: Field["float"], c: Field["float"]):
     """
     GT4Py stencil wrapper for testing the sign function.
-    
+
     This stencil applies the sign function across a field, computing
     c = sign(a, b) for all grid points.
-    
+
     Parameters
     ----------
     a : float
@@ -53,17 +54,17 @@ def sign_stencil(a: "float", b: Field["float"], c: Field["float"]):
 def test_stencil_sign(dtypes, backend, domain, origin):
     """
     Test the sign function stencil with various inputs and backends.
-    
+
     This test validates the sign function behavior across different
     computational backends (debug, numpy, CPU, GPU) and data types
     (single and double precision).
-    
+
     The test covers four scenarios:
     1. Positive scalar (a=1.0) with positive field → expects positive output
     2. Negative scalar (a=-1.0) with positive field → expects negative output
     3. Negative scalar (a=-1.0) with negative field → expects negative output
     4. Negative scalar (a=-1.0) with positive field → expects negative output
-    
+
     Parameters
     ----------
     dtypes : dict
@@ -75,7 +76,7 @@ def test_stencil_sign(dtypes, backend, domain, origin):
         Domain size for the field, provided by pytest fixture.
     origin : tuple
         Origin coordinates for the field, provided by pytest fixture.
-    
+
     Notes
     -----
     The sign function currently returns abs(a) with the sign of a itself.
@@ -89,16 +90,12 @@ def test_stencil_sign(dtypes, backend, domain, origin):
     a = dtypes["float"](1.0)
     b = np.ones(domain)
 
-    b_gt4py = from_array(b, dtype=dtypes["float"], backend=backend, aligned_index=origin)
+    b_gt4py = from_array(
+        b, dtype=dtypes["float"], backend=backend, aligned_index=origin
+    )
     c_gt4py = zeros(shape=domain, dtype=dtypes["float"], backend=backend)
 
-    sign_stencil_gt4py(
-        a=a,
-        b=b_gt4py,
-        c=c_gt4py,
-        domain=domain,
-        origin=origin
-    )
+    sign_stencil_gt4py(a=a, b=b_gt4py, c=c_gt4py, domain=domain, origin=origin)
 
     assert_array_equal(c_gt4py, 1.0)
 
@@ -106,16 +103,12 @@ def test_stencil_sign(dtypes, backend, domain, origin):
     a = dtypes["float"](1.0)
     b = -1 * np.ones(domain)
 
-    b_gt4py = from_array(b, dtype=dtypes["float"], backend=backend, aligned_index=origin)
+    b_gt4py = from_array(
+        b, dtype=dtypes["float"], backend=backend, aligned_index=origin
+    )
     c_gt4py = zeros(shape=domain, dtype=dtypes["float"], backend=backend)
 
-    sign_stencil_gt4py(
-        a=a,
-        b=b_gt4py,
-        c=c_gt4py,
-        domain=domain,
-        origin=origin
-    )
+    sign_stencil_gt4py(a=a, b=b_gt4py, c=c_gt4py, domain=domain, origin=origin)
 
     assert_array_equal(c_gt4py, 1.0)
 
@@ -123,16 +116,12 @@ def test_stencil_sign(dtypes, backend, domain, origin):
     a = dtypes["float"](-1.0)
     b = -1 * np.ones(domain)
 
-    b_gt4py = from_array(b, dtype=dtypes["float"], backend=backend, aligned_index=origin)
+    b_gt4py = from_array(
+        b, dtype=dtypes["float"], backend=backend, aligned_index=origin
+    )
     c_gt4py = zeros(shape=domain, dtype=dtypes["float"], backend=backend)
 
-    sign_stencil_gt4py(
-        a=a,
-        b=b_gt4py,
-        c=c_gt4py,
-        domain=domain,
-        origin=origin
-    )
+    sign_stencil_gt4py(a=a, b=b_gt4py, c=c_gt4py, domain=domain, origin=origin)
 
     assert_array_equal(c_gt4py, -1.0)
 
@@ -140,14 +129,9 @@ def test_stencil_sign(dtypes, backend, domain, origin):
     a = dtypes["float"](-1.0)
     b = np.ones(domain)
 
-    b_gt4py = from_array(b, dtype=dtypes["float"], backend=backend, aligned_index=origin)
+    b_gt4py = from_array(
+        b, dtype=dtypes["float"], backend=backend, aligned_index=origin
+    )
     c_gt4py = zeros(shape=domain, dtype=dtypes["float"], backend=backend)
 
-    sign_stencil_gt4py(
-        a=a,
-        b=b_gt4py,
-        c=c_gt4py,
-        domain=domain,
-        origin=origin
-    )
-
+    sign_stencil_gt4py(a=a, b=b_gt4py, c=c_gt4py, domain=domain, origin=origin)
