@@ -22,7 +22,8 @@ WORKDIR /app
 RUN git clone https://github.com/maurinl26/dwarf-p-ice3.git /app
 
 # Sync requirements 
-RUN uv sync --extra all 
+RUN uv sync --extra test
+RUN uv sync --extra gpu 
 
 # Set uv as entry point to run scripts
 CMD ["uv", "run"]
