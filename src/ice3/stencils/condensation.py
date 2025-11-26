@@ -34,6 +34,16 @@ def condensation(
     lv: Field["float"],
     ls: Field["float"],
     q1: Field["float"],
+    pv_out: Field["float"],
+    piv_out: Field["float"],
+    frac_out: Field["float"],
+    qsl_out: Field["float"],
+    qsi_out: Field["float"],
+    sigma_out: Field["float"],
+    cond_out: Field["float"],
+    a_out: Field["float"],
+    b_out: Field["float"],
+    sbar_out: Field["float"],
 ):
     """Microphysical adjustments for specific contents due to condensation."""
 
@@ -103,6 +113,12 @@ def condensation(
         # Supersaturation coefficients
         qsl = RD / RV * pv / (pabs - pv)
         qsi = RD / RV * piv / (pabs - piv)
+        
+        # Store intermediate values for diagnostics
+        pv_out = pv
+        piv_out = piv
+        qsl_out = qsl
+        qsi_out = qsi
 
         # interpolate between liquid and solid as a function of temperature
         qsl = (1 - frac_tmp) * qsl + frac_tmp * qsi
@@ -113,6 +129,12 @@ def condensation(
         a = 1 / (1 + lvs / cph * ah)
         b = ah * a
         sbar = a * (rt - qsl + ah * lvs * (rc + ri * prifact) / cph)
+        
+        # Store coefficients for diagnostics
+        a_out = a
+        b_out = b
+        sbar_out = sbar
+        frac_out = frac_tmp
 
         # Translation note : l369 - l390 kept
         # Translation note : l391 - l406 skipped (OSIGMAS = False)
@@ -130,6 +152,9 @@ def condensation(
         # Translation note : l407 - l411
         sigma = max(1e-10, sigma)
         q1 = sbar / sigma
+        
+        # Store sigma for diagnostics
+        sigma_out = sigma
 
         # Translation notes : l413 to l468 skipped (HCONDENS=="GAUS")
         # TODO : add hcondens == "GAUS" option
@@ -156,6 +181,9 @@ def condensation(
 
             # Translation note : l487 to l489
             cond_tmp = 0 if cldfr == 0 else cond_tmp
+            
+            # Store cond for diagnostics
+            cond_out = cond_tmp
 
             # Translation note : l496 to l503 removed (because initialized further in cloud_fraction diagnostics)
 

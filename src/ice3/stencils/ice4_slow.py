@@ -62,28 +62,19 @@ def ice4_slow(
     # 3.2 compute the homogeneous nucleation source : RCHONI
     with computation(PARALLEL), interval(...):
         if t < TT - 35.0 and rct > C_RTMIN and ldcompute:
-            rc_honi_tnd = (
-                min(1000, HON * rhodref * rct * exp(ALPHA3 * (t - TT) - BETA3))
-                if not ldsoft
-                else rc_honi_tnd
-            )
-
+            if not ldsoft:
+                rc_honi_tnd = min(1000, HON * rhodref * rct * exp(ALPHA3 * (t - TT) - BETA3))
         else:
             rc_honi_tnd = 0
 
     # 3.4 compute the deposition, aggregation and autoconversion sources
     # 3.4.3 compute the deposition on r_s : RVDEPS
     with computation(PARALLEL), interval(...):
-        if rvt < V_RTMIN and rst < S_RTMIN and ldcompute:
+        if rvt > V_RTMIN and rst > S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l118 to 120 kept
             # Translation note : #else REPRO48  l121 to 126 omitted
-            rv_deps_tnd = (
-                (ssi / (rhodref * ai))
-                * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS)
-                if not ldsoft
-                else rv_deps_tnd
-            )
-
+            if not ldsoft:
+                rv_deps_tnd = (ssi / (rhodref * ai)) * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS)
         else:
             rv_deps_tnd = 0
 
@@ -92,18 +83,8 @@ def ice4_slow(
         if rit > I_RTMIN and rst > S_RTMIN and ldcompute:
             # Translation note : #ifdef REPRO48 l138 to 142 kept
             # Translation note : #else REPRO48 l143 to 150 omitted
-            ri_aggs_tnd = (
-                (
-                    FIAGGS
-                    * exp(COLEXIS * (t - TT))
-                    * rit
-                    * lbdas**EXIAGGS
-                    * rhodref ** (-CEXVT)
-                )
-                if not ldsoft
-                else ri_aggs_tnd
-            )
-
+            if not ldsoft:
+                ri_aggs_tnd = FIAGGS * exp(COLEXIS * (t - TT)) * rit * lbdas**EXIAGGS * rhodref ** (-CEXVT)
         # Translation note : OELEC = False l151 omitted
         else:
             ri_aggs_tnd = 0
@@ -125,12 +106,7 @@ def ice4_slow(
     # 3.4.6 compute the depsoition on r_g: RVDEPG
     with computation(PARALLEL), interval(...):
         if rvt > V_RTMIN and rgt > G_RTMIN and ldcompute:
-            rv_depg_tnd = (
-                (ssi / (rhodref * ai))
-                * (O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG)
-                if not ldsoft
-                else rv_depg_tnd
-            )
-
+            if not ldsoft:
+                rv_depg_tnd = (ssi / (rhodref * ai)) * (O0DEPG * lbdag**EX0DEPG + O1DEPG * cj * lbdag**EX1DEPG)
         else:
             rv_depg_tnd = 0

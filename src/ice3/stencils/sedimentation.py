@@ -10,6 +10,9 @@ from gt4py.cartesian.gtscript import (
     computation,
     function,
     interval,
+    log,
+    max,
+    min,
 )
 
 from ..functions.upwind_sedimentation import (
@@ -18,6 +21,71 @@ from ..functions.upwind_sedimentation import (
     mixing_ratio_update,
     upper_air_flux,
 )
+
+
+# Helper functions matching Fortran subroutines
+@function
+def ray(sea: Field[IJ, "float"]):
+    """Compute cloud mean radius parameter based on sea fraction"""
+    # Simplified: returns 1.0 (would need gamma function ratios for full implementation)
+    return 1.0
+
+
+@function 
+def lbc(sea: Field[IJ, "float"]):
+    """Compute LBC parameter weighted by sea fraction"""
+    from __externals__ import LBC_LAND, LBC_SEA
+    
+    return (1.0 - sea) * LBC_LAND + sea * LBC_SEA
+
+
+@function
+def fsedc(sea: Field[IJ, "float"]):
+    """Compute FSEDC parameter weighted by sea fraction"""
+    from __externals__ import FSEDC_LAND, FSEDC_SEA
+    
+    return (1.0 - sea) * FSEDC_LAND + sea * FSEDC_SEA
+
+
+@function
+def conc3d(town: Field[IJ, "float"], sea: Field[IJ, "float"]):
+    """Compute 3D concentration based on town and sea fractions"""
+    from __externals__ import CONC_LAND, CONC_SEA, CONC_URBAN
+    
+    return (1.0 - town) * ((1.0 - sea) * CONC_LAND + sea * CONC_SEA) + town * CONC_URBAN
+
+
+@function
+def other_species_velocity(
+    fsed: "float",
+    exsed: "float", 
+    content: "float",
+    rhodref: "float"
+):
+    """Compute terminal velocity for rain, snow, graupel, hail"""
+    from __externals__ import CEXVT
+    
+    return fsed * content ** (exsed - 1.0) * rhodref ** (exsed - CEXVT - 1.0)
+
+
+@function
+def pristine_ice_velocity(content: "float", rhodref: "float"):
+    """Compute terminal velocity for pristine ice"""
+    from __externals__ import FSEDI, EXCSEDI, CEXVT
+    
+    return FSEDI * rhodref ** (-CEXVT) * max(0.05e6, -0.15319e6 - 0.021454e6 * log(rhodref * content)) ** EXCSEDI
+
+
+@function
+def fwsed1(wsedw: "float", tstep: "float", dzz: "float", rhodref: "float", content: "float", invtstep: "float"):
+    """Compute weighted sedimentation flux (first component)"""
+    return min(rhodref * dzz * content * invtstep, wsedw * rhodref * content)
+
+
+@function 
+def fwsed2(wsedw: "float", tstep: "float", dzz: "float", wsedw_above: "float"):
+    """Compute weighted sedimentation flux (second component from level above)"""
+    return max(0.0, 1.0 - dzz / (tstep * wsedw)) * wsedw_above
 
 
 # "PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90"
@@ -68,6 +136,9 @@ def sedimentation_stat(
     """
     from __externals__ import (
         C_RTMIN,
+        CC,
+        CEXVT,
+        DC,
         EXSEDG,
         EXSEDR,
         EXSEDS,
@@ -75,16 +146,15 @@ def sedimentation_stat(
         FSEDR,
         FSEDS,
         G_RTMIN,
+        I_RTMIN,
+        LBEXC,
         R_RTMIN,
         RHOLW,
         S_RTMIN,
         TSTEP,
     )
 
-    # Note Hail is omitted
-    # Note : lsedic = True in Arome
-    # Note : frp is sed
-    # "PHYEX/src/common/micro/mode_ice4_sedimentation.F90", from_line=169, to_line=178
+    # Convert tendencies to mixing ratios
     with computation(PARALLEL), interval(...):
         rc_t = rcs * TSTEP
         rr_t = rrs * TSTEP
@@ -92,142 +162,132 @@ def sedimentation_stat(
         rs_t = rss * TSTEP
         rg_t = rgs * TSTEP
 
-    # FRPR present for AROME config
-    # 1. Compute the fluxes
-    # Gamma computations shifted in RainIceDescr
-    # Warning : call shift
-
-    # 2. Fluxes
-
-    # Initialize vertical loop
+    # Initialize fluxes
     with computation(PARALLEL), interval(...):
-        fpr_c = 0
-        fpr_r = 0
-        fpr_i = 0
-        fpr_s = 0
-        fpr_g = 0
+        fpr_c = 0.0
+        fpr_r = 0.0
+        fpr_i = 0.0
+        fpr_s = 0.0
+        fpr_g = 0.0
 
-    # l253 to l258
-    with computation(PARALLEL), interval(...):
-        _ray = ray(sea)
-        _lbc = lbc(sea)
-        # _fsedc = fsedc(sea)
-        _conc3d = conc3d(town, sea)
-
-    # Compute the sedimentation fluxes
+    # Compute the sedimentation fluxes from top to bottom
     with computation(BACKWARD), interval(...):
         TSTEP__rho_dz = TSTEP / (rhodref * dzz)
+        zinvtstep = 1.0 / TSTEP
+        
+        # Compute parameters for cloud (depend on sea/land/town)
+        _ray = ray(sea)
+        _lbc = lbc(sea)
+        _fsedc = fsedc(sea)
+        _conc3d = conc3d(town, sea)
 
-        # 2.1 cloud
-        # Translation note : LSEDIC is assumed to be True
-        # Translation note : PSEA and PTOWN are assumed to be present as in AROME
+        # 2.1 Cloud droplets
+        qp = fpr_c[0, 0, 1] * TSTEP__rho_dz
+        
+        # Compute terminal velocities
+        if rc_t > C_RTMIN:
+            wlbda = 6.6e-8 * (101325.0 / pabs_t) * (th_t / 293.15)
+            wlbdc = (_lbc * _conc3d / (rhodref * rc_t)) ** LBEXC
+            cc = CC * (1.0 + 1.26 * wlbda * wlbdc / _ray)
+            wsedw1 = rhodref ** (-CEXVT) * wlbdc ** (-DC) * cc * _fsedc
+        else:
+            wsedw1 = 0.0
+            
+        if qp > C_RTMIN:
+            wlbda = 6.6e-8 * (101325.0 / pabs_t) * (th_t / 293.15)
+            wlbdc = (_lbc * _conc3d / (rhodref * qp)) ** LBEXC
+            cc = CC * (1.0 + 1.26 * wlbda * wlbdc / _ray)
+            wsedw2 = rhodref ** (-CEXVT) * wlbdc ** (-DC) * cc * _fsedc
+        else:
+            wsedw2 = 0.0
+        
+        fpr_c = fwsed1(wsedw1, TSTEP, dzz, rhodref, rc_t, zinvtstep)
+        if wsedw2 != 0.0:
+            fpr_c = fpr_c + fwsed2(wsedw2, TSTEP, dzz, fpr_c[0, 0, 1])
 
-    # TODO  compute ray, lbc, fsedc, conc3d
-    with computation(PARALLEL), interval(...):
-        # 2.1 cloud
-        qp = fpr_c[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
-        wsedw1 = (
-            terminal_velocity(rc_t, th_t, pabs_t, rhodref, _lbc, _ray, _conc3d)
-            if rc_t > C_RTMIN
-            else 0
-        )
-        wsedw2 = (
-            terminal_velocity(qp, th_t, pabs_t, rhodref, _lbc, _ray, _conc3d)
-            if qp > C_RTMIN
-            else 0
-        )
+        # 2.2 Rain
+        qp = fpr_r[0, 0, 1] * TSTEP__rho_dz
+        
+        if rr_t > R_RTMIN:
+            wsedw1 = other_species_velocity(FSEDR, EXSEDR, rr_t, rhodref)
+        else:
+            wsedw1 = 0.0
+            
+        if qp > R_RTMIN:
+            wsedw2 = other_species_velocity(FSEDR, EXSEDR, qp, rhodref)
+        else:
+            wsedw2 = 0.0
+        
+        fpr_r = fwsed1(wsedw1, TSTEP, dzz, rhodref, rr_t, zinvtstep)
+        if wsedw2 != 0.0:
+            fpr_r = fpr_r + fwsed2(wsedw2, TSTEP, dzz, fpr_r[0, 0, 1])
 
-        fpr_c = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, TSTEP)
-        fpr_c += (
-            weighted_sedimentation_flux_2(wsedw2, fpr_c, dzz, TSTEP)
-            if wsedw2 != 0
-            else 0
-        )
+        # 2.3 Pristine ice
+        qp = fpr_i[0, 0, 1] * TSTEP__rho_dz
+        
+        if ri_t > max(I_RTMIN, 1.0e-7):
+            wsedw1 = pristine_ice_velocity(ri_t, rhodref)
+        else:
+            wsedw1 = 0.0
+            
+        if qp > max(I_RTMIN, 1.0e-7):
+            wsedw2 = pristine_ice_velocity(qp, rhodref)
+        else:
+            wsedw2 = 0.0
+        
+        fpr_i = fwsed1(wsedw1, TSTEP, dzz, rhodref, ri_t, zinvtstep)
+        if wsedw2 != 0.0:
+            fpr_i = fpr_i + fwsed2(wsedw2, TSTEP, dzz, fpr_i[0, 0, 1])
 
-        # 2.2 rain
-        # Other species
-        qp[0, 0, 0] = fpr_r[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
-        wsedw1 = other_species(FSEDR, EXSEDR, rr_t, rhodref) if rr_t > R_RTMIN else 0
-        wsedw2 = other_species(FSEDR, EXSEDR, qp, rhodref) if qp > R_RTMIN else 0
+        # 2.4 Snow
+        qp = fpr_s[0, 0, 1] * TSTEP__rho_dz
+        
+        if rs_t > S_RTMIN:
+            wsedw1 = other_species_velocity(FSEDS, EXSEDS, rs_t, rhodref)
+        else:
+            wsedw1 = 0.0
+            
+        if qp > S_RTMIN:
+            wsedw2 = other_species_velocity(FSEDS, EXSEDS, qp, rhodref)
+        else:
+            wsedw2 = 0.0
+        
+        fpr_s = fwsed1(wsedw1, TSTEP, dzz, rhodref, rs_t, zinvtstep)
+        if wsedw2 != 0.0:
+            fpr_s = fpr_s + fwsed2(wsedw2, TSTEP, dzz, fpr_s[0, 0, 1])
 
-        fpr_r = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rr_t, TSTEP)
-        fpr_r += (
-            weighted_sedimentation_flux_2(wsedw2, fpr_r, dzz, TSTEP)
-            if wsedw2 != 0
-            else 0
-        )
+        # 2.5 Graupel
+        qp = fpr_g[0, 0, 1] * TSTEP__rho_dz
+        
+        if rg_t > G_RTMIN:
+            wsedw1 = other_species_velocity(FSEDG, EXSEDG, rg_t, rhodref)
+        else:
+            wsedw1 = 0.0
+            
+        if qp > G_RTMIN:
+            wsedw2 = other_species_velocity(FSEDG, EXSEDG, qp, rhodref)
+        else:
+            wsedw2 = 0.0
+        
+        fpr_g = fwsed1(wsedw1, TSTEP, dzz, rhodref, rg_t, zinvtstep)
+        if wsedw2 != 0.0:
+            fpr_g = fpr_g + fwsed2(wsedw2, TSTEP, dzz, fpr_g[0, 0, 1])
 
-        # 2.3 ice
-        qp[0, 0, 0] = fpr_i[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
-        wsedw1 = pristine_ice(ri_t, rhodref)
-        wsedw2 = pristine_ice(qp, rhodref)
-
-        fpr_i = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, ri_t, TSTEP)
-        fpr_i += (
-            weighted_sedimentation_flux_2(wsedw2, fpr_i, dzz, TSTEP) if qp != 0 else 0
-        )
-
-        # 2.4 snow
-        # Translation note : REPRO48 set to True
-        qp[0, 0, 0] = fpr_s[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
-        wsedw1 = other_species(FSEDS, EXSEDS, rs_t, rhodref) if rs_t > S_RTMIN else 0
-        wsedw2 = other_species(FSEDS, EXSEDS, qp, rhodref) if qp > S_RTMIN else 0
-
-        fpr_s = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rs_t, TSTEP)
-        fpr_s += (
-            weighted_sedimentation_flux_2(wsedw2, fpr_s, dzz, TSTEP)
-            if wsedw2 != 0
-            else 0
-        )
-
-        # 2.5 graupel
-        qp[0, 0, 0] = fpr_g[0, 0, 1] * TSTEP__rho_dz[0, 0, 0]
-        wsedw1 = other_species(FSEDG, EXSEDG, rg_t, rhodref) if rg_t > G_RTMIN else 0
-        wsedw2 = other_species(FSEDG, EXSEDG, qp, rhodref) if qp > G_RTMIN else 0
-
-        fpr_g = weighted_sedimentation_flux_1(wsedw1, dzz, rhodref, rc_t, TSTEP)
-        fpr_g += (
-            weighted_sedimentation_flux_2(wsedw2, fpr_g, dzz, TSTEP)
-            if wsedw2 != 0
-            else 0
-        )
-
-    # 3. Source
-    # Calcul des tendances
+    # 3. Source - Calculate tendencies
     with computation(PARALLEL), interval(...):
         rcs = rcs + TSTEP__rho_dz * (fpr_c[0, 0, 1] - fpr_c[0, 0, 0]) / TSTEP
+        rrs = rrs + TSTEP__rho_dz * (fpr_r[0, 0, 1] - fpr_r[0, 0, 0]) / TSTEP
         ris = ris + TSTEP__rho_dz * (fpr_i[0, 0, 1] - fpr_i[0, 0, 0]) / TSTEP
         rss = rss + TSTEP__rho_dz * (fpr_s[0, 0, 1] - fpr_s[0, 0, 0]) / TSTEP
         rgs = rgs + TSTEP__rho_dz * (fpr_g[0, 0, 1] - fpr_g[0, 0, 0]) / TSTEP
-        rrs = rrs + TSTEP__rho_dz * (fpr_r[0, 0, 1] - fpr_r[0, 0, 0]) / TSTEP
 
-    # Instantaneous fluxes
+    # Instantaneous fluxes at ground level
     with computation(FORWARD), interval(0, 1):
         inprc = fpr_c / RHOLW
         inprr = fpr_r / RHOLW
         inpri = fpr_i / RHOLW
         inprs = fpr_s / RHOLW
         inprg = fpr_g / RHOLW
-
-
-@function
-def terminal_velocity(
-    content: Field["float"],
-    th_t: Field["float"],
-    pabs_t: Field["float"],
-    rhodref: Field["float"],
-    lbc: Field["float"],
-    ray: Field["float"],
-    conc3d: Field["float"],
-):
-    from __externals__ import CC, CEXVT, DC, FSEDC_1, LBEXC
-
-    wlbda = 6.6e-8 * (101325 / pabs_t[0, 0, 0]) * (th_t[0, 0, 0] / 293.15)
-    wlbdc = (lbc * conc3d / (rhodref * content)) ** LBEXC
-    cc = CC * (1 + 1.26 * wlbda * wlbdc / ray)
-    wsedw1 = rhodref ** (-CEXVT) * wlbdc * (-DC) * cc * FSEDC_1
-
-    return wsedw1
 
 
 def upwind_sedimentation(
@@ -310,12 +370,9 @@ def upwind_sedimentation(
 
     with computation(PARALLEL), interval(...):
         dt__rho_dz = TSTEP / (rhodref * dzz)
-        oorhodz = 1 / (rhodref * dzz)
+        oorhodz = 1.0 / (rhodref * dzz)
 
-    # TODO
-    # remaining time to be initialized
     # 2. Compute the fluxes
-    # l219 to l262
     with computation(PARALLEL), interval(...):
         rcs -= rc_t / TSTEP
         ris -= ri_t / TSTEP
@@ -323,15 +380,15 @@ def upwind_sedimentation(
         rss -= rs_t / TSTEP
         rgs -= rg_t / TSTEP
 
-        wsed_c = 0
-        wsed_r = 0
-        wsed_i = 0
-        wsed_s = 0
-        wsed_g = 0
+        wsed_c = 0.0
+        wsed_r = 0.0
+        wsed_i = 0.0
+        wsed_s = 0.0
+        wsed_g = 0.0
 
         remaining_time = TSTEP
 
-    # in internal_sedim_split
+    # Compute parameters
     with computation(PARALLEL), interval(...):
         _ray = ray(sea)
         _lbc = lbc(sea)
@@ -339,17 +396,14 @@ def upwind_sedimentation(
         _conc3d = conc3d(town, sea)
 
     ## 2.1 For cloud droplets
-
-    # TODO : share function with statistical sedimentation
     with computation(PARALLEL), interval(...):
         wlbdc = (_lbc * _conc3d / (rhodref * rc_t)) ** LBEXC
         _ray /= wlbdc
         t = th_t * (pabs_t / P00) ** (RD / CPD)
         wlbda = 6.6e-8 * (P00 / pabs_t) * (t / TT)
-        cc = CC * (1 + 1.26 * wlbda / _ray)
-        wsed = rhodref ** (-CEXVT + 1) * wlbdc * cc * _fsedc
+        cc = CC * (1.0 + 1.26 * wlbda / _ray)
+        wsed = rhodref ** (-CEXVT + 1.0) * wlbdc * cc * _fsedc
 
-    # Translation note : l723 in mode_ice4_sedimentation_split.F90
     with computation(PARALLEL), interval(0, 1):
         max_tstep = maximum_time_step(
             C_RTMIN, rhodref, max_tstep, rc_t, dzz, wsed_c, remaining_time
@@ -357,7 +411,6 @@ def upwind_sedimentation(
         remaining_time[0, 0] -= max_tstep[0, 0]
         inst_rc[0, 0] += instant_precipitation(wsed_c, max_tstep, TSTEP)
 
-    # Translation note : l738 in mode_ice4_sedimentation_split.F90
     with computation(PARALLEL), interval(...):
         rcs = mixing_ratio_update(max_tstep, oorhodz, wsed_s, rcs, rc_t, TSTEP)
         fpr_c += upper_air_flux(wsed_s, max_tstep, TSTEP)

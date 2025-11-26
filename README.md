@@ -178,6 +178,17 @@ as an input.
   - les tests : grille, domain, origine de test et config gt4py
   - compile_fortran_stencil(fichier, module, subroutine)
 
+## Continuous benchmarking
+
+Components under (components)[tests/components] are monitored with continuous benchmarking.
+
+```bash
+  bencher run --adapter json \
+  --file result.json \
+  --token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhcGlfa2V5IiwiZXhwIjo2MDUzMDYzNjUzLCJpYXQiOjE3NTgwOTYzNTgsImlzcyI6ImJlbmNoZXIuZGV2Iiwic3ViIjoibWF1cmluLmxvaWMuYWNAZ21haWwuY29tIiwib3JnIjpudWxsLCJzdGF0ZSI6bnVsbH0.WakXPCmj4Rj0wup8FqhO1h66brXEwktNd4J7VggOano \
+  "uv run pytest tests/components/test_ice_adjust.py -m debug"
+```
+
 
 ## Python Wrapper
 
@@ -192,7 +203,7 @@ as an input.
 ## Structure du projet 
 
 - src 
-  - drivers : Command Line Interface
+  - drivers : Command Line Interface'
   - ice3_gt4py :
     - stencils : stencils gt4py et dace
     - functions : fonctions gt4py

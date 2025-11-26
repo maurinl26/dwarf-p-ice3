@@ -44,26 +44,20 @@ def ice4_warm(
 
     # 4.2 compute the autoconversion of r_c for r_r : RCAUTR
     with computation(PARALLEL), interval(...):
-        if hlc_hrc > C_RTMIN and hlc_hcf > 0.0 and ldcompute:
+        if ldcompute and hlc_hrc > C_RTMIN and hlc_hcf > 0.0:
             if not ldsoft:
-                rcautr = (
-                TIMAUTC * max(0.0, hlc_hrc - hlc_hcf * CRIAUTC / rhodref)
-            )
+                rcautr = TIMAUTC * max(0.0, hlc_hrc - hlc_hcf * CRIAUTC / rhodref)
         else:
-            rcautr = 0
+            rcautr = 0.0
 
     # 4.3 compute the accretion of r_c for r_r : RCACCR
     with computation(PARALLEL), interval(...):
         # Translation note : HSUBG_RC_RR_ACCR=='NONE'
-            if rct > C_RTMIN and rrt > R_RTMIN and ldcompute:
-                if not ldsoft:
-                    rcaccr = (
-                    FCACCR * rct 
-                    * lbdar ** EXCACCR 
-                    * rhodref ** (-CEXVT)
-                    )
-            else:
-                rcaccr = 0
+        if ldcompute and rct > C_RTMIN and rrt > R_RTMIN:
+            if not ldsoft:
+                rcaccr = FCACCR * rct * lbdar ** EXCACCR * rhodref ** (-CEXVT)
+        else:
+            rcaccr = 0.0
 
         # Translation note : second option from l121 to l155 ommitted
         # elif csubg_rc_rr_accr == 1:
@@ -72,21 +66,23 @@ def ice4_warm(
     with computation(PARALLEL), interval(...):
         # NONE in Fortran code
         if SUBG_RR_EVAP == 0:
-            if rrt > R_RTMIN and rct <= C_RTMIN and ldcompute:
+            if ldcompute and rrt > R_RTMIN and rct <= C_RTMIN:
                 if not ldsoft:
                     rrevav = exp(ALPW - BETAW / t - GAMW * log(t))
-                    usw = 1 - rvt * (pres - rrevav)
+                    usw = 1 - rvt * (pres - rrevav) / (EPSILO * rrevav)
                     rrevav = (LVTT + (CPV - CL) * (t - TT)) ** 2 / (
                         ka * RV * t**2
                     ) + (RV * t) / (dv * rrevav)
-                    rrevav = (max(0, usw / (rhodref * rrevav))) * (
-                        O0EVAR * lbdar**EX0EVAR + O1EVAR * cj * EX1EVAR
+                    rrevav = (max(0.0, usw) / (rhodref * rrevav)) * (
+                        O0EVAR * lbdar**EX0EVAR + O1EVAR * cj * lbdar**EX1EVAR
                     )
+            else:
+                rrevav = 0.0
 
         if SUBG_RR_EVAP == 1 or SUBG_RR_EVAP == 2:
             # HSUBG_RR_EVAP=='CLFR'
             if SUBG_RR_EVAP == 1:
-                zw4 = 1  # precipitation fraction
+                zw4 = 1.0  # precipitation fraction
                 zw3 = lbdar
 
             # HSUBG_RR_EVAP=='PRFR'
@@ -94,7 +90,7 @@ def ice4_warm(
                 zw4 = rf  # precipitation fraction
                 zw3 = lbdar_rf
 
-            if rrt > R_RTMIN and zw4 > cf and ldcompute:
+            if ldcompute and rrt > R_RTMIN and zw4 > cf:
                 if not ldsoft:
                     # outside the cloud (environment) the use of T^u (unsaturated) instead of T
                     # ! Bechtold et al. 1993
@@ -115,11 +111,11 @@ def ice4_warm(
                         ka * RV * zw2**2
                     ) + RV * zw2 / (dv * rrevav)
                     rrevav = (
-                        max(0, usw)
+                        max(0.0, usw)
                         / (rhodref * rrevav)
                         * (O0EVAR * zw3**EX0EVAR + O1EVAR * cj * zw3**EX1EVAR)
                     )
                     rrevav = rrevav * (zw4 - cf)
 
             else:
-                rrevav = 0
+                rrevav = 0.0
