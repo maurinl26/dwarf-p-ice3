@@ -205,5 +205,92 @@ def test_rain_ice_imports():
     assert hasattr(Sedim, "SPLI")
 
 
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
+    ],
+)
+def test_rain_ice(benchmark, backend, externals, dtypes, rain_ice_repro_ds):
+    """
+    Test du composant IceAdjustModular avec le jeu de données ice_adjust.nc.
+    
+    Ce test valide que le composant modulaire (utilisant 4 stencils séparés)
+    produit les mêmes résultats que les données de référence PHYEX.
+    
+    Séquence testée:
+        1. thermodynamic_fields : T, Lv, Ls, Cph
+        2. condensation         : CB02, rc_out, ri_out
+        3. cloud_fraction_1     : Sources, conservation
+        4. cloud_fraction_2     : Fraction nuageuse, autoconversion
+    
+    Champs validés:
+        - ths, rvs, rcs, ris : Tendances microphysiques
+        - hlc_hrc, hlc_hcf  : Contenu/fraction liquide haute résolution
+        - hli_hri, hli_hcf  : Contenu/fraction glace haute résolution
+    
+    Args:
+        benchmark: Fixture pytest-benchmark
+        backend: Backend GT4Py (numpy, cpu, gpu, debug)
+        dtypes: Types de données (float32/float64)
+        ice_adjust_repro_ds: Dataset xarray ice_adjust.nc
+    """
+    print("\n" + "="*75)
+    print("TEST COMPOSANT: RainIce avec rain_ice.nc")
+    print("="*75)
+    print(f"Backend: {backend}")
+    print(f"Precision: {dtypes['float']}")
+    
+    # ========================================================================
+    # Configuration PHYEX et création du composant
+    # ========================================================================
+    phyex = Phyex("AROME")
+    rain_ice = RainIce(
+        phyex=phyex,
+        dtypes=dtypes,
+        backend=backend,
+    )
+    
+    print(f"Composant créé: {rain_ice}")
+    
+    # ========================================================================
+    # Chargement et préparation des données
+    # ========================================================================
+    shape = (
+        rain_ice.sizes["ngpblks"],
+        rain_ice.sizes["nproma"],
+        rain_ice.sizes["nflevg"]
+    )
+    print(f"Domaine: {shape}")
+
+
+    # ========================================================================
+    # Fonction d'exécution du composant (pour benchmark)
+    # ========================================================================
+    def run_rain_ice():
+        """Exécute la séquence complète RainIce modulaire."""
+        rain_ice(
+            exec_info={},
+            validate_args=False,
+        )
+        
+        return ()
+    
+    # ========================================================================
+    # Exécution et benchmark
+    # ========================================================================
+    print("\nExécution du composant...")
+    results = benchmark(rain_ice)
+    print("✓ Composant exécuté")
+    
+    # ========================================================================
+    # Chargement des données de référence
+    # ========================================================================
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

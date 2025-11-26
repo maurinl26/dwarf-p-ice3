@@ -4,12 +4,11 @@ from __future__ import annotations
 from gt4py.cartesian.gtscript import function
 
 @function
-def sign(x: float):
-    if x > 0:
-        sign_x = 1
-    elif x == 0:
-        sign_x = 0
-    elif x < 0:
-        sign_x = -1
+def sign(a: "float", b: "float") -> "float":
+    if a >= 0.0:
+        sign_b = 1 * abs(a)
+    elif a < 0.0:
+        sign_b = -1 * abs(a)
 
-    return sign_x
+
+    return sign_b

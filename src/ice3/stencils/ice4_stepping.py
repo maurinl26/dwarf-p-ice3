@@ -270,6 +270,44 @@ def ice4_mixing_ratio_step_limiter(
             ldcompute = False
 
 
+def mixing_ratio_step_limiter(
+    r_tnd_a: "float",
+    r_b: "float",
+    r_t: "float",
+    delta_t_micro: "float",
+    r_min: "float",
+    tiny: "float",
+) -> "float":
+    """Helper function to limit timestep based on species disappearance.
+    
+    This function calculates the time needed for a species to reach its minimum
+    threshold based on current tendency, and limits the timestep accordingly.
+    
+    Args:
+        r_tnd_a: Tendency of mixing ratio [kg/kg/s]
+        r_b: Instantaneous change in mixing ratio [kg/kg]
+        r_t: Current mixing ratio [kg/kg]
+        delta_t_micro: Current microphysical timestep [s]
+        r_min: Minimum threshold for the species [kg/kg]
+        tiny: Small value for numerical comparisons
+        
+    Returns:
+        Limited timestep [s]
+    """
+    if abs(r_tnd_a) > tiny:
+        # Calculate time to reach minimum threshold
+        # r_t + r_tnd_a * dt + r_b = r_min
+        # dt = (r_min - r_t - r_b) / r_tnd_a
+        time_threshold = (r_min - r_t - r_b) / r_tnd_a
+        
+        # Only limit if threshold is positive (would reach minimum in future)
+        # and if current value is above minimum or tendency is increasing
+        if time_threshold > 0.0 and (r_t > r_min or r_tnd_a > 0.0):
+            return min(delta_t_micro, time_threshold)
+    
+    return delta_t_micro
+
+
 #    from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",
 #    from_line=290,
 #    to_line=332,
@@ -470,4 +508,3 @@ def external_tendencies_update(
             ri_t -= ri_tnd_ext * dt
             rs_t -= rs_tnd_ext * dt
             rg_t -= rg_tnd_ext * dt
-

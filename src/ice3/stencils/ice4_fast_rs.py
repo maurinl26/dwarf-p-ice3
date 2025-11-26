@@ -218,7 +218,7 @@ def ice4_fast_rs(
             freez_rate_tmp = max(0, freez_rate_tmp - rcrimsg)
             rsrimcg = zw0_tmp * rs_rsrimcg_tnd
 
-            rsrimcg *= max(0, sign(rcrimsg))
+            rsrimcg *= max(0, sign(1, rcrimsg))
             rcrimsg = max(0, rcrimsg)
 
         else:
