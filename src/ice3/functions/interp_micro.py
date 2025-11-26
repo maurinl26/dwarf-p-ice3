@@ -10,8 +10,8 @@ from gt4py.cartesian.gtscript import Field, floor, function, log, max, min
 #    to_line=124
 @function
 def index_interp_micro_1d(
-    zw: Field["float"],
-) -> Field["int"]:
+    zw: "float",
+) -> Tuple["float", "int"]:
     """Compute index in logspace for table
 
     Args:
@@ -33,7 +33,7 @@ def index_interp_micro_1d(
 #    from_line=126,
 #    to_line=269
 @function
-def index_micro2d_acc_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
+def index_micro2d_acc_r(lambda_r: "float") -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -58,7 +58,7 @@ def index_micro2d_acc_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
 #    from_line=126,
 #    to_line=269
 @function
-def index_micro2d_acc_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
+def index_micro2d_acc_s(lambda_s: "float") -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -81,7 +81,7 @@ def index_micro2d_acc_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
 ################ DRY COLLECTION #####################
 # (s) -> (g)
 @function
-def index_micro2d_dry_g(lambda_g: Field["float"]) -> Tuple["int", "float"]:
+def index_micro2d_dry_g(lambda_g: "float") -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -103,7 +103,7 @@ def index_micro2d_dry_g(lambda_g: Field["float"]) -> Tuple["int", "float"]:
 
 
 @function
-def index_micro2d_dry_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
+def index_micro2d_dry_s(lambda_s: "float") -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
@@ -125,7 +125,7 @@ def index_micro2d_dry_s(lambda_s: Field["float"]) -> Tuple["int", "float"]:
 
 # (r) -> (g)
 @function
-def index_micro2d_dry_r(lambda_r: Field["float"]) -> Tuple["int", "float"]:
+def index_micro2d_dry_r(lambda_r: "float") -> Tuple["int", "float"]:
     """Compute index in logspace for table
 
     Args:
