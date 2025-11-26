@@ -16,101 +16,295 @@ logging.getLogger()
 # from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90"
 @dataclass
 class RainIceParameters:
-    """Constants for RainIce parametrization and source computation
-
-    # Constants dependencies
-    cst: Constants
-    rid: RainIceDescr
-    parami: ParamIce
-
-    # Parameters for microphysical sources and transformations
-    fsedc: Tuple[float]     # Constants for sedimentation fluxes of C
-    fsedr: float            # Constants for sedimentation
-    exsedr: float
-    fsedi: float
-    excsedi: float
-    exrsedi: float
-    fseDS: float
-    exseDS: float
-    fsedg: float
-    exsedg: float
-
-    # Constants for heterogeneous ice nucleation HEN
-    nu10: float
-    alpha1: float = 4.5
-    beta1: float = 0.6
-    nu20: float
-    alpha2: float = 12.96
-    beta2: float = 0.639
-    mnu0: float = 6.88e-13  # Mass of nucleated ice crystal
-
-    # Constants for homogeneous ice nucleation HON
-    alpha3: float = -3.075
-    beta3: float = 81.00356
-    hon: float
-
-    # Constants for raindrop and evaporation EVA
-    scfac: float
-    o0evar: float
-    o1evar: float
-    ex0evar: float
-    ex1evar: float
-    o0dePI: float           # deposition DEP on Ice
-    o2dePI: float
-    o0deps: float           # on Snow
-    o1deps: float
-    ex0deps: float
-    ex1deps: float
-    rdepsred: float
-    o0depg: float           # on Graupel
-    o1depg: float
-    ex0depg: float
-    ex1depg: float
-    rdepgred: float
-
-    # Constants for pristine ice autoconversion : AUT
-    timauti: float = 1e-3   # Time constant at T=T_t
-    texauti: float = 0.015
-    criauti: float
-    t0criauti: float
-    acriauti: float
-    bcriauti: float
-
-    # Constants for snow aggregation : AGG
-    colis: float = 0.25     # Collection efficiency of I + S
-    colexis: float = 0.05   # Temperature factor of the I+S collection efficiency
-    fiaggs: float
-    exiaggs: float
-
-    # Constants for cloud droplet autoconversion AUT
-    timautc: float = 1e-3
-    criautc: float
-
-    # Constants for cloud droplets accretion on raindrops : ACC
-    fcaccr: float
-    excaccr: float
-
-    # Constants for the riming of the aggregates : RIM
-    dcslim: float = 0.007
-    colcs: float = 1.0
-    excrimss: float
-    crimss: float
-    excrimsg: float
-    crimsg: float
-
-    excrimsg: float
-    crimsg: float
-    exsrimcg: float
-    exsrimcg2: float
-    srimcg3: float
-
-    gaminc_bound_min: float
-    gaminc_bound_max: float
-    rimintp1: float
-    rimintp2: float
-
-    ngaminc: int   # Number of tab. Lbda_s
-
+    """
+    Microphysical rate constants for ICE3/ICE4 bulk schemes.
+    
+    This dataclass contains all computed rate constants, collection efficiencies,
+    and kernel coefficients used in the ICE3 and ICE4 microphysics schemes.
+    Values are computed in __post_init__ from fundamental constants (Constants),
+    hydrometeor descriptors (RainIceDescriptors), and user parameters (IceParameters).
+    
+    The constants are organized by process type:
+    - Sedimentation (SED)
+    - Nucleation (HEN, HON)  
+    - Vapor deposition/Evaporation (DEP, EVA)
+    - Autoconversion (AUT)
+    - Aggregation (AGG)
+    - Accretion (ACC)
+    - Riming (RIM)
+    - Contact freezing (CFR)
+    - Dry/wet graupel growth (DRY/WET)
+    
+    Attributes
+    ----------
+    
+    **Dependencies (Required for Initialization)**
+    
+    cst : Constants
+        Physical constants dataclass.
+    rid : RainIceDescriptors
+        Hydrometeor properties (masses, fall speeds, size distributions).
+    parami : IceParameters
+        User-configurable microphysics parameters.
+    
+    **Sedimentation Constants (SED)**
+    
+    FSEDC_1, FSEDC_2 : float
+        Cloud droplet sedimentation factors for bimodal distribution (m/s).
+    FSEDR : float
+        Rain sedimentation pre-factor (m^EXSEDR/s).
+    EXSEDR : float
+        Rain sedimentation exponent (dimensionless).
+    FSEDI : float
+        Ice crystal sedimentation pre-factor.
+    EXCSEDI, EXRSEDI : float
+        Ice crystal sedimentation exponents for concentration and mixing ratio.
+    FSEDS : float
+        Snow sedimentation pre-factor (m^EXSEDS/s).
+    EXSEDS : float
+        Snow sedimentation exponent (dimensionless).
+    FSEDG : float
+        Graupel sedimentation pre-factor (m^EXSEDG/s).
+    EXSEDG : float
+        Graupel sedimentation exponent (dimensionless).
+    
+    **Heterogeneous Ice Nucleation (HENI)**
+    
+    NU10 : float
+        Contact nucleation parameter (m⁻³·s⁻¹), habit-dependent.
+        Multiplied by 50 for plates, 1250 for columns, 850 for bullet rosettes.
+    ALPHA1, BETA1 : float
+        Immersion freezing temperature coefficients (dimensionless).
+        Formula: N_frz = NU10 × exp(-ALPHA1 × (273.15 - T)^BETA1)
+    NU20 : float
+        Deposition nucleation parameter (m⁻³·s⁻¹), habit-dependent.
+    ALPHA2, BETA2 : float
+        Deposition nucleation temperature coefficients (dimensionless).
+    MNU0 : float
+        Mass of newly nucleated ice crystal (kg). Default: 6.88×10⁻¹³.
+    
+    **Homogeneous Ice Nucleation (HON)**
+    
+    ALPHA3, BETA3 : float
+        Homogeneous freezing temperature coefficients.
+    HON : float
+        Homogeneous freezing rate coefficient (m³/s).
+        Computed from Fletcher's formula for droplet size distribution.
+    
+    **Vapor Deposition and Evaporation**
+    
+    SCFAC : float
+        Schmidt number factor for ventilation (dimensionless).
+    
+    Rain Evaporation (EVAR):
+    O0EVAR, O1EVAR : float
+        Evaporation coefficients without and with ventilation (m²/s).
+    EX0EVAR, EX1EVAR : float
+        Exponents for evaporation formulas (dimensionless).
+    
+    Ice Deposition (DEPI):
+    O0DEPI, O2DEPI : float
+        Deposition coefficients on ice crystals (m²/s).
+    
+    Snow Deposition (DEPS):
+    O0DEPS, O1DEPS : float
+        Deposition coefficients on snow (m²/s).
+    EX0DEPS, EX1DEPS : float
+        Exponents for snow deposition.
+    RDEPSRED : float
+        Tuning factor for snow deposition (dimensionless). Default: 1.0.
+    
+    Graupel Deposition (DEPG):
+    O0DEPG, O1DEPG : float
+        Deposition coefficients on graupel (m²/s).
+    EX0DEPG, EX1DEPG : float
+        Exponents for graupel deposition.
+    RDEPGRED : float
+        Tuning factor for graupel deposition (dimensionless). Default: 1.0.
+    
+    **Autoconversion (AUT)**
+    
+    Ice → Snow (IAUTI):
+    TIMAUTI : float
+        Time constant at T = T_t (s). Default: 1×10⁻³.
+    TEXAUTI : float
+        Temperature factor (K⁻¹). Default: 0.015.
+    CRIAUTI : float
+        Threshold ice mixing ratio (kg/kg).
+    T0CRIAUTI : float
+        Threshold temperature (°C).
+    ACRIAUTI, BCRIAUTI : float
+        Power law coefficients: rate = 10^(A×(T-T₀)+B).
+    
+    Cloud → Rain (AUTC):
+    TIMAUTC : float
+        Time constant (s). Default: 1×10⁻³.
+    CRIAUTC : float
+        Threshold cloud mixing ratio (kg/kg).
+    
+    **Snow Aggregation (AGG)**
+    
+    COLIS : float
+        Ice-snow collection efficiency (dimensionless). Default: 0.25.
+    COLEXIS : float
+        Temperature factor for collection efficiency (K⁻¹). Default: 0.05.
+    FIAGGS : float
+        Aggregation rate pre-factor (m³·kg⁻¹·s⁻¹).
+    EXIAGGS : float
+        Aggregation rate exponent (dimensionless).
+    
+    **Cloud-Rain Accretion (ACC)**
+    
+    FCACCR : float
+        Accretion rate pre-factor (m³·s⁻¹).
+    EXCACCR : float
+        Accretion rate exponent (dimensionless).
+    
+    **Snow Riming (RIM)**
+    
+    DCSLIM : float
+        Diameter threshold for riming mode transition (m). Default: 7 mm.
+    COLCS : float
+        Cloud-snow collection efficiency (dimensionless). Default: 1.0.
+    
+    Small Snow Riming (CRIMSS):
+    CRIMSS : float
+        Riming coefficient for small aggregates (m³·s⁻¹).
+    EXCRIMSS : float
+        Exponent for small aggregate riming.
+    
+    Large Snow Riming (CRIMSG):
+    CRIMSG : float
+        Riming coefficient for large aggregates (m³·s⁻¹).
+    EXCRIMSG : float
+        Exponent for large aggregate riming.
+    
+    Snow→Graupel Conversion (RSRIMCG):
+    SRIMCG, SRIMCG2, SRIMCG3 : float
+        Conversion rate coefficients (various units).
+    EXSRIMCG, EXSRIMCG2 : float
+        Conversion rate exponents.
+    
+    **Riming Lookup Tables**
+    
+    NGAMINC : int
+        Number of table values (80).
+    GAMINC_BOUND_MIN, GAMINC_BOUND_MAX : float
+        Lambda bounds for tables (m⁻¹).
+    RIMINTP1, RIMINTP2 : float
+        Interpolation coefficients.
+    GAMINC_RIM1, GAMINC_RIM2, GAMINC_RIM4 : NDArray
+        Incomplete gamma function tables for riming calculations (80 values each).
+    
+    **Rain-Snow Accretion (RACCS, RACCSS)**
+    
+    FRACCSS : float
+        Pre-factor for accretion rate (kg·m⁻⁵·s⁻¹).
+    LBRACCS1, LBRACCS2, LBRACCS3 : float
+        Lambda-dependent coefficients for small snow accretion.
+    FSACCRG : float
+        Pre-factor for conversion to graupel (m³·s⁻¹).
+    LBSACCR1, LBSACCR2, LBSACCR3 : float
+        Lambda-dependent coefficients for large snow accretion.
+    
+    ACCLBDAS_MIN, ACCLBDAS_MAX : float
+        Snow lambda range for kernel tables (m⁻¹).
+    ACCLBDAR_MIN, ACCLBDAR_MAX : float
+        Rain lambda range for kernel tables (m⁻¹).
+    NACCLBDAS, NACCLBDAR : int
+        Number of table points (40 each).
+    ACCINTP1S, ACCINTP2S, ACCINTP1R, ACCINTP2R : float
+        Interpolation coefficients for kernel tables.
+    
+    **Snow Melting**
+    
+    FSCVMG : float
+        Conversion-melting factor (dimensionless). Default: 2.0.
+    
+    **Rain Contact Freezing (CFR)**
+    
+    COLIR : float
+        Ice-rain collection efficiency (dimensionless). Default: 1.0.
+    EXRCFRI, RCFRI : float
+        Rain contact freezing rate coefficients.
+    EXICFRR, ICFRR : float
+        Ice-rain freezing coefficients.
+    
+    **Graupel Dry Growth (DRY)**
+    
+    Cloud Collection:
+    FCDRYG : float
+        Cloud droplet collection geometric factor (π/4).
+    
+    Ice Collection:
+    COLIG : float
+        Ice-graupel collection efficiency. Default: 0.01.
+    COLEXIG : float
+        Temperature factor for ice-graupel. Default: 0.1.
+    FIDRYG, FIDRYG2 : float
+        Ice collection rate coefficients.
+    EXFIDRYG : float
+        Ice collection exponent.
+    
+    Snow Collection:
+    COLSG : float
+        Snow-graupel collection efficiency. Default: 0.01.
+    COLEXSG : float
+        Temperature factor for snow-graupel. Default: 0.1.
+    FSDRYG : float
+        Snow collection coefficient.
+    LBSDRYG1, LBSDRYG2, LBSDRYG3 : float
+        Lambda-dependent coefficients.
+    
+    Rain Collection:
+    FRDRYG : float
+        Rain collection coefficient.
+    LBRDRYG1, LBRDRYG2, LBRDRYG3 : float
+        Lambda-dependent coefficients.
+    
+    Dry Growth Kernel Tables:
+    DRYLBDAR_MIN, DRYLBDAR_MAX : float
+        Rain lambda bounds (m⁻¹).
+    DRYLBDAS_MIN, DRYLBDAS_MAX : float
+        Snow lambda bounds (m⁻¹).
+    DRYLBDAG_MIN, DRYLBDAG_MAX : float
+        Graupel lambda bounds (m⁻¹).
+    NDRYLBDAR, NDRYLBDAS, NDRYLBDAG : int
+        Table dimensions (40, 80, 40).
+    DRYINTP1R, DRYINTP2R, etc. : float
+        Interpolation coefficients.
+    
+    **Precomputed Kernels**
+    
+    ker_saccrg, ker_raccs, ker_raccss : NDArray
+        Snow-graupel and rain-snow accretion kernels (40×40).
+    ker_rdryg, ker_sdryg : NDArray
+        Rain and snow dry growth kernels on graupel (40×40 or 40×80).
+    
+    Notes
+    -----
+    All constants are computed in __post_init__ based on:
+    - Hydrometeor size distributions (N(D) = N₀ × D^ν × exp(-λD^α))
+    - Fall speed relations (V = A × D^B × (ρ/ρ₀)^C)
+    - Collection kernels from kinetic equations
+    - Moment integrals using gamma functions
+    
+    The formulas account for:
+    - Air density corrections (rho00 factor)
+    - Ventilation effects (enhanced mass/heat transfer)
+    - Temperature dependencies
+    - Particle habit variations
+    
+    Source Reference
+    ----------------
+    PHYEX/src/common/aux/modd_rain_ice_paramn.F90
+    PHYEX/src/common/micro/mode_ini_rain_ice.F90
+    
+    See Also
+    --------
+    Constants : Physical constants
+    RainIceDescriptors : Hydrometeor properties
+    IceParameters : User configuration
     """
 
     # Constants dependencies
