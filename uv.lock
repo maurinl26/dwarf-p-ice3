@@ -635,6 +635,11 @@ test = [
     { name = "pytest-benchmark" },
 ]
 
+[package.dev-dependencies]
+dev = [
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7.12.0" },
@@ -658,6 +663,9 @@ requires-dist = [
     { name = "xarray", extras = ["io"], specifier = ">=2025.4.0" },
 ]
 provides-extras = ["dev", "gpu", "test", "doc"]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ruff", specifier = ">=0.11.11" }]
 
 [[package]]
 name = "exceptiongroup"

@@ -52,4 +52,9 @@ markers = [
     "gpu: run on dace:gpu backend"
 ]
 
+[dependency-groups]
+dev = [
+    "ruff>=0.11.11",
+]
+
 
