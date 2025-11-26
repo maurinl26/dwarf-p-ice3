@@ -1,4 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+Ice adjustment stencil for saturation adjustment in mixed-phase clouds.
+
+This module implements the saturation adjustment scheme that maintains
+thermodynamic equilibrium between water vapor, liquid cloud droplets, and
+ice crystals. It accounts for subgrid-scale variability and includes
+autoconversion processes for both liquid and ice condensate.
+
+Source: PHYEX/src/common/micro/ice_adjust.F90
+"""
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
@@ -22,7 +32,6 @@ from ..functions.tiwmx import e_sat_i, e_sat_w
 from ..utils.env import DTYPES
 
 
-# PHYEX/src/common/micro/ice_adjust.F90
 def ice_adjust(
     sigqsat: Field["float"],
     pabs: Field["float"],
@@ -58,8 +67,83 @@ def ice_adjust(
     ls: Field["float"],
     dt: float,
 ):
-    """Microphysical adjustments for specific contents due to condensation."""
-
+    """
+    Perform saturation adjustment for mixed-phase microphysics.
+    
+    This stencil adjusts water vapor, cloud liquid, and cloud ice mixing
+    ratios to maintain thermodynamic equilibrium, accounting for subgrid-scale
+    variability in relative humidity. It computes cloud fraction and implements
+    autoconversion processes for both liquid droplets and ice crystals.
+    
+    Parameters
+    ----------
+    sigqsat : Field[float]
+        Standard deviation of saturation mixing ratio for subgrid variability.
+    pabs : Field[float]
+        Absolute pressure (Pa).
+    sigs : Field[float]
+        Sigma_s for subgrid-scale turbulent mixing.
+    th : Field[float]
+        Potential temperature (K).
+    exn : Field[float]
+        Exner function (dimensionless).
+    exn_ref : Field[float]
+        Reference Exner function for tendency computation.
+    rho_dry_ref : Field[float]
+        Reference dry air density (kg/m³).
+    t : Field[float]
+        Temperature (K), input/output.
+    rv, ri, rc, rr, rs, rg : Field[float]
+        Mixing ratios for vapor, ice, cloud, rain, snow, graupel (kg/kg).
+    cf_mf : Field[float]
+        Cloud fraction from mass flux scheme.
+    rc_mf, ri_mf : Field[float]
+        Liquid/ice mixing ratios from mass flux scheme (kg/kg).
+    rv_out, rc_out, ri_out : Field[float]
+        Output adjusted mixing ratios (kg/kg).
+    hli_hri, hli_hcf,  hlc_hrc, hlc_hcf : Field[float]
+        Subgrid autoconversion diagnostics for ice and liquid.
+    ths, rvs, rcs, ris : Field[float]
+        Tendency fields for theta, vapor, cloud, and ice (per timestep).
+    cldfr : Field[float]
+        Output cloud fraction (0-1).
+    cph : Field[float]
+        Specific heat capacity of moist air (J/(kg·K)).
+    lv, ls : Field[float]
+        Latent heats of vaporization and sublimation (J/kg).
+    dt : float
+        Time step (s).
+        
+    Notes
+    -----
+    Algorithm Steps:
+    1. Compute temperature and latent heats
+    2. Calculate specific heat for moist air
+    3. Apply subgrid condensation scheme (CB02 method)
+    4. Compute supersaturation coefficients and cloud fraction
+    5. Partition condensate between liquid and ice based on temperature
+    6. Update tendencies with energy conservation
+    7. Handle subgrid autoconversion for droplets and ice crystals
+    
+    The scheme uses:
+    - CB02 subgrid condensation (Chaboureau and Bechtold, 2002)
+    - Statistical cloud scheme with assumed PDF of relative humidity
+    - Temperature-dependent ice fraction (FRAC_ICE_ADJUST modes)
+    - Subgrid autoconversion with PDF assumptions (None or Triangle)
+    
+    External Parameters:
+    - NRR: Number of precipitation species (2, 4, 5, or 6)
+    - LSUBG_COND: Enable subgrid condensation scheme
+    - SUBG_MF_PDF: PDF type for subgrid processes (0=None, 1=Triangle)
+    - FRAC_ICE_ADJUST: Ice fraction computation mode (0, 3)
+    - Various microphysical constants (CRIAUTC, CRIAUTI, etc.)
+    
+    References
+    ----------
+    Chaboureau, J.-P., and P. Bechtold, 2002: A simple cloud
+    parameterization derived from cloud resolving model data. 
+    J. Atmos. Sci., 59, 2362-2372.
+    """
     from __externals__ import (
         ACRIAUTI,
         BCRIAUTI,
@@ -180,8 +264,8 @@ def ice_adjust(
         # Translation note : l391 - l406 skipped (OSIGMAS = False)
         # Translation note : LSTATNW = False
         # Translation note : l381 retained for sigmas formulation
-        # Translation note : OSIGMAS = TRUE
-        # Translation npte : LHGT_QS = False (and ZDZFACT unused)
+        # Translation npte : OSIGMAS = TRUE
+        # Translation note : LHGT_QS = False (and ZDZFACT unused)
         if __INLINED(LSIGMAS and not LSTATNW):
             sigma = (
                 sqrt((2 * sigs) ** 2 + (sigqsat * qsl * a) ** 2)

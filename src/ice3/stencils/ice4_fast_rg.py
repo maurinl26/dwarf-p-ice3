@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+"""
+Fast rain-graupel microphysical processes for ICE4 scheme.
+
+This module implements rapid microphysical interactions between rain and
+graupel particles, including rain contact freezing, dry/wet growth of graupel
+by collection of cloud droplets, ice crystals, snow, and rain, plus graupel
+melting. These "fast" processes occur on shorter timescales than nucleation
+and vapor growth.
+
+Source: PHYEX/src/common/micro/mode_ice4_fast_rg.F90
+"""
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (
@@ -9,9 +20,8 @@ from ice3.functions.interp_micro import (index_micro2d_dry_g,
                                          index_micro2d_dry_s)
 
 
-# "PHYEX/src/common/micro/mode_ice4_fast_rg.F90"
 def ice4_fast_rg(
-    ldsoft: "bool",  # bool to update tendencies
+    ldsoft: "bool",
     ldcompute: Field["bool"],
     t: Field["float"],
     rhodref: Field["float"],
@@ -47,35 +57,108 @@ def ice4_fast_rg(
     index_floor_g: Field["int"],
     index_floor_r: Field["int"],
 ):
-    """Compute fast graupel sources
-
-    Args:
-        ldcompute (Field[int]): switch to compute microphysical processes on column
-        t (Field[float]): temperature
-        rhodref (Field[float]): reference density
-        rit (Field[float]): ice mixing ratio at t
-
-        rgt (Field[float]): graupel m.r. at t
-        rct (Field[float]): cloud droplets m.r. at t
-        rst (Field[float]): snow m.r. at t
-        cit (Field[float]): _description_
-        dv (Field[float]): diffusivity of water vapor
-        ka (Field[float]): thermal conductivity of the air
-        cj (Field[float]): function to compute the ventilation coefficient
-        lbdar (Field[float]): slope parameter for rain
-        lbdas (Field[float]): slope parameter for snow
-        lbdag (Field[float]): slope parameter for graupel
-        ricfrrg (Field[float]): rain contact freezing
-        rrcfrig (Field[float]): rain contact freezing
-        ricfrr (Field[float]): rain contact freezing
-        rg_rcdry_tnd (Field[float]): Graupel wet growth
-        rg_ridry_tnd (Field[float]): Graupel wet growth
-        rg_riwet_tnd (Field[float]): Graupel wet growth
-        rg_rsdry_tnd (Field[float]): Graupel wet growth
-        rg_rswet_tnd (Field[float]): Graupel wet growth
-        gdry (Field[int]): boolean field
     """
-
+    Compute fast graupel microphysical source terms.
+    
+    This function calculates tendencies for graupel growth/decay through
+    various processes: rain contact freezing, dry growth collection,
+    wet growth collection, and melting. It uses pre-computed lookup tables
+    for collection efficiencies and determines wet vs dry growth mode based
+    on environmental conditions.
+    
+    Parameters
+    ----------
+    ldsoft : bool
+        If True, use previously computed tendencies without recalculation.
+        If False, compute new tendencies.
+    ldcompute : Field[bool]
+        Mask indicating which grid points require computation.
+    t : Field[float]
+        Temperature (K).
+    rhodref : Field[float]
+        Reference air density (kg/m³).
+    pres : Field[float]
+        Pressure (Pa).
+    rvt : Field[float]
+        Water vapor mixing ratio at time t (kg/kg).
+    rrt, rit, rgt, rct, rst : Field[float]
+        Rain, ice, graupel, cloud, snow mixing ratios at time t (kg/kg).
+    cit : Field[float]
+        Ice crystal number concentration (m⁻³).
+    ka : Field[float]
+        Thermal conductivity of air (J/(m·s·K)).
+    dv : Field[float]
+        Diffusivity of water vapor in air (m²/s).
+    cj : Field[float]
+        Ventilation coefficient function.
+    lbdar, lbdas, lbdag : Field[float]
+        Slope parameters for rain, snow, graupel size distributions (m⁻¹).
+    ricfrrg : Field[float]
+        Output: Ice production from rain contact freezing (kg/kg/s).
+    rrcfrig : Field[float]
+        Output: Rain consumed by contact freezing producing graupel (kg/kg/s).
+    ricfrr : Field[float]
+        Output: Rain remaining after partial contact freezing (kg/kg/s).
+    rg_rcdry_tnd : Field[float]
+        Output: Cloud collection by graupel, dry growth (kg/kg/s).
+    rg_ridry_tnd : Field[float]
+        Output: Ice collection by graupel, dry growth (kg/kg/s).
+    rg_rsdry_tnd : Field[float]
+        Output: Snow collection by graupel, dry growth (kg/kg/s).
+    rg_rrdry_tnd : Field[float]
+        Output: Rain collection by graupel, dry growth (kg/kg/s).
+    rg_riwet_tnd : Field[float]
+        Output: Ice collection by graupel, wet growth (kg/kg/s).
+    rg_rswet_tnd : Field[float]
+        Output: Snow collection by graupel, wet growth (kg/kg/s).
+    rg_freez1_tnd, rg_freez2_tnd : Field[float]
+        Output: Freezing rate components for wet/dry growth determination.
+    rgmltr : Field[float]
+        Output: Graupel melting rate (kg/kg/s).
+    ker_sdryg : GlobalTable[float, (40, 40)]
+        Lookup table for snow-graupel dry growth collection kernel.
+    ker_rdryg : GlobalTable[float, (40, 40)]
+        Lookup table for rain-graupel dry growth collection kernel.
+    index_floor_s, index_floor_g, index_floor_r : Field[int]
+        Floor indices for table interpolation (used internally).
+        
+    Notes
+    -----
+    Process Overview:
+    
+    1. Rain Contact Freezing (T < 273.15 K):
+       - Rain droplets freeze upon contact with ice crystals
+       - Produces graupel (rrcfrig) and additional ice (ricfrrg)
+       - LCRFLIMIT option limits freezing rate based on available latent heat
+    
+    2. Dry Growth Collection:
+       - Occurs when collected water freezes immediately upon contact
+       - Graupel collects: cloud droplets, ice, snow, rain
+       - Uses pre-computed collection kernels from lookup tables
+       - Bilinear interpolation on slope parameter space
+    
+    3. Wet vs Dry Growth Mode Determination:
+       - Wet growth: Liquid water layer forms on graupel surface
+       - Dry growth: All collected water freezes immediately
+       - Mode depends on balance between collection and freezing rates
+       - Controlled by LNULLWETG and LWETGPOST flags
+    
+    4. Graupel Melting (T > 273.15 K):
+       - Heat transfer from warm environment melts graupel
+       - Accounts for ventilation effects via cj parameter
+       - Includes latent heat from concurrent collection processes
+    
+    External Parameters:
+    - Microphysical constants: ICFRR, RCFRI, FCDRYG, FIDRYG, etc.
+    - Size distribution parameters: CXG, DG, BS, CXS, etc.
+    - Thermodynamic constants: TT, LVTT, LMTT, CI, CL, CPV, etc.
+    - Threshold mixing ratios: G_RTMIN, R_RTMIN, I_RTMIN, S_RTMIN
+    - Lookup table parameters: LBSDRYG1, LBSDRYG2, LBSDRYG3
+    - Control flags: LCRFLIMIT, LEVLIMIT, LNULLWETG, LWETGPOST
+    
+    The function handles both recalculation mode (ldsoft=False) and
+    reuse mode (ldsoft=True) for computational efficiency.
+    """
     from __externals__ import (ALPI, ALPW, BETAI, BETAW, BS, CEXVT, CI, CL,
                                COLEXIG, COLIG, COLSG, CPV, CXG, CXS, DG,
                                EPSILO, ESTT, EX0DEPG, EX1DEPG, EXICFRR,
@@ -336,4 +419,3 @@ def ice4_fast_rg(
 
         else:
             rgmltr = 0
-
