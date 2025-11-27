@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Performance test for IceAdjust component"""
+"""Performance test for IceAdjustModular component"""
 import numpy as np
 import pytest
 
-from ice3.components.ice_adjust import IceAdjust
+from ice3.components.ice_adjust_modular import IceAdjustModular
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 from ice3.initialisation.state_ice_adjust import get_state_ice_adjust
@@ -19,19 +19,22 @@ from ice3.initialisation.state_ice_adjust import get_state_ice_adjust
         pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
-def test_ice_adjust_performance(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):
+def test_ice_adjust_modular_performance(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):
     """
-    Test de performance du composant IceAdjust avec le jeu de données ice_adjust.nc.
+    Test de performance du composant IceAdjustModular avec le jeu de données ice_adjust.nc.
     
-    Ce test mesure les performances d'exécution du composant IceAdjust
-    (ajustement à saturation) sur différents backends GT4Py.
+    Ce test mesure les performances d'exécution du composant IceAdjustModular
+    (ajustement à saturation modulaire) sur différents backends GT4Py.
+    
+    Le composant IceAdjustModular reproduit le schéma ICE_ADJUST en utilisant
+    une approche modulaire avec 4 stencils séparés:
+    1. thermodynamic_fields : Calcul T, Lv, Ls, Cph
+    2. condensation         : Schéma CB02, production rc_out, ri_out
+    3. cloud_fraction_1     : Sources microphysiques, conservation
+    4. cloud_fraction_2     : Fraction nuageuse finale, autoconversion
     
     Le benchmark mesure le temps d'exécution moyen sur plusieurs itérations
-    pour évaluer les performances du schéma ICE_ADJUST qui effectue:
-    - Calcul des variables thermodynamiques (T, Cp, Lv/Cp, Ls/Cp)
-    - Ajustement de saturation (condensation/évaporation)
-    - Calcul des fractions nuageuses
-    - Diagnostics haute résolution
+    pour évaluer les performances de cette approche modulaire.
     
     Args:
         benchmark: Fixture pytest-benchmark pour mesurer les performances
@@ -41,7 +44,7 @@ def test_ice_adjust_performance(benchmark, backend, domain, dtypes, ice_adjust_r
         ice_adjust_repro_ds: Dataset xarray ice_adjust.nc
     """
     print("\n" + "="*75)
-    print("TEST PERFORMANCE: IceAdjust")
+    print("TEST PERFORMANCE: IceAdjustModular")
     print("="*75)
     print(f"Backend: {backend}")
     print(f"Precision: {dtypes['float']}")
@@ -51,21 +54,13 @@ def test_ice_adjust_performance(benchmark, backend, domain, dtypes, ice_adjust_r
     # ========================================================================
     phyex = Phyex("AROME")
     
-    # Add OCND2 external that's needed by ice_adjust stencil
-    original_to_externals = phyex.to_externals
-    def custom_to_externals():
-        externals = original_to_externals()
-        externals["OCND2"] = False
-        return externals
-    phyex.to_externals = custom_to_externals
-    
-    ice_adjust = IceAdjust(
+    ice_adjust_modular = IceAdjustModular(
         phyex=phyex,
         dtypes=dtypes,
         backend=backend,
     )
     
-    print(f"Composant créé: {ice_adjust}")
+    print(f"Composant créé: {ice_adjust_modular}")
     
     # ========================================================================
     # Chargement et préparation des données
@@ -87,9 +82,9 @@ def test_ice_adjust_performance(benchmark, backend, domain, dtypes, ice_adjust_r
     # ========================================================================
     # Fonction d'exécution du composant (pour benchmark)
     # ========================================================================
-    def run_ice_adjust():
-        """Exécute le composant IceAdjust pour le benchmark."""
-        ice_adjust(
+    def run_ice_adjust_modular():
+        """Exécute le composant IceAdjustModular pour le benchmark."""
+        ice_adjust_modular(
             sigqsat=state["sigqsat"],
             exn=state["exn"],
             exnref=state["exnref"],
@@ -126,7 +121,7 @@ def test_ice_adjust_performance(benchmark, backend, domain, dtypes, ice_adjust_r
     # Exécution du benchmark
     # ========================================================================
     print("\nExécution du benchmark...")
-    result = benchmark(run_ice_adjust)
+    result = benchmark(run_ice_adjust_modular)
     
     # ========================================================================
     # Affichage des statistiques de performance
@@ -151,6 +146,12 @@ def test_ice_adjust_performance(benchmark, backend, domain, dtypes, ice_adjust_r
     if hasattr(result.stats, 'max'):
         print(f"Temps max: {result.stats['max']*1000:.3f} ms")
     
+    print("-"*75)
+    print("\nDétail de la séquence modulaire:")
+    print("  1. thermodynamic_fields : T, Lv, Ls, Cph")
+    print("  2. condensation         : CB02 → rc_out, ri_out")
+    print("  3. cloud_fraction_1     : Sources, conservation")
+    print("  4. cloud_fraction_2     : Fraction nuageuse, autoconversion")
     print("-"*75)
 
 
