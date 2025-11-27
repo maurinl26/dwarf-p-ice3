@@ -7,17 +7,17 @@ context, promoting clean resource management.
 """
 
 from contextlib import contextmanager
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from gt4py.storage import zeros
-from gt4py.cartesian.gtscript import IJ, IJK, I, J, K
+from gt4py.cartesian.gtscript import IJ, IJK, K, Axis
 from ..utils.env import DTYPES, BACKEND
 
 
 @contextmanager
 def managed_temporaries(
     temporaries: List[Tuple[Tuple[int, ...], str]],
-    domain: Tuple[int, 3],
+    domain: Tuple[Axis, ...],
     backend: str = BACKEND,
     dtypes: dict = DTYPES,
     aligned_index: Tuple[int, ...] = (0, 0, 0),
@@ -58,11 +58,18 @@ def managed_temporaries(
     def _allocate_temporary(dims, dtype):
 
         match dims:
+            case _ if dims == K:
+                return zeros(
+                    shape=(domain[2],),
+                    dtype=dtypes[dtype],
+                    aligned_index=(aligned_index[2],),
+                    backend=backend,
+                )
             case _ if dims == IJ:
                 return zeros(
                     shape=domain[:2],
                     dtype=dtypes[dtype],
-                    aligned_index=aligned_index,
+                    aligned_index=aligned_index[:2],
                     backend=backend,
                 )
             case _ if dims == IJK:
@@ -73,4 +80,4 @@ def managed_temporaries(
                     backend=backend,
                 )
 
-    yield from (_allocate_temporary(domain, dtype) for domain, dtype in temporaries)
+    yield tuple(_allocate_temporary(dims, dtype) for dims, dtype in temporaries)
