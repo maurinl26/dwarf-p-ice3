@@ -19,19 +19,33 @@ def ice4_nucleation(
     rvheni_mr: Field["float"],
     ssi: Field["float"],
 ):
-    """Compute nucleation
+    """Compute heterogeneous ice nucleation through water vapor deposition.
+    
+    This stencil computes ice crystal nucleation by heterogeneous nucleation on ice
+    nuclei (HENI process). The nucleation rate depends on temperature and supersaturation
+    over ice (ssi). The scheme uses empirical parameterizations that distinguish between
+    different temperature regimes:
+    - T < -5°C: Uses NU20 parameterization with supersaturation dependency
+    - -5°C ≤ T < -2°C: Transition regime using max of two parameterizations
+    - T ≥ -2°C: No nucleation
+    
+    The supersaturation over ice is computed from the water vapor mixing ratio and
+    limited by the supersaturation of water-saturated air over ice to ensure physical
+    consistency. An optional temperature feedback (LFEEDBACKT) limits nucleation to
+    prevent temperature from exceeding the freezing point.
 
     Args:
-        ldcompute (Field[bool]): compuation mask for microphysical sources
-        tht (Field[float]): potential temperature at t
-        pabst (Field[float]): absolute pressure at t
-        rhodref (Field[float]): reference density
-        exn (Field[float]): exner pressure at t
-        lsfact (Field[float]): latent heat of sublimation
-        t (Field[float]): temperature
-        rvt (Field[float]): vapour mixing ratio at t
-        cit (Field[float]): ice content at t
-        rvheni_mr (Field[float]): mixing ratio change of vapour
+        ldcompute (Field[bool]): Computation mask for microphysical sources - true where nucleation is computed
+        tht (Field[float]): Potential temperature at time t (K)
+        pabst (Field[float]): Absolute pressure at time t (Pa)
+        rhodref (Field[float]): Reference air density (kg/m³)
+        exn (Field[float]): Exner function (dimensionless pressure) at time t
+        lsfact (Field[float]): Latent heat factor for sublimation (K·kg/kg), used for temperature feedback
+        t (Field[float]): Temperature (K)
+        rvt (Field[float]): Water vapor mixing ratio at time t (kg/kg)
+        cit (Field[float]): Input/Output - Ice crystal number concentration at time t (1/kg), updated by nucleation
+        rvheni_mr (Field[float]): Output - Water vapor mixing ratio change due to heterogeneous nucleation (kg/kg)
+        ssi (Field[float]): Output - Supersaturation over ice (dimensionless), computed from vapor and temperature
     """
 
     from __externals__ import (ALPHA1, ALPHA2, ALPI, ALPW, BETA1, BETA2, BETAI,

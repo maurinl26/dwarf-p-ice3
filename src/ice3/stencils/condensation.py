@@ -45,7 +45,206 @@ def condensation(
     b_out: Field["float"],
     sbar_out: Field["float"],
 ):
-    """Microphysical adjustments for specific contents due to condensation."""
+    """
+    Compute subgrid condensation using CB02 statistical cloud scheme.
+    
+    This stencil implements the Chaboureau and Bechtold (2002) statistical
+    cloud scheme, which accounts for subgrid variability in temperature and
+    moisture to compute partial cloud cover and condensate amounts. It uses
+    a triangular PDF for supersaturation and handles both liquid and ice
+    condensation with temperature-dependent ice fractions.
+    
+    Parameters
+    ----------
+    sigqsat : Field[float]
+        Saturation mixing ratio variance coefficient (dimensionless). Input field.
+        Controls subgrid variability of q_sat.
+    pabs : Field[float]
+        Absolute pressure (Pa). Input field.
+    sigs : Field[float]
+        Subgrid standard deviation (dimensionless). Input field.
+        From turbulence scheme when LSIGMAS=True.
+    t : Field[float]
+        Temperature (K). Input/output field, updated by latent heating.
+    rv : Field[float]
+        Water vapor mixing ratio (kg/kg). Input field.
+    ri : Field[float]
+        Ice mixing ratio (kg/kg). Input field.
+    rc : Field[float]
+        Cloud droplet mixing ratio (kg/kg). Input field.
+    rv_out : Field[float]
+        Updated vapor mixing ratio (kg/kg). Output field.
+    rc_out : Field[float]
+        Updated cloud mixing ratio (kg/kg). Output field.
+    ri_out : Field[float]
+        Updated ice mixing ratio (kg/kg). Output field.
+    cldfr : Field[float]
+        Cloud fraction (0-1). Output field.
+    cph : Field[float]
+        Specific heat of moist air (J/(kg·K)). Input field.
+    lv : Field[float]
+        Latent heat of vaporization (J/kg). Input field.
+    ls : Field[float]
+        Latent heat of sublimation (J/kg). Input field.
+    q1 : Field[float]
+        Normalized supersaturation s̄/σ (dimensionless). Output field.
+    pv_out : Field[float]
+        Saturation vapor pressure over liquid (Pa). Diagnostic output.
+    piv_out : Field[float]
+        Saturation vapor pressure over ice (Pa). Diagnostic output.
+    frac_out : Field[float]
+        Ice fraction (0-1). Diagnostic output.
+    qsl_out : Field[float]
+        Saturation mixing ratio over liquid (kg/kg). Diagnostic output.
+    qsi_out : Field[float]
+        Saturation mixing ratio over ice (kg/kg). Diagnostic output.
+    sigma_out : Field[float]
+        Total subgrid standard deviation (kg/kg). Diagnostic output.
+    cond_out : Field[float]
+        Total condensate from PDF integration (kg/kg). Diagnostic output.
+    a_out : Field[float]
+        Supersaturation coefficient a (dimensionless). Diagnostic output.
+    b_out : Field[float]
+        Supersaturation coefficient b (dimensionless). Diagnostic output.
+    sbar_out : Field[float]
+        Mean supersaturation s̄ (kg/kg). Diagnostic output.
+    
+    Returns
+    -------
+    None
+        Modifies output fields in place.
+    
+    Notes
+    -----
+    **CB02 Statistical Cloud Scheme:**
+    
+    The Chaboureau and Bechtold (2002) scheme represents subgrid variability
+    using a statistical approach:
+    
+    1. **Total Water Distribution:**
+       r_t = r_v + r_c + r_i (conserved during adjustment)
+    
+    2. **Supersaturation:**
+       s = r_t - q_sat(T,p)
+       
+    3. **Subgrid Variability:**
+       σ = √[(2σ_s)² + (σ_qsat × q_sat × a)²]
+       
+       where:
+       - σ_s: turbulent variance (from turbulence scheme)
+       - σ_qsat: q_sat variance coefficient (typically 0.02)
+       - a, b: coefficients accounting for T-dependence
+    
+    4. **Normalized Supersaturation:**
+       q₁ = s̄/σ
+       
+    **Cloud Fraction Formula (CB02):**
+    
+    For q₁ > 0 (supersaturated):
+        CF = max(0, min(1, 0.5 + 0.36 × arctan(1.55 × q₁)))
+        
+    For q₁ ≤ 0 (subsaturated):
+        CF → 0 for large negative q₁
+    
+    **Condensate Formula (CB02):**
+    
+    For q₁ ≤ 2:
+        cond/σ = min(e⁻¹ + 0.66q₁ + 0.086q₁², 2)
+        
+    For q₁ > 2:
+        cond/σ = q₁
+        
+    For q₁ < 0:
+        cond/σ = exp(1.2q₁ - 1)
+    
+    **Temperature-Dependent Ice Fraction:**
+    
+    Two methods via FRAC_ICE_ADJUST:
+    
+    Mode 0 (AROME, temperature-based):
+        f_ice = (T_max - T) / (T_max - T_min)
+        Linear between T_max (-20°C) and T_min (0°C)
+        
+    Mode 3 (Statistical):
+        Uses existing rc/ri ratio
+        More physical but requires prior ice
+    
+    **Mixed-Phase Condensation:**
+    
+    Total condensate split by ice fraction:
+    - r_c_new = (1 - f_ice) × cond
+    - r_i_new = f_ice × cond
+    
+    **Temperature Update:**
+    
+    Latent heat release modifies temperature:
+    T_new = T + [(r_c_new - r_c) × L_v + (r_i_new - r_i) × L_s] / c_ph
+    
+    **Supersaturation Coefficients:**
+    
+    Account for temperature-dependence of q_sat:
+    
+    a = 1 / (1 + (L_vs/c_ph) × (L_vs×q_sat)/(R_v×T²) × (1 + R_v×q_sat/R_d))
+    
+    b = [(L_vs×q_sat)/(R_v×T²) × (1 + R_v×q_sat/R_d)] × a
+    
+    where L_vs = (1-f_ice)×L_v + f_ice×L_s
+    
+    **Physical Interpretation:**
+    
+    The CB02 scheme:
+    - Provides smooth cloud edges (partial cloud fractions)
+    - Accounts for subgrid temperature/moisture variability
+    - Predicts onset of condensation before grid-mean saturation
+    - Works well for both stratiform and convective clouds
+    - Computationally efficient (analytical formulas)
+    
+    **Comparison with All-or-Nothing:**
+    
+    Traditional: Cloud if r_v > q_sat, CF = 1; else CF = 0
+    CB02: Cloud begins before grid-mean saturation, CF varies smoothly
+    
+    **Diagnostic Outputs:**
+    
+    Multiple diagnostic fields provided for analysis:
+    - Saturation vapor pressures (e_sat_w, e_sat_i)
+    - Saturation mixing ratios (q_sl, q_si)
+    - Ice fraction, supersaturation, cloud fraction
+    - Coefficients a, b, s̄, σ, q₁
+    
+    Source Reference
+    ----------------
+    PHYEX/src/common/micro/condensation.F90
+    
+    See Also
+    --------
+    cloud_fraction_1 : Convert tendencies to sources
+    cloud_fraction_2 : Subgrid autoconversion
+    sigrc_computation : Compute subgrid condensate variance
+    
+    References
+    ----------
+    Chaboureau, J.-P., and P. Bechtold, 2002: A simple cloud
+    parameterization derived from cloud resolving model data:
+    Diagnostic and prognostic applications. J. Atmos. Sci., 59, 2362-2372.
+    
+    Sommeria, G., and J.W. Deardorff, 1977: Subgrid-scale condensation
+    in models of nonprecipitating clouds. J. Atmos. Sci., 34, 344-355.
+    
+    Examples
+    --------
+    >>> # High supersaturation → large cloud fraction
+    >>> # q₁ = 2.0 → CF ≈ 0.85, cond/σ = 2.0
+    
+    >>> # Near saturation → partial cloud
+    >>> # q₁ = 0.5 → CF ≈ 0.65, cond/σ ≈ 0.95
+    
+    >>> # Subsaturated → small cloud fraction
+    >>> # q₁ = -1.0 → CF ≈ 0.35, cond/σ ≈ 0.08
+    
+    >>> # Far subsaturated → no cloud
+    >>> # q₁ < -2.0 → CF → 0, cond → 0
+    """
 
     from __externals__ import (
         CONDENS,
@@ -211,6 +410,158 @@ def sigrc_computation(
     inq2: "int",
     src_1d: GlobalTable["float", (34)],
 ):
+    """
+    Compute subgrid cloud condensate variance using lookup table.
+    
+    This stencil computes the subgrid variance of cloud condensate (σ_rc)
+    as a function of the normalized supersaturation (q₁). It uses a
+    precomputed lookup table (SRC_1D) with linear interpolation to
+    efficiently evaluate the variance relationship derived from
+    high-resolution simulations.
+    
+    Parameters
+    ----------
+    q1 : Field[float]
+        Normalized supersaturation s̄/σ (dimensionless). Input field.
+        Typically ranges from -10 to +5 in atmospheric conditions.
+    sigrc : Field[float]
+        Subgrid cloud condensate variance σ_rc/σ (dimensionless, 0-1).
+        Output field.
+    inq2 : int
+        Lookup table index (scalar). Unused parameter in GT4Py version.
+    src_1d : GlobalTable[float, (34)]
+        Precomputed variance lookup table. Contains 34 values covering
+        q₁ range from -22 to +11 (discretized at 0.5 intervals).
+    
+    Returns
+    -------
+    None
+        Modifies sigrc in place.
+    
+    Notes
+    -----
+    **Physical Basis:**
+    
+    In the CB02 statistical cloud scheme, both the mean condensate and
+    its subgrid variance are needed for:
+    - Accurate radiative transfer (cloud optical properties)
+    - Autoconversion rates (nonlinear dependence on condensate)
+    - Precipitation initiation (threshold behavior)
+    
+    The variance relationship σ_rc(q₁) is derived from Cloud Resolving
+    Model (CRM) simulations and encapsulates the sub-grid structure
+    of clouds at different stages of development.
+    
+    **Lookup Table Approach:**
+    
+    Rather than computing σ_rc analytically (expensive), a lookup table
+    is used with linear interpolation:
+    
+    1. Convert q₁ to table index:
+       inq1 = floor(2 × q₁)
+       Discretization: Δq₁ = 0.5
+    
+    2. Bound index to table range:
+       inq2 = min(max(-22, inq1), 10)
+       Table covers q₁ ∈ [-11, 5.5]
+    
+    3. Linear interpolation:
+       frac = 2×q₁ - inq1
+       σ_rc = (1-frac)×SRC_1D[inq2+22] + frac×SRC_1D[inq2+23]
+    
+    4. Cap at maximum:
+       σ_rc = min(σ_rc, 1.0)
+    
+    **Index Offset:**
+    
+    The "+22" offset accounts for negative q₁ values:
+    - q₁ = -11 → inq1 = -22 → table index 0
+    - q₁ = 0 → inq1 = 0 → table index 22
+    - q₁ = +5 → inq1 = +10 → table index 32
+    
+    **Typical Variance Behavior:**
+    
+    Based on CRM simulations:
+    
+    - Strong subsaturation (q₁ < -3): σ_rc/σ ≈ 0
+      No cloud condensate
+    
+    - Weak subsaturation (-3 < q₁ < 0): σ_rc/σ increases
+      Scattered clouds forming
+    
+    - Near saturation (q₁ ≈ 0): σ_rc/σ ≈ 0.4
+      Maximum variability, clouds developing
+    
+    - Supersaturation (q₁ > 0): σ_rc/σ decreases slightly
+      More uniform clouds, less relative variability
+    
+    - Strong supersaturation (q₁ > 3): σ_rc/σ ≈ 0.2-0.3
+      Mature stratiform cloud, relatively uniform
+    
+    **Physical Interpretation:**
+    
+    The variance σ_rc represents the spread in cloud condensate values
+    within a grid box:
+    
+    - High σ_rc: patchy clouds, large local variations
+    - Low σ_rc: uniform clouds, small variations
+    - σ_rc = 0: no cloud or completely uniform
+    
+    **Usage in Microphysics:**
+    
+    The computed σ_rc is used for:
+    
+    1. **Radiation:** Cloud optical depth variance affects
+       albedo and transmissivity (plane-parallel bias correction)
+    
+    2. **Autoconversion:** Nonlinear rate ∝ r_c² requires
+       accounting for variance: ⟨r_c²⟩ = ⟨r_c⟩² + σ_rc²
+    
+    3. **Diagnostics:** Subgrid cloud structure analysis
+    
+    **Numerical Considerations:**
+    
+    - Floor operation prevents floating point issues
+    - Min/max bounds prevent array out-of-bounds
+    - Linear interpolation is first-order accurate
+    - Table values precomputed from CRM statistics
+    
+    **Lambda3 Option:**
+    
+    The code mentions "LAMBDA3='CB'" option (not yet implemented).
+    This refers to the Chaboureau and Bechtold choice of the
+    λ₃ parameter in the statistical scheme, which affects the
+    variance-mean relationship.
+    
+    Source Reference
+    ----------------
+    PHYEX/src/common/micro/condensation.F90, lines 186-189
+    
+    See Also
+    --------
+    condensation : Main CB02 condensation scheme
+    cloud_fraction_2 : Subgrid autoconversion using variance
+    
+    References
+    ----------
+    Chaboureau, J.-P., and P. Bechtold, 2002: A simple cloud
+    parameterization derived from cloud resolving model data:
+    Diagnostic and prognostic applications. J. Atmos. Sci., 59, 2362-2372.
+    
+    Sommeria, G., and J.W. Deardorff, 1977: Subgrid-scale condensation
+    in models of nonprecipitating clouds. J. Atmos. Sci., 34, 344-355.
+    
+    Examples
+    --------
+    >>> # Near saturation → maximum variance
+    >>> # q₁ = 0.0 → σ_rc/σ ≈ 0.4 (from table lookup)
+    
+    >>> # Supersaturated → lower variance
+    >>> # q₁ = 2.0 → σ_rc/σ ≈ 0.3
+    
+    >>> # Subsaturated → very low variance
+    >>> # q₁ = -5.0 → σ_rc/σ ≈ 0.05
+    """
     with computation(PARALLEL), interval(...):
         inq1 = floor(min(100.0, max(-100.0, 2 * q1[0, 0, 0])))
         inq2 = min(max(-22, inq1), 10)

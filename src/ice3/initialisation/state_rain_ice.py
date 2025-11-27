@@ -1,4 +1,15 @@
 # -*- coding: utf-8 -*-
+"""State initialization for RAIN_ICE microphysics component.
+
+This module handles the allocation and initialization of atmospheric state variables
+required by the RAIN_ICE mixed-phase microphysics scheme. It manages the creation of
+GT4Py storage fields and their initialization from NetCDF datasets containing reference
+data.
+
+The RAIN_ICE scheme is a comprehensive bulk microphysics parameterization that includes
+warm rain processes, ice crystal formation, aggregation, riming, and sedimentation for
+multiple hydrometeor categories (cloud, rain, ice, snow, graupel).
+"""
 from __future__ import annotations
 
 import logging
@@ -50,15 +61,33 @@ KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
 def allocate_state_rain_ice(
     domain: Tuple[int, 3],
     backend: str = BACKEND,
+    dtypes: str = DTYPES
 ) -> xr.Dataset:
-    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
+    """Allocate GT4Py storage for all RAIN_ICE state variables and tendencies.
+    
+    Creates zero-initialized GT4Py storage fields for all atmospheric state variables
+    required by the RAIN_ICE mixed-phase microphysics scheme. This includes thermodynamic
+    variables, mixing ratios for all hydrometeor species, precipitation fluxes, cloud
+    fraction parameters, and tendency terms.
 
     Args:
-        computational_grid (ComputationalGrid): grid indexes
-        gt4py_config (GT4PyConfig): gt4py configuration
+        domain (Tuple[int, int, int]): 3D domain shape as (ni, nj, nk) where ni, nj are
+            horizontal dimensions and nk is the number of vertical levels
+        backend (str, optional): GT4Py backend name. Defaults to BACKEND from environment.
 
     Returns:
-        NDArrayLikeDict: dictionnary of field with associated keys for field name
+        Dict[str, DataArray]: Dictionary of allocated GT4Py storage fields with keys for:
+            - Thermodynamic state: exn, exnref, rhodref, rhodj, pabs_t, th_t, t, etc.
+            - Vertical grid: dzz (layer thickness)
+            - Mixing ratios: rv_t, rc_t, rr_t, ri_t, rs_t, rg_t (vapor, cloud, rain, ice, snow, graupel)
+            - Ice nuclei: ci_t (ice crystal number concentration)
+            - Cloud parameters: cldfr, sigs, rainfr, indep
+            - Tendency terms: ths, rvs, rcs, rrs, ris, rss, rgs
+            - Precipitation fluxes: fpr_c, fpr_r, fpr_i, fpr_s, fpr_g
+            - Integrated precipitation: inprc, inprr, inprs, inprg
+            - Subgrid parameters: hlc_*, hli_* (high/low content fractions and mixing ratios)
+            - Diagnostic fields: evap3d, ssi, pthvrefzikb
+            - Surface types: sea, town (optional masks)
     """
 
     def _allocate(
@@ -68,7 +97,7 @@ def allocate_state_rain_ice(
     ) -> xr.DataArray:
         return zeros(
             shape,
-            DTYPES[dtype],
+            dtypes[dtype],
             backend,
             aligned_index=(0, 0, 0)
         )
@@ -143,48 +172,66 @@ def get_state_rain_ice(
     ds: xr.Dataset,
     *,
     backend: str,
-) -> None:
-    """Create a state with reproductibility data set.
+) -> xr.Dataset:
+    """Create and initialize a RAIN_ICE state from reference data.
+    
+    This is a convenience function that allocates all required storage fields and
+    initializes them from a NetCDF dataset containing reference/reproducibility data.
+    The dataset typically comes from Fortran reference simulations and is used for
+    validation and testing.
 
     Args:
-        computational_grid (ComputationalGrid): grid
-        gt4py_config (GT4PyConfig): config for gt4py
-        keys (Dict[keys]): field names
+        domain (Tuple[int, int, int]): 3D domain shape as (ni, nj, nk)
+        ds (xr.Dataset): xarray Dataset containing reference data with Fortran
+            naming conventions (e.g., PEXNREF, PRHODREF, PRS, etc.)
+        backend (str): GT4Py backend name (e.g., "gt:cpu_ifirst", "gt:gpu")
 
     Returns:
-        DataArrayDict: dictionnary of data array containing reproductibility data
+        xr.Dataset: Dictionary of initialized GT4Py storage fields ready for use
+            in RAIN_ICE computations
     """
-    state = allocate_state_rain_ice()
+    state = allocate_state_rain_ice(domain, backend)
     initialize_state_rain_ice(state, ds)
     return state
 
-# todo : remove netcdf reader
+
 def initialize_state_rain_ice(
-    state: xr.Dataset ,
+    state: xr.Dataset,
     dataset: xr.Dataset,
 ) -> None:
-    """Initialize fields of state dictionnary with a constant field.
+    """Initialize RAIN_ICE state fields from a reference dataset.
+    
+    Populates pre-allocated GT4Py storage with data from a NetCDF dataset containing
+    reference data. This function handles the mapping between Python field names and
+    Fortran variable names used in the reference dataset.
+    
+    Special handling is provided for:
+    - Mixing ratio arrays (PRS, ZRS) which require indexing into the hydrometeor dimension
+      using KRR_MAPPING to extract the correct species
 
     Args:
-        state (DataArrayDict): dictionnary of state
-        gt4py_config (GT4PyConfig): configuration of gt4py
+        state (xr.Dataset): Pre-allocated dictionary of GT4Py storage fields to populate
+        dataset (xr.Dataset): xarray Dataset containing source data with Fortran variable
+            names. Must contain arrays like PEXNREF, PRHODREF, PTHT, PRS (tendencies), etc.
+    
+    Side Effects:
+        Modifies state dictionary in-place by copying data from dataset into storage fields
+    
+    Note:
+        This function does not perform array transposition as the reference data is
+        already in the expected memory layout.
     """
-
     for name, FORTRAN_NAME in KEYS.items():
-
+        if FORTRAN_NAME is None:
+            continue
+            
         match FORTRAN_NAME:
             case "ZRS":
-                buffer = dataset[FORTRAN_NAME].values[:,:,KRR_MAPPING[name[-1]]]
+                buffer = dataset[FORTRAN_NAME].values[:, :, KRR_MAPPING[name[-1]]]
             case "PRS":
-                buffer = dataset[FORTRAN_NAME].values[:,:,KRR_MAPPING[name[-2]]]
+                buffer = dataset[FORTRAN_NAME].values[:, :, KRR_MAPPING[name[-2]]]
             case _:
                 buffer = dataset[FORTRAN_NAME].values
 
         logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
         initialize_field(state[name], buffer)
-
-        if FORTRAN_NAME is not None:
-                if FORTRAN_NAME in ["PSEA", "PTOWN", "PINPRR_OUT", "PINPRS_OUT", "PINPRG_OUT", "ZINPRC_OUT", "ZRAINFR_OUT", "PFPR_OUT", "ZINDEP_OUT", "PEVAP_OUT", "PCIT_OUT", "LLMICRO"]:
-                    buffer = dataset[FORTRAN_NAME].values
-                else:
-                    buffer = dataset[FORTRAN_NAME].values                           

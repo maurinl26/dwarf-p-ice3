@@ -353,9 +353,13 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
     
     # Mapping des paramètres externes pour Fortran
     externals_mapping = {
+        "lpack_interp": "LPACK_INTERP",
         "xlbsdryg1": "LBSDRYG1",
         "xlbsdryg2": "LBSDRYG2",
         "xlbsdryg3": "LBSDRYG3",
+        "xlbrdryg1": "LBRDRYG1",
+        "xlbrdryg2": "LBRDRYG2",
+        "xlbrdryg3": "LBRDRYG3",
         "xfcdryg": "FCDRYG",
         "xfidryg": "FIDRYG",
         "xfsdryg": "FSDRYG",
@@ -363,6 +367,7 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
         "xcolexig": "COLEXIG",
         "xcolig": "COLIG",
         "xcolsg": "COLSG",
+        "xcolexsg": "COLEXSG",
         "xexicfrr": "EXICFRR",
         "xexrcfri": "EXRCFRI",
         "xicfrr": "ICFRR",
@@ -371,6 +376,7 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
         "lnullwetg": "LNULLWETG",
         "lwetgpost": "LWETGPOST",
         "levlimit": "LEVLIMIT",
+        "c_rtmin": "C_RTMIN",
         "g_rtmin": "G_RTMIN",
         "r_rtmin": "R_RTMIN",
         "i_rtmin": "I_RTMIN",
@@ -390,8 +396,8 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
         "xalpw": "ALPW",
         "xbetaw": "BETAW",
         "xgamw": "GAMW",
-        "xo0depg": "O0DEPG",
-        "xo1depg": "O1DEPG",
+        "x0depg": "O0DEPG",
+        "x1depg": "O1DEPG",
         "xex0depg": "EX0DEPG",
         "xex1depg": "EX1DEPG",
         "xcxg": "CXG",
@@ -399,6 +405,10 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
         "xdg": "DG",
         "xbs": "BS",
         "xcexvt": "CEXVT",
+        "krr": "NRR",
+        "ndrylbdag": "NDRYLBDAG",
+        "ndrylbdas": "NDRYLBDAS",
+        "ndrylbdar": "NDRYLBDAR"
     }
     
     fortran_externals = {
@@ -409,6 +419,12 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
     fortran_lookup_tables = {
         "xker_sdryg": KER_SDRYG,
         "xker_rdryg": KER_RDRYG,
+        "xdryintp1g": externals["DRYINTP1G"],
+        "xdryintp2g": externals["DRYINTP2G"],
+        "xdryintp1s": externals["DRYINTP1S"],
+        "xdryintp2s": externals["DRYINTP2S"],
+        "xdryintp1r": externals["DRYINTP1R"],
+        "xdryintp2r": externals["DRYINTP2R"],
     }
     
     # Aplatissement des champs 3D en 1D pour Fortran (ordre Fortran)
@@ -502,7 +518,21 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
         domain[0] * domain[1] * domain[2], order="F"
     ).copy()
     
+    # Additional output arrays required by Fortran (but not used in Python GT4Py)
+    prgsi_flat = np.zeros(domain[0] * domain[1] * domain[2], 
+                          dtype=(c_float if dtypes["float"] == np.float32 else c_double),
+                          order="F")
+    prgsi_mr_flat = np.zeros(domain[0] * domain[1] * domain[2],
+                             dtype=(c_float if dtypes["float"] == np.float32 else c_double),
+                             order="F")
+    prg_tend_flat = np.zeros((domain[0] * domain[1] * domain[2], 8),
+                             dtype=(c_float if dtypes["float"] == np.float32 else c_double),
+                             order="F")
+    
     # Appel de la routine Fortran
+    # Convert c_int to plain int for packed_dims
+    packed_dims_int = {k: int(v) if hasattr(v, 'value') else v for k, v in packed_dims.items()}
+    
     (
         ricfrrg_fortran,
         rrcfrig_fortran,
@@ -538,16 +568,11 @@ def test_ice4_fast_rg(dtypes, backend, externals, packed_dims, domain, origin, l
         pricfrrg=ricfrrg_flat,
         prrcfrig=rrcfrig_flat,
         pricfrr=ricfrr_flat,
-        prg_rcdry=rg_rcdry_tnd_flat,
-        prg_ridry=rg_ridry_tnd_flat,
-        prg_rsdry=rg_rsdry_tnd_flat,
-        prg_rrdry=rg_rrdry_tnd_flat,
-        prg_riwet=rg_riwet_tnd_flat,
-        prg_rswet=rg_rswet_tnd_flat,
-        prg_freez1=rg_freez1_tnd_flat,
-        prg_freez2=rg_freez2_tnd_flat,
         prgmltr=rgmltr_flat,
-        **packed_dims,
+        prgsi=prgsi_flat,
+        prgsi_mr=prgsi_mr_flat,
+        prg_tend=prg_tend_flat,
+        **packed_dims_int,
         **fortran_externals,
         **fortran_lookup_tables,
     )

@@ -202,7 +202,6 @@ class RainIce:
         exec_info: Dict = True
     ):
 
-        # todo : replace context
         with managed_temporaries(
             *repeat((domain, "bool"), 2),
             *repeat((domain, "float"), 50),

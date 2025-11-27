@@ -13,15 +13,23 @@ def absolute_differences(
     gt4py_fields: Dict[str, NDArray],
     fields_to_compare: List[str]
 ) -> Dict[str, NDArray]:
-    """Compute absolute difference on a list of fields
+    """Compute mean absolute differences between Fortran and GT4Py field implementations.
+    
+    This function is used for validation and testing, comparing outputs from Fortran
+    reference implementations against GT4Py stencil implementations. It only computes
+    differences for fields with matching shapes, returning None for mismatched fields.
 
     Args:
-        fortran_fields (NDArrayLikeDict): _description_
-        gt4py_fields (NDArrayLikeDict): _description_
-        fields_to_compare (_type_): _description_
+        fortran_fields (Dict[str, NDArray]): Dictionary of fields from Fortran implementation,
+            typically output from f2py-wrapped subroutines
+        gt4py_fields (Dict[str, NDArray]): Dictionary of fields from GT4Py stencils,
+            typically xarray DataArrays or GT4Py storage objects
+        fields_to_compare (List[str]): List of field names to compare between the two
+            implementations
 
     Returns:
-        _type_: _description_
+        Dict[str, float | None]: Dictionary mapping field names to their mean absolute
+            differences. Returns None for fields with shape mismatches.
     """
 
     return {
@@ -32,19 +40,37 @@ def absolute_differences(
     }
 
 
-def remove_y_axis(fields: Dict[str, NDArray]):
+def remove_y_axis(fields: Dict[str, NDArray]) -> Dict[str, NDArray]:
+    """Remove the y-axis (axis=1) from 3D fields, reducing them to 2D.
+    
+    This is useful when working with column-like data structures where the horizontal
+    y-dimension is singular (nj=1). Squeezing out this dimension simplifies visualization
+    and analysis of vertical profiles or 2D slices.
+
+    Args:
+        fields (Dict[str, NDArray]): Dictionary of 3D arrays with shape (ni, nj, nk)
+            where nj is typically 1
+
+    Returns:
+        Dict[str, NDArray]: Dictionary with same keys but 2D arrays of shape (ni, nk)
+    """
     return {key: np.squeeze(array, axis=1) for key, array in fields.items()}
 
 
 def unpack(fields: Dict[str, NDArray], domain: Tuple[int, int, int]) -> Dict[str, NDArray]:
-    """Unpack as a 2d field
+    """Reshape 3D fields to 2D by flattening the horizontal dimensions.
+    
+    Converts fields from 3D structure (ni, nj, nk) to 2D (ni*nj, nk), effectively
+    treating each horizontal grid point as an independent column. This is commonly
+    used for interfacing with 1D column physics schemes or for efficient vectorized
+    operations over horizontal points.
 
     Args:
-        fortran_fields (_type_): _description_
-        component_grid (_type_): _description_
+        fields (Dict[str, NDArray]): Dictionary of 3D arrays to reshape
+        domain (Tuple[int, int, int]): The 3D domain shape (ni, nj, nk) used for reshaping
 
     Returns:
-        _type_: _description_
+        Dict[str, NDArray]: Dictionary with same keys but 2D arrays of shape (ni*nj, nk)
     """
     return {
         key: array.reshape(domain[0] * domain[1], domain[2])

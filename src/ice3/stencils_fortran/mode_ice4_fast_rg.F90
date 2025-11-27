@@ -32,7 +32,6 @@
 !
 !*       0. DECLARATIONS
 !
-USE PARKIND1, ONLY : JPRB
 !
 IMPLICIT NONE
 !
@@ -394,54 +393,101 @@ END DO
 END SUBROUTINE ICE4_FAST_RG
 !
 !-------------------------------------------------------------------------------
+!
+SUBROUTINE INTERP_MICRO_2D(KPROMA, KSIZE, PIN1, PIN2, KNUM1, KNUM2, P11, P12, P21, P22,&
+                           LDPACK, LDMASK, KBUF1, KBUF2, KBUF3, PBUF1, PBUF2, PBUF3, &
+                           KLEN, &
+                           PLT1, POUT1)
+
+IMPLICIT NONE
+
+INTEGER,                    INTENT(IN)  :: KPROMA       ! Array size
+INTEGER,                    INTENT(IN)  :: KSIZE        ! Last usefull array index
+REAL,    DIMENSION(KPROMA), INTENT(IN)  :: PIN1         ! Input array
+REAL,    DIMENSION(KPROMA), INTENT(IN)  :: PIN2         ! Input array
+INTEGER,                    INTENT(IN)  :: KNUM1        ! First dimension of the look-up table
+INTEGER,                    INTENT(IN)  :: KNUM2        ! Second dimension of the look-up table
+REAL,                       INTENT(IN)  :: P11          ! Scaling factor
+REAL,                       INTENT(IN)  :: P12          ! Scaling factor
+REAL,                       INTENT(IN)  :: P21          ! Scaling factor
+REAL,                       INTENT(IN)  :: P22          ! Scaling factor
+LOGICAL,                    INTENT(IN)  :: LDPACK       ! .TRUE. to perform packing
+LOGICAL, DIMENSION(KPROMA), INTENT(IN)  :: LDMASK       ! Computation mask
+INTEGER, DIMENSION(KPROMA), INTENT(OUT) :: KBUF1, KBUF2, KBUF3 ! Buffer arrays
+REAL,    DIMENSION(KPROMA), INTENT(OUT) :: PBUF1, PBUF2, PBUF3 ! Buffer arrays
+INTEGER,                    INTENT(OUT) :: KLEN         ! Number of active points
+REAL,    DIMENSION(KNUM1, KNUM2),   INTENT(IN)  :: PLT1  ! Look-up table
+REAL,    DIMENSION(KPROMA),         INTENT(OUT) :: POUT1 ! Interpolated values
+
+INTEGER :: JL
+INTEGER :: IINDEX1, IINDEX2
+REAL :: ZINDEX1, ZINDEX2
+
+IF (LDPACK) THEN
+
+  ! Pack input array
+  KLEN=0
+  DO JL=1, KSIZE
+    IF (LDMASK(JL)) THEN
+      KLEN=KLEN+1
+      PBUF1(KLEN)=PIN1(JL)
+      PBUF2(KLEN)=PIN2(JL)
+      KBUF3(KLEN)=JL
+    ENDIF
+  ENDDO
+
+  IF (KLEN>0) THEN
+    ! Index computation
+    PBUF1(1:KLEN) = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P11 * LOG(PBUF1(1:KLEN)) + P12))
+    KBUF1(1:KLEN) = INT(PBUF1(1:KLEN))
+    PBUF1(1:KLEN) = PBUF1(1:KLEN) - REAL(KBUF1(1:KLEN))
+
+    PBUF2(1:KLEN) = MAX(1.00001, MIN(REAL(KNUM2)-0.00001, P21 * LOG(PBUF2(1:KLEN)) + P22))
+    KBUF2(1:KLEN) = INT(PBUF2(1:KLEN))
+    PBUF2(1:KLEN) = PBUF2(1:KLEN) - REAL(KBUF2(1:KLEN))
+
+    ! Interpolation and unpack
+    DO JL=1, KLEN
+      PBUF3(JL) = ( PLT1(KBUF1(JL)+1,KBUF2(JL)+1)* PBUF2(JL)         &
+                   -PLT1(KBUF1(JL)+1,KBUF2(JL)  )*(PBUF2(JL) - 1.0)) *  PBUF1(JL) &
+                 -( PLT1(KBUF1(JL)  ,KBUF2(JL)+1)* PBUF2(JL)         &
+                   -PLT1(KBUF1(JL)  ,KBUF2(JL)  )*(PBUF2(JL) - 1.0)) * (PBUF1(JL) - 1.0)
+    ENDDO
+    POUT1(:)=0.
+    DO JL=1, KLEN
+      POUT1(KBUF3(JL))=PBUF3(JL)
+    ENDDO
+  ENDIF
+
+ELSE
+
+  KLEN=0
+  DO JL=1, KSIZE
+    IF (LDMASK(JL)) THEN
+      KLEN=KLEN+1
+
+      ! Indexes computation
+      ZINDEX1 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P11 * LOG(PIN1(JL)) + P12))
+      IINDEX1 = INT(ZINDEX1)
+      ZINDEX1 = ZINDEX1 - REAL(IINDEX1)
+  
+      ZINDEX2 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P21 * LOG(PIN2(JL)) + P22))
+      IINDEX2 = INT(ZINDEX2)
+      ZINDEX2 = ZINDEX2 - REAL(IINDEX2)
+  
+      ! Interpolation
+      POUT1(JL) = ( PLT1(IINDEX1+1,IINDEX2+1)* ZINDEX2         &
+                   -PLT1(IINDEX1+1,IINDEX2  )*(ZINDEX2 - 1.0)) *  ZINDEX1 &
+                 -( PLT1(IINDEX1  ,IINDEX2+1)* ZINDEX2         &
+                   -PLT1(IINDEX1  ,IINDEX2  )*(ZINDEX2 - 1.0)) * (ZINDEX1 - 1.0)
+
+    ELSE
+      POUT1(JL)=0.
+    ENDIF
+  ENDDO
+
+ENDIF
+END SUBROUTINE INTERP_MICRO_2D
 
 !
 END MODULE MODE_ICE4_FAST_RG
-
-MODULE PARKIND1
-!
-!     *** Define usual kinds for strong typing ***
-!
-IMPLICIT NONE
-SAVE
-!
-!     Integer Kinds
-!     -------------
-!
-INTEGER, PARAMETER :: JPIT = SELECTED_INT_KIND(2)
-INTEGER, PARAMETER :: JPIS = SELECTED_INT_KIND(4)
-INTEGER, PARAMETER :: JPIM = SELECTED_INT_KIND(9)
-INTEGER, PARAMETER :: JPIB = SELECTED_INT_KIND(12)
-
-!Special integer type to be used for sensative adress calculations
-!should be *8 for a machine with 8byte adressing for optimum performance
-#ifdef ADDRESS64
-INTEGER, PARAMETER :: JPIA = JPIB
-#else
-INTEGER, PARAMETER :: JPIA = JPIM
-#endif
-
-!
-!     Real Kinds
-!     ----------
-!
-INTEGER, PARAMETER :: JPRT = SELECTED_REAL_KIND(2,1)
-INTEGER, PARAMETER :: JPRS = SELECTED_REAL_KIND(4,2)
-INTEGER, PARAMETER :: JPRM = SELECTED_REAL_KIND(6,37)
-#ifdef PARKIND1_SINGLE
-INTEGER, PARAMETER :: JPRB = SELECTED_REAL_KIND(6,37)
-#else
-INTEGER, PARAMETER :: JPRB = SELECTED_REAL_KIND(13,300)
-#endif
-
-! Double real for C code and special places requiring 
-!    higher precision. 
-INTEGER, PARAMETER :: JPRD = SELECTED_REAL_KIND(13,300)
-
-
-! Logical Kinds for RTTOV....
-
-INTEGER, PARAMETER :: JPLM = JPIM   !Standard logical type
-
-END MODULE PARKIND1
-

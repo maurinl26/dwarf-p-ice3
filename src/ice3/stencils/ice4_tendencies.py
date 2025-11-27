@@ -1,13 +1,21 @@
 # -*- coding: utf-8 -*-
+"""
+ICE4 tendency management and aggregation stencils.
+
+This module handles initialization, update, and post-processing of
+microphysical tendencies in the ICE4 scheme. It aggregates contributions
+from different microphysical processes (nucleation, riming, melting, etc.)
+and applies them to prognostic variables with proper thermodynamic
+consistency.
+
+Source: PHYEX/src/common/micro/mode_ice4_tendencies.F90
+"""
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import (__INLINED, PARALLEL, Field, computation,
                                       exp, interval, log, sqrt)
 
 
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=129,
-# to_line=134
 def init_tendencies(
     rv_t: Field["float"],
     rc_t: Field["float"],
@@ -28,9 +36,26 @@ def init_tendencies(
     rs_tnd: Field["float"],
     rg_tnd: Field["float"]    
 ):
+    """
+    Initialize all tendency and instantaneous change fields to zero.
     
-    with computation(PARALLEL), interval(...):
+    This function resets all tendency accumulators before the microphysics
+    calculations begin. Essential for proper tendency tracking through
+    the various microphysical processes.
+    
+    Parameters
+    ----------
+    rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]
+        Tendency storage fields for vapor, cloud, rain, ice, snow, graupel.
+    rv_inst, rc_inst, rr_inst, ri_inst, rs_inst, rg_inst : Field[float]
+        Instantaneous change fields (set to 0).
+    rv_tnd, rc_tnd, rr_tnd, ri_tnd, rs_tnd, rg_tnd : Field[float]
+        Total tendency fields (set to 0).
         
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 129-134
+    """
+    with computation(PARALLEL), interval(...):
         rv_t = 0.0
         rc_t = 0.0
         rr_t = 0.0
@@ -49,10 +74,8 @@ def init_tendencies(
         ri_tnd = 0.0
         rs_tnd = 0.0
         rg_tnd = 0.0
-        
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=136,
-# to_line=140,
+
+
 def mixing_ratio_init(
     rvheni_mr: Field["float"],
     rrhong_mr: Field["float"],
@@ -60,7 +83,29 @@ def mixing_ratio_init(
     rsrimcg_mr: Field["float"],
     ldsoft: "bool"
 ):
+    """
+    Initialize mixing ratio increments for specific processes.
     
+    Resets the mixing ratio changes from heterogeneous nucleation (HENI),
+    homogeneous freezing (HONG), ice crystal melting (IMLTC), and
+    snow riming conversion (RSRIMCG) when in soft mode.
+    
+    Parameters
+    ----------
+    rvheni_mr : Field[float]
+        Vapor consumed by heterogeneous nucleation (kg/kg).
+    rrhong_mr : Field[float]
+        Rain frozen by homogeneous nucleation (kg/kg).
+    rimltc_mr : Field[float]
+        Ice melted to cloud liquid (kg/kg).
+    rsrimcg_mr : Field[float]
+        Snow converted to graupel by riming (kg/kg).
+    ldsoft : bool
+        If True, reset these fields.
+        
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 136-140
+    """
     with computation(PARALLEL), interval(...):
         if ldsoft:
             rvheni_mr = 0.0
@@ -69,9 +114,6 @@ def mixing_ratio_init(
             rsrimcg_mr = 0.0
 
 
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=152,
-# to_line=157,
 def ice4_nucleation_post_processing(
     t: Field["float"],
     exn: Field["float"],
@@ -81,28 +123,46 @@ def ice4_nucleation_post_processing(
     rit: Field["float"],
     rvheni_mr: Field["float"],
 ):
-    """adjust mixing ratio with nucleation increments
-
-    Args:
-        t (Field[float]): temperature
-        exn (Field[float]): exner pressure
-        ls_fact (Field[float]): sublimation latent heat over heat capacity
-        th_t (Field[float]): potential temperature
-        rv_t (Field[float]): vapour m.r.
-        ri_t (Field[float]): ice m.r.
-        rvheni_mr (Field[float]): vapour m.r. increment due to HENI (heteroegenous nucleation over ice)
     """
-
+    Apply heterogeneous ice nucleation changes to prognostic variables.
+    
+    Updates potential temperature, temperature, vapor, and ice after
+    heterogeneous nucleation (HENI process) where water vapor deposits
+    directly onto ice nuclei to form ice crystals.
+    
+    Parameters
+    ----------
+    t : Field[float]
+        Temperature (K), updated with latent heat release.
+    exn : Field[float]
+        Exner function (dimensionless).
+    lsfact : Field[float]
+        Latent heat of sublimation over heat capacity, L_s/c_p (K).
+    tht : Field[float]
+        Potential temperature (K), updated.
+    rvt : Field[float]
+        Water vapor mixing ratio (kg/kg), decreased.
+    rit : Field[float]
+        Ice mixing ratio (kg/kg), increased.
+    rvheni_mr : Field[float]
+        Vapor consumed by heterogeneous nucleation (kg/kg).
+        
+    Notes
+    -----
+    Process: r_v → r_i (vapor deposits as ice)
+    Energy: Releases latent heat of sublimation L_s
+    Temperature change: ΔT = rvheni_mr × L_s/c_p
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 152-157
+    """
     with computation(PARALLEL), interval(...):
         tht += rvheni_mr * lsfact
         t = tht * exn
         rvt -= rvheni_mr
         rit += rvheni_mr
-        
 
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=166,
-# to_line=171,
+
 def ice4_rrhong_post_processing(
     t: Field["float"],
     exn: Field["float"],
@@ -113,28 +173,50 @@ def ice4_rrhong_post_processing(
     rgt: Field["float"],
     rrhong_mr: Field["float"],
 ):
-    """adjust mixing ratio with nucleation increments
-
-    Args:
-        t (Field[float]): temperature
-        exn (Field[float]): exner pressure
-        lsfact (Field[float]): sublimation latent heat over heat capacity
-        tht (Field[float]): potential temperature
-        rrt (Field[float]): rain m.r.
-        rg_t (Field[float]): graupel m.r.
-        rrhong (Field[float]): rain m.r. increment due to homogeneous nucleation
     """
-
+    Apply homogeneous freezing of rain to prognostic variables.
+    
+    Updates variables after homogeneous nucleation (HONG process) where
+    rain droplets freeze instantly at very cold temperatures (T < -40°C)
+    to form graupel particles.
+    
+    Parameters
+    ----------
+    t : Field[float]
+        Temperature (K), updated.
+    exn : Field[float]
+        Exner function (dimensionless).
+    lsfact : Field[float]
+        L_s/c_p (K).
+    lvfact : Field[float]
+        L_v/c_p (K).
+    tht : Field[float]
+        Potential temperature (K), updated.
+    rrt : Field[float]
+        Rain mixing ratio (kg/kg), decreased.
+    rgt : Field[float]
+        Graupel mixing ratio (kg/kg), increased.
+    rrhong_mr : Field[float]
+        Rain frozen by homogeneous nucleation (kg/kg).
+        
+    Notes
+    -----
+    Process: r_r → r_g (rain freezes to graupel)
+    Energy: Releases latent heat of fusion L_f = L_s - L_v
+    Temperature change: ΔT = rrhong_mr × (L_s - L_v)/c_p
+    
+    Occurs at T < approximately -40°C where droplets cannot remain liquid.
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 166-171
+    """
     with computation(PARALLEL), interval(...):
         tht += rrhong_mr * (lsfact - lvfact)
         t = tht * exn
         rrt -= rrhong_mr
         rgt += rrhong_mr
-        
 
-# from_file=("PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=180,
-# to_line=185,
+
 def ice4_rimltc_post_processing(
     t: Field["float"],
     exn: Field["float"],
@@ -145,18 +227,40 @@ def ice4_rimltc_post_processing(
     rct: Field["float"],
     rit: Field["float"],
 ):
-    """adjust mixing ratio with riming increments
-
-    Args:
-        t (Field[float]): temperature
-        exn (Field[float]): exner pressure
-        ls_fact (Field[float]): sublimation latent heat over heat capacity
-        tht (Field[float]): potential temperature
-        rr_t (Field[float]): rain m.r.
-        rg_t (Field[float]): graupel m.r.
-        rrhong (Field[float]): rain m.r. increment due to homogeneous nucleation
     """
-
+    Apply ice crystal melting to prognostic variables.
+    
+    Updates variables after ice crystal melting (IMLTC process) where
+    small ice crystals melt to form cloud droplets at T > 0°C.
+    
+    Parameters
+    ----------
+    t : Field[float]
+        Temperature (K), updated.
+    exn : Field[float]
+        Exner function (dimensionless).
+    lsfact : Field[float]
+        L_s/c_p (K).
+    lvfact : Field[float]
+        L_v/c_p (K).
+    rimltc_mr : Field[float]
+        Ice melted to cloud water (kg/kg).
+    tht : Field[float]
+        Potential temperature (K), updated.
+    rct : Field[float]
+        Cloud liquid mixing ratio (kg/kg), increased.
+    rit : Field[float]
+        Ice crystal mixing ratio (kg/kg), decreased.
+        
+    Notes
+    -----
+    Process: r_i → r_c (ice melts to cloud liquid)
+    Energy: Absorbs latent heat of fusion L_f = L_s - L_v
+    Temperature change: ΔT = -rimltc_mr × (L_s - L_v)/c_p (cooling)
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 180-185
+    """
     with computation(PARALLEL), interval(...):
         tht -= rimltc_mr * (lsfact - lvfact)
         t = tht * exn
@@ -164,9 +268,6 @@ def ice4_rimltc_post_processing(
         rit -= rimltc_mr
 
 
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=386,
-# to_line=390,
 def ice4_fast_rg_pre_post_processing(
     rgsi: Field["float"],
     rgsi_mr: Field["float"],
@@ -179,15 +280,37 @@ def ice4_fast_rg_pre_post_processing(
     rrhong_mr: Field["float"],
     rsrimcg_mr: Field["float"],
 ):
-
+    """
+    Aggregate graupel source terms from various processes.
+    
+    Sums all contributions to graupel production for the fast processes,
+    separating direct sources from mixing ratio conversions.
+    
+    Parameters
+    ----------
+    rgsi : Field[float]
+        Output: Total graupel source from collection/deposition/melting.
+    rgsi_mr : Field[float]
+        Output: Total graupel source from phase conversions.
+    rvdepg : Field[float]
+        Vapor deposition on graupel.
+    rsmltg : Field[float]
+        Snow melting producing graupel.
+    rraccsg, rsaccrg : Field[float]
+        Accretion processes.
+    rcrimsg, rsrimcg : Field[float]
+        Riming processes.
+    rrhong_mr, rsrimcg_mr : Field[float]
+        Conversion processes.
+        
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 386-390
+    """
     with computation(PARALLEL), interval(...):
         rgsi = rvdepg + rsmltg + rraccsg + rsaccrg + rcrimsg + rsrimcg
         rgsi_mr = rrhong_mr + rsrimcg_mr
 
 
-#    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-#    from_line=220,
-#    to_line=238,
 def ice4_increment_update(
     lsfact: Field["float"],
     lvfact: Field["float"],
@@ -203,24 +326,44 @@ def ice4_increment_update(
     rrhong_mr: Field["float"],
     rsrimcg_mr: Field["float"],
 ):
-    """Update tendencies with fixed increment.
-
-    Args:
-        ls_fact (Field[float]): _description_
-        lv_fact (Field[float]): _description_
-        theta_increment (Field[float]): _description_
-        rv_increment (Field[float]): _description_
-        rc_increment (Field[float]): _description_
-        rr_increment (Field[float]): _description_
-        ri_increment (Field[float]): _description_
-        rs_increment (Field[float]): _description_
-        rg_increment (Field[float]): _description_
-        rvheni_mr (Field[float]): _description_
-        rimltc_mr (Field[float]): _description_
-        rrhong_mr (Field[float]): _description_
-        rsrimcg_mr (Field[float]): _description_
     """
-
+    Update increment fields with nucleation and phase change processes.
+    
+    Adds the contributions from heterogeneous nucleation (HENI),
+    homogeneous freezing (HONG), ice melting (IMLTC), and snow riming
+    conversion (RSRIMCG) to the increment fields, with proper accounting
+    for latent heat effects on potential temperature.
+    
+    Parameters
+    ----------
+    lsfact, lvfact : Field[float]
+        Latent heat factors L_s/c_p and L_v/c_p (K).
+    theta_increment : Field[float]
+        Potential temperature increment, updated.
+    rv_increment, rc_increment, rr_increment : Field[float]
+        Vapor, cloud, rain increments, updated.
+    ri_increment, rs_increment, rg_increment : Field[float]
+        Ice, snow, graupel increments, updated.
+    rvheni_mr : Field[float]
+        Vapor consumed by heterogeneous nucleation.
+    rimltc_mr : Field[float]
+        Ice melted to cloud liquid.
+    rrhong_mr : Field[float]
+        Rain frozen homogeneously.
+    rsrimcg_mr : Field[float]
+        Snow converted to graupel by riming.
+        
+    Notes
+    -----
+    Energy accounting:
+    - HENI: vapor → ice, releases L_s
+    - HONG: rain → graupel, releases L_f = L_s - L_v
+    - IMLTC: ice → cloud, absorbs L_f = L_s - L_v
+    - RSRIMCG: snow → graupel, no phase change, no heat
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 220-238
+    """
     # 5.1.6 riming-conversion of the large sized aggregates into graupel
     # Translation note : l189 to l215 omitted (since CSNOWRIMING = M90 in AROME)
     with computation(PARALLEL), interval(...):
@@ -238,9 +381,6 @@ def ice4_increment_update(
         rg_increment += rrhong_mr + rsrimcg_mr
 
 
-#    from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-#    from_line=220,
-#    to_line=238,
 def ice4_derived_fields(
     t: Field["float"],
     rhodref: Field["float"],
@@ -253,25 +393,71 @@ def ice4_derived_fields(
     rvt: Field["float"],
     zw: Field["float"]
 ):
-
+    """
+    Compute derived microphysical fields for process calculations.
+    
+    Calculates auxiliary fields needed by various microphysical parameterizations:
+    - Supersaturation with respect to ice
+    - Thermal conductivity of air
+    - Diffusivity of water vapor
+    - Thermodynamic function for deposition
+    - Ventilation coefficient
+    
+    Parameters
+    ----------
+    t : Field[float]
+        Temperature (K).
+    rhodref : Field[float]
+        Reference air density (kg/m³).
+    pres : Field[float]
+        Pressure (Pa).
+    ssi : Field[float]
+        Output: Supersaturation w.r.t. ice (dimensionless).
+    ka : Field[float]
+        Output: Thermal conductivity of air (W/(m·K)).
+    dv : Field[float]
+        Output: Diffusivity of water vapor in air (m²/s).
+    ai : Field[float]
+        Output: Thermodynamic function for vapor diffusion.
+    cj : Field[float]
+        Output: Ventilation coefficient (dimensionless).
+    rvt : Field[float]
+        Water vapor mixing ratio (kg/kg).
+    zw : Field[float]
+        Workspace for saturation vapor pressure (Pa).
+        
+    Notes
+    -----
+    These derived fields are used in:
+    - Deposition/sublimation rates (ai, ssi, ka, dv)
+    - Ventilation effects (cj)
+    - Particle growth calculations
+    
+    The ventilation coefficient cj accounts for enhanced mass transfer
+    due to particle motion relative to air.
+    
+    External Parameters:
+    - ALPI, BETAI, GAMI: Saturation vapor pressure over ice coefficients
+    - SCFAC: Schmidt number factor for ventilation
+    - P00: Reference pressure (Pa)
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 220-238
+    """
     from __externals__ import (ALPI, BETAI, CI, CPV, EPSILO, GAMI, LSTT, P00,
                                RV, SCFAC, TT)
 
     with computation(PARALLEL), interval(...):
-
         zw = exp(ALPI - BETAI / t - GAMI * log(t))
-        ssi = rvt * (pres - zw) / (EPSILO * zw) - 1.0 # Supersaturation over ice
+        ssi = rvt * (pres - zw) / (EPSILO * zw) - 1.0  # Supersaturation over ice
         ka = 2.38e-2 + 7.1e-5 * (t - TT)
         dv = 2.11e-5 * (t / TT) ** 1.94 * (P00 / pres)
-        ai = (LSTT + (CPV - CI) * (t - TT)) ** 2 / (ka**RV * t**2) + (
+        ai = (LSTT + (CPV - CI) * (t - TT)) ** 2 / (ka * RV * t**2) + (
             (RV * t) / (dv * zw)
         )
         cj = SCFAC * rhodref**0.3 / sqrt(1.718e-5 + 4.9e-8 * (t - TT))
 
 
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=285,
-# to_line=329,
 def ice4_slope_parameters(
     rhodref: Field["float"],
     t: Field["float"],
@@ -283,26 +469,57 @@ def ice4_slope_parameters(
     lbdas: Field["float"],
     lbdag: Field["float"],
 ):
-    """Compute lambda parameters for distributions of falling species (r, s, g)
-
-    Args:
-        rhodref (Field[float]): reference dry density
-        t (Field[float]): temperature
-        rrt (Field[float]): rain m.r. at t
-        rst (Field[float]): snow m.r. at t
-        rgt (Field[float]): graupel m.r. at t
-        lbdar (Field[float]): lambda parameter for rain distribution
-        lbdar_rf (Field[float]): _description_
-        lbdas (Field[float]): lambda parameter for snow distribution
-        lbdag (Field[float]): lambda parameter for graupel distribution
     """
-
+    Compute slope parameters (lambda) for hydrometeor size distributions.
+    
+    Calculates the exponential distribution slope parameters for rain, snow,
+    and graupel. These lambda values characterize the particle size distribution
+    N(D) = N₀ exp(-λD) and are fundamental to all microphysical rate calculations.
+    
+    Parameters
+    ----------
+    rhodref : Field[float]
+        Reference air density (kg/m³).
+    t : Field[float]
+        Temperature (K).
+    rrt, rst, rgt : Field[float]
+        Rain, snow, graupel mixing ratios (kg/kg).
+    lbdar : Field[float]
+        Output: Rain slope parameter (m⁻¹).
+    lbdar_rf : Field[float]
+        Output: Rain slope for rainfall (m⁻¹), equals lbdar for AROME.
+    lbdas : Field[float]
+        Output: Snow slope parameter (m⁻¹).
+    lbdag : Field[float]
+        Output: Graupel slope parameter (m⁻¹).
+        
+    Notes
+    -----
+    Standard formula: λ = C × (ρ × r)^β
+    where C and β are empirical constants (LBR/LBEXR for rain, etc.)
+    
+    Snow has temperature-dependent option (LSNOW_T):
+    - At T > 263.15 K: Uses warmer temperature formula
+    - At T ≤ 263.15 K: Uses colder temperature formula
+    - Clamped between LBDAS_MIN and LBDAS_MAX
+    
+    All slopes are set to 0 when the corresponding mixing ratio is 0
+    to avoid undefined behavior in subsequent calculations.
+    
+    External Parameters:
+    - LBR, LBS, LBG: Intercept constants
+    - LBEXR, LBEXS, LBEXG: Exponent constants
+    - LSNOW_T: Temperature-dependent snow flag
+    - TRANS_MP_GAMMAS: Transformation factor for snow
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 285-329
+    """
     from __externals__ import (G_RTMIN, LBDAG_MAX, LBDAS_MAX, LBDAS_MIN, LBEXG,
                                LBEXR, LBEXS, LBG, LBR, LBS, LSNOW_T, R_RTMIN,
                                S_RTMIN, TRANS_MP_GAMMAS)
 
     with computation(PARALLEL), interval(...):
-
         lbdar = LBR * (rhodref * max(rrt, R_RTMIN)) ** LBEXR if rrt > 0 else 0
         # Translation note : l293 to l298 omitted LLRFR = True (not used in AROME)
         # Translation note : l299 to l301 kept (used in AROME)
@@ -335,9 +552,6 @@ def ice4_slope_parameters(
         )
 
 
-# from_file="PHYEX/src/common/micro/mode_ice4_tendencies.F90",
-# from_line=454,
-# to_line=559,
 def ice4_total_tendencies_update(
     lsfact: Field["float"],
     lvfact: Field["float"],
@@ -379,51 +593,59 @@ def ice4_total_tendencies_update(
     rgmltr: Field["float"],
     rwetgh: Field["float"]
 ):
-    """Add contributions of processes to tendencies
-    of microphysical processes.
-
-    Args:
-        lsfact (Field[float]): _description_
-        lvfact (Field[float]): _description_
-        th_tnd (Field[float]): _description_
-        rv_tnd (Field[float]): _description_
-        rc_tnd (Field[float]): _description_
-        rr_tnd (Field[float]): _description_
-        ri_tnd (Field[float]): _description_
-        rs_tnd (Field[float]): _description_
-        rg_tnd (Field[float]): _description_
-        rchoni (Field[float]): _description_
-        rvdeps (Field[float]): _description_
-        riaggs (Field[float]): _description_
-        riauts (Field[float]): _description_
-        rvdepg (Field[float]): _description_
-        rcautr (Field[float]): _description_
-        rcaccr (Field[float]): _description_
-        rrevav (Field[float]): _description_
-        rcberi (Field[float]): _description_
-        rsmltg (Field[float]): _description_
-        rcmltsr (Field[float]): _description_
-        rraccss (Field[float]): _description_
-        rraccsg (Field[float]): _description_
-        rsaccrg (Field[float]): _description_
-        rcrimss (Field[float]): _description_
-        rcrimsg (Field[float]): _description_
-        rsrimcg (Field[float]): _description_
-        ricfrrg (Field[float]): _description_
-        rrcfrig (Field[float]): _description_
-        ricfrr (Field[float]): _description_
-        rcwetg (Field[float]): _description_
-        riwetg (Field[float]): _description_
-        rrwetg (Field[float]): _description_
-        rswetg (Field[float]): _description_
-        rcdryg (Field[float]): _description_
-        ridryg (Field[float]): _description_
-        rrdryg (Field[float]): _description_
-        rsdryg (Field[float]): _description_
-        rgmltr (Field[float]): _description_
+    """
+    Aggregate all microphysical process contributions to total tendencies.
+    
+    This is the master aggregation function that sums all individual
+    microphysical process rates to compute the total tendencies for
+    potential temperature and all hydrometeor species. Ensures mass
+    and energy conservation across all processes.
+    
+    Parameters
+    ----------
+    lsfact, lvfact : Field[float]
+        Latent heat factors (K).
+    th_tnd, rv_tnd, rc_tnd, rr_tnd, ri_tnd, rs_tnd, rg_tnd : Field[float]
+        Total tendency fields to be updated (various units/s).
+    
+    Process rates (all in kg/kg/s unless noted):
+    rchoni : Cloud droplet homogeneous freezing
+    rvdeps : Vapor deposition on snow
+    riaggs : Ice aggregation to snow
+    riauts : Ice autoconversion to snow
+    rvdepg : Vapor deposition on graupel
+    rcautr : Cloud autoconversion to rain
+    rcaccr : Cloud accretion by rain
+    rrevav : Rain evaporation
+    rcberi : Bergeron-Findeisen effect
+    rsmltg : Snow melting to graupel
+    rcmltsr : Cloud collection by melting snow
+    rraccss, rraccsg : Rain accretion processes
+    rsaccrg : Snow accretion by graupel
+    rcrimss, rcrimsg : Cloud riming processes
+    rsrimcg : Snow riming conversion
+    ricfrrg, rrcfrig, ricfrr : Contact freezing processes
+    rcwetg, riwetg, rrwetg, rswetg : Wet growth collection
+    rcdryg, ridryg, rrdryg, rsdryg : Dry growth collection
+    rgmltr : Graupel melting
+    rwetgh : Wet growth to hail (not used in 6-category scheme)
+    
+    Notes
+    -----
+    The potential temperature tendency accounts for latent heat from:
+    - Phase changes (L_v for liquid, L_s for ice)
+    - Difference L_f = L_s - L_v for freezing/melting
+    
+    Each mixing ratio tendency is the algebraic sum of all processes
+    that produce (+) or consume (-) that species.
+    
+    Mass conservation: Total water is conserved
+    Energy conservation: Latent heat properly accounted
+    
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_tendencies.F90, lines 454-559
     """
     with computation(PARALLEL), interval(...):
-
         th_tnd += (
             rvdepg * lsfact
             + rchoni * (lsfact - lvfact)
@@ -440,10 +662,10 @@ def ice4_total_tendencies_update(
             + rcberi * (lsfact - lvfact)
         )
 
-        # (v)
+        # (v) Vapor tendency
         rv_tnd += -rvdepg - rvdeps + rrevav
 
-        # (c)
+        # (c) Cloud tendency
         rc_tnd += (
             -rchoni
             - rcautr
@@ -456,7 +678,7 @@ def ice4_total_tendencies_update(
             - rcberi
         )
 
-        # (r)
+        # (r) Rain tendency
         rr_tnd += (
             rcautr
             + rcaccr
@@ -471,10 +693,10 @@ def ice4_total_tendencies_update(
             + rgmltr
         )
 
-        # (i)
+        # (i) Ice tendency
         ri_tnd += rchoni - riaggs - riauts - ricfrrg - ricfrr - riwetg - ridryg + rcberi
 
-        # (s)
+        # (s) Snow tendency
         rs_tnd += (
             rvdeps
             + riaggs
@@ -488,7 +710,7 @@ def ice4_total_tendencies_update(
             - rsdryg
         )
 
-        # (g)
+        # (g) Graupel tendency
         rg_tnd += (
             rvdepg
             + rcrimsg
@@ -509,5 +731,3 @@ def ice4_total_tendencies_update(
             - rgmltr
             - rwetgh
         )
-
-

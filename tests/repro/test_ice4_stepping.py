@@ -331,30 +331,35 @@ def test_state_update(dtypes, backend, externals, packed_dims, domain, origin):
     # Exécution Fortran (avec copies car modifiées)
     fortran_fields = {name: fields[name].copy() for name in field_names}
     
+    # Reshape 3D arrays to 2D (kproma, ksize) for Fortran interface
+    kproma_val = domain[0] * domain[1]  # horizontal dimensions
+    ksize_val = domain[2]  # vertical dimension
+    
     result = fortran_stencil(
-        ptht=fortran_fields["th_t"].ravel(),
-        ptheta_b=fortran_fields["theta_b"].ravel(),
-        ptheta_tnd_a=fortran_fields["theta_tnd_a"].ravel(),
-        prct=fortran_fields["rc_t"].ravel(),
-        prrt=fortran_fields["rr_t"].ravel(),
-        prit=fortran_fields["ri_t"].ravel(),
-        prst=fortran_fields["rs_t"].ravel(),
-        prgt=fortran_fields["rg_t"].ravel(),
-        prc_b=fortran_fields["rc_b"].ravel(),
-        prr_b=fortran_fields["rr_b"].ravel(),
-        pri_b=fortran_fields["ri_b"].ravel(),
-        prs_b=fortran_fields["rs_b"].ravel(),
-        prg_b=fortran_fields["rg_b"].ravel(),
-        prc_tnd_a=fortran_fields["rc_tnd_a"].ravel(),
-        prr_tnd_a=fortran_fields["rr_tnd_a"].ravel(),
-        pri_tnd_a=fortran_fields["ri_tnd_a"].ravel(),
-        prs_tnd_a=fortran_fields["rs_tnd_a"].ravel(),
-        prg_tnd_a=fortran_fields["rg_tnd_a"].ravel(),
-        pdelta_t_micro=fortran_fields["delta_t_micro"].ravel(),
-        ldmicro=ldmicro.ravel(),
-        pcit=fortran_fields["ci_t"].ravel(),
-        pt_micro=fortran_fields["t_micro"].ravel(),
-        **packed_dims,
+        ptht=fortran_fields["th_t"].reshape((kproma_val, ksize_val), order='F'),
+        ptheta_b=fortran_fields["theta_b"].reshape((kproma_val, ksize_val), order='F'),
+        ptheta_tnd_a=fortran_fields["theta_tnd_a"].reshape((kproma_val, ksize_val), order='F'),
+        prct=fortran_fields["rc_t"].reshape((kproma_val, ksize_val), order='F'),
+        prrt=fortran_fields["rr_t"].reshape((kproma_val, ksize_val), order='F'),
+        prit=fortran_fields["ri_t"].reshape((kproma_val, ksize_val), order='F'),
+        prst=fortran_fields["rs_t"].reshape((kproma_val, ksize_val), order='F'),
+        prgt=fortran_fields["rg_t"].reshape((kproma_val, ksize_val), order='F'),
+        prc_b=fortran_fields["rc_b"].reshape((kproma_val, ksize_val), order='F'),
+        prr_b=fortran_fields["rr_b"].reshape((kproma_val, ksize_val), order='F'),
+        pri_b=fortran_fields["ri_b"].reshape((kproma_val, ksize_val), order='F'),
+        prs_b=fortran_fields["rs_b"].reshape((kproma_val, ksize_val), order='F'),
+        prg_b=fortran_fields["rg_b"].reshape((kproma_val, ksize_val), order='F'),
+        prc_tnd_a=fortran_fields["rc_tnd_a"].reshape((kproma_val, ksize_val), order='F'),
+        prr_tnd_a=fortran_fields["rr_tnd_a"].reshape((kproma_val, ksize_val), order='F'),
+        pri_tnd_a=fortran_fields["ri_tnd_a"].reshape((kproma_val, ksize_val), order='F'),
+        prs_tnd_a=fortran_fields["rs_tnd_a"].reshape((kproma_val, ksize_val), order='F'),
+        prg_tnd_a=fortran_fields["rg_tnd_a"].reshape((kproma_val, ksize_val), order='F'),
+        pdelta_t_micro=fortran_fields["delta_t_micro"].reshape((kproma_val, ksize_val), order='F'),
+        ldmicro=ldmicro.reshape((kproma_val, ksize_val), order='F'),
+        pcit=fortran_fields["ci_t"].reshape((kproma_val, ksize_val), order='F'),
+        pt_micro=fortran_fields["t_micro"].reshape((kproma_val, ksize_val), order='F'),
+        kproma=kproma_val,
+        ksize=ksize_val,
     )
     
     # Validation
@@ -362,7 +367,7 @@ def test_state_update(dtypes, backend, externals, packed_dims, domain, origin):
     
     for i, name in enumerate(output_names):
         assert_allclose(
-            result[i],
+            result[i].ravel(),
             gt4py_fields[name].ravel(),
             rtol=1e-6,
             atol=1e-8,
@@ -454,7 +459,7 @@ def test_external_tendencies_update(dtypes, backend, externals, packed_dims, dom
     
     # Masque et pas de temps
     ldmicro = np.array(np.random.rand(*domain) > 0.2, dtype=np.bool_, order="F")
-    dt = 10.0  # secondes
+    dt = dtypes["float"](10.0)  # secondes
     
     # Création des storages GT4Py
     gt4py_fields = {}
@@ -486,22 +491,27 @@ def test_external_tendencies_update(dtypes, backend, externals, packed_dims, dom
     # Exécution Fortran
     fortran_fields = {name: fields[name].copy() for name in field_names}
     
+    # Reshape 3D arrays to 2D (kproma, ksize) for Fortran interface
+    kproma_val = domain[0] * domain[1]  # horizontal dimensions
+    ksize_val = domain[2]  # vertical dimension
+    
     result = fortran_stencil(
-        ptht=fortran_fields["th_t"].ravel(),
-        ptheta_tnd_ext=fortran_fields["theta_tnd_ext"].ravel(),
-        prct=fortran_fields["rc_t"].ravel(),
-        prrt=fortran_fields["rr_t"].ravel(),
-        prit=fortran_fields["ri_t"].ravel(),
-        prst=fortran_fields["rs_t"].ravel(),
-        prgt=fortran_fields["rg_t"].ravel(),
-        prc_tnd_ext=fortran_fields["rc_tnd_ext"].ravel(),
-        prr_tnd_ext=fortran_fields["rr_tnd_ext"].ravel(),
-        pri_tnd_ext=fortran_fields["ri_tnd_ext"].ravel(),
-        prs_tnd_ext=fortran_fields["rs_tnd_ext"].ravel(),
-        prg_tnd_ext=fortran_fields["rg_tnd_ext"].ravel(),
-        ldmicro=ldmicro.ravel(),
+        ptht=fortran_fields["th_t"].reshape((kproma_val, ksize_val), order='F'),
+        ptheta_tnd_ext=fortran_fields["theta_tnd_ext"].reshape((kproma_val, ksize_val), order='F'),
+        prct=fortran_fields["rc_t"].reshape((kproma_val, ksize_val), order='F'),
+        prrt=fortran_fields["rr_t"].reshape((kproma_val, ksize_val), order='F'),
+        prit=fortran_fields["ri_t"].reshape((kproma_val, ksize_val), order='F'),
+        prst=fortran_fields["rs_t"].reshape((kproma_val, ksize_val), order='F'),
+        prgt=fortran_fields["rg_t"].reshape((kproma_val, ksize_val), order='F'),
+        prc_tnd_ext=fortran_fields["rc_tnd_ext"].reshape((kproma_val, ksize_val), order='F'),
+        prr_tnd_ext=fortran_fields["rr_tnd_ext"].reshape((kproma_val, ksize_val), order='F'),
+        pri_tnd_ext=fortran_fields["ri_tnd_ext"].reshape((kproma_val, ksize_val), order='F'),
+        prs_tnd_ext=fortran_fields["rs_tnd_ext"].reshape((kproma_val, ksize_val), order='F'),
+        prg_tnd_ext=fortran_fields["rg_tnd_ext"].reshape((kproma_val, ksize_val), order='F'),
+        ldmicro=ldmicro.reshape((kproma_val, ksize_val), order='F'),
         dt=dt,
-        **packed_dims,
+        kproma=kproma_val,
+        ksize=ksize_val,
     )
     
     # Validation
@@ -509,7 +519,7 @@ def test_external_tendencies_update(dtypes, backend, externals, packed_dims, dom
     
     for i, name in enumerate(output_names):
         assert_allclose(
-            result[i],
+            result[i].ravel(),
             gt4py_fields[name].ravel(),
             rtol=1e-6,
             atol=1e-8,

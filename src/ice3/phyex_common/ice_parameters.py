@@ -69,68 +69,265 @@ class Sedim(Enum):
 @dataclass
 class IceParameters:
     """
-    Parameters for ice processes
-    Default values are taken from modd_param_icen.F90
-
-    hprogram: Literal["AROME", "MESO-NH", "LMDZ"]
-
-    lwarm: bool             # Formation of rain by warm processes
-    lsedic: bool            # Enable the droplets sedimentation
-    ldeposc: bool           # Enable cloud droplets deposition
-
-    vdeposc: float          # Droplet deposition velocity
-
-    pristine_ice:           # Pristine ice type PLAT, COLU, or BURO
-    sedim: str              # Sedimentation calculation mode
-
-    lred: bool              # To use modified ice3/ice4 - to reduce time step dependency
-    lfeedbackt: bool        # Feedback on temperature taken into account when True
-    levlimit: bool          # Water vapour limited by saturation when True
-    lnullwetg: bool         # Graupel wet growth activated with null rate when True to allow water shedding
-    lwetgpost: bool         # Graupel wet growth activated with positive telmperature when True (to allow water shedding)
-
-    snow_riming: Literal["OLD", "M90"]      # OLD or M90 for Murakami 1990 formulation
-    frac_m90: float                         # Fraction used in M90 formulation
-
-    nmaxiter_micro: int     # max number of iteration for time or mixing ratio splitting
-    mrstep: float           # max mixing ratio step for mixing ratio splitting
-
-    lconvhg: bool           # True to allow conversion from hail to graupel
-    lcrflimit: bool         # True to limit rain contact freezing
-
-    tstep_ts: float         # approximative time step when for use of time splitting version
-
-    subg_rc_rr_accr: str    # subgrid rc-rr accretion
-    subg_rr_evap: str       # subgrid rr evaporation
-    subg_pr_pdf: str        # pdf for subgrid precipitation
-    subg_aucv_rc: str       # type of subgrid rc->rr autoconv. method
-    subg_aucv_ri: str       # type of subgrid ri->rs autoconv. method
-    subg_mf_pdf: str        # PDF to use for MF cloud autoconversions
-
-    ladj_before: bool       # must we perform an adjustment before rain_ice call
-    ladj_after: bool        # must we perform an adjustment after rain_ice call
-    lsedim_after: bool      # sedimentation done before (.FALSE.) or after (.TRUE.) microphysics
-
-    split_maxcfl: float     # Maximum CFL number allowed for SPLIT scheme
-    lsnow_t: bool           # Snow parameterization from Wurtz (2021)
-
-    # Translation note : lpack_interp and lpack_micro are for Fortran code GPU optimization (no use in GT4Py)
-    lpack_interp: bool      # switch to pack arrays before interpolation functions
-    lpack_micro: bool       # switch to pack arrays beafore computing the process tendencies
-
-    npromicro: int          # Fortran - Size of cache-blocking bloc
-
-    lcriauti: bool          # switch to compute acriauti and bcriauti
-
-    criauti_nam: float      # minimum value for ice to snow autoconversion
-    acriauti_nam:           # A parameter for ice to snow autoconversion power law
-    brcriauti_nam: float    # B parameter for ice to snow autoconvserion power law
-    t0criauti_nam: float    # threshold temperature for ice to snow autoconversion
-    criautc_nam: float      # threshold for liquid cloud to rain autoconversion 10**(at+b)
-    rdepsred_nam: float     # tuning factor of sublimation on ice
-    rdepgred_nam: float     # tuning factor of sublimation on graupel
-    lcond2: bool            # logical switch to separate liquid and ice
-    frmin_nam: np.ndarray = field(init=False)
+    Configuration parameters for ICE3/ICE4 microphysics schemes.
+    
+    This dataclass contains all tunable parameters, switches, and options
+    controlling the behavior of the ICE3 and ICE4 bulk microphysics schemes.
+    Default values are taken from PHYEX/modd_param_icen.F90 and can be
+    customized for different atmospheric models (AROME, Meso-NH, LMDZ).
+    
+    Attributes
+    ----------
+    
+    **Model Configuration**
+    
+    HPROGRAM : {"AROME", "MESO-NH", "LMDZ"}
+        Target atmospheric model. Sets appropriate default parameters in __post_init__.
+    
+    **Warm Cloud Processes**
+    
+    LWARM : bool
+        Enable warm rain processes (autoconversion, accretion). Default: True.
+    LSEDIC : bool
+        Enable cloud droplet sedimentation. Default: True.
+    LDEPOSC : bool
+        Enable fog deposition on vegetation (surface process). Default: False.
+    VDEPOSC : float
+        Fog deposition velocity (m/s). Default: 0.02.
+    
+    **Ice Crystal Properties**
+    
+    PRISTINE_ICE : {"PLAT", "COLU", "BURO"}
+        Pristine ice crystal habit:
+        - "PLAT": Plate crystals
+        - "COLU": Column crystals  
+        - "BURO": Bullet rosette crystals
+        Default: "PLAT".
+    
+    **Numerical Schemes**
+    
+    SEDIM : int
+        Sedimentation scheme:
+        - Sedim.SPLI (0): Time-split sedimentation
+        - Sedim.STAT (1): Statistical sedimentation
+        Default: SPLI.
+    
+    LRED : bool
+        Use modified ICE3/ICE4 to reduce time step dependency. Default: True.
+    
+    NMAXITER_MICRO : int
+        Maximum iterations for time/mixing ratio splitting. Default: 5.
+    
+    MRSTEP : float
+        Maximum mixing ratio step for splitting (kg/kg). Default: 5×10⁻⁵.
+        Set to 0 to disable mixing ratio splitting.
+    
+    SPLIT_MAXCFL : float
+        Maximum CFL number for upwind sedimentation scheme. Default: 0.8.
+    
+    **Thermodynamic Options**
+    
+    LFEEDBACKT : bool
+        Include temperature feedback during iterations. Default: True.
+    
+    LEVLIMIT : bool
+        Limit water vapor by saturation (prevent supersaturation). Default: True.
+    
+    LCOND2 : bool
+        Separate liquid and ice condensation processes. Default: False.
+    
+    **Graupel Growth Modes**
+    
+    LNULLWETG : bool
+        Allow graupel wet growth with null rate (enables water shedding). Default: True.
+    
+    LWETGPOST : bool
+        Allow graupel wet growth at T > 0°C (for water shedding). Default: True.
+    
+    LCONVHG : bool
+        Allow conversion from hail to graupel (7-category scheme only). Default: False.
+        Set to True for AROME and LMDZ.
+    
+    **Snow Riming Parameterization**
+    
+    SNOW_RIMING : int
+        Snow riming formulation:
+        - SnowRiming.M90 (0): Murakami (1990) formulation
+        - SnowRiming.OLD (1): Original formulation
+        Default: M90.
+    
+    FRAC_M90 : float
+        Fraction parameter for M90 riming formulation. Default: 0.1.
+    
+    LSNOW_T : bool
+        Use temperature-dependent snow parameterization (Wurtz, 2021). Default: False.
+    
+    **Contact Freezing**
+    
+    LCRFLIMIT : bool
+        Limit rain contact freezing rate by available latent heat. Default: True.
+    
+    **Subgrid-Scale Parameterizations**
+    
+    SUBG_RC_RR_ACCR : int
+        Subgrid cloud-rain accretion method:
+        - SubgRRRCAccr.NONE (0): No subgrid treatment
+        - SubgRRRCAccr.PRFR (1): Precipitation fraction method
+        Default: NONE.
+    
+    SUBG_RR_EVAP : int
+        Subgrid rain evaporation method:
+        - SubgRREvap.NONE (0): Grid-box mean
+        - SubgRREvap.CLFR (1): Cloud fraction
+        - SubgRREvap.PRFR (2): Precipitation fraction
+        Default: NONE.
+    
+    SUBG_PR_PDF : int
+        PDF for subgrid precipitation:
+        - SubgPRPDF.SIGM (0): Sigma method
+        - SubgPRPDF.HLCRECTPDF (1): HLC rectangular PDF
+        - SubgPRPDF.HLCISOTRIPDF (2): HLC isotropic triangular PDF
+        - SubgPRPDF.HLCTRIANGPDF (3): HLC triangular PDF
+        - SubgPRPDF.HLCQUADRAPDF (4): HLC quadratic PDF
+        Default: SIGM.
+    
+    SUBG_AUCV_RC : int
+        Subgrid liquid autoconversion method:
+        - SubgAucvRc.NONE (0): Grid-box mean
+        - SubgAucvRc.PDF (1): PDF-based (default for AROME/LMDZ)
+        - SubgAucvRc.ADJU (2): Adjustment-based
+        - SubgAucvRc.CLFR (3): Cloud fraction
+        - SubgAucvRc.SIGM (4): Sigma method
+        Default: NONE.
+    
+    SUBG_AUCV_RI : int
+        Subgrid ice autoconversion method:
+        - SubgAucvRi.NONE (0): Grid-box mean
+        - SubgAucvRi.CLFR (1): Cloud fraction
+        - SubgAucvRi.ADJU (2): Adjustment-based
+        Default: NONE.
+    
+    SUBG_MF_PDF : int
+        PDF for mass flux cloud autoconversion:
+        - SubGridMassFluxPDF.NONE (0): No PDF
+        - SubGridMassFluxPDF.TRIANGLE (1): Triangular PDF (default)
+        Default: TRIANGLE.
+    
+    **Saturation Adjustment**
+    
+    LADJ_BEFORE : bool
+        Perform saturation adjustment before microphysics. Default: True.
+    
+    LADJ_AFTER : bool
+        Perform saturation adjustment after microphysics. Default: True.
+        Set to False for AROME (adjustment done separately).
+    
+    LSEDIM_AFTER : bool
+        Perform sedimentation after (True) or before (False) microphysics. Default: False.
+    
+    **Autoconversion Thresholds**
+    
+    CRIAUTI_NAM : float
+        Minimum ice mixing ratio for ice→snow autoconversion (kg/kg). Default: 2×10⁻⁵.
+    
+    ACRIAUTI_NAM : float
+        'A' parameter in ice→snow power law: rate = 10^(A×(T-T₀)+B). Default: 0.06.
+    
+    BRCRIAUTI_NAM : float
+        'B' parameter in ice→snow power law. Default: -3.5.
+    
+    T0CRIAUTI_NAM : float
+        Threshold temperature for ice→snow autoconversion (°C).
+        Computed from other parameters in __post_init__.
+    
+    CRIAUTC_NAM : float
+        Threshold for cloud→rain autoconversion (kg/kg). Default: 5×10⁻⁴.
+        Set to 1×10⁻³ for LMDZ.
+    
+    LCRIAUTI : bool
+        Compute ACRIAUTI and BCRIAUTI parameters. Default: True.
+    
+    **Deposition Tuning**
+    
+    RDEPSRED_NAM : float
+        Tuning factor for vapor deposition on snow (dimensionless). Default: 1.0.
+    
+    RDEPGRED_NAM : float
+        Tuning factor for vapor deposition on graupel (dimensionless). Default: 1.0.
+    
+    **Fortran Optimization (Not Used in GT4Py)**
+    
+    LPACK_INTERP : bool
+        Pack arrays before interpolation (Fortran GPU optimization). Default: True.
+    
+    LPACK_MICRO : bool
+        Pack arrays before process calculations (Fortran GPU optimization). Default: True.
+    
+    NPROMICRO : int
+        Cache-blocking block size (Fortran optimization). Default: 0.
+    
+    **Time Stepping**
+    
+    TSTEP_TS : float
+        Approximate time step for time-splitting version (s). Default: 0.
+    
+    **Tuning Arrays**
+    
+    FRMIN_NAM : np.ndarray
+        Array of 41 tuning parameters for various processes.
+        Initialized in set_frmin_nam() method.
+    
+    Notes
+    -----
+    Model-Specific Defaults:
+    
+    **AROME Configuration:**
+    - LCONVHG = True
+    - LADJ_BEFORE = True, LADJ_AFTER = False
+    - LRED = False
+    - SEDIM = STAT
+    - MRSTEP = 0 (no mixing ratio splitting)
+    - SUBG_AUCV_RC = PDF
+    
+    **LMDZ Configuration:**
+    - SUBG_AUCV_RC = PDF
+    - SEDIM = STAT
+    - NMAXITER_MICRO = 1
+    - CRIAUTC_NAM = 1×10⁻³
+    - CRIAUTI_NAM = 2×10⁻⁴
+    - T0CRIAUTI_NAM = -5°C
+    - LRED = True
+    - LCONVHG = True
+    - LADJ_BEFORE = True, LADJ_AFTER = True
+    
+    **Meso-NH Configuration:**
+    - Uses default values
+    
+    Source Reference
+    ----------------
+    PHYEX/src/common/aux/modd_param_icen.F90
+    
+    References
+    ----------
+    Murakami, M., 1990: Numerical modeling of dynamical and microphysical
+    evolution of an isolated convective cloud. J. Meteor. Soc. Japan, 68, 107-128.
+    
+    Wurtz, J., 2021: Amélioration et évaluation de la paramétrisation des
+    hydrométéores mixtes dans le modèle AROME. PhD thesis, Université Toulouse III.
+    
+    Examples
+    --------
+    >>> # AROME configuration
+    >>> params_arome = IceParameters(HPROGRAM="AROME")
+    >>> print(params_arome.SUBG_AUCV_RC)  # PDF method
+    1
+    
+    >>> # Meso-NH with custom settings
+    >>> params_mnh = IceParameters(
+    ...     HPROGRAM="MESO-NH",
+    ...     LSNOW_T=True,  # Enable Wurtz snow param
+    ...     CRIAUTC_NAM=1e-3  # Higher autoconversion threshold
+    ... )
     """
 
     HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]

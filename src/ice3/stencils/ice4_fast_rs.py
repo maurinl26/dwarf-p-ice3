@@ -47,9 +47,9 @@ def ice4_fast_rs(
     gaminc_rim1: GlobalTable[float, (80)],
     gaminc_rim2: GlobalTable[float, (80)],
     gaminc_rim4: GlobalTable[float, (80)],
-    ker_raccs: GlobalTable[float, (40, 40)],
-    ker_raccss: GlobalTable[float, (40, 40)],
-    ker_saccrg: GlobalTable[float, (40, 40)],
+    ker_raccs: GlobalTable[float, (41, 41)],
+    ker_raccss: GlobalTable[float, (41, 41)],
+    ker_saccrg: GlobalTable[float, (41, 41)],
     index_floor: Field["int"],
     index_floor_r: Field["int"],
     index_floor_s: Field["int"],
@@ -218,7 +218,7 @@ def ice4_fast_rs(
             freez_rate_tmp = max(0, freez_rate_tmp - rcrimsg)
             rsrimcg = zw0_tmp * rs_rsrimcg_tnd
 
-            rsrimcg *= max(0, sign(rcrimsg))
+            rsrimcg *= max(0, sign(1, rcrimsg))
             rcrimsg = max(0, rcrimsg)
 
         else:
