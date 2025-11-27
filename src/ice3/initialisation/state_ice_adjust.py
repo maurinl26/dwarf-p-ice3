@@ -100,8 +100,8 @@ ice_adjust_fields_keys = [
 
 def allocate_state_ice_adjust(
         domain: Tuple[int, ...],
-        backend: str,
-        dtypes: Dict[str, type]
+        backend: str = BACKEND,
+        dtypes: dict = DTYPES
 ) -> xr.Dataset:
     """Allocate GT4Py storage for all ICE_ADJUST state variables and tendencies.
     
@@ -133,7 +133,7 @@ def allocate_state_ice_adjust(
 
         # todo : replace allocate data array by zeros
         return zeros(
-            domain, backend=backend, dtype=DTYPES[dtype], aligned_index=(0,0,0)
+            domain, backend=backend, dtype=dtypes[dtype], aligned_index=(0,0,0)
         )
 
     allocate_b_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="bool")

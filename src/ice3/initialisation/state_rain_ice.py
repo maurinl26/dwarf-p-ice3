@@ -61,6 +61,7 @@ KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
 def allocate_state_rain_ice(
     domain: Tuple[int, 3],
     backend: str = BACKEND,
+    dtypes: str = DTYPES
 ) -> xr.Dataset:
     """Allocate GT4Py storage for all RAIN_ICE state variables and tendencies.
     
@@ -96,7 +97,7 @@ def allocate_state_rain_ice(
     ) -> xr.DataArray:
         return zeros(
             shape,
-            DTYPES[dtype],
+            dtypes[dtype],
             backend,
             aligned_index=(0, 0, 0)
         )
