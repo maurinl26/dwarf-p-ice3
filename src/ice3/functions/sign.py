@@ -12,41 +12,43 @@ from gt4py.cartesian.gtscript import function
 @function
 def sign(a: "float", b: "float") -> "float":
     """
-    Return the absolute value of a with the sign of a.
+    Return the absolute value of b with the sign of a.
     
-    This function implements a sign transfer operation commonly used in
-    Fortran-style scientific codes. It returns abs(a) with the sign of a
-    itself (positive if a >= 0, negative if a < 0).
+    This function implements the Fortran SIGN intrinsic function commonly used in
+    scientific codes. It returns abs(b) with the sign transferred from a:
+    - If a >= 0, returns +|b|
+    - If a < 0, returns -|b|
     
     Parameters
     ----------
     a : float
-        Scalar input whose absolute value and sign determine the output.
+        Scalar input whose sign determines the sign of the output.
     b : float
-        Second parameter (currently not used in the implementation).
+        Scalar input whose absolute value determines the magnitude of the output.
         
     Returns
     -------
     float
-        The absolute value of a multiplied by the sign of a:
-        - Returns +|a| if a >= 0
-        - Returns -|a| if a < 0
+        The absolute value of b with the sign of a:
+        - Returns +|b| if a >= 0
+        - Returns -|b| if a < 0
         
     Notes
     -----
-    The parameter b appears in the signature but is not used in the current
-    implementation. This may be a placeholder for future functionality or
-    compatibility with other sign function variants.
+    This is equivalent to the Fortran intrinsic function SIGN(b, a), which returns
+    the value of b with the sign of a. The implementation follows the standard
+    definition where SIGN(x, y) = |x| if y >= 0, and -|x| if y < 0.
     
     Examples
     --------
-    sign(5.0, _) returns 5.0
-    sign(-5.0, _) returns -5.0
-    sign(0.0, _) returns 0.0
+    sign(5.0, 3.0) returns 3.0 (positive sign from a, magnitude from b)
+    sign(-5.0, 3.0) returns -3.0 (negative sign from a, magnitude from b)
+    sign(0.0, 7.0) returns 7.0 (zero or positive is treated as positive)
+    sign(2.0, -4.0) returns 4.0 (magnitude is absolute value of b)
     """
     if a >= 0.0:
-        sign_b = 1 * abs(a)
+        sign_b = 1 * abs(b)
     elif a < 0.0:
-        sign_b = -1 * abs(a)
+        sign_b = -1 * abs(b)
 
     return sign_b
