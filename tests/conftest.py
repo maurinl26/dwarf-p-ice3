@@ -10,6 +10,11 @@ def ice_adjust_ds_fixture():
     ds = xr.open_dataset("./data/ice_adjust.nc", engine="netcdf4")
     return ds
 
+@pytest.fixture(name="rain_ice_repro_ds", scope="module")
+def rain_ice_ds_fixture():
+    ds = xr.open_dataset("./data/rain_ice.nc", engine="netcdf4")
+    return ds
+
 @pytest.fixture(name="sp_dtypes", scope="module")
 def sp_dtypes_fixture():
     return {

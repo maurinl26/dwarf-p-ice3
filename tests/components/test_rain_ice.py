@@ -3,6 +3,7 @@
 from datetime import timedelta
 
 import numpy as np
+from numpy.testing import assert_allclose
 import pytest
 from gt4py.storage import zeros
 
@@ -10,7 +11,7 @@ from ice3.components.rain_ice import RainIce
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 from ice3.utils.env import DTYPES, BACKEND
-
+from ice3.initialisation.state_rain_ice import get_state_rain_ice
 
 @pytest.fixture(name="rain_ice_state")
 def rain_ice_state_fixture(domain):
@@ -215,7 +216,7 @@ def test_rain_ice_imports():
         pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
-def test_rain_ice(benchmark, backend, externals, dtypes, rain_ice_repro_ds):
+def test_rain_ice(benchmark, backend, domain, dtypes, rain_ice_repro_ds):
     """
     Test du composant IceAdjustModular avec le jeu de données ice_adjust.nc.
     
@@ -267,6 +268,7 @@ def test_rain_ice(benchmark, backend, externals, dtypes, rain_ice_repro_ds):
     )
     print(f"Domaine: {shape}")
 
+    state = get_state_rain_ice(domain, rain_ice_repro_ds)
 
     # ========================================================================
     # Fonction d'exécution du composant (pour benchmark)
@@ -274,11 +276,14 @@ def test_rain_ice(benchmark, backend, externals, dtypes, rain_ice_repro_ds):
     def run_rain_ice():
         """Exécute la séquence complète RainIce modulaire."""
         rain_ice(
+            state=state,
             exec_info={},
             validate_args=False,
         )
         
-        return ()
+        return ( 
+            state
+        )
     
     # ========================================================================
     # Exécution et benchmark
@@ -290,6 +295,207 @@ def test_rain_ice(benchmark, backend, externals, dtypes, rain_ice_repro_ds):
     # ========================================================================
     # Chargement des données de référence
     # ========================================================================
+
+    print("\n" + "-"*75)
+    print("Comparaison des tendances des espèces (PRS_OUT)")
+    print("-"*75)
+    
+    assert_allclose(
+        state["rvs"],
+        rain_ice_repro_ds["PRS_OUT"][:,:,:,0],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Tendance de contenu en vapeur d'eau"
+    )
+    print("✓ rvs (vapeur d'eau)")
+    
+    assert_allclose(
+        state["rcs"], 
+        rain_ice_repro_ds["PRS_OUT"][:,:,:,1],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Tendance de contenu en goutelettes (cloud droplets)")
+    print("✓ rcs (cloud droplets)")
+    
+    assert_allclose(state["rrs"], rain_ice_repro_ds["PRS_OUT"][:,:,:,2],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart  - Tendance de contenu en pluie"
+    )
+    print("✓ rrs (rain)")
+    
+    assert_allclose(
+        state["ris"], 
+        rain_ice_repro_ds["PRS_OUT"][:,:,:,3],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Tendance de contenu en glace pristine")
+    print("✓ ris (ice)")
+    
+    assert_allclose(state["rss"], rain_ice_repro_ds["PRS_OUT"][:,:,:,4],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Tendance de contenu en neige")
+    print("✓ rss (snow)")
+    
+    assert_allclose(state["rgs"], rain_ice_repro_ds["PRS_OUT"][:,:,:,5],
+     atol=1e-5,
+     rtol=1e-5,
+     err_msg="[ECHEC] Ecart - Tendance de contenu en graupel")
+    print("✓ rgs (graupel)")
+
+    # ========================================================================
+    # Comparison des autres champs de sortie
+    # ========================================================================
+    print("\n" + "-"*75)
+    print("Comparaison de la tendance de température potentielle (PTHS)")
+    print("-"*75)
+    
+    assert_allclose(
+        state["ths"],
+        rain_ice_repro_ds["PTHS"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Tendance de température potentielle"
+    )
+    print("✓ ths (température potentielle)")
+
+    print("\n" + "-"*75)
+    print("Comparaison de la concentration en cristaux de glace (PCIT_OUT)")
+    print("-"*75)
+    
+    # Note: ci_t in state should be compared with PCIT_OUT
+    # ci_t is ice crystal concentration [#/kg]
+    assert_allclose(
+        state["ci_t"],
+        rain_ice_repro_ds["PCIT_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Concentration en cristaux de glace"
+    )
+    print("✓ ci_t (ice crystal concentration)")
+
+    print("\n" + "-"*75)
+    print("Comparaison de l'évaporation 3D (PEVAP_OUT)")
+    print("-"*75)
+    
+    assert_allclose(
+        state["evap3d"],
+        rain_ice_repro_ds["PEVAP_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Évaporation 3D"
+    )
+    print("✓ evap3d (évaporation 3D)")
+
+    print("\n" + "-"*75)
+    print("Comparaison de la fraction de pluie (ZRAINFR_OUT)")
+    print("-"*75)
+    
+    assert_allclose(
+        state["rainfr"],
+        rain_ice_repro_ds["ZRAINFR_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Fraction de pluie"
+    )
+    print("✓ rainfr (rain fraction)")
+
+    print("\n" + "-"*75)
+    print("Comparaison des précipitations instantanées (2D)")
+    print("-"*75)
+    
+    assert_allclose(
+        state["inprc"],
+        rain_ice_repro_ds["ZINPRC_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Précipitation instantanée cloud"
+    )
+    print("✓ inprc (instantaneous cloud precipitation)")
+    
+    assert_allclose(
+        state["inprr"],
+        rain_ice_repro_ds["PINPRR_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Précipitation instantanée rain"
+    )
+    print("✓ inprr (instantaneous rain precipitation)")
+    
+    assert_allclose(
+        state["inprs"],
+        rain_ice_repro_ds["PINPRS_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Précipitation instantanée snow"
+    )
+    print("✓ inprs (instantaneous snow precipitation)")
+    
+    assert_allclose(
+        state["inprg"],
+        rain_ice_repro_ds["PINPRG_OUT"],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Précipitation instantanée graupel"
+    )
+    print("✓ inprg (instantaneous graupel precipitation)")
+
+    print("\n" + "-"*75)
+    print("Comparaison des fractions de précipitation (PFPR_OUT)")
+    print("-"*75)
+    
+    # PFPR_OUT has dimensions (ngpblks, krr, nflevg, nproma)
+    # krr=6 corresponds to: [v, c, r, i, s, g] but v is not stored in fpr
+    # So indices are: 1=c, 2=r, 3=i, 4=s, 5=g
+    assert_allclose(
+        state["fpr_c"],
+        rain_ice_repro_ds["PFPR_OUT"][:,1,:,:],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Fraction de précipitation cloud"
+    )
+    print("✓ fpr_c (cloud precipitation fraction)")
+    
+    assert_allclose(
+        state["fpr_r"],
+        rain_ice_repro_ds["PFPR_OUT"][:,2,:,:],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Fraction de précipitation rain"
+    )
+    print("✓ fpr_r (rain precipitation fraction)")
+    
+    assert_allclose(
+        state["fpr_i"],
+        rain_ice_repro_ds["PFPR_OUT"][:,3,:,:],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Fraction de précipitation ice"
+    )
+    print("✓ fpr_i (ice precipitation fraction)")
+    
+    assert_allclose(
+        state["fpr_s"],
+        rain_ice_repro_ds["PFPR_OUT"][:,4,:,:],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Fraction de précipitation snow"
+    )
+    print("✓ fpr_s (snow precipitation fraction)")
+    
+    assert_allclose(
+        state["fpr_g"],
+        rain_ice_repro_ds["PFPR_OUT"][:,5,:,:],
+        atol=1e-5,
+        rtol=1e-5,
+        err_msg="[ECHEC] Ecart - Fraction de précipitation graupel"
+    )
+    print("✓ fpr_g (graupel precipitation fraction)")
+
+    print("\n" + "="*75)
+    print("TOUS LES TESTS DE COMPARAISON RÉUSSIS ✓")
+    print("="*75)
 
 
 if __name__ == "__main__":
