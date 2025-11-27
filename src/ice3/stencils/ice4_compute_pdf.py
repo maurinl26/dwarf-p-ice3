@@ -23,24 +23,35 @@ def ice4_compute_pdf(
     hli_lri: Field["float"],
     rf: Field["float"],
 ):
-    """PDF used to split clouds into high and low content parts
+    """Compute probability density function to split clouds into high and low content parts.
+    
+    This stencil uses a PDF-based approach to partition cloud water and ice content into
+    high-content (prone to autoconversion) and low-content regions. The splitting is based
+    on comparison with autoconversion thresholds and can use different subgrid schemes
+    (NONE, CLFR, ADJU, PDF) controlled by SUBG_AUCV_RC and SUBG_AUCV_RI externals.
+    
+    The function computes separate partitions for liquid (hlc_*) and ice (hli_*) phases,
+    determining both the cloud fractions and mixing ratios in high and low content regions.
+    Finally, it calculates the precipitation fraction (rf) as the maximum of the high
+    content cloud fractions.
 
     Args:
-        ldmicro (Field[bool]): mask for microphysics computation
-        rc_t (Field[float]): cloud droplet m.r. estimate at t
-        ri_t (Field[float]): ice m.r. estimate at t
-        cf (Field[float]): cloud fraction
-        t (Field[float]): temperature
-        sigma_rc (Field[float]): standard dev of cloud droplets m.r. over the cell
-        hlc_hcf (Field[float]): _description_
-        hlc_lcf (Field[float]): _description_
-        hlc_hrc (Field[float]): _description_
-        hlc_lrc (Field[float]): _description_
-        hli_hcf (Field[float]): _description_
-        hli_lcf (Field[float]): _description_
-        hli_hri (Field[float]): _description_
-        hli_lri (Field[float]): _description_
-        rf (Field[float]): _description_
+        ldmicro (Field[bool]): Mask for microphysics computation - true where microphysics is active
+        rhodref (Field[float]): Reference air density (kg/m³)
+        rc_t (Field[float]): Cloud droplet mixing ratio estimate at time t (kg/kg)
+        ri_t (Field[float]): Ice crystal mixing ratio estimate at time t (kg/kg)
+        cf (Field[float]): Total cloud fraction (dimensionless, 0-1)
+        t (Field[float]): Temperature (K)
+        sigma_rc (Field[float]): Standard deviation of cloud droplet mixing ratio within the grid cell (kg/kg)
+        hlc_hcf (Field[float]): Output - High liquid content cloud fraction (dimensionless, 0-1)
+        hlc_lcf (Field[float]): Output - Low liquid content cloud fraction (dimensionless, 0-1)
+        hlc_hrc (Field[float]): Output - Cloud droplet mixing ratio in high content region (kg/kg)
+        hlc_lrc (Field[float]): Output - Cloud droplet mixing ratio in low content region (kg/kg)
+        hli_hcf (Field[float]): Output - High ice content cloud fraction (dimensionless, 0-1)
+        hli_lcf (Field[float]): Output - Low ice content cloud fraction (dimensionless, 0-1)
+        hli_hri (Field[float]): Output - Ice crystal mixing ratio in high content region (kg/kg)
+        hli_lri (Field[float]): Output - Ice crystal mixing ratio in low content region (kg/kg)
+        rf (Field[float]): Output - Precipitation fraction, max of high content fractions (dimensionless, 0-1)
     """
 
     from __externals__ import (ACRIAUTI, BCRIAUTI, C_RTMIN, CRIAUTC, CRIAUTI,
