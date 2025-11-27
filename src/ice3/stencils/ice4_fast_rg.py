@@ -51,8 +51,8 @@ def ice4_fast_rg(
     rg_freez1_tnd: Field["float"],
     rg_freez2_tnd: Field["float"],
     rgmltr: Field["float"],
-    ker_sdryg: GlobalTable[float, (40, 40)],
-    ker_rdryg: GlobalTable[float, (40, 40)],
+    ker_sdryg: GlobalTable[float, (81, 81)],
+    ker_rdryg: GlobalTable[float, (41, 41)],
     index_floor_s: Field["int"],
     index_floor_g: Field["int"],
     index_floor_r: Field["int"],
@@ -265,7 +265,7 @@ def ice4_fast_rg(
     # todo : move to dace
     # 6.2.6 accretion of raindrops on the graupeln
     with computation(PARALLEL), interval(...):
-        if rrt < R_RTMIN and rgt < G_RTMIN and ldcompute:
+        if rrt > R_RTMIN and rgt > G_RTMIN and ldcompute:
             gdry = True
         else:
             gdry = False

@@ -102,7 +102,7 @@ def test_ice4_fast_rs(dtypes, backend, externals, packed_dims, domain, origin, l
 
     # Compilation du stencil Fortran de référence
     ice4_fast_rs_fortran = compile_fortran_stencil(
-        "mode_ice4_fast_processes.F90", "mode_ice4_fast_processes", "ice4_fast_rs"
+        "mode_ice4_fast_rs.F90", "mode_ice4_fast_rs", "ice4_fast_rs"
     )
 
     # =========================================================================
@@ -272,6 +272,34 @@ def test_ice4_fast_rs(dtypes, backend, externals, packed_dims, domain, origin, l
     rs_freez1_tnd_gt4py = zeros(domain, dtype=dtypes["float"], backend=backend)
     rs_freez2_tnd_gt4py = zeros(domain, dtype=dtypes["float"], backend=backend)
 
+    # GlobalTables
+    from ice3.phyex_common.phyex import Phyex
+    gaminc_rim1 = from_array(
+        Phyex("AROME").rain_ice_param.GAMINC_RIM1.astype(dtypes["float"]),
+        backend=backend,
+        dtype=dtypes["float"],
+        )
+    gaminc_rim2 = from_array(
+        Phyex("AROME").rain_ice_param.GAMINC_RIM2.astype(dtypes["float"]),
+        backend=backend,
+        dtype=dtypes["float"],
+        )
+    gaminc_rim4 = from_array(
+        Phyex("AROME").rain_ice_param.GAMINC_RIM4.astype(dtypes["float"]),
+        backend=backend,
+        dtype=dtypes["float"],
+        )
+
+    index_floor = zeros(domain, dtype=dtypes["int"], backend=backend)
+
+    from ice3.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
+    ker_raccs = from_array(KER_RACCS, backend=backend, dtype=dtypes["float"])
+    ker_raccss = from_array(KER_RACCSS, backend=backend, dtype=dtypes["float"])
+    ker_saccrg = from_array(KER_SACCRG, backend=backend, dtype=dtypes["float"])
+
+    index_floor_s = zeros(domain, dtype=dtypes["int"], backend=backend)
+    index_floor_r = zeros(domain, dtype=dtypes["int"], backend=backend)
+
     # =========================================================================
     # Exécution du stencil Python GT4Py
     # =========================================================================
@@ -308,6 +336,15 @@ def test_ice4_fast_rs(dtypes, backend, externals, packed_dims, domain, origin, l
         rs_rsaccrg_tnd=rs_rsaccrg_tnd_gt4py,
         rs_freez1_tnd=rs_freez1_tnd_gt4py,
         rs_freez2_tnd=rs_freez2_tnd_gt4py,
+        gaminc_rim1=gaminc_rim1,
+        gaminc_rim2=gaminc_rim2,
+        gaminc_rim4=gaminc_rim4,
+        index_floor=index_floor,
+        ker_raccs=ker_raccs,
+        ker_raccss=ker_raccss,
+        ker_saccrg=ker_saccrg,
+        index_floor_r=index_floor_r,
+        index_floor_s=index_floor_s,
         domain=domain,
         origin=origin,
     )
@@ -689,16 +726,18 @@ def test_ice4_fast_rs(dtypes, backend, externals, packed_dims, domain, origin, l
     
     # Distribution de température
     t_flat = FloatFieldsIJK_Input["t"].reshape(domain[0] * domain[1] * domain[2], order="F")
-    t_freezing = t_flat[t_flat < externals["TT"]]
-    t_melting = t_flat[t_flat >= externals["TT"]]
+    # Get TT from externals - try different possible key names
+    TT = externals.get("TT", externals.get("tt", externals.get("XTT", 273.15)))
+    t_freezing = t_flat[t_flat < TT]
+    t_melting = t_flat[t_flat >= TT]
     
     if len(t_freezing) > 0:
-        print(f"\nTempératures T < {externals['TT']}K (processus de gel):")
+        print(f"\nTempératures T < {TT}K (processus de gel):")
         print(f"  min={t_freezing.min():.1f}K, max={t_freezing.max():.1f}K, "
               f"moyenne={t_freezing.mean():.1f}K ({100.0*len(t_freezing)/n_total:.1f}% des points)")
     
     if len(t_melting) > 0:
-        print(f"\nTempératures T >= {externals['TT']}K (processus de fonte):")
+        print(f"\nTempératures T >= {TT}K (processus de fonte):")
         print(f"  min={t_melting.min():.1f}K, max={t_melting.max():.1f}K, "
               f"moyenne={t_melting.mean():.1f}K ({100.0*len(t_melting)/n_total:.1f}% des points)")
     

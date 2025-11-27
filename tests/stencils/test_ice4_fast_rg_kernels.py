@@ -9,9 +9,10 @@ to determine collection efficiencies between hydrometeor species.
 """
 
 from gt4py.cartesian.gtscript import PARALLEL, GlobalTable, computation, Field, stencil
-from gt4py.storage import from_array, zeros
+from gt4py.storage import from_array, ones, zeros
 import pytest
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from ice3.utils.env import dp_dtypes, sp_dtypes
 from ice3.functions.interp_micro import (
@@ -21,12 +22,80 @@ from ice3.functions.interp_micro import (
 )
 
 
+def stencil_dummy_interp_kernel1(
+    output: Field["float"],
+    ker_sdryg: GlobalTable[("float", (81, 81))]
+):
+
+    with computation(PARALLEL), interval(...):
+        output[0,0,0] = ker_sdryg.A[1, 1]
+
+def stencil_dummy_interp_kernel2(
+    index_floor_g: Field["int"],
+    index_floor_s: Field["int"],
+    output: Field["float"],
+    ker_sdryg: GlobalTable[("float", (81, 81))]
+):
+
+    with computation(PARALLEL), interval(...):
+        output[0,0,0] = ker_sdryg.A[index_floor_s, index_floor_g]
+
+@pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param("debug", marks=pytest.mark.debug),
+        pytest.param("numpy", marks=pytest.mark.numpy),
+        pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
+        pytest.param("gt:gpu", marks=pytest.mark.gpu),
+    ],
+)
+def test_dummy_interpolation_kernel(
+    domain,
+    backend,
+    externals,
+    dtypes,
+    origin
+):
+    
+    stencil_dummy_interp = stencil(
+        definition=stencil_dummy_interp_kernel2,
+        name="dummy_interp",
+        backend=backend,
+        dtypes=dtypes,
+        externals=externals
+    )
+
+    from ice3.phyex_common.xker_sdryg import KER_SDRYG
+
+    ker_sdryg = from_array(KER_SDRYG, dtype=dtypes["float"], backend=backend)
+    index_floor_g = ones(domain, backend=backend, dtype=dtypes["int"])
+    index_floor_s = ones(domain, backend=backend, dtype=dtypes["int"])
+
+    output = zeros(domain, backend=backend, dtype=dtypes["float"])
+
+    stencil_dummy_interp(
+        ker_sdryg=ker_sdryg,
+        index_floor_s=index_floor_s,
+        index_floor_g=index_floor_g,
+        output=output,
+        domain=domain,
+        origin=origin
+    )
+
+    assert output.any() == 0.185306e01
+
+
+
+
 def stencil_kernel1_ice4_fast_rg(
     ldsoft: "bool",
     gdry: "bool",
     lbdas: Field["float"],
     lbdag: Field["float"],
-    ker_sdryg: GlobalTable["float", (40, 40)],
+    ker_sdryg: GlobalTable["float", (81, 81)],
+    index_floor_s: "int" = 0,
+    index_floor_g: "int" = 0
 ):
     """
     Stencil for snow-graupel dry growth kernel interpolation.
@@ -56,14 +125,15 @@ def stencil_kernel1_ice4_fast_rg(
     """
     with computation(PARALLEL), interval(...):
         if (not ldsoft) and gdry:
-            index_floor_s, index_float_s = index_micro2d_dry_s(lbdas)
-            index_floor_g, index_float_g = index_micro2d_dry_g(lbdag)
-            zw_tmp = index_float_g * (
-                index_float_s * ker_sdryg.A[index_floor_g + 1, index_floor_s + 1]
-                + (1 - index_float_s) * ker_sdryg.A[index_floor_g + 1, index_floor_s]
-            ) + (1 - index_float_g) * (
-                index_float_s * ker_sdryg.A[index_floor_g, index_floor_s + 1]
-                + (1 - index_float_s) * ker_sdryg.A[index_floor_g, index_floor_s]
+
+            _, weight_s = index_micro2d_dry_s(lbdas[0,0,0])
+            _, weight_g = index_micro2d_dry_g(lbdag[0,0,0])
+            zw_tmp = weight_g * (
+                weight_s * ker_sdryg.A[index_floor_g, index_floor_s]
+                + (1 - weight_s) * ker_sdryg.A[index_floor_g, index_floor_s]
+            ) + (1 - weight_g) * (
+                weight_s * ker_sdryg.A[index_floor_g, index_floor_s]
+                + (1 - weight_s) * ker_sdryg.A[index_floor_g, index_floor_s]
             )
 
 
@@ -138,6 +208,8 @@ def test_kernel1_ice4_fast_rg(externals, dtypes, backend, domain, origin):
         lbdas=lbdas_gt4py,
         lbdag=lbdag_gt4py,
         ker_sdryg=ker_rdryg,
+        index_floor_s=dtypes["int"](0),
+        index_floor_g=dtypes["int"](0),
         domain=domain,
         origin=origin,
     )
@@ -227,8 +299,8 @@ def test_kernel2_ice4_fast_rg(externals, dtypes, backend, domain, origin):
     from ice3.phyex_common.xker_rdryg import KER_RDRYG
 
     kernel2 = stencil(
-        definition=stencil_kernel1_ice4_fast_rg,
-        name="kernel1",
+        definition=stencil_kernel2_ice4_fast_rg,
+        name="kernel2",
         backend=backend,
         dtypes=dtypes,
         externals=externals,
