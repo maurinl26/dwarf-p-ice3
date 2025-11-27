@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+"""State initialization for ICE_ADJUST microphysics component.
+
+This module handles the allocation and initialization of atmospheric state variables
+required by the ICE_ADJUST cloud adjustment scheme. It manages the creation of GT4Py
+storage fields and their initialization from NetCDF datasets containing reference data.
+
+The ICE_ADJUST scheme adjusts temperature and vapor/cloud water content to ensure
+thermodynamic consistency and saturation equilibrium.
+"""
 from __future__ import annotations
 
 import logging
@@ -94,14 +103,27 @@ def allocate_state_ice_adjust(
         backend: str,
         dtypes: Dict[str, type]
 ) -> xr.Dataset:
-    """Allocate field to state keys following type (float, int, bool) and dimensions (2D, 3D).
+    """Allocate GT4Py storage for all ICE_ADJUST state variables and tendencies.
+    
+    Creates zero-initialized GT4Py storage fields for all atmospheric state variables
+    required by the ICE_ADJUST cloud adjustment scheme. This includes thermodynamic
+    variables (temperature, pressure), mixing ratios for all hydrometeor species,
+    cloud fraction parameters, and tendency terms.
 
     Args:
-        computational_grid (ComputationalGrid): grid indexes
-        gt4py_config (GT4PyConfig): gt4py configuration
+        domain (Tuple[int, ...]): 3D domain shape as (ni, nj, nk) where ni, nj are
+            horizontal dimensions and nk is the number of vertical levels
+        backend (str): GT4Py backend name (e.g., "gt:cpu_ifirst", "gt:gpu")
+        dtypes (Dict[str, type]): Dictionary mapping type names ("float", "int", "bool")
+            to numpy dtypes
 
     Returns:
-        NDArrayLikeDict: dictionnary of field with associated keys for field name
+        Dict[str, DataArray]: Dictionary of allocated GT4Py storage fields with keys for:
+            - Thermodynamic state: exn, exnref, rhodref, pabs, th, etc.
+            - Mixing ratios: rv, rc, rr, ri, rs, rg (vapor, cloud, rain, ice, snow, graupel)
+            - Cloud parameters: cldfr, cf_mf, sigqsat, sigs, etc.
+            - Tendency terms: ths, rvs, rcs, rrs, ris, rss, rgs
+            - Subgrid parameters: hlc_hrc, hlc_hcf, hli_hri, hli_hcf, etc.
     """
 
     def _allocate(
@@ -168,15 +190,22 @@ def get_state_ice_adjust(
     backend: str,
     dataset: xr.Dataset,    
 ) -> xr.Dataset:
-    """Create a state with reproductibility data set.
+    """Create and initialize an ICE_ADJUST state from reference data.
+    
+    This is a convenience function that allocates all required storage fields and
+    initializes them from a NetCDF dataset containing reference/reproducibility data.
+    The dataset typically comes from Fortran reference simulations and is used for
+    validation and testing.
 
     Args:
-        computational_grid (ComputationalGrid): grid
-        gt4py_config (GT4PyConfig): config for gt4py
-        keys (Dict[keys]): field names
+        domain (Tuple[int, ...]): 3D domain shape as (ni, nj, nk)
+        backend (str): GT4Py backend name (e.g., "gt:cpu_ifirst", "gt:gpu")
+        dataset (xr.Dataset): xarray Dataset containing reference data with Fortran
+            naming conventions (e.g., PEXNREF, PRHODREF, ZRS, PRS, etc.)
 
     Returns:
-        DataArrayDict: dictionnary of data array containing reproductibility data
+        xr.Dataset: Dictionary of initialized GT4Py storage fields ready for use
+            in ICE_ADJUST computations
     """
     state = allocate_state_ice_adjust(domain, BACKEND, DTYPES)
     initialize_state_ice_adjust(state, dataset)
@@ -188,11 +217,25 @@ def initialize_state_ice_adjust(
     state: xr.Dataset,
     dataset: xr.Dataset,
 ) -> None:
-    """Initialize fields of state dictionnary with a constant field.
+    """Initialize ICE_ADJUST state fields from a reference dataset.
+    
+    Populates pre-allocated GT4Py storage with data from a NetCDF dataset containing
+    reference data. This function handles the mapping between Python field names and
+    Fortran variable names, as well as the necessary array transpositions to convert
+    from Fortran (column-major) to C (row-major) memory layout.
+    
+    Special handling is provided for:
+    - Mixing ratio arrays (PRS, ZRS) which require indexing into the hydrometeor dimension
+    - Array axis swapping to match GT4Py's expected memory layout
 
     Args:
-        state (DataArrayDict): dictionnary of state
-        gt4py_config (GT4PyConfig): configuration of gt4py
+        state (xr.Dataset): Pre-allocated dictionary of GT4Py storage fields to populate
+        dataset (xr.Dataset): xarray Dataset containing source data with Fortran variable
+            names. Must contain arrays like PEXNREF, PRHODREF, ZRS (mixing ratios),
+            PRS (tendencies), etc.
+    
+    Side Effects:
+        Modifies state dictionary in-place by copying data from dataset into storage fields
     """
 
     for name, FORTRAN_NAME in KEYS.items():
