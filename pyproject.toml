@@ -28,7 +28,7 @@ dev = [
     "ruff>=0.11.11",
 ]
 gpu = [
-    "cupy==14.0.0a1",
+    "cupy>=13.5.0",
     "cupy-xarray>=0.1.4",
 ]
 test = [
