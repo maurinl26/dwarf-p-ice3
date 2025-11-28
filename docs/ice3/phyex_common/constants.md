@@ -1,1 +1,1 @@
-::: ice3_gt4py.phyex_common.constants
+::: ice3.phyex_common.constants

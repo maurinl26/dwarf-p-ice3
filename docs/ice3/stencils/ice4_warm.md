@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.ice4_warm
+::: ice3.stencils.ice4_warm

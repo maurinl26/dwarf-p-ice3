@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.statistical_sedimentation
+::: ice3.stencils.statistical_sedimentation

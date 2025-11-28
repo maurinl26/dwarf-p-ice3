@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.aro_filter
+::: ice3.stencils.aro_filter

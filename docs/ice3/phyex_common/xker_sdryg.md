@@ -1,1 +1,1 @@
-::: ice3_gt4py.phyex_common.xker_sdryg
+::: ice3.phyex_common.xker_sdryg

@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.ice4_fast_rg
+::: ice3.stencils.ice4_fast_rg

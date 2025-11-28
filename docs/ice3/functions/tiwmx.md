@@ -1,1 +1,1 @@
-::: ice3_gt4py.functions.tiwmx
+::: ice3.functions.tiwmx

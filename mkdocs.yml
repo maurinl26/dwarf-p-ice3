@@ -8,65 +8,65 @@ nav:
     - compare: drivers/compare.md
     - config: drivers/config.md
     - core: drivers/core.md
-  - ice3_gt4py:
+  - ice3:
     - stencils:
-      - aro_filter: ice3_gt4py/stencils/aro_filter.md
-      - ice_adjust: ice3_gt4py/stencils/ice_adjust.md
-      - ice4_compute_pdf: ice3_gt4py/stencils/ice4_compute_pdf.md
-      - ice4_correct_negativities: ice3_gt4py/stencils/ice4_correct_negativities.md
-      - ice4_fast_rg: ice3_gt4py/stencils/ice4_fast_rg.md
-      - ice4_fast_rs: ice3_gt4py/stencils/ice4_fast_rs.md
-      - ice4_fast_ri: ice3_gt4py/stencils/ice4_fast_ri.md
-      - ice4_nucleation: ice3_gt4py/stencils/ice4_nucleation.md
-      - ice4_rimltc: ice3_gt4py/stencils/ice4_rimltc.md
-      - ice4_rrhong: ice3_gt4py/stencils/ice4_rrhong.md
-      - ice4_slow: ice3_gt4py/stencils/ice4_slow.md
-      - ice4_stepping: ice3_gt4py/stencils/ice4_stepping.md
-      - ice4_tendencies: ice3_gt4py/stencils/ice4_tendencies.md
-      - ice4_warm: ice3_gt4py/stencils/ice4_warm.md
-      - mixing_ratio_limiter: ice3_gt4py/stencils/mixing_ratio_step_limiter.md
-      - statistical_sedimentation: ice3_gt4py/stencils/statistical_sedimentation.md
-      - step_limiter: ice3_gt4py/stencils/step_limiter.md
-      - upwind_sedimentation: ice3_gt4py/stencils/upwind_sedimentation.md
+      - aro_filter: ice3/stencils/aro_filter.md
+      - ice_adjust: ice3/stencils/ice_adjust.md
+      - ice4_compute_pdf: ice3/stencils/ice4_compute_pdf.md
+      - ice4_correct_negativities: ice3/stencils/ice4_correct_negativities.md
+      - ice4_fast_rg: ice3/stencils/ice4_fast_rg.md
+      - ice4_fast_rs: ice3/stencils/ice4_fast_rs.md
+      - ice4_fast_ri: ice3/stencils/ice4_fast_ri.md
+      - ice4_nucleation: ice3/stencils/ice4_nucleation.md
+      - ice4_rimltc: ice3/stencils/ice4_rimltc.md
+      - ice4_rrhong: ice3/stencils/ice4_rrhong.md
+      - ice4_slow: ice3/stencils/ice4_slow.md
+      - ice4_stepping: ice3/stencils/ice4_stepping.md
+      - ice4_tendencies: ice3/stencils/ice4_tendencies.md
+      - ice4_warm: ice3/stencils/ice4_warm.md
+      - mixing_ratio_limiter: ice3/stencils/mixing_ratio_step_limiter.md
+      - statistical_sedimentation: ice3/stencils/statistical_sedimentation.md
+      - step_limiter: ice3/stencils/step_limiter.md
+      - upwind_sedimentation: ice3/stencils/upwind_sedimentation.md
     - components:
-      - aro_adjust: ice3_gt4py/components/aro_adjust.md
-      - ice_adjust: ice3_gt4py/components/ice_adjust.md
-      - aro_rain_ice: ice3_gt4py/components/aro_rain_ice.md
-      - ice4_stepping: ice3_gt4py/components/ice4_stepping.md
-      - ice4_tendencies: ice3_gt4py/components/ice4_tendencies.md
-      - rain_ice: ice3_gt4py/components/rain_ice.md
+      - aro_adjust: ice3/components/aro_adjust.md
+      - ice_adjust: ice3/components/ice_adjust.md
+      - aro_rain_ice: ice3/components/aro_rain_ice.md
+      - ice4_stepping: ice3/components/ice4_stepping.md
+      - ice4_tendencies: ice3/components/ice4_tendencies.md
+      - rain_ice: ice3/components/rain_ice.md
     - functions:
-      - backup: ice3_gt4py/functions/backup
-      - compute_ice_frac: ice3_gt4py/functions/compute_ice_frac
-      - condensation_src_1d: ice3_gt4py/functions/condensation_src_1d
-      - erf: ice3_gt4py/functions/erf
-      - gamma: ice3_gt4py/functions/gamma
-      - ice_adjust: ice3_gt4py/functions/ice_adjust
-      - ice4_sedimentation_stat: ice3_gt4py/functions/ice4_sedimentation_stat
-      - icecloud: ice3_gt4py/functions/icecloud
-      - sign: ice3_gt4py/functions/sign
-      - subgrid_mf: ice3_gt4py/functions/subgrid_mf
-      - temperature: ice3_gt4py/functions/temperature
-      - tiwmx: ice3_gt4py/functions/tiwmx
+      - backup: ice3/functions/backup
+      - compute_ice_frac: ice3/functions/compute_ice_frac
+      - condensation_src_1d: ice3/functions/condensation_src_1d
+      - erf: ice3/functions/erf
+      - gamma: ice3/functions/gamma
+      - ice_adjust: ice3/functions/ice_adjust
+      - ice4_sedimentation_stat: ice3/functions/ice4_sedimentation_stat
+      - icecloud: ice3/functions/icecloud
+      - sign: ice3/functions/sign
+      - subgrid_mf: ice3/functions/subgrid_mf
+      - temperature: ice3/functions/temperature
+      - tiwmx: ice3/functions/tiwmx
     - phyex_common:
-      - budget: ice3_gt4py/phyex_common/budget
-      - constants: ice3_gt4py/phyex_common/constants
-      - dimphyex: ice3_gt4py/phyex_common/dimphyex
-      - nebn: ice3_gt4py/phyex_common/nebn
-      - param_ice: ice3_gt4py/phyex_common/param_ice
-      - phyex: ice3_gt4py/phyex_common/phyex
-      - rain_ice_descr: ice3_gt4py/phyex_common/rain_ice_descr
-      - rain_ice_param: ice3_gt4py/phyex_common/rain_ice_param
-      - gamma_inc: ice3_gt4py/phyex_common/gamma_inc
-      - tables: ice3_gt4py/phyex_common/tables
-      - xker_raccs: ice3_gt4py/phyex_common/xker_raccs
-      - xker_rdryg: ice3_gt4py/phyex_common/xker_rdryg
-      - xker_sdryg: ice3_gt4py/phyex_common/xker_sdryg
+      - budget: ice3/phyex_common/budget
+      - constants: ice3/phyex_common/constants
+      - dimphyex: ice3/phyex_common/dimphyex
+      - nebn: ice3/phyex_common/nebn
+      - param_ice: ice3/phyex_common/param_ice
+      - phyex: ice3/phyex_common/phyex
+      - rain_ice_descr: ice3/phyex_common/rain_ice_descr
+      - rain_ice_param: ice3/phyex_common/rain_ice_param
+      - gamma_inc: ice3/phyex_common/gamma_inc
+      - tables: ice3/phyex_common/tables
+      - xker_raccs: ice3/phyex_common/xker_raccs
+      - xker_rdryg: ice3/phyex_common/xker_rdryg
+      - xker_sdryg: ice3/phyex_common/xker_sdryg
     - initialisation:
-      - utils: ice3_gt4py/initialisation/utils
-      - state: ice3_gt4py/initialisation/state
-      - state_ice_adjust: ice3_gt4py/initialisation/state_ice_adjust
-      - state_rain_ice: ice3_gt4py/initialisation/state_rain_ice
+      - utils: ice3/initialisation/utils
+      - state: ice3/initialisation/state
+      - state_ice_adjust: ice3/initialisation/state_ice_adjust
+      - state_rain_ice: ice3/initialisation/state_rain_ice
 
 
 

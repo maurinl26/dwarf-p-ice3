@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.ice4_correct_negativities
+::: ice3.stencils.ice4_correct_negativities

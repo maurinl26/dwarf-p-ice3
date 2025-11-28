@@ -1,1 +1,1 @@
-::: ice3_gt4py.utils.reader
+::: ice3.utils.reader

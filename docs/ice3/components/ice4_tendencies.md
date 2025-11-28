@@ -1,1 +1,1 @@
-::: ice3_gt4py.components.ice4_tendencies
+::: ice3.components.ice4_tendencies

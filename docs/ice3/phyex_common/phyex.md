@@ -1,1 +1,1 @@
-::: ice3_gt4py.phyex_common.phyex
+::: ice3.phyex_common.phyex

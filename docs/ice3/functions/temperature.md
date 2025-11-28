@@ -1,1 +1,1 @@
-::: ice3_gt4py.functions.temperature
+::: ice3.functions.temperature

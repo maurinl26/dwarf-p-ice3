@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.upwind_sedimentation
+::: ice3.stencils.upwind_sedimentation

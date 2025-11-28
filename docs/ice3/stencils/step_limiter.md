@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.step_limiter
+::: ice3.stencils.step_limiter
