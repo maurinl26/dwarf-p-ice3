@@ -1,3 +1,5 @@
+![ice3-logo](snowflake-color-icon.svg)
+
 ![coverage-badge](coverage.svg)
 
 # ICE3 microphysics on gt4py.
