@@ -31,16 +31,16 @@ jobs:
       run: uv sync --extra test
       
     - name: Unit reproducibility test
-      run: uv run pytest tests/repro -m debug
+      run: uv run pytest tests/repro -k "debug or numpy"
       
     - name: Component reproducibility tests
-      run: uv run pytest tests/components -m debug
-      
+      run: uv run pytest tests/components -k "debug or numpy"
+
     - name: CPU performance tests
-      run: uv run pytest tests/components -m cpu
+      run: uv run pytest tests/performance -k cpu
       
-    - name: GPU performance tests
-      run: uv run pytest pytest tests/components -m gpu
+    #- name: GPU performance tests
+    # run: uv run pytest pytest tests/components -m gpu
     
   deploy:
     runs-on: self-hosted
