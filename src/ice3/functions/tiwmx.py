@@ -81,3 +81,5 @@ def e_sat_i(t: Field["float"]):
     """
     from __externals__ import ALPI, BETAI, GAMI
 
+    return exp(ALPI - BETAI / t - GAMI * log(t))
+
