@@ -1,4 +1,4 @@
-![ice3-logo](snowflake-icon.svg)
+![ice3-logo](snowflake-icon.svg =40x40)
 
 ![coverage-badge](coverage.svg)
 
