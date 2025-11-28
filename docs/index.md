@@ -12,7 +12,7 @@ The dwarf-ice3-gt4py project is built on GT4Py and ifs-physics-common:
 
 ### PHYEX
 
-The project translates Arome's microphysics from [PHYEX](https://github.com/UMR-CNRM/PHYEX) main branch. Microphysical parametrization are splitted in two parts :
+The project translates Arome's microphysics from [PHYEX](https://github.com/UMR-CNRM/PHYEX) tag [IAL_CY50T1](). Microphysical parametrization are splitted in two parts :
 
 1. microphysical adjustments on vapour supersaturation,
 2. computation of microphysical sources and sedimentation process.
@@ -26,3 +26,8 @@ This project follows the example of [cloudsc](https://github.com/ecmwf-ifs/dwarf
 ### Translation notes
 
 Since PHYEX parametrization are shared between Méso-NH, Arome and LMDZ, some parts of the source code have been omitted. The list of changes in translation between PHYEX microphysics and dwarf-ice3-gt4py can be found here : [translation notes](translation_options.md).
+
+
+### Reference options
+
+[Namelist](namelists.md) is the reference namelist of options translated and default parameters.
