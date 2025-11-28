@@ -541,24 +541,21 @@ wheels = [
 [[package]]
 name = "dace"
 version = "1.0.2"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/GridTools/dace.git?rev=romanc%2Fstree-to-sdfg#82541a9401dcadca43edc33cf1db61a0fe21d0e5" }
 dependencies = [
     { name = "aenum" },
     { name = "astunparse" },
-    { name = "cmake" },
     { name = "dill" },
     { name = "fparser" },
     { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "networkx", version = "3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "networkx", version = "3.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "numpy" },
     { name = "packaging" },
     { name = "ply" },
     { name = "pyreadline", marker = "sys_platform == 'win32'" },
     { name = "pyyaml" },
-    { name = "scikit-build" },
     { name = "sympy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/02/1a2ece00b229710a4db8f301bba6097eacfbc2a9af84d8746089242d1cf5/dace-1.0.2.tar.gz", hash = "sha256:6728f4bcf584b9f5bbb9c9a393fbdd87364af0c6ad9120da0302b8b470f4f71c", size = 5801789 }
 
 [[package]]
 name = "deepdiff"
@@ -596,15 +593,6 @@ wheels = [
 ]
 
 [[package]]
-name = "distro"
-version = "1.9.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/fc/f8/98eea607f65de6527f8a2e8885fc8015d3e6f5775df186e443e0964a11c3/distro-1.9.0.tar.gz", hash = "sha256:2fa77c6fd8940f116ee1d6b94a2f90b13b5ea8d019b98bc8bafdcabcdd9bdbed", size = 60722 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/b3/231ffd4ab1fc9d679809f356cebee130ac7daa00d6d6f3206dd4fd137e9e/distro-1.9.0-py3-none-any.whl", hash = "sha256:7bffd925d65168f85027d8da9af6bddab658135b840670a223589bc0c8ef02b2", size = 20277 },
-]
-
-[[package]]
 name = "donfig"
 version = "0.8.1.post1"
 source = { registry = "https://pypi.org/simple" }
@@ -621,7 +609,6 @@ name = "dwarf-p-ice3"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "dace" },
     { name = "gt4py" },
     { name = "numpy" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -654,17 +641,23 @@ test = [
 ]
 
 [package.dev-dependencies]
+dace = [
+    { name = "dace" },
+]
+dev = [
+    { name = "ruff" },
+]
 test = [
     { name = "coverage-badge" },
+    { name = "pytest-benchmark" },
     { name = "pytest-cov" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7.12.0" },
-    { name = "cupy", marker = "extra == 'gpu'", specifier = ">=3.6.5" },
+    { name = "cupy", marker = "extra == 'gpu'", specifier = ">=13.5.0" },
     { name = "cupy-xarray", marker = "extra == 'gpu'", specifier = ">=0.1.4" },
-    { name = "dace", specifier = ">=1.0.2" },
     { name = "fmodpy", marker = "extra == 'test'", specifier = ">=1.7.4" },
     { name = "fprettify", marker = "extra == 'dev'", specifier = ">=0.3.7" },
     { name = "gt4py", specifier = ">=1.0.7" },
@@ -684,8 +677,11 @@ requires-dist = [
 provides-extras = ["dev", "gpu", "test", "doc"]
 
 [package.metadata.requires-dev]
+dace = [{ name = "dace", git = "https://github.com/GridTools/dace.git?rev=romanc%2Fstree-to-sdfg" }]
+dev = [{ name = "ruff", specifier = ">=0.11.11" }]
 test = [
     { name = "coverage-badge", specifier = ">=1.1.2" },
+    { name = "pytest-benchmark", specifier = ">=5.1.0" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
 ]
 
@@ -1377,15 +1373,15 @@ wheels = [
 
 [[package]]
 name = "networkx"
-version = "3.5"
+version = "3.6"
 source = { registry = "https://pypi.org/simple" }
 resolution-markers = [
     "python_full_version >= '3.12'",
     "python_full_version == '3.11.*'",
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/6c/4f/ccdb8ad3a38e583f214547fd2f7ff1fc160c43a75af88e6aec213404b96a/networkx-3.5.tar.gz", hash = "sha256:d4c6f9cf81f52d69230866796b82afbccdec3db7ae4fbd1b65ea750feed50037", size = 2471065 }
+sdist = { url = "https://files.pythonhosted.org/packages/e8/fc/7b6fd4d22c8c4dc5704430140d8b3f520531d4fe7328b8f8d03f5a7950e8/networkx-3.6.tar.gz", hash = "sha256:285276002ad1f7f7da0f7b42f004bcba70d381e936559166363707fdad3d72ad", size = 2511464 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/8d/776adee7bbf76365fdd7f2552710282c79a4ead5d2a46408c9043a2b70ba/networkx-3.5-py3-none-any.whl", hash = "sha256:0030d386a9a06dee3565298b4a734b68589749a544acbb6c412dc9e2489ec6ec", size = 2034406 },
+    { url = "https://files.pythonhosted.org/packages/07/c7/d64168da60332c17d24c0d2f08bdf3987e8d1ae9d84b5bbd0eec2eb26a55/networkx-3.6-py3-none-any.whl", hash = "sha256:cdb395b105806062473d3be36458d8f1459a4e4b98e236a66c3a48996e07684f", size = 2063713 },
 ]
 
 [[package]]
@@ -1885,22 +1881,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/46/0e892064d0adc18bcc81deed9aaa9942a27fd2cd9b1b7791111ce468c25f/ruff-0.11.11-py3-none-win32.whl", hash = "sha256:1adcb9a18802268aaa891ffb67b1c94cd70578f126637118e8099b8e4adcf112", size = 10536492 },
     { url = "https://files.pythonhosted.org/packages/1b/d9/232e79459850b9f327e9f1dc9c047a2a38a6f9689e1ec30024841fc4416c/ruff-0.11.11-py3-none-win_amd64.whl", hash = "sha256:748b4bb245f11e91a04a4ff0f96e386711df0a30412b9fe0c74d5bdc0e4a531f", size = 11612562 },
     { url = "https://files.pythonhosted.org/packages/ce/eb/09c132cff3cc30b2e7244191dcce69437352d6d6709c0adf374f3e6f476e/ruff-0.11.11-py3-none-win_arm64.whl", hash = "sha256:6c51f136c0364ab1b774767aa8b86331bd8e9d414e2d107db7a2189f35ea1f7b", size = 10735951 },
-]
-
-[[package]]
-name = "scikit-build"
-version = "0.18.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "distro" },
-    { name = "packaging" },
-    { name = "setuptools" },
-    { name = "tomli", marker = "python_full_version < '3.11'" },
-    { name = "wheel" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/56/54/2beb41f3fcddb4ea238634c6c23fe93115090d8799a45f626a83e6934c16/scikit_build-0.18.1.tar.gz", hash = "sha256:a4152ac5a084d499c28a7797be0628d8366c336e2fb0e1a063eb32e55efcb8e7", size = 274171 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/c3/a3/21b519f58de90d684056c52ec4e45f744cfda7483f082dcc4dd18cc74a93/scikit_build-0.18.1-py3-none-any.whl", hash = "sha256:a6860e300f6807e76f21854163bdb9db16afc74eadf34bd6a9947d3fdfcd725a", size = 85568 },
 ]
 
 [[package]]

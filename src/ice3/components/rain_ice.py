@@ -10,7 +10,7 @@ from typing import Dict, Tuple
 from numpy.typing import NDArray
 
 import xarray as xr
-from gt4py.cartesian.gtscript import stencil
+from gt4py.cartesian.gtscript import stencil, IJK, IJ
 
 from ..components.ice4_tendencies import Ice4Tendencies
 from ..phyex_common.ice_parameters import Sedim
@@ -33,6 +33,7 @@ class RainIce:
 
         self.phyex = phyex
         self.backend = backend
+        self.dtypes = dtypes
 
 
         externals =phyex.externals# Add missing externals needed for sedimentation
@@ -217,9 +218,15 @@ class RainIce:
     ):
 
         with managed_temporaries(
-            *repeat((domain, "bool"), 2),
-            *repeat((domain, "float"), 50),
-            *repeat((domain[0:2], "float"), 2),
+            [
+                *repeat((IJK, "bool"), 2),
+                *repeat((IJK, "float"), 50),
+                *repeat((IJ, "float"), 2),
+            ],
+            domain=domain,
+            backend=self.backend,
+            dtypes=self.dtypes
+            
         ) as (
             ldmicro,
             ldcompute,

@@ -90,4 +90,4 @@ from gt4py.cartesian.gtscript import stencil
 
 # Pre-configured stencil decorator with backend and dtypes set
 # Use this instead of the raw @stencil decorator to ensure consistency
-compile_stencil: Callable[..., StencilObject] = partial(stencil, backend=BACKEND, dtypes=DTYPES)
+compile_stencil: Callable[..., StencilObject] = partial[Callable[..., StencilObject] | StencilObject](stencil, backend=BACKEND, dtypes=DTYPES)

@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "dace>=1.0.2",
     "gt4py>=1.0.7",
     "numpy<2.0",
     "scipy>=1.15.3",
@@ -58,8 +57,18 @@ url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
 
+[tool.uv.sources]
+dace = { git = "https://github.com/GridTools/dace.git", rev = "romanc/stree-to-sdfg" }
+
 [dependency-groups]
+dace = [
+    "dace",
+]
+dev = [
+    "ruff>=0.11.11",
+]
 test = [
     "coverage-badge>=1.1.2",
+    "pytest-benchmark>=5.1.0",
     "pytest-cov>=7.0.0",
 ]
