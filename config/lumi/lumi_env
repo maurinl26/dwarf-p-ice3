@@ -1,0 +1,51 @@
+module --force purge
+module load LUMI/24.03
+module load partition/G
+module load cpeCray/24.03
+module load Boost/1.83.0-cpeCray-24.03
+module load buildtools
+module load cray-python
+module load rocm/6.0.3
+
+export PYTHONPATH=/opt/cray/pe/python/3.9.12.1:$PYTHONPATH
+
+# GT4Py code generation cache
+export GT_CACHE_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/gt_cache/lumi/23.03/cray
+export GT_CACHE_DIR_NAME=.gt_cache
+
+# Dace config
+#export DACE_CONFIG=/project/project_465000527/maurinlo/dwarf-p-ice3/amd-gpu/gt_cache/lumi/23.03/cray/.dace.conf
+
+# Cuda + HIP
+export CUDA_HOME=/opt/rocm-6.0.3
+export CUPY_ACCELERATORS=cub
+export CUPY_INSTALL_USE_HIP=1
+export GT4PY_USE_HIP=1
+export HCC_AMDGPU_TARGET=gfx90a
+export ROCM_HOME=/opt/rocm-6.0.3
+export CUDA_ARCH=90
+
+# Discover GPUs
+export ROCR_VISIBLE_DEVICES=$SLURM_LOCALID
+
+# Custom libs for file reading
+export HDF5_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/hdf5/1.14.3/build/lumi/23.03/cray
+export NETCDF_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/netcdf-c/4.9.2/build/lumi/23.03/cray
+#export BOOST_ROOT=/project/project_465000527/maurinlo/dwarf-p-ice3/boost/1.83.0
+
+# Compiler options
+export CC=CC
+export CXX=CC
+export MPICC=CC
+export MPICXX=CC
+
+# Flags and Links
+export CFLAGS="-I/opt/rocm-6.0.3/include"
+export LDFLAGS="-L/opt/rocm-6.0.3/lib"
+export LIBRARY_PATH=$LIBRARY_PATH:/opt/rocm-6.0.3/lib
+export HIPCC_COMPILE_FLAGS_APPEND='--offload-arch=gfx90a $(CC --cray-print-opts=cflags)'
+export HIPCC_LINK_FLAGS_APPEND=$(CC --cray-print-opts=libs)
+
+# Custom env var
+export ICE3_PATH=/project/project_465000527/maurinlo/dwarf-p-ice3
+export SCRATCH_PATH=/scratch/project_645000527/maurinlo
