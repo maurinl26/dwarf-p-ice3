@@ -8,7 +8,7 @@ dwarf-p-ice3 is a porting of ice3 microphysics with Python and GT4Py dsl.
 Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
 repository or updated as a submodule in this project -via _install.sh_ script.
 
-The official version for reproducibility is CY48t3.
+The official version for reproducibility is CY50T1.
 
 ## Installation and build
 
