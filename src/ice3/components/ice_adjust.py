@@ -28,9 +28,12 @@ class IceAdjust:
         backend: str = BACKEND,
     ) -> None:
 
+        externals = phyex.externals
+        externals.update({"OCND2": False})
+
         compile_stencil = partial(stencil,
             backend=backend,
-            externals=phyex.externals,
+            externals=externals,
             dtypes=dtypes,
         )
 

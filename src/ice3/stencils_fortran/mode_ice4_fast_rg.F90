@@ -124,22 +124,22 @@ REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRST     ! Snow/aggregate m.r. at
 REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRGT     ! Graupel m.r. at t
 REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRGSI    ! Graupel tendency by other processes
 REAL, DIMENSION(KPROMA),      INTENT(IN)    :: PRGSI_MR ! Graupel mr change by other processes
-LOGICAL, DIMENSION(KPROMA),   INTENT(OUT)   :: LDWETG   ! .TRUE. where graupel grows in wet mode
-REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRICFRRG ! Rain contact freezing
-REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRRCFRIG ! Rain contact freezing
-REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRICFRR  ! Rain contact freezing
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRCWETG  ! Graupel wet growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRIWETG  ! Graupel wet growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRRWETG  ! Graupel wet growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRSWETG  ! Graupel wet growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRCDRYG  ! Graupel dry growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRIDRYG  ! Graupel dry growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRRDRYG  ! Graupel dry growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRSDRYG  ! Graupel dry growth
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRWETGH  ! Conversion of graupel into hail
-REAL, DIMENSION(KPROMA),      INTENT(OUT)   :: PRWETGH_MR ! Conversion of graupel into hail, mr change
-REAL, DIMENSION(KPROMA),      INTENT(INOUT) :: PRGMLTR  ! Melting of the graupel
-REAL, DIMENSION(KPROMA, 8),   INTENT(INOUT) :: PRG_TEND ! Individual tendencies
+LOGICAL, DIMENSION(size(PRHODREF, 1)),   INTENT(OUT)   :: LDWETG   ! .TRUE. where graupel grows in wet mode
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(INOUT) :: PRICFRRG ! Rain contact freezing
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(INOUT) :: PRRCFRIG ! Rain contact freezing
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(INOUT) :: PRICFRR  ! Rain contact freezing
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRCWETG  ! Graupel wet growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRIWETG  ! Graupel wet growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRRWETG  ! Graupel wet growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRSWETG  ! Graupel wet growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRCDRYG  ! Graupel dry growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRIDRYG  ! Graupel dry growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRRDRYG  ! Graupel dry growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRSDRYG  ! Graupel dry growth
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRWETGH  ! Conversion of graupel into hail
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(OUT)   :: PRWETGH_MR ! Conversion of graupel into hail, mr change
+REAL, DIMENSION(size(PRHODREF, 1)),      INTENT(INOUT) :: PRGMLTR  ! Melting of the graupel
+REAL, DIMENSION(size(PRHODREF, 1), 8),   INTENT(INOUT) :: PRG_TEND ! Individual tendencies
 !
 !*       0.2  Declaration of local variables
 !

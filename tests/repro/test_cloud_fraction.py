@@ -123,7 +123,9 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
     )
 
     # Exécution de la référence Fortran
-    zt, zlv, zls, zcph = fortran_stencil(
+    (
+        zlv, zls, zcph, zt
+    ) = fortran_stencil(
         nrr=6,
         prv=FloatFieldsIJK["rv"].reshape(domain[0]*domain[1], domain[2]),
         prc=FloatFieldsIJK["rc"].reshape(domain[0]*domain[1], domain[2]),
