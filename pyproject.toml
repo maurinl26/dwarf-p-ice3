@@ -57,3 +57,9 @@ name = "ice3"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
+
+[dependency-groups]
+test = [
+    "coverage-badge>=1.1.2",
+    "pytest-cov>=7.0.0",
+]
