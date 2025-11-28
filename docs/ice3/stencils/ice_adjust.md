@@ -1,1 +1,1 @@
-::: ice3stencils.ice_adjust
+::: ice3.stencils.ice_adjust
