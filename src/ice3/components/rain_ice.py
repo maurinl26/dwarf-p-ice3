@@ -34,11 +34,25 @@ class RainIce:
         self.phyex = phyex
         self.backend = backend
 
+
+        externals =phyex.externals# Add missing externals needed for sedimentation
+        externals.update({
+            "LBC_LAND": 1.0e7,  # Default land value
+            "LBC_SEA": 1.0e8,   # Default sea value
+            "FSEDC_LAND": 4.0e-4,  # Default land value
+            "FSEDC_SEA": 3.0e-4,   # Default sea value  
+            "CONC_LAND": 3.0e8,  # concentration land
+            "CONC_SEA": 5.0e7,   # concentration sea
+            "CONC_URBAN": 5.0e8, # concentration urban
+            "FSEDI": 3.29,  # pristine ice sedimentation
+            "EXCSEDI": 0.33,  # pristine ice exponent
+        })
+
         compile_stencil = partial(
             stencil,
             backend=backend,
             dtypes=dtypes,
-            externals=phyex.externals
+            externals=externals
         )
 
         from ..stencils.ice4_compute_pdf import ice4_compute_pdf

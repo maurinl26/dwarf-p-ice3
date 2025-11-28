@@ -49,6 +49,17 @@ dp_dtypes = {
     "bool": np.bool_
 }
 
+# ALL_BACKENDS
+ALL_BACKENDS = [
+    "debug",
+    "numpy",
+    "gt:cpu_ifirst",
+    "gt:cpu_kfirst",
+    "gt:gpu",
+    "dace:cpu",
+    "dace:gpu"
+]
+
 
 ############# Set BACKEND ##############
 try:

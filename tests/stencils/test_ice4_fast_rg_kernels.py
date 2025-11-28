@@ -23,22 +23,21 @@ from ice3.functions.interp_micro import (
 
 
 def stencil_dummy_interp_kernel1(
-    output: Field["float"],
-    ker_sdryg: GlobalTable[("float", (81, 81))]
+    output: Field["float"], ker_sdryg: GlobalTable[("float", (81, 81))]
 ):
-
     with computation(PARALLEL), interval(...):
-        output[0,0,0] = ker_sdryg.A[1, 1]
+        output[0, 0, 0] = ker_sdryg.A[1, 1]
+
 
 def stencil_dummy_interp_kernel2(
     index_floor_g: Field["int"],
     index_floor_s: Field["int"],
     output: Field["float"],
-    ker_sdryg: GlobalTable[("float", (81, 81))]
+    ker_sdryg: GlobalTable[("float", (81, 81))],
 ):
-
     with computation(PARALLEL), interval(...):
-        output[0,0,0] = ker_sdryg.A[index_floor_s, index_floor_g]
+        output[0, 0, 0] = ker_sdryg.A[index_floor_s, index_floor_g]
+
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])
 @pytest.mark.parametrize(
@@ -50,20 +49,13 @@ def stencil_dummy_interp_kernel2(
         pytest.param("gt:gpu", marks=pytest.mark.gpu),
     ],
 )
-def test_dummy_interpolation_kernel(
-    domain,
-    backend,
-    externals,
-    dtypes,
-    origin
-):
-    
+def test_dummy_interpolation_kernel(domain, backend, externals, dtypes, origin):
     stencil_dummy_interp = stencil(
         definition=stencil_dummy_interp_kernel2,
         name="dummy_interp",
         backend=backend,
         dtypes=dtypes,
-        externals=externals
+        externals=externals,
     )
 
     from ice3.phyex_common.xker_sdryg import KER_SDRYG
@@ -80,12 +72,10 @@ def test_dummy_interpolation_kernel(
         index_floor_g=index_floor_g,
         output=output,
         domain=domain,
-        origin=origin
+        origin=origin,
     )
 
     assert output.any() == 0.185306e01
-
-
 
 
 def stencil_kernel1_ice4_fast_rg(
@@ -95,7 +85,7 @@ def stencil_kernel1_ice4_fast_rg(
     lbdag: Field["float"],
     ker_sdryg: GlobalTable["float", (81, 81)],
     index_floor_s: "int" = 0,
-    index_floor_g: "int" = 0
+    index_floor_g: "int" = 0,
 ):
     """
     Stencil for snow-graupel dry growth kernel interpolation.
@@ -125,9 +115,8 @@ def stencil_kernel1_ice4_fast_rg(
     """
     with computation(PARALLEL), interval(...):
         if (not ldsoft) and gdry:
-
-            _, weight_s = index_micro2d_dry_s(lbdas[0,0,0])
-            _, weight_g = index_micro2d_dry_g(lbdag[0,0,0])
+            _, weight_s = index_micro2d_dry_s(lbdas[0, 0, 0])
+            _, weight_g = index_micro2d_dry_g(lbdag[0, 0, 0])
             zw_tmp = weight_g * (
                 weight_s * ker_sdryg.A[index_floor_g, index_floor_s]
                 + (1 - weight_s) * ker_sdryg.A[index_floor_g, index_floor_s]
