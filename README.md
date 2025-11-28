@@ -1,3 +1,5 @@
+![coverage-badge](coverage.svg)
+
 # ICE3 microphysics on gt4py.
 
 dwarf-p-ice3 is a porting of ice3 microphysics with Python and GT4Py dsl. 
