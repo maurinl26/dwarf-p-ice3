@@ -91,6 +91,11 @@ def test_ice4_fast_rs(dtypes, backend, externals, packed_dims, domain, origin, l
     """
     from ice3.stencils.ice4_fast_rs import ice4_fast_rs
 
+    if "CSNOWRIMING" not in externals.keys():
+        externals.update({
+            "CSNOWRIMING": "M90"
+        })
+
     # Compilation du stencil GT4Py
     ice4_fast_rs_gt4py = stencil(
         backend,
@@ -399,7 +404,7 @@ def test_ice4_fast_rs(dtypes, backend, externals, packed_dims, domain, origin, l
         "xfsaccrg": "FSACCRG",
         "xsrimcg": "SRIMCG",
         "xexsrimcg": "EXSRIMCG",
-        "xcexvt": "CVEXT",
+        "xcexvt": "CEXVT",
         "xalpw": "ALPW",
         "xbetaw": "BETAW",
         "xgamw": "GAMW",
