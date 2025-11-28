@@ -1,1 +1,1 @@
-::: ice3_gt4py.components.ice_adjust
+::: ice3.components.ice_adjust

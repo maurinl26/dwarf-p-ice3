@@ -1,1 +1,1 @@
-::: ice3_gt4py.functions.interp_micro
+::: ice3.functions.interp_micro

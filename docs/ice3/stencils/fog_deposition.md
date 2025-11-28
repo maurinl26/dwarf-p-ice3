@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.fog_deposition
+::: ice3.stencils.fog_deposition

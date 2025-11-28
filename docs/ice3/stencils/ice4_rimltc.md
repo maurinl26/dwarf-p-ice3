@@ -1,1 +1,1 @@
-::: ice3_gt4py.stencils.ice4_rimltc
+::: ice3.stencils.ice4_rimltc

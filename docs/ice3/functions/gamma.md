@@ -1,1 +1,1 @@
-::: ice3_gt4py.functions.gamma
+::: ice3.functions.gamma

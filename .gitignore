@@ -31,7 +31,7 @@ src/ice3/stencils_fortran/ref
 venv*
 
 src/testprogs_data/fortran/
-src/dwarf_ice3_gt4py.egg-info/
+src/dwarf_ice3.egg-info/
 output/
 dist/
 .venv*
@@ -47,7 +47,7 @@ scripts
 mode_*/
 cloud_fraction/
 sandbox/
-src/dwarf_ice3_gt4py.egg-info/
+src/dwarf_ice3.egg-info/
 
 requirements.txt
 requirements_gpu.txt

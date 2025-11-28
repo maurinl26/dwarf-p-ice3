@@ -1,1 +1,1 @@
-::: ice3_gt4py.components.rain_ice
+::: ice3.components.rain_ice
