@@ -203,7 +203,7 @@ Components under (components)[tests/components] are monitored with continuous be
 
 ## Structure du projet 
 
-- [./src](src)
+- [src](./src) :
   - [drivers](./src/drivers) : Command Line Interface'
   - [ice3](./src/ice3/) :
     - [stencils](./src/ice3/stencils) : stencils gt4py et dace,
@@ -211,7 +211,8 @@ Components under (components)[tests/components] are monitored with continuous be
     - [initialisation](./src/ice3/initialisation) : initialisation des champs (arrays),
     - [phyex_common](./src/ice3/phyex_common) : équivalents des types dérivés fortran, recodés commme dataclasses,
     - [stencils_fortran](./src/ice3/stencils_fortran) : équivalent fortran des stencisl gt4py (modules + 1 subroutine = 1 stencil gt4py),
-    - [utils](./src/ice3/utils) : utilitaires pour la config et l'allocation des champs
+    - [utils](./src/ice3/utils) : utilitaires pour la config et l'allocation des champs.
+- [tests](./tests) : tests de reproductibilité et de performance.
 
 ## Work in Progress
 
