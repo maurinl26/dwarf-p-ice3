@@ -21,8 +21,9 @@ import logging
 from functools import partial
 from itertools import repeat
 from typing import Tuple, Dict
+from gt4py.cartesian.definitions import DomainInfo
 from numpy.typing import NDArray
-from gt4py.cartesian.gtscript import stencil
+from gt4py.cartesian.gtscript import IJK, stencil
 
 from ..phyex_common.phyex import Phyex
 from ..utils.env import DTYPES, BACKEND
@@ -81,11 +82,16 @@ class IceAdjustModular:
         self.dtypes = dtypes
         self.backend = backend
 
+        externals = phyex.externals
+        externals.update(
+            {"OCND2": False}
+        )
+
         # Configuration de la compilation des stencils
         compile_stencil = partial(
             stencil,
             backend=backend,
-            externals=phyex.externals,
+            externals=externals,
             dtypes=dtypes,
         )
 
@@ -231,7 +237,12 @@ class IceAdjustModular:
         """
         # Création des champs temporaires nécessaires
         with managed_temporaries(
-            *repeat((domain, "float"), 8)
+            [
+                *repeat((IJK, "float"), 18)
+            ],
+            domain=domain,
+            dtypes=self.dtypes,
+            backend=self.backend
         ) as (
             t,          # Température [K]
             lv,         # Chaleur latente vaporisation [J/kg]
@@ -241,6 +252,16 @@ class IceAdjustModular:
             rc_out,     # Rapport mélange liquide après condensation [kg/kg]
             ri_out,     # Rapport mélange glace après condensation [kg/kg]
             q1,         # Paramètre distribution sous-maille
+            pv_out,
+            piv_out,
+            frac_out,
+            qsl_out,
+            qsi_out,
+            sigma_out,
+            cond_out,
+            a_out,
+            b_out,
+            sbar_out,
         ):
             
             log.debug("Étape 1/4: Calcul champs thermodynamiques")
@@ -289,6 +310,16 @@ class IceAdjustModular:
                 lv=lv,              # IN
                 ls=ls,              # IN
                 q1=q1,              # OUT
+                pv_out=pv_out,      # OUT
+                piv_out=piv_out,    # OUT
+                frac_out=frac_out,  # OUT
+                qsl_out=qsl_out,    # OUT
+                qsi_out=qsi_out,    # OUT
+                sigma_out=sigma_out,# OUT
+                cond_out=cond_out,  # OUT
+                a_out=a_out,        # OUT
+                b_out=b_out,        # OUT
+                sbar_out=sbar_out,  # OUT
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,

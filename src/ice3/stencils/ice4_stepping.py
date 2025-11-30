@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-from gt4py.cartesian.gtscript import PARALLEL, Field, computation, interval
+from gt4py.cartesian.gtscript import PARALLEL, Field, computation, interval, function
 from ice3.functions.ice_adjust import (constant_pressure_heat_capacity,
                                        sublimation_latent_heat,
                                        vaporisation_latent_heat)
@@ -269,7 +269,7 @@ def ice4_mixing_ratio_step_limiter(
             delta_t_micro = 0
             ldcompute = False
 
-
+@function
 def mixing_ratio_step_limiter(
     r_tnd_a: "float",
     r_b: "float",

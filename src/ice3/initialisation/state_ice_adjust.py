@@ -136,15 +136,15 @@ def allocate_state_ice_adjust(
             domain, backend=backend, dtype=dtypes[dtype], aligned_index=(0,0,0)
         )
 
-    allocate_b_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="bool")
-    allocate_f = partial[DataArray](_allocate, shape=domain, units="", dtype="float")
-    allocate_h = partial[DataArray](_allocate, shape=(
+    allocate_b_ij = partial[DataArray](_allocate, domain=domain[0:2], dtype="bool")
+    allocate_f = partial[DataArray](_allocate, domain=domain, dtype="float")
+    allocate_h = partial[DataArray](_allocate, domain=(
         domain[0],
         domain[1],
         domain[2] + 1),
         dtype="float")
-    allocate_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="float")
-    allocate_i_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="int")
+    allocate_ij = partial[DataArray](_allocate, domain=domain[0:2], dtype="float")
+    allocate_i_ij = partial[DataArray](_allocate, domain=domain[0:2], dtype="int")
 
     return {
         "time": datetime(year=2024, month=1, day=1),
