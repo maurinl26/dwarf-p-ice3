@@ -31,7 +31,7 @@ jobs:
       run: uv sync --extra test
       
     - name: Unit reproducibility test
-      run: uv run pytest tests/repro -k "debug or numpy"
+      run: uv run pytest tests/repro -k "debug or numpy" --maxfail=50
       
     - name: Component reproducibility tests
       run: uv run pytest tests/components -k "debug or numpy"
