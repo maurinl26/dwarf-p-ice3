@@ -9,7 +9,7 @@ from typing import Dict, Tuple
 from numpy.typing import NDArray
 
 from gt4py.storage import from_array
-from gt4py.cartesian.gtscript import stencil
+from gt4py.cartesian.gtscript import IJK, stencil
 
 from ..phyex_common.phyex import Phyex
 from ..phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
@@ -36,7 +36,9 @@ class Ice4Tendencies:
         backend: str = BACKEND,
     ) -> None:
 
+        self.phyex = phyex
         self.backend = backend
+        self.dtypes = dtypes
 
         compile_stencil = partial(
             stencil,
@@ -154,8 +156,13 @@ class Ice4Tendencies:
 
         # todo : replace managed context
         with managed_temporaries(
-            *repeat((domain, "float"), 63),
-            *repeat((domain, "int"), 4),
+            [
+            *repeat((IJK, "float"), 63),
+            *repeat((IJK, "int"), 4),
+            ],
+            backend=self.backend,
+            dtypes=self.dtypes,
+            domain=domain,
         ) as (
             # mr
             rvheni_mr,
