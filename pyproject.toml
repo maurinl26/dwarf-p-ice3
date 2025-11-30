@@ -69,6 +69,7 @@ dev = [
 ]
 test = [
     "coverage-badge>=1.1.2",
+    "fmodpy>=1.7.4",
     "pytest-benchmark>=5.1.0",
     "pytest-cov>=7.0.0",
 ]

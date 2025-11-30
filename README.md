@@ -230,9 +230,46 @@ Components under (components)[tests/components] are monitored with continuous be
 
 Les lookup tables ne sont pas implémentées en gt4py (indexation dynamique), et restent à implémenter.
 
-- diagnostic sigma rc : ()[]
-- kernels [ice4_fast_rs.py](src/ice3/stencils/ice4_fast_rs.py) et [ice4_fast_rg.py](src/ice3/stencils/ice4_fast_rg.py),
+- diagnostic sigma rc : (mode_sigrc_computation.F90)[./src/ice3/stencils_fortran/mode_sigrc_computation.F90] :
 
+Detailed issue : 
+
+GT4Py (cartesian) does not manage the interpolation on relative index "SRC_1D(INQ1 + 24)".
+
+```fortran
+
+SUBROUTINE SIGRC_COMPUTATION(NIJT, NKT, NKTE, NKTB,     NIJE, NIJB, &
+HLAMBDA3, ZQ1, PSIGRC, INQ1)
+!!
+IMPLICIT NONE
+
+INTEGER, INTENT(IN) :: NIJT, NKT, NKTE, NKTB, NIJE, NIJB
+INTEGER, INTENT(IN) :: HLAMBDA3
+REAL, DIMENSION(NIJT,NKT), INTENT(IN) :: ZQ1
+REAL, DIMENSION(NIJT,NKT), INTENT(OUT) :: PSIGRC
+INTEGER, DIMENSION(NIJT,NKT), INTENT(OUT) :: INQ1
+
+INTEGER :: JIJ, JK, INQ2
+REAL :: ZINC
+
+DO JK = NKTB, NKTE
+  DO JIJ = NIJB, NIJE
+    
+    INQ1(JIJ,JK) = FLOOR(MIN(100.0, MAX(-100.0, 2.0 * ZQ1(JIJ,JK))))
+    INQ2 = MIN(MAX(-22, INQ1(JIJ,JK)), 10)
+    
+    ZINC = 2.0 * ZQ1(JIJ,JK) - REAL(INQ2)
+    PSIGRC(JIJ,JK) = MIN(1.0, (1.0 - ZINC) * SRC_1D(INQ2 + 23) + &
+                                     ZINC * SRC_1D(INQ2 + 24))
+    
+  END DO
+END DO
+
+END SUBROUTINE SIGRC_COMPUTATION
+
+```
+
+- kernels [ice4_fast_rs.py](src/ice3/stencils/ice4_fast_rs.py) et [ice4_fast_rg.py](src/ice3/stencils/ice4_fast_rg.py),
 
 
 

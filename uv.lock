@@ -649,6 +649,7 @@ dev = [
 ]
 test = [
     { name = "coverage-badge" },
+    { name = "fmodpy" },
     { name = "pytest-benchmark" },
     { name = "pytest-cov" },
 ]
@@ -681,6 +682,7 @@ dace = [{ name = "dace", git = "https://github.com/GridTools/dace.git?rev=romanc
 dev = [{ name = "ruff", specifier = ">=0.11.11" }]
 test = [
     { name = "coverage-badge", specifier = ">=1.1.2" },
+    { name = "fmodpy", specifier = ">=1.7.4" },
     { name = "pytest-benchmark", specifier = ">=5.1.0" },
     { name = "pytest-cov", specifier = ">=7.0.0" },
 ]
