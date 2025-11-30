@@ -49,7 +49,7 @@ Run GPU :
 
 #### Warning
 
-It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config _pyproject.toml_) 
+It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config [pyproject.toml](pyproject.toml) 
 
 ### Atos ECMWF
 
@@ -96,7 +96,6 @@ Load PHYEX testprogs dataset :
   cd ..
 ```
 
-
 Decode files to netcdf :
 
 ```bash
@@ -106,13 +105,27 @@ Decode files to netcdf :
    ./src/testprogs_data/ice_adjust.yaml 
 ```
 
+## Fortran reference source code 
+
+Fortran reference source code is [PHYEX-IAL_CY50T1](https://github.com/UMR-CNRM/PHYEX/releases/tag/IAL_CY50T1) release.
+
+It can be downloaded :
+
+```bash
+    wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/archive/refs/tags/IAL_CY50T1.tar.gz \
+      -O IAL_CY50T1.tar.gz
+    tar xf IAL_CY50T1.tar.gz
+    rm -f IAL_CY50T1.tar.gz
+```
+
 ## Microphysical Adjustments (Ice Adjust)
 
-There are three components available for microphysical adjustments, under _/src/ice3_gt4py/components_ directory:
+There are 2 components available for microphysical adjustments, under [/src/ice3/components](./src/ice3/components) directory:
 
 - IceAdjust (ice_adjust.py) : performs condensation and adjustements following supersaturation, and is the mirror of PHYEX's ice_adjust.F90,
-- AroAdjust (aro_adjust.py) : combines both stencil collections to reproduce aro_adjust.F90.
-- To launch ice_adjust (with cli):
+- IceAdjustModular (ice_adjust_modular.py) : ice_adjust written with 4 stencils.
+  
+To launch ice_adjust (with cli):
 
 ```bash
   uv run standalone-model ice-adjust-split \
@@ -122,29 +135,14 @@ There are three components available for microphysical adjustments, under _/src/
   track_ice_adjust.json --no-rebuild 
 ```
 
-## (WIP) Integration with PHYEX
-  
-- Option 1:
-  - intégration par Serialbox dans IAL_de330 sous ecbuild
-  - édition de lien vers Serialbox à faire
-
-- Option 2:
-  - intégration des fonctions DaCe (C++)
-
-## (WIP) Integration with PMAP-L
-
-- Option 1:
-  - Intégration Python (nécessite peut-être de la réécriture de composants).
-
 ## Rain Ice
 
-There are three components available for rain_ice (one-moment microphysical processes computation), under _/src/ice3_gt4py/components_ directory:
+There are 2 components available for rain_ice (one-moment microphysical processes computation), under [/src/ice3/components](./src/ice3/components) directory:
 
-- RainIce (rain_ice.py) : calls stencils involved in RainIce computation,
-- AroRainIce (aro_rain_ice.py) : calls RainIce common computation plus non-negative filters for model coupling,
-- Ice4Tendencies (ice4_tendencies.py) : responsible for processes computation,
-- Ice4Stepping (ice4_stepping.py) : responsible for orchestration of processes computations (handling soft and heavy cycles plus accumulating tendencies).
-- To launch rain_ice (with cli):
+- RainIce (rain_ice.py) : rain_ice component,
+- Ice4Tendencies (ice4_tendencies.py) : the microphysical species computation of RainIce (equivalent to ice4_tendencies.F90).
+
+To launch rain_ice (with cli):
 
 ```bash
     uv run standalone-model ice-adjust-split \
@@ -158,9 +156,9 @@ There are three components available for rain_ice (one-moment microphysical proc
 
 Unit tests for reproductibility are using pytest. Numpy, CPU and GPU backends can be activated :
 
-- Numpy :
+- Numpy or debug :
   ```bash
-  uv run pytest tests/repro -m debug 
+  uv run pytest tests/repro -k "debug or numpy"
   ```
 - CPU :
   ```bash
@@ -171,16 +169,26 @@ Unit tests for reproductibility are using pytest. Numpy, CPU and GPU backends ca
   uv run pytest tests/repro -m gpu
   ```
 
-Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
+Fortran and GT4Py stencils can be tested side-by-side with test components ([stencil_fortran](stencil_fortran) directory).
 
 Fortran routines are issued from CY49T0 version of the code and reworked to eliminate
 derivate types from routines. Then both stencils are ran with random numpy arrays
 as an input.
 
-- conftest.py : 
-  - tous les utilitaires pour
-  - les tests : grille, domain, origine de test et config gt4py
-  - compile_fortran_stencil(fichier, module, subroutine)
+- conftest.py rassemble toutes les fixtures (utilitaires) pour :
+    - les tests : grille, domain, origine de test et config gt4py
+    - compile_fortran_stencil(fichier, module, subroutine)
+ 
+## Component tests
+
+Component tests [./tests/components](./tests/components) assess reproducibility using pytest, and checking differences with netcdf references [./data](./data).
+
+## Additional tests
+
+- _gtscript.function_ tests under [./tests/functions](./tests/functions),
+- _gtscript.stencil_ tests under [./tests/stencils](./tests/stencils),
+- utilities tests under [./tests/utils](./tests/utils).
+
 
 ## Continuous benchmarking
 
@@ -189,19 +197,8 @@ Components under (components)[tests/components] are monitored with continuous be
 ```bash
   bencher run --adapter json \
   --file result.json \
-  --token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhcGlfa2V5IiwiZXhwIjo2MDUzMDYzNjUzLCJpYXQiOjE3NTgwOTYzNTgsImlzcyI6ImJlbmNoZXIuZGV2Iiwic3ViIjoibWF1cmluLmxvaWMuYWNAZ21haWwuY29tIiwib3JnIjpudWxsLCJzdGF0ZSI6bnVsbH0.WakXPCmj4Rj0wup8FqhO1h66brXEwktNd4J7VggOano \
+  --token your_bencher_token \
   "uv run pytest tests/components/test_ice_adjust.py -m debug"
-```
-
-
-## Python Wrapper
-
-```bash
-  uv run standalone-model ice-adjust-fortran\
-  ../phyex/lib/libice-adjust.so \
-  ./data/ice_adjust/reference.nc \
-  ./data/ice_adjust/run.nc \
-  track_ice_adjust.json
 ```
 
 ## Structure du projet 
@@ -221,29 +218,25 @@ Components under (components)[tests/components] are monitored with continuous be
 
 ## Work in Progress
 
-- branche ice_adjust_review :
-  - tous les stencils ont été testés unitairement (y compris l'interpolation en DaCe). 
-  - l'interpolation (sigrc_computation_dace) doit, être intégrée au composant ice_adjust_split
-    -> Couplage stencil dace + stencil gt4py à investiguer
-  - il y a un bug, les stencils cloud_fraction_1 et cloud_fraction_2 renvoient des valeurs nulles
-    -> Les variables inout doivent être découpées en in / out
-
+### (WIP) Integration with PHYEX
   
-- branche rain_ice_review :
-  - tous les stencils des tendances (Ice4Tendencies) ont été testés
-  - les stencils dace ice4_fast_rs (2 stencils gt4py + 2 stencils DaCe) et ice4_fast_rg doivent être intégrés au composant
-  - les appels des stencils de Ice4Tendencies doivent être mis à jour (débuggage)
-  - les tests unitaires sur le stepping ne sont pas nécessaire -> il est préférable de tester le composant dans un cas 
-simple (1 boucle ldsoft)
-  - les tests unitaires des rain_fr et sedimentation sont à réaliser
+- directives Serialbox / Netcdf pour les standalone rain_ice / ice_adjust,
+- intégration des composants DaCe (C++) -> voir [DaCe-Fortran-utilities](https://github.com/maurinl26/DaCe-Fortran-utilities)
+
+### (WIP) Integration with PMAP-L
+
+- intégration ice_adjust,
+- intégration rain_ice
+
+### (WIP) Lookup Tables
+
+Les lookup tables ne sont pas implémentées en gt4py (indexation dynamique), et restent à implémenter.
+
+- diagnostic sigma rc : ()[]
+- kernels [ice4_fast_rs.py](src/ice3/stencils/ice4_fast_rs.py) et [ice4_fast_rg.py](src/ice3/stencils/ice4_fast_rg.py),
 
 
-- branches expérimentales :
-  - dace-interpolation : intégration des interpolations DaCe dans le stencil
-  - dace-orchestration : orchestration DaCe des composants pour livraison en standalone et l'intégration à pmapl :
-un composant DaCe fournit sa librairie partagée à la compilation,
-  - fortran-plugin : branche pour évaluer les branchements des composants DaCe (code complet)
-dans fortran
+
 
 
 
