@@ -289,7 +289,7 @@ def test_rain_ice(benchmark, backend, domain, dtypes, rain_ice_repro_ds):
     # Exécution et benchmark
     # ========================================================================
     print("\nExécution du composant...")
-    results = benchmark(rain_ice)
+    results = benchmark(run_rain_ice)
     print("✓ Composant exécuté")
     
     # ========================================================================
