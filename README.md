@@ -49,7 +49,7 @@ Run GPU :
 
 #### Warning
 
-It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config [pyproject.toml](pyproject.toml) 
+It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config [pyproject.toml](pyproject.toml)).
 
 ### Atos ECMWF
 
@@ -203,18 +203,15 @@ Components under (components)[tests/components] are monitored with continuous be
 
 ## Structure du projet 
 
-- src 
-  - drivers : Command Line Interface'
-  - ice3_gt4py :
-    - stencils : stencils gt4py et dace
-    - functions : fonctions gt4py
-    - initialisation : initialisation des champs (arrays)
-    - phyex_common : équivalents des modd en python : les modd ont été recodés en dataclasses
-    - stencils_fortran : équivalent fortran des stencisl gt4py (modules + 1 subroutine = 1 stencil gt4py)
-    - utils : utilitaires pour la config et l'allocation des champs
-  - testprogs_data :
-    - main : Command Line Interface pour le décodage des testprogs phyex
-    - .yaml : config de décodage des fichiers
+- [./src](src)
+  - [drivers](./src/drivers) : Command Line Interface'
+  - [ice3](./src/ice3/) :
+    - [stencils](./src/ice3/stencils) : stencils gt4py et dace,
+    - [functions](./src/ice3/functions) : fonctions gt4py,
+    - [initialisation](./src/ice3/initialisation) : initialisation des champs (arrays),
+    - [phyex_common](./src/ice3/phyex_common) : équivalents des types dérivés fortran, recodés commme dataclasses,
+    - [stencils_fortran](./src/ice3/stencils_fortran) : équivalent fortran des stencisl gt4py (modules + 1 subroutine = 1 stencil gt4py),
+    - [utils](./src/ice3/utils) : utilitaires pour la config et l'allocation des champs
 
 ## Work in Progress
 
