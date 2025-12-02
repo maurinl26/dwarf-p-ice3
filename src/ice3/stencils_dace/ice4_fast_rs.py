@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 ICE4 Fast RS (Snow/Aggregate) Processes - DaCe Implementation
 

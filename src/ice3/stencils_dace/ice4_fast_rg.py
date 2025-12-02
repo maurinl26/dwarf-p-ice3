@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 ICE4 Fast RG (Graupel) Processes - DaCe Implementation
 

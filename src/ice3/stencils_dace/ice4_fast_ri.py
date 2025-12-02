@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 ICE4 Fast RI (Ice Crystals) - DaCe Implementation
 
