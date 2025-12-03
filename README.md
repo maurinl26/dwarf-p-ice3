@@ -235,7 +235,7 @@ Components under (components)[tests/components] are monitored with continuous be
 
 Les lookup tables ne sont pas implémentées en gt4py (indexation dynamique), et restent à implémenter.
 
-- diagnostic sigma rc : (mode_sigrc_computation.F90)[./src/ice3/stencils_fortran/mode_sigrc_computation.F90] :
+- diagnostic sigma rc : [mode_sigrc_computation.F90](./src/ice3/stencils_fortran/mode_sigrc_computation.F90) :
 
 Detailed issue : 
 
