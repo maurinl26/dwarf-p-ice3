@@ -252,7 +252,7 @@ DO JK = NKTB, NKTE
 END DO
 ```
 
-- processus rapides de formation du graupel :[mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90)
+- processus rapides de formation du graupel : [mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90)
   
       - collection de neige sur graupel,
 
