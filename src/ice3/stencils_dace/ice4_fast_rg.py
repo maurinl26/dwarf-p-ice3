@@ -27,6 +27,7 @@ Author:
 """
 
 import dace
+import numpy as np
 from typing import Tuple
 
 I = dace.symbol("I")
@@ -40,7 +41,7 @@ def index_micro2d_dry_g(
     DRYINTP1G: dace.float32,
     DRYINTP2G: dace.float32,
     NDRYLBDAG: dace.int32,
-) -> Tuple[dace.int32, dace.float32]:
+):
     """Compute index in logspace for table (graupel dimension)
 
     Args:
@@ -61,7 +62,7 @@ def index_micro2d_dry_r(
     DRYINTP1R: dace.float32,
     DRYINTP2R: dace.float32,
     NDRYLBDAR: dace.int32,
-) -> Tuple[dace.int32, dace.float32]:
+):
     """Compute index in logspace for table (rain dimension)
 
     Args:
@@ -82,7 +83,7 @@ def index_micro2d_dry_s(
     DRYINTP1S: dace.float32,
     DRYINTP2S: dace.float32,
     NDRYLBDAS: dace.int32,
-) -> Tuple[dace.int32, dace.float32]:
+):
     """Compute index in logspace for table (snow dimension)
 
     Args:
@@ -123,10 +124,10 @@ def rain_contact_freezing(
     XCI: dace.float32,
     XCL: dace.float32,
     XLVTT: dace.float32,
+    EPS: dace.float32
 ):
     """Compute rain contact freezing"""
-    @dace.map
-    def compute_contact_freezing(i: _[0:I], j: _[0:J], k: _[0:K]):
+    for i, j, k in dace.map[0:I, 0:J, 0:K]:
         if prit[i, j, k] > I_RTMIN and prrt[i, j, k] > R_RTMIN and ldcompute[i, j, k]:
             if not ldsoft:
                 # RICFRRG - pristine ice collection by rain leading to graupel
@@ -142,9 +143,9 @@ def rain_contact_freezing(
                 if lcrflimit:
                     # Limit based on heat balance
                     # Proportion of process that can take place
-                    zzw_prop = max(0.0, min(1.0, 
+                    zzw_prop = np.max(0.0, np.min(1.0, 
                         (pricfrrg[i, j, k] * XCI + prrcfrig[i, j, k] * XCL) * (XTT - pt[i, j, k]) / \
-                        max(1.0e-20, XLVTT * prrcfrig[i, j, k])))
+                        np.max(EPS, XLVTT * prrcfrig[i, j, k])))
                     
                     prrcfrig[i, j, k] = zzw_prop * prrcfrig[i, j, k]
                     pricfrr[i, j, k] = (1.0 - zzw_prop) * pricfrrg[i, j, k]
@@ -183,8 +184,7 @@ def cloud_pristine_collection_graupel(
     XCEXVT: dace.float32,
 ):
     """Compute wet and dry collection of cloud and pristine ice on graupel"""
-    @dace.map
-    def compute_collection(i: _[0:I], j: _[0:J], k: _[0:K]):
+    for i, j, k in dace.map[0:I, 0:J, 0:K]:
         # Cloud droplet collection
         if prgt[i, j, k] > G_RTMIN and prct[i, j, k] > C_RTMIN and ldcompute[i, j, k]:
             if not ldsoft:

@@ -320,6 +320,11 @@ def test_ice4_fast_rg_dace(dtypes, ldsoft):
     print("\n" + "="*80)
     print("EXÉCUTION DES STENCILS DACE")
     print("="*80)
+
+    EPS = 1.e-20
+
+
+    print(f"Minimum machine, simple precision {np.finfo(np.float32).tiny}")
     
     try:
         # 1. Rain contact freezing
@@ -348,6 +353,7 @@ def test_ice4_fast_rg_dace(dtypes, ldsoft):
             XCI=XCI,
             XCL=XCL,
             XLVTT=XLVTT,
+            EPS=EPS
         )
         print("   ✓ Contact freezing computed")
         

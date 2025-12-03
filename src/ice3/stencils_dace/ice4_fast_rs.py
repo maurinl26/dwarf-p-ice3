@@ -30,7 +30,7 @@ def index_micro1d_rim(
     RIMINTP1: dace.float32,
     RIMINTP2: dace.float32,
     NGAMINC: dace.int32,
-) -> Tuple[dace.int32, dace.float32]:
+):
     """Compute index in logspace for 1D interpolation table (riming)
 
     Args:
@@ -52,7 +52,7 @@ def index_micro2d_acc_s(
     ACCINTP1S: dace.float32,
     ACCINTP2S: dace.float32,
     NACCLBDAS: dace.int32,
-) -> Tuple[dace.int32, dace.float32]:
+):
     """Compute index in logspace for 2D interpolation table (snow dimension)
 
     Args:
@@ -73,7 +73,7 @@ def index_micro2d_acc_r(
     ACCINTP1R: dace.float32,
     ACCINTP2R: dace.float32,
     NACCLBDAR: dace.int32,
-) -> Tuple[dace.int32, dace.float32]:
+):
     """Compute index in logspace for 2D interpolation table (rain dimension)
 
     Args:
