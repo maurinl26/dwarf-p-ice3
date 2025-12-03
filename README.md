@@ -235,28 +235,9 @@ Components under (components)[tests/components] are monitored with continuous be
 
 Les lookup tables ne sont pas implémentées en gt4py (indexation dynamique), et restent à implémenter.
 
-- diagnostic sigma rc : [mode_sigrc_computation.F90](./src/ice3/stencils_fortran/mode_sigrc_computation.F90) :
-
-Detailed issue : 
-
-GT4Py (cartesian) does not manage the interpolation on relative index "SRC_1D(INQ1 + 24)".
+- diagnostic sigma rc : [mode_sigrc_computation.F90](./src/ice3/stencils_fortran/mode_sigrc_computation.F90),
 
 ```fortran
-
-SUBROUTINE SIGRC_COMPUTATION(NIJT, NKT, NKTE, NKTB,     NIJE, NIJB, &
-HLAMBDA3, ZQ1, PSIGRC, INQ1)
-!!
-IMPLICIT NONE
-
-INTEGER, INTENT(IN) :: NIJT, NKT, NKTE, NKTB, NIJE, NIJB
-INTEGER, INTENT(IN) :: HLAMBDA3
-REAL, DIMENSION(NIJT,NKT), INTENT(IN) :: ZQ1
-REAL, DIMENSION(NIJT,NKT), INTENT(OUT) :: PSIGRC
-INTEGER, DIMENSION(NIJT,NKT), INTENT(OUT) :: INQ1
-
-INTEGER :: JIJ, JK, INQ2
-REAL :: ZINC
-
 DO JK = NKTB, NKTE
   DO JIJ = NIJB, NIJE
     
@@ -269,14 +250,61 @@ DO JK = NKTB, NKTE
     
   END DO
 END DO
-
-END SUBROUTINE SIGRC_COMPUTATION
-
 ```
 
-- kernels [ice4_fast_rs.py](src/ice3/stencils/ice4_fast_rs.py) et [ice4_fast_rg.py](src/ice3/stencils/ice4_fast_rg.py),
+- processus rapides de formation du graupel :[mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90)
+      - collection de neige sur graupel,
+      - accrétion de pluie sur graupel
+- processus rapides de formation de neige : [mode_ice4_fast_rs.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rs.F90)
+      - givrage des gouttelettes,
+      - accrétion de pluie sur la neige.
 
+1. INTERP_MICRO_2D
 
+```fortran
+  KLEN=0
+  DO JL=1, KSIZE
+    IF (LDMASK(JL)) THEN
+      KLEN=KLEN+1
 
+      ! Indexes computation
+      ZINDEX1 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P11 * LOG(PIN1(JL)) + P12))
+      IINDEX1 = INT(ZINDEX1)
+      ZINDEX1 = ZINDEX1 - REAL(IINDEX1)
+  
+      ZINDEX2 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P21 * LOG(PIN2(JL)) + P22))
+      IINDEX2 = INT(ZINDEX2)
+      ZINDEX2 = ZINDEX2 - REAL(IINDEX2)
+  
+      ! Interpolations
+      POUT1(JL) = ( PLT1(IINDEX1+1,IINDEX2+1)* ZINDEX2         &
+                   -PLT1(IINDEX1+1,IINDEX2  )*(ZINDEX2 - 1.0)) *  ZINDEX1 &
+                 -( PLT1(IINDEX1  ,IINDEX2+1)* ZINDEX2         &
+                   -PLT1(IINDEX1  ,IINDEX2  )*(ZINDEX2 - 1.0)) * (ZINDEX1 - 1.0)
+    ENDDO
+```
+ 
+2. INTERP_MICRO_1D
+   
+```fortran
+  DO JL=1, KSIZE
+    IF (LDMASK(JL)) THEN
+      KLEN=KLEN+1
+
+      ! Index computation
+      ZINDEX = MAX(1.00001, MIN(REAL(KNUM)-0.00001, P1 * LOG(PIN(JL)) + P2))
+      IINDEX = INT(ZINDEX)
+      ZINDEX = ZINDEX - REAL(IINDEX)
+
+      ! Interpolations
+      POUT1(JL) = PLT1(IINDEX+1) *  ZINDEX       &
+                 -PLT1(IINDEX  ) * (ZINDEX - 1.0)
+   ENDDO
+```
+  
+
+Detailed issue : 
+
+GT4Py (cartesian) does not manage the interpolation on relative index "SRC_1D(INQ1 + 24)".
 
 
