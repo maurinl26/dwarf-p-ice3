@@ -44,7 +44,7 @@ doc = [
 ]
 
 [tools.pytest.ini_options]
-pythonpath = src
+pythonpath = "src"
 markers = [
     "debug: run on debug debug backend",
     "numpy: run on numpy backend",
