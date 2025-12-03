@@ -54,22 +54,26 @@ It works well with cupy 14.0 and the last versions of gt4py.cartesian (see confi
 
 ### Atos ECMWF
 
-### Leonardo
-
 ## Working with Containers
 
 [container](./container) is defined to run dwarf-p-ice3 inside a container with nvidia runtime and python dependencies.
 
-### Build 
+- Build :
+
 ```bash
     sudo docker build -t ice3 ./dwarf-p-ice3/container
 ```
 
-### WIP
-- Push / Pull from registry
+- Retrieve from ghcr.io :
+
+```bash
+    docker pull ghcr.io/maurinl26/dwarf-p-ice3
+```
+
+### Nice-to-have
 - Setup .devcontainer to develop ice3 inside an isolated virtual env with access to gpus
 - Setup singularity image to run on an HPC cluster
-- (Nice to have) install dependencies with spack
+- Install dependencies with spack
 
 ## Data generation for reproductibility
 
@@ -136,7 +140,7 @@ To launch ice_adjust (with cli):
   track_ice_adjust.json --no-rebuild 
 ```
 
-## Rain Ice
+## Microphysical Processes (Rain Ice)
 
 There are 2 components available for rain_ice (one-moment microphysical processes computation), under [/src/ice3/components](./src/ice3/components) directory:
 
@@ -153,7 +157,7 @@ To launch rain_ice (with cli):
     track_ice_adjust.json --no-rebuild 
 ```
 
-## Unit tests
+## Unit tests for compilation and numerical reproducibility
 
 Unit tests for reproductibility are using pytest. Numpy, CPU and GPU backends can be activated :
 
