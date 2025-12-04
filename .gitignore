@@ -22,6 +22,7 @@ test/
 test_OLD/
 */__pycache__/*
 .idea/
+_dacegraphs/
 
 *.pyc
 src/ice3/drivers/tests.py
@@ -31,7 +32,7 @@ src/ice3/stencils_fortran/ref
 venv*
 
 src/testprogs_data/fortran/
-src/dwarf_ice3.egg-info/
+src/dwarf_ice3.egg-info/Ò
 output/
 dist/
 .venv*

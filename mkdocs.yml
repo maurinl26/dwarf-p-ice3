@@ -74,6 +74,11 @@ nav:
     - testprogs_data:
       - testprogs_data/main.md
       - testprogs_data/utils.md
+    - agents:
+      - agents/ICE4_TENDENCIES_STATUS.md
+      - RAIN_ICE_TRANSITION_PLAN.md
+      - README_ice_adjust_modular.md
+      - TRANSLATION_SUMMARY.md
 
 
 theme:
