@@ -74,15 +74,18 @@ It works well with cupy 14.0 and the last versions of gt4py.cartesian (see confi
 ```
 
 - Retrieve from ghcr.io :
-
-```bash
-    docker pull ghcr.io/maurinl26/dwarf-p-ice3
-```
+  1. With docker :
+    ```bash
+        docker pull ghcr.io/maurinl26/dwarf-p-ice3
+    ```
+  2. With singularity :
+     ```
+         singularity pull docker:
+     ```
 
 ### Nice-to-have
 - Setup .devcontainer to develop ice3 inside an isolated virtual env with access to gpus
 - Setup singularity image to run on an HPC cluster
-- Install dependencies with spack
 
 ## Data generation for reproductibility
 
