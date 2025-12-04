@@ -48,6 +48,15 @@ Run GPU :
     track_ice_adjust.json
 ```
 
+Working with containers :
+
+The base singularity container for Lumi is : 
+
+```bash
+    /appl/local/containers/sif-images/lumi-mpi4py-rocm-6.2.0-python-3.12-mpi4py-3.1.6.sif
+```
+
+
 #### Warning
 
 It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config [pyproject.toml](pyproject.toml)).
