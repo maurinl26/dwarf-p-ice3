@@ -84,7 +84,7 @@ Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.i
     ```
   2. With singularity :
      ```
-         singularity pull docker:
+         singularity pull docker://ghcr.io/maurinl26/dwarf-p-ice3
      ```
 
 ### Nice-to-have
