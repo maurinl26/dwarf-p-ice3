@@ -50,6 +50,8 @@ Run GPU :
 
 Working with containers :
 
+Tutorial on working with containers and virtual environments is found [here](https://github.com/Lumi-supercomputer/Getting_Started_with_AI_workshop/blob/ai-20251009/07_Extending_containers_with_virtual_environments_for_faster_testing/examples/extending_containers_with_venv.md)
+
 The base singularity container for Lumi is : 
 
 ```bash
@@ -62,6 +64,8 @@ The base singularity container for Lumi is :
 It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config [pyproject.toml](pyproject.toml)).
 
 ### Atos ECMWF
+
+Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.int/display/UDOC/HPC2020%3A+GPU+usage+for+AI+and+Machine+Learning)
 
 ## Working with Containers
 
