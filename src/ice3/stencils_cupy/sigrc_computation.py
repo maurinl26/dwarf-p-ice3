@@ -1,5 +1,5 @@
 """
-SIGRC Computation - DaCe Implementation
+SIGRC Computation - Cupy Implementation
 
 This module implements the computation of subgrid standard deviation of rc (cloud water)
 using a lookup table, translated from the Fortran reference in mode_sigrc_computation.F90.
@@ -12,17 +12,10 @@ Process implemented:
 
 Reference:
     mode_sigrc_computation.F90
-    
-Author:
-    Translated to Python/DaCe from Fortran by Cline AI Assistant
 """
 
-import dace
 import numpy as np
-
-I = dace.symbol("I")
-J = dace.symbol("J")
-K = dace.symbol("K")
+import numpy.typing as npt
 
 # Global lookup table for SIGRC computation (CB scheme)
 # This table represents empirical relationships for subgrid cloud water variability
@@ -36,16 +29,9 @@ SRC_1D = np.array([
 ], dtype=np.float32)
 
 
-@dace.program
 def sigrc_computation(
-    zq1: dace.float32[I, J, K],
-    psigrc: dace.float32[I, J, K],
-    inq1: dace.int32[I, J, K],
-    src_table: dace.float32[34],
-    nktb: dace.int32,
-    nkte: dace.int32,
-    nijb: dace.int32,
-    nije: dace.int32,
+    zq1: npt.ArrayLike,
+    src_table: npt.ArrayLike,
 ):
     """
     Compute subgrid standard deviation of rc using lookup table.
@@ -71,27 +57,30 @@ def sigrc_computation(
     4. Clamps result to maximum of 1.0
     """
     
-    @dace.map
-    def compute_sigrc(k: _[nktb:nkte+1], ij: _[nijb:nije+1]):
-        # Compute initial index (floor of 2*zq1, clamped to [-100, 100])
-        zq1_clamped = min(100.0, max(-100.0, 2.0 * zq1[ij, 0, k]))
-        inq1[ij, 0, k] = int(floor(zq1_clamped))
+    # Compute initial index (floor of 2*zq1, clamped to [-100, 100])
+    zq1_clamped = np.clip(2.0 * zq1, -100.0, 100.0)
+
+    # Conversion to int
+    inq1 = np.floor(zq1_clamped).astype(np.int32)
         
-        # Clamp index to valid range for lookup table
-        inq2 = min(max(-22, inq1[ij, 0, k]), 10)
+    # Clamp index to valid range for lookup table
+    inq1_clamped = np.clip(inq1, -22, 10)
         
-        # Compute interpolation weight
-        zinc = 2.0 * zq1[ij, 0, k] - float(inq2)
+    # Compute interpolation weight
+    zinc = 2.0 * zq1 - inq1_clamped
         
-        # Linear interpolation in lookup table (offset by 23 to handle negative indices)
-        table_idx1 = inq2 + 23
-        table_idx2 = inq2 + 24
+    # Linear interpolation in lookup table (offset by 23 to handle negative indices)
+    table_idx1 = inq1_clamped + 22
+    table_idx2 = inq1_clamped + 23
         
-        # Perform linear interpolation
-        sigrc_interp = (1.0 - zinc) * src_table[table_idx1] + zinc * src_table[table_idx2]
+    # Perform linear interpolation
+    sigrc_interp = (1.0 - zinc) * src_table.take(table_idx1) \
+        + zinc * src_table.take(table_idx2)
         
-        # Clamp result to [0, 1]
-        psigrc[ij, 0, k] = min(1.0, sigrc_interp)
+    # Clamp result to [0, 1]
+    psigrc = np.minimum(1.0, sigrc_interp)
+
+    return psigrc
 
 
 def get_src_table():
