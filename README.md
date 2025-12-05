@@ -267,17 +267,15 @@ DO JK = NKTB, NKTE
   END DO
 END DO
 ```
+Le stencil est implémenté en cupy.
+A faire : vérifier l'intégration du stencil cupy.
 
-- processus rapides de formation du graupel : [mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90)
-  
+- processus rapides de formation du graupel, référence [mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90):
       - collection de neige sur graupel,
-
       - accrétion de pluie sur graupel.
   
-- processus rapides de formation de neige : [mode_ice4_fast_rs.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rs.F90)
-  
+- processus rapides de formation de neige, référence [mode_ice4_fast_rs.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rs.F90) :
       - givrage des gouttelettes,
-  
       - accrétion de pluie sur la neige.
 
 1. INTERP_MICRO_2D
