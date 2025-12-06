@@ -21,26 +21,22 @@ Key Features:
 
 Reference:
     PHYEX-IAL_CY50T1/common/micro/mode_ice4_fast_rg.F90
-    
+
 Author:
     Translated to Python/DaCe from Fortran by Cline AI Assistant
 """
 
-import dace
+import cupy as cp
 import numpy as np
-from typing import Tuple
-
-I = dace.symbol("I")
-J = dace.symbol("J")
-K = dace.symbol("K")
-F = dace.symbol("F")
+from gt4py.cartesian import Field
+from numpy.typing import NDArray
 
 
 def index_micro2d_dry_g(
-    lambda_g: dace.float32,
-    DRYINTP1G: dace.float32,
-    DRYINTP2G: dace.float32,
-    NDRYLBDAG: dace.int32,
+    lambda_g: np.float32,
+    DRYINTP1G: np.float32,
+    DRYINTP2G: np.float32,
+    NDRYLBDAG: np.int32,
 ):
     """Compute index in logspace for table (graupel dimension)
 
@@ -53,15 +49,17 @@ def index_micro2d_dry_g(
     Returns:
         Tuple of (floor index, fractional part)
     """
-    index = max(1.00001, min(NDRYLBDAG - 0.00001, DRYINTP1G * log(lambda_g) + DRYINTP2G))
+    index = max(
+        1.00001, min(NDRYLBDAG - 0.00001, DRYINTP1G * log(lambda_g) + DRYINTP2G)
+    )
     return floor(index), index - floor(index)
 
 
 def index_micro2d_dry_r(
-    lambda_r: dace.float32,
-    DRYINTP1R: dace.float32,
-    DRYINTP2R: dace.float32,
-    NDRYLBDAR: dace.int32,
+    lambda_r: np.float32,
+    DRYINTP1R: np.float32,
+    DRYINTP2R: np.float32,
+    NDRYLBDAR: np.int32,
 ):
     """Compute index in logspace for table (rain dimension)
 
@@ -74,15 +72,17 @@ def index_micro2d_dry_r(
     Returns:
         Tuple of (floor index, fractional part)
     """
-    index = max(1.00001, min(NDRYLBDAR - 0.00001, DRYINTP1R * log(lambda_r) + DRYINTP2R))
+    index = max(
+        1.00001, min(NDRYLBDAR - 0.00001, DRYINTP1R * log(lambda_r) + DRYINTP2R)
+    )
     return floor(index), index - floor(index)
 
 
 def index_micro2d_dry_s(
-    lambda_s: dace.float32,
-    DRYINTP1S: dace.float32,
-    DRYINTP2S: dace.float32,
-    NDRYLBDAS: dace.int32,
+    lambda_s: np.float32,
+    DRYINTP1S: np.float32,
+    DRYINTP2S: np.float32,
+    NDRYLBDAS: np.int32,
 ):
     """Compute index in logspace for table (snow dimension)
 
@@ -95,487 +95,517 @@ def index_micro2d_dry_s(
     Returns:
         Tuple of (floor index, fractional part)
     """
-    index = max(1.00001, min(NDRYLBDAS - 0.00001, DRYINTP1S * log(lambda_s) + DRYINTP2S))
+    index = max(
+        1.00001, min(NDRYLBDAS - 0.00001, DRYINTP1S * log(lambda_s) + DRYINTP2S)
+    )
     return floor(index), index - floor(index)
 
 
-@dace.program
+# GT4Py stencil
 def rain_contact_freezing(
-    prhodref: dace.float32[I, J, K],
-    plbdar: dace.float32[I, J, K],
-    pt: dace.float32[I, J, K],
-    prit: dace.float32[I, J, K],
-    prrt: dace.float32[I, J, K],
-    pcit: dace.float32[I, J, K],
-    ldcompute: dace.bool[I, J, K],
-    ldsoft: dace.bool,
-    lcrflimit: dace.bool,
-    pricfrrg: dace.float32[I, J, K],
-    prrcfrig: dace.float32[I, J, K],
-    pricfrr: dace.float32[I, J, K],
-    I_RTMIN: dace.float32,
-    R_RTMIN: dace.float32,
-    XICFRR: dace.float32,
-    XEXICFRR: dace.float32,
-    XCEXVT: dace.float32,
-    XRCFRI: dace.float32,
-    XEXRCFRI: dace.float32,
-    XTT: dace.float32,
-    XCI: dace.float32,
-    XCL: dace.float32,
-    XLVTT: dace.float32,
-    EPS: dace.float32
+    prhodref: Field["float"],
+    plbdar: Field["float"],
+    pt: Field["float"],
+    prit: Field["float"],
+    prrt: Field["float"],
+    pcit: Field["float"],
+    ldcompute: Field["bool"],
+    ldsoft: "bool",
+    lcrflimit: "bool",
+    pricfrrg: Field["float"],
+    prrcfrig: Field["float"],
+    pricfrr: Field["float"],
 ):
     """Compute rain contact freezing"""
-    for i, j, k in dace.map[0:I, 0:J, 0:K]:
-        if prit[i, j, k] > I_RTMIN and prrt[i, j, k] > R_RTMIN and ldcompute[i, j, k]:
+    from __externals__ import (
+        I_RTMIN,
+        R_RTMIN,
+        XICFRR,
+        XEXICFRR,
+        XCEXVT,
+        XRCFRI,
+        XEXRCFRI,
+        XTT,
+        XCI,
+        XCL,
+        XLVTT,
+        EPS,
+    )
+
+    with computation(PARALLEL), interval(...):
+        if prit > I_RTMIN and prrt > R_RTMIN and ldcompute:
             if not ldsoft:
                 # RICFRRG - pristine ice collection by rain leading to graupel
-                pricfrrg[i, j, k] = XICFRR * prit[i, j, k] * \
-                    plbdar[i, j, k] ** XEXICFRR * \
-                    prhodref[i, j, k] ** (-XCEXVT)
-                
+                pricfrrg = XICFRR * prit * plbdar**XEXICFRR * prhodref ** (-XCEXVT)
+
                 # RRCFRIG - rain freezing by contact with pristine ice
-                prrcfrig[i, j, k] = XRCFRI * pcit[i, j, k] * \
-                    plbdar[i, j, k] ** XEXRCFRI * \
-                    prhodref[i, j, k] ** (-XCEXVT - 1.0)
-                
+                prrcfrig = (
+                    XRCFRI * pcit * plbdar**XEXRCFRI * prhodref ** (-XCEXVT - 1.0)
+                )
+
                 if lcrflimit:
                     # Limit based on heat balance
                     # Proportion of process that can take place
-                    zzw_prop = np.max(0.0, np.min(1.0, 
-                        (pricfrrg[i, j, k] * XCI + prrcfrig[i, j, k] * XCL) * (XTT - pt[i, j, k]) / \
-                        np.max(EPS, XLVTT * prrcfrig[i, j, k])))
-                    
-                    prrcfrig[i, j, k] = zzw_prop * prrcfrig[i, j, k]
-                    pricfrr[i, j, k] = (1.0 - zzw_prop) * pricfrrg[i, j, k]
-                    pricfrrg[i, j, k] = zzw_prop * pricfrrg[i, j, k]
+                    zzw_prop = np.max(
+                        0.0,
+                        np.min(
+                            1.0,
+                            (pricfrrg * XCI + prrcfrig * XCL)
+                            * (XTT - pt)
+                            / np.max(EPS, XLVTT * prrcfrig),
+                        ),
+                    )
+
+                    prrcfrig = zzw_prop * prrcfrig
+                    pricfrr = (1.0 - zzw_prop) * pricfrrg
+                    pricfrrg = zzw_prop * pricfrrg
                 else:
-                    pricfrr[i, j, k] = 0.0
+                    pricfrr = 0.0
         else:
-            pricfrrg[i, j, k] = 0.0
-            prrcfrig[i, j, k] = 0.0
-            pricfrr[i, j, k] = 0.0
+            pricfrrg = 0.0
+            prrcfrig = 0.0
+            pricfrr = 0.0
 
 
-@dace.program
+# GT4Py stencil
 def cloud_pristine_collection_graupel(
-    prhodref: dace.float32[I, J, K],
-    plbdag: dace.float32[I, J, K],
-    pt: dace.float32[I, J, K],
-    prct: dace.float32[I, J, K],
-    prit: dace.float32[I, J, K],
-    prgt: dace.float32[I, J, K],
-    ldcompute: dace.bool[I, J, K],
-    ldsoft: dace.bool,
-    rcdryg_tend: dace.float32[I, J, K],
-    ridryg_tend: dace.float32[I, J, K],
-    riwetg_tend: dace.float32[I, J, K],
-    C_RTMIN: dace.float32,
-    I_RTMIN: dace.float32,
-    G_RTMIN: dace.float32,
-    XTT: dace.float32,
-    XFCDRYG: dace.float32,
-    XFIDRYG: dace.float32,
-    XCOLIG: dace.float32,
-    XCOLEXIG: dace.float32,
-    XCXG: dace.float32,
-    XDG: dace.float32,
-    XCEXVT: dace.float32,
+    prhodref: Field["float"],
+    plbdag: Field["float"],
+    pt: Field["float"],
+    prct: Field["float"],
+    prit: Field["float"],
+    prgt: Field["float"],
+    ldcompute: Field["bool"],
+    ldsoft: "bool",
+    rcdryg_tend: Field["float"],
+    ridryg_tend: Field["float"],
+    riwetg_tend: Field["float"],
 ):
     """Compute wet and dry collection of cloud and pristine ice on graupel"""
-    for i, j, k in dace.map[0:I, 0:J, 0:K]:
+    from __externals__ import (
+        C_RTMIN,
+        I_RTMIN,
+        G_RTMIN,
+        XTT,
+        XFCDRYG,
+        XFIDRYG,
+        XCOLIG,
+        XCOLEXIG,
+        XCXG,
+        XDG,
+        XCEXVT,
+    )
+
+    with computation(PARALLEL), interval(...):
         # Cloud droplet collection
-        if prgt[i, j, k] > G_RTMIN and prct[i, j, k] > C_RTMIN and ldcompute[i, j, k]:
+        if prgt > G_RTMIN and prct > C_RTMIN and ldcompute:
             if not ldsoft:
-                rcdryg_tend[i, j, k] = plbdag[i, j, k] ** (XCXG - XDG - 2.0) * \
-                    prhodref[i, j, k] ** (-XCEXVT)
-                rcdryg_tend[i, j, k] = XFCDRYG * prct[i, j, k] * rcdryg_tend[i, j, k]
+                rcdryg_tend = plbdag ** (XCXG - XDG - 2.0) * prhodref ** (-XCEXVT)
+                rcdryg_tend = XFCDRYG * prct * rcdryg_tend
         else:
-            rcdryg_tend[i, j, k] = 0.0
-        
+            rcdryg_tend = 0.0
+
         # Pristine ice collection
-        if prgt[i, j, k] > G_RTMIN and prit[i, j, k] > I_RTMIN and ldcompute[i, j, k]:
+        if prgt > G_RTMIN and prit > I_RTMIN and ldcompute:
             if not ldsoft:
-                base_tend = plbdag[i, j, k] ** (XCXG - XDG - 2.0) * \
-                    prhodref[i, j, k] ** (-XCEXVT)
-                
-                ridryg_tend[i, j, k] = XFIDRYG * exp(XCOLEXIG * (pt[i, j, k] - XTT)) * \
-                    prit[i, j, k] * base_tend
-                
-                riwetg_tend[i, j, k] = ridryg_tend[i, j, k] / \
-                    (XCOLIG * exp(XCOLEXIG * (pt[i, j, k] - XTT)))
+                base_tend = plbdag ** (XCXG - XDG - 2.0) * prhodref ** (-XCEXVT)
+
+                ridryg_tend = XFIDRYG * exp(XCOLEXIG * (pt - XTT)) * prit * base_tend
+
+                riwetg_tend = ridryg_tend / (XCOLIG * exp(XCOLEXIG * (pt - XTT)))
         else:
-            ridryg_tend[i, j, k] = 0.0
-            riwetg_tend[i, j, k] = 0.0
+            ridryg_tend = 0.0
+            riwetg_tend = 0.0
 
 
-@dace.program
+# Cupy for interpolation
 def snow_collection_on_graupel(
-    prhodref: dace.float32[I, J, K],
-    plbdas: dace.float32[I, J, K],
-    plbdag: dace.float32[I, J, K],
-    pt: dace.float32[I, J, K],
-    prst: dace.float32[I, J, K],
-    prgt: dace.float32[I, J, K],
-    ldcompute: dace.bool[I, J, K],
-    ldsoft: dace.bool,
-    gdry: dace.bool[I, J, K],
-    zzw: dace.float32[I, J, K],
-    rswetg_tend: dace.float32[I, J, K],
-    rsdryg_tend: dace.float32[I, J, K],
-    ker_sdryg: dace.float32[F, F],
-    S_RTMIN: dace.float32,
-    G_RTMIN: dace.float32,
-    XTT: dace.float32,
-    XFSDRYG: dace.float32,
-    XCOLSG: dace.float32,
-    XCOLEXSG: dace.float32,
-    XCXS: dace.float32,
-    XBS: dace.float32,
-    XCXG: dace.float32,
-    XCEXVT: dace.float32,
-    XLBSDRYG1: dace.float32,
-    XLBSDRYG2: dace.float32,
-    XLBSDRYG3: dace.float32,
-    DRYINTP1G: dace.float32,
-    DRYINTP2G: dace.float32,
-    NDRYLBDAG: dace.int32,
-    DRYINTP1S: dace.float32,
-    DRYINTP2S: dace.float32,
-    NDRYLBDAS: dace.int32,
+    prhodref: NDArray,
+    plbdas: NDArray,
+    plbdag: NDArray,
+    pt: NDArray,
+    prst: NDArray,
+    prgt: NDArray,
+    ldcompute: NDArray[bool],
+    ldsoft: bool,
+    gdry: NDArray[bool],
+    zzw: NDArray,
+    rswetg_tend: NDArray,
+    rsdryg_tend: NDArray,
+    ker_sdryg: NDArray[80, 80],
+    S_RTMIN: np.float32,
+    G_RTMIN: np.float32,
+    XTT: np.float32,
+    XFSDRYG: np.float32,
+    XCOLSG: np.float32,
+    XCOLEXSG: np.float32,
+    XCXS: np.float32,
+    XBS: np.float32,
+    XCXG: np.float32,
+    XCEXVT: np.float32,
+    XLBSDRYG1: np.float32,
+    XLBSDRYG2: np.float32,
+    XLBSDRYG3: np.float32,
+    DRYINTP1G: np.float32,
+    DRYINTP2G: np.float32,
+    NDRYLBDAG: np.int32,
+    DRYINTP1S: np.float32,
+    DRYINTP2S: np.float32,
+    NDRYLBDAS: np.int32,
 ):
     """Compute wet and dry collection of snow on graupel"""
-    
+
     # Initialize masks
-    @dace.map
-    def init_snow_collection(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if prst[i, j, k] > S_RTMIN and prgt[i, j, k] > G_RTMIN and ldcompute[i, j, k]:
-            gdry[i, j, k] = True
-        else:
-            gdry[i, j, k] = False
-            rsdryg_tend[i, j, k] = 0.0
-            rswetg_tend[i, j, k] = 0.0
-    
+    gdry = prst > S_RTMIN and prgt > G_RTMIN and ldcompute
+    rsdryg_tend = np.where(gdry, rsdryg_tend, 0.0)
+    rswetg_tend = np.where(gdry, rswetg_tend, 0.0)
+
     # Interpolate and compute collection rates
-    @dace.map
-    def compute_snow_interp(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if (not ldsoft) and gdry[i, j, k]:
+    # TODO : cupy.take
+    if (not ldsoft) and gdry:
             # Compute 2D interpolation indices
-            index_floor_g, index_frac_g = index_micro2d_dry_g(
-                plbdag[i, j, k], DRYINTP1G, DRYINTP2G, NDRYLBDAG
+            idx_g, weight_g = index_micro2d_dry_g(
+                plbdag, DRYINTP1G, DRYINTP2G, NDRYLBDAG
             )
-            index_floor_s, index_frac_s = index_micro2d_dry_s(
-                plbdas[i, j, k], DRYINTP1S, DRYINTP2S, NDRYLBDAS
+            idx_g2 = idx_g + 1
+
+            idx_s, weight_s = index_micro2d_dry_s(
+                plbdas, DRYINTP1S, DRYINTP2S, NDRYLBDAS
             )
-            
+            idx_s2 = idx_s + 1
+
             # Bilinear interpolation
-            zzw[i, j, k] = (ker_sdryg[index_floor_g + 1, index_floor_s + 1] * index_frac_s - \
-                          ker_sdryg[index_floor_g + 1, index_floor_s] * (index_frac_s - 1.0)) * index_frac_g - \
-                         (ker_sdryg[index_floor_g, index_floor_s + 1] * index_frac_s - \
-                          ker_sdryg[index_floor_g, index_floor_s] * (index_frac_s - 1.0)) * (index_frac_g - 1.0)
-            
-            # Compute wet growth rate
-            rswetg_tend[i, j, k] = XFSDRYG * zzw[i, j, k] / XCOLSG * \
-                (plbdas[i, j, k] ** (XCXS - XBS)) * (plbdag[i, j, k] ** XCXG) * \
-                (prhodref[i, j, k] ** (-XCEXVT - 1.0)) * \
-                (XLBSDRYG1 / (plbdag[i, j, k] ** 2) + \
-                 XLBSDRYG2 / (plbdag[i, j, k] * plbdas[i, j, k]) + \
-                 XLBSDRYG3 / (plbdas[i, j, k] ** 2))
-            
-            # Compute dry growth rate
-            rsdryg_tend[i, j, k] = rswetg_tend[i, j, k] * XCOLSG * \
-                exp(XCOLEXSG * (pt[i, j, k] - XTT))
+            zzw = (
+                ker_sdryg.take(idx_g2, axis=0).take(idx_s2)* weight_s
+                - ker_sdryg.take(idx_g2, axis=0).take(idx_s) * (weight_s - 1.0)
+            ) * weight_g - (
+                ker_sdryg.take(idx_g, axis=0).take(idx_s2) * weight_s
+                - ker_sdryg.take(idx_g, axis=0).take(idx_s) * (weight_s - 1.0)
+            ) * (weight_g - 1.0)
+
+    # Compute wet growth rate
+    rswetg_tend = (
+        XFSDRYG
+        * zzw
+        / XCOLSG
+        * (plbdas ** (XCXS - XBS))
+        * (plbdag**XCXG)
+        * (prhodref ** (-XCEXVT - 1.0))
+        * (
+            XLBSDRYG1 / (plbdag**2)
+            + XLBSDRYG2 / (plbdag * plbdas)
+            + XLBSDRYG3 / (plbdas**2)
+        )
+    )
+
+    # Compute dry growth rate
+    rsdryg_tend = rswetg_tend * XCOLSG * np.exp(XCOLEXSG * (pt - XTT))
+
+    return (
+        rswetg_tend,
+        rsdryg_tend
+    )
 
 
-@dace.program
+# Cupy for interpolation
 def rain_accretion_on_graupel(
-    prhodref: dace.float32[I, J, K],
-    plbdar: dace.float32[I, J, K],
-    plbdag: dace.float32[I, J, K],
-    prrt: dace.float32[I, J, K],
-    prgt: dace.float32[I, J, K],
-    ldcompute: dace.bool[I, J, K],
-    ldsoft: dace.bool,
-    gdry: dace.bool[I, J, K],
-    zzw: dace.float32[I, J, K],
-    rrdryg_tend: dace.float32[I, J, K],
-    ker_rdryg: dace.float32[F, F],
-    R_RTMIN: dace.float32,
-    G_RTMIN: dace.float32,
-    XFRDRYG: dace.float32,
-    XCXG: dace.float32,
-    XCEXVT: dace.float32,
-    XLBRDRYG1: dace.float32,
-    XLBRDRYG2: dace.float32,
-    XLBRDRYG3: dace.float32,
-    DRYINTP1G: dace.float32,
-    DRYINTP2G: dace.float32,
-    NDRYLBDAG: dace.int32,
-    DRYINTP1R: dace.float32,
-    DRYINTP2R: dace.float32,
-    NDRYLBDAR: dace.int32,
+    prhodref: NDArray,
+    plbdar: NDArray,
+    plbdag: NDArray,
+    prrt: NDArray,
+    prgt: NDArray,
+    ldcompute: NDArray,
+    ldsoft: np.bool,
+    zzw: NDArray,
+    rrdryg_tend: NDArray,
+    ker_rdryg: NDArray,
+    R_RTMIN: np.float32,
+    G_RTMIN: np.float32,
+    XFRDRYG: np.float32,
+    XCXG: np.float32,
+    XCEXVT: np.float32,
+    XLBRDRYG1: np.float32,
+    XLBRDRYG2: np.float32,
+    XLBRDRYG3: np.float32,
+    DRYINTP1G: np.float32,
+    DRYINTP2G: np.float32,
+    NDRYLBDAG: np.int32,
+    DRYINTP1R: np.float32,
+    DRYINTP2R: np.float32,
+    NDRYLBDAR: np.int32,
 ):
     """Compute accretion of raindrops on graupel"""
-    
+
     # Initialize masks
-    @dace.map
-    def init_rain_accretion(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if prrt[i, j, k] > R_RTMIN and prgt[i, j, k] > G_RTMIN and ldcompute[i, j, k]:
-            gdry[i, j, k] = True
-        else:
-            gdry[i, j, k] = False
-            rrdryg_tend[i, j, k] = 0.0
-    
+    gdry = prrt > R_RTMIN and prgt > G_RTMIN and ldcompute
+    rrdryg_tend = np.where(gdry, rrdryg_tend, 0)
+
     # Interpolate and compute accretion rates
-    @dace.map
-    def compute_rain_interp(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if (not ldsoft) and gdry[i, j, k]:
-            # Compute 2D interpolation indices
-            index_floor_g, index_frac_g = index_micro2d_dry_g(
-                plbdag[i, j, k], DRYINTP1G, DRYINTP2G, NDRYLBDAG
+    # TODO : move to cupy.take
+    if (not ldsoft) and gdry:
+        
+        # Compute 2D interpolation indices
+        idx_g, weight_g = index_micro2d_dry_g(
+            plbdag, DRYINTP1G, DRYINTP2G, NDRYLBDAG
             )
-            index_floor_r, index_frac_r = index_micro2d_dry_r(
-                plbdar[i, j, k], DRYINTP1R, DRYINTP2R, NDRYLBDAR
+        idx_g2 = idx_g + 1
+        
+        idx_r, weight_r = index_micro2d_dry_r(
+            plbdar, DRYINTP1R, DRYINTP2R, NDRYLBDAR
             )
-            
-            # Bilinear interpolation
-            zzw[i, j, k] = (ker_rdryg[index_floor_g + 1, index_floor_r + 1] * index_frac_r - \
-                          ker_rdryg[index_floor_g + 1, index_floor_r] * (index_frac_r - 1.0)) * index_frac_g - \
-                         (ker_rdryg[index_floor_g, index_floor_r + 1] * index_frac_r - \
-                          ker_rdryg[index_floor_g, index_floor_r] * (index_frac_r - 1.0)) * (index_frac_g - 1.0)
-            
-            # Compute dry growth rate
-            rrdryg_tend[i, j, k] = XFRDRYG * zzw[i, j, k] * \
-                (plbdar[i, j, k] ** (-4.0)) * (plbdag[i, j, k] ** XCXG) * \
-                (prhodref[i, j, k] ** (-XCEXVT - 1.0)) * \
-                (XLBRDRYG1 / (plbdag[i, j, k] ** 2) + \
-                 XLBRDRYG2 / (plbdag[i, j, k] * plbdar[i, j, k]) + \
-                 XLBRDRYG3 / (plbdar[i, j, k] ** 2))
+        idx_r2 = idx_r + 1
+
+        # Bilinear interpolation
+        zzw = (
+                ker_rdryg.take(idx_g2, axis=0).take(idx_r2) * weight_r,
+                - ker_rdryg.take(idx_g2, axis=0).take(idx_r) * (weight_r - 1.)
+            ) * weight_g - (
+                ker_rdryg.take(idx_g, axis=0).take(idx_r) * weight_r
+                - ker_rdryg.take(idx_g, axis=0).take(idx_r) * (weight_r - 1.0)
+            ) * (weight_g - 1.0)
+        
+    return zzw
+
+    # Compute dry growth rate
+    rrdryg_tend = (
+        XFRDRYG
+        * zzw
+        * (plbdar ** (-4.0))
+        * (plbdag**XCXG)
+        * (prhodref ** (-XCEXVT - 1.0))
+        * (
+            XLBRDRYG1 / (plbdag**2)
+            + XLBRDRYG2 / (plbdag * plbdar)
+            + XLBRDRYG3 / (plbdar**2)
+        )
+    )
 
 
-@dace.program
+# GT4Py stencil
 def compute_graupel_growth_mode(
-    prhodref: dace.float32[I, J, K],
-    ppres: dace.float32[I, J, K],
-    pdv: dace.float32[I, J, K],
-    pka: dace.float32[I, J, K],
-    pcj: dace.float32[I, J, K],
-    plbdag: dace.float32[I, J, K],
-    pt: dace.float32[I, J, K],
-    prvt: dace.float32[I, J, K],
-    prgt: dace.float32[I, J, K],
-    prgsi: dace.float32[I, J, K],
-    prgsi_mr: dace.float32[I, J, K],
-    pricfrrg: dace.float32[I, J, K],
-    prrcfrig: dace.float32[I, J, K],
-    ldcompute: dace.bool[I, J, K],
-    ldsoft: dace.bool,
-    levlimit: dace.bool,
-    lnullwetg: dace.bool,
-    lwetgpost: dace.bool,
-    krr: dace.int32,
-    ldwetg: dace.bool[I, J, K],
-    lldryg: dace.bool[I, J, K],
-    zrdryg_init: dace.float32[I, J, K],
-    zrwetg_init: dace.float32[I, J, K],
-    prwetgh: dace.float32[I, J, K],
-    prwetgh_mr: dace.float32[I, J, K],
-    prcwetg: dace.float32[I, J, K],
-    priwetg: dace.float32[I, J, K],
-    prrwetg: dace.float32[I, J, K],
-    prswetg: dace.float32[I, J, K],
-    prcdryg: dace.float32[I, J, K],
-    pridryg: dace.float32[I, J, K],
-    prrdryg: dace.float32[I, J, K],
-    prsdryg: dace.float32[I, J, K],
-    rcdryg_tend: dace.float32[I, J, K],
-    ridryg_tend: dace.float32[I, J, K],
-    riwetg_tend: dace.float32[I, J, K],
-    rsdryg_tend: dace.float32[I, J, K],
-    rswetg_tend: dace.float32[I, J, K],
-    rrdryg_tend: dace.float32[I, J, K],
-    freez1_tend: dace.float32[I, J, K],
-    freez2_tend: dace.float32[I, J, K],
-    G_RTMIN: dace.float32,
-    XTT: dace.float32,
-    XEPSILO: dace.float32,
-    XALPI: dace.float32,
-    XBETAI: dace.float32,
-    XGAMI: dace.float32,
-    XLVTT: dace.float32,
-    XCPV: dace.float32,
-    XCL: dace.float32,
-    XCI: dace.float32,
-    XESTT: dace.float32,
-    XRV: dace.float32,
-    XLMTT: dace.float32,
-    X0DEPG: dace.float32,
-    X1DEPG: dace.float32,
-    XEX0DEPG: dace.float32,
-    XEX1DEPG: dace.float32,
+    prhodref: Field["float"],
+    ppres: Field["float"],
+    pdv: Field["float"],
+    pka: Field["float"],
+    pcj: Field["float"],
+    plbdag: Field["float"],
+    pt: Field["float"],
+    prvt: Field["float"],
+    prgt: Field["float"],
+    prgsi: Field["float"],
+    prgsi_mr: Field["float"],
+    pricfrrg: Field["float"],
+    prrcfrig: Field["float"],
+    ldcompute: Field["float"],
+    ldsoft: "bool",
+    levlimit: "bool",
+    lnullwetg: "bool",
+    lwetgpost: "bool",
+    krr: "int",
+    ldwetg: Field["bool"],
+    lldryg: Field["bool"],
+    zrdryg_init: Field["float"],
+    zrwetg_init: Field["float"],
+    prwetgh: Field["float"],
+    prwetgh_mr: Field["float"],
+    prcwetg: Field["float"],
+    priwetg: Field["float"],
+    prrwetg: Field["float"],
+    prswetg: Field["float"],
+    prcdryg: Field["float"],
+    pridryg: Field["float"],
+    prrdryg: Field["float"],
+    prsdryg: Field["float"],
+    rcdryg_tend: Field["float"],
+    ridryg_tend: Field["float"],
+    riwetg_tend: Field["float"],
+    rsdryg_tend: Field["float"],
+    rswetg_tend: Field["float"],
+    rrdryg_tend: Field["float"],
+    freez1_tend: Field["float"],
+    freez2_tend: Field["float"],
 ):
     """Determine graupel growth mode (wet vs dry) and compute final tendencies"""
-    
-    @dace.map
-    def compute_growth_mode(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if prgt[i, j, k] > G_RTMIN and ldcompute[i, j, k]:
+
+    from __externals__ import (
+        G_RTMIN,
+        XTT,
+        XEPSILO,
+        XALPI,
+        XBETAI,
+        XGAMI,
+        XLVTT,
+        XCPV,
+        XCL,
+        XCI,
+        XESTT,
+        XRV,
+        XLMTT,
+        X0DEPG,
+        X1DEPG,
+        XEX0DEPG,
+        XEX1DEPG,
+    )
+
+    with computation(PARALLEL), interval(...):
+        if prgt > G_RTMIN and ldcompute:
             if not ldsoft:
                 # Compute vapor pressure
-                prs_ev = prvt[i, j, k] * ppres[i, j, k] / (XEPSILO + prvt[i, j, k])
-                
+                prs_ev = prvt * ppres / (XEPSILO + prvt)
+
                 # Apply saturation limit if requested
                 if levlimit:
-                    prs_ev = min(prs_ev, exp(XALPI - XBETAI / pt[i, j, k] - XGAMI * log(pt[i, j, k])))
-                
+                    prs_ev = min(prs_ev, exp(XALPI - XBETAI / pt - XGAMI * log(pt)))
+
                 # Compute first freezing term
-                freez1_tend[i, j, k] = pka[i, j, k] * (XTT - pt[i, j, k]) + \
-                    (pdv[i, j, k] * (XLVTT + (XCPV - XCL) * (pt[i, j, k] - XTT)) * \
-                     (XESTT - prs_ev) / (XRV * pt[i, j, k]))
-                
-                freez1_tend[i, j, k] = freez1_tend[i, j, k] * \
-                    (X0DEPG * plbdag[i, j, k] ** XEX0DEPG + \
-                     X1DEPG * pcj[i, j, k] * plbdag[i, j, k] ** XEX1DEPG) / \
-                    (prhodref[i, j, k] * (XLMTT - XCL * (XTT - pt[i, j, k])))
-                
+                freez1_tend = pka * (XTT - pt) + (
+                    pdv
+                    * (XLVTT + (XCPV - XCL) * (pt - XTT))
+                    * (XESTT - prs_ev)
+                    / (XRV * pt)
+                )
+
+                freez1_tend = (
+                    freez1_tend
+                    * (X0DEPG * plbdag**XEX0DEPG + X1DEPG * pcj * plbdag**XEX1DEPG)
+                    / (prhodref * (XLMTT - XCL * (XTT - pt)))
+                )
+
                 # Compute second freezing term
-                freez2_tend[i, j, k] = (prhodref[i, j, k] * (XLMTT + (XCI - XCL) * (XTT - pt[i, j, k]))) / \
-                    (prhodref[i, j, k] * (XLMTT - XCL * (XTT - pt[i, j, k])))
-            
+                freez2_tend = (prhodref * (XLMTT + (XCI - XCL) * (XTT - pt))) / (
+                    prhodref * (XLMTT - XCL * (XTT - pt))
+                )
+
             # Initial dry growth rate
-            zrdryg_init[i, j, k] = rcdryg_tend[i, j, k] + ridryg_tend[i, j, k] + \
-                rsdryg_tend[i, j, k] + rrdryg_tend[i, j, k]
-            
+            zrdryg_init = rcdryg_tend + ridryg_tend + rsdryg_tend + rrdryg_tend
+
             # Initial wet growth rate
-            zrwetg_init[i, j, k] = max(riwetg_tend[i, j, k] + rswetg_tend[i, j, k],
-                max(0.0, freez1_tend[i, j, k] + \
-                    freez2_tend[i, j, k] * (riwetg_tend[i, j, k] + rswetg_tend[i, j, k])))
-            
+            zrwetg_init = max(
+                riwetg_tend + rswetg_tend,
+                max(0.0, freez1_tend + freez2_tend * (riwetg_tend + rswetg_tend)),
+            )
+
             # Determine if wet growth
-            ldwetg[i, j, k] = max(0.0, zrwetg_init[i, j, k] - riwetg_tend[i, j, k] - rswetg_tend[i, j, k]) <= \
-                max(0.0, zrdryg_init[i, j, k] - ridryg_tend[i, j, k] - rsdryg_tend[i, j, k])
-            
+            ldwetg = max(0.0, zrwetg_init - riwetg_tend - rswetg_tend) <= max(
+                0.0, zrdryg_init - ridryg_tend - rsdryg_tend
+            )
+
             if lnullwetg:
-                ldwetg[i, j, k] = ldwetg[i, j, k] and (zrdryg_init[i, j, k] > 0.0)
+                ldwetg = ldwetg and (zrdryg_init > 0.0)
             else:
-                ldwetg[i, j, k] = ldwetg[i, j, k] and (zrwetg_init[i, j, k] > 0.0)
-            
+                ldwetg = ldwetg and (zrwetg_init > 0.0)
+
             if not lwetgpost:
-                ldwetg[i, j, k] = ldwetg[i, j, k] and (pt[i, j, k] < XTT)
-            
+                ldwetg = ldwetg and (pt < XTT)
+
             # Determine if limited dry growth
-            lldryg[i, j, k] = (pt[i, j, k] < XTT) and (zrdryg_init[i, j, k] > 1.0e-20) and \
-                (max(0.0, zrwetg_init[i, j, k] - riwetg_tend[i, j, k] - rswetg_tend[i, j, k]) > \
-                 max(0.0, zrdryg_init[i, j, k] - ridryg_tend[i, j, k] - rsdryg_tend[i, j, k]))
+            lldryg = (
+                (pt < XTT)
+                and (zrdryg_init > 1.0e-20)
+                and (
+                    max(0.0, zrwetg_init - riwetg_tend - rswetg_tend)
+                    > max(0.0, zrdryg_init - ridryg_tend - rsdryg_tend)
+                )
+            )
         else:
-            freez1_tend[i, j, k] = 0.0
-            freez2_tend[i, j, k] = 0.0
-            zrdryg_init[i, j, k] = 0.0
-            zrwetg_init[i, j, k] = 0.0
-            ldwetg[i, j, k] = False
-            lldryg[i, j, k] = False
-    
-    # Compute conversion to hail (if KRR == 7)
-    @dace.map
-    def compute_hail_conversion(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if krr == 7:
-            if ldwetg[i, j, k]:
-                prwetgh[i, j, k] = (max(0.0, prgsi[i, j, k] + pricfrrg[i, j, k] + prrcfrig[i, j, k]) + \
-                    zrwetg_init[i, j, k]) * zrdryg_init[i, j, k] / (zrwetg_init[i, j, k] + zrdryg_init[i, j, k])
-                prwetgh_mr[i, j, k] = max(0.0, prgsi_mr[i, j, k]) * zrdryg_init[i, j, k] / \
-                    (zrwetg_init[i, j, k] + zrdryg_init[i, j, k])
-            else:
-                prwetgh[i, j, k] = 0.0
-                prwetgh_mr[i, j, k] = 0.0
-        else:
-            prwetgh[i, j, k] = 0.0
-            prwetgh_mr[i, j, k] = 0.0
-    
+            freez1_tend = 0.0
+            freez2_tend = 0.0
+            zrdryg_init = 0.0
+            zrwetg_init = 0.0
+            ldwetg = False
+            lldryg = False
+
+    # Conversion to hail removed (if KRR == 7)
+
     # Compute final wet and dry growth tendencies
-    @dace.map
-    def compute_final_tendencies(i: _[0:I], j: _[0:J], k: _[0:K]):
+    with computation(PARALLEL), interval(...):
         # Wet growth (aggregated minus collected)
-        if ldwetg[i, j, k]:
-            prrwetg[i, j, k] = -(riwetg_tend[i, j, k] + rswetg_tend[i, j, k] + \
-                rcdryg_tend[i, j, k] - zrwetg_init[i, j, k])
-            prcwetg[i, j, k] = rcdryg_tend[i, j, k]
-            priwetg[i, j, k] = riwetg_tend[i, j, k]
-            prswetg[i, j, k] = rswetg_tend[i, j, k]
+        if ldwetg:
+            prrwetg = -(riwetg_tend + rswetg_tend + rcdryg_tend - zrwetg_init)
+            prcwetg = rcdryg_tend
+            priwetg = riwetg_tend
+            prswetg = rswetg_tend
         else:
-            prrwetg[i, j, k] = 0.0
-            prcwetg[i, j, k] = 0.0
-            priwetg[i, j, k] = 0.0
-            prswetg[i, j, k] = 0.0
-        
+            prrwetg = 0.0
+            prcwetg = 0.0
+            priwetg = 0.0
+            prswetg = 0.0
+
         # Dry growth (limited)
-        if lldryg[i, j, k]:
-            prcdryg[i, j, k] = rcdryg_tend[i, j, k]
-            prrdryg[i, j, k] = rrdryg_tend[i, j, k]
-            pridryg[i, j, k] = ridryg_tend[i, j, k]
-            prsdryg[i, j, k] = rsdryg_tend[i, j, k]
+        if lldryg:
+            prcdryg = rcdryg_tend
+            prrdryg = rrdryg_tend
+            pridryg = ridryg_tend
+            prsdryg = rsdryg_tend
         else:
-            prcdryg[i, j, k] = 0.0
-            prrdryg[i, j, k] = 0.0
-            pridryg[i, j, k] = 0.0
-            prsdryg[i, j, k] = 0.0
+            prcdryg = 0.0
+            prrdryg = 0.0
+            pridryg = 0.0
+            prsdryg = 0.0
 
 
-@dace.program
+# GT4Py stencil
 def graupel_melting(
-    prhodref: dace.float32[I, J, K],
-    ppres: dace.float32[I, J, K],
-    pdv: dace.float32[I, J, K],
-    pka: dace.float32[I, J, K],
-    pcj: dace.float32[I, J, K],
-    plbdag: dace.float32[I, J, K],
-    pt: dace.float32[I, J, K],
-    prvt: dace.float32[I, J, K],
-    prgt: dace.float32[I, J, K],
-    ldcompute: dace.bool[I, J, K],
-    ldsoft: dace.bool,
-    levlimit: dace.bool,
-    prgmltr: dace.float32[I, J, K],
-    rcdryg_tend: dace.float32[I, J, K],
-    rrdryg_tend: dace.float32[I, J, K],
-    G_RTMIN: dace.float32,
-    XTT: dace.float32,
-    XEPSILO: dace.float32,
-    XALPW: dace.float32,
-    XBETAW: dace.float32,
-    XGAMW: dace.float32,
-    XLVTT: dace.float32,
-    XCPV: dace.float32,
-    XCL: dace.float32,
-    XESTT: dace.float32,
-    XRV: dace.float32,
-    XLMTT: dace.float32,
-    X0DEPG: dace.float32,
-    X1DEPG: dace.float32,
-    XEX0DEPG: dace.float32,
-    XEX1DEPG: dace.float32,
+    prhodref: Field["float"],
+    ppres: Field["float"],
+    pdv: Field["float"],
+    pka: Field["float"],
+    pcj: Field["float"],
+    plbdag: Field["float"],
+    pt: Field["float"],
+    prvt: Field["float"],
+    prgt: Field["float"],
+    ldcompute: Field["bool"],
+    ldsoft: "bool",
+    levlimit: "bool",
+    prgmltr: Field["float"],
+    rcdryg_tend: Field["float"],
+    rrdryg_tend: Field["float"],
 ):
     """Compute melting of graupel"""
-    @dace.map
-    def compute_melting(i: _[0:I], j: _[0:J], k: _[0:K]):
-        if prgt[i, j, k] > G_RTMIN and pt[i, j, k] > XTT and ldcompute[i, j, k]:
+
+    from __externals__ import (
+        G_RTMIN,
+        XTT,
+        XEPSILO,
+        XALPW,
+        XBETAW,
+        XGAMW,
+        XLVTT,
+        XCPV,
+        XCL,
+        XESTT,
+        XRV,
+        XLMTT,
+        X0DEPG,
+        X1DEPG,
+        XEX0DEPG,
+        XEX1DEPG,
+    )
+
+    with computation(PARALLEL), interval(...):
+        if prgt > G_RTMIN and pt > XTT and ldcompute:
             if not ldsoft:
                 # Compute vapor pressure
-                prs_ev = prvt[i, j, k] * ppres[i, j, k] / (XEPSILO + prvt[i, j, k])
-                
+                prs_ev = prvt * ppres / (XEPSILO + prvt)
+
                 # Apply saturation limit if requested
                 if levlimit:
-                    prs_ev = min(prs_ev, exp(XALPW - XBETAW / pt[i, j, k] - XGAMW * log(pt[i, j, k])))
-                
+                    prs_ev = min(prs_ev, exp(XALPW - XBETAW / pt - XGAMW * log(pt)))
+
                 # Compute melting rate
-                prgmltr[i, j, k] = pka[i, j, k] * (XTT - pt[i, j, k]) + \
-                    pdv[i, j, k] * (XLVTT + (XCPV - XCL) * (pt[i, j, k] - XTT)) * \
-                    (XESTT - prs_ev) / (XRV * pt[i, j, k])
-                
-                prgmltr[i, j, k] = max(0.0, (-prgmltr[i, j, k] * \
-                    (X0DEPG * plbdag[i, j, k] ** XEX0DEPG + \
-                     X1DEPG * pcj[i, j, k] * plbdag[i, j, k] ** XEX1DEPG) - \
-                    (rcdryg_tend[i, j, k] + rrdryg_tend[i, j, k]) * \
-                    (prhodref[i, j, k] * XCL * (XTT - pt[i, j, k]))) / \
-                    (prhodref[i, j, k] * XLMTT))
+                prgmltr = pka * (XTT - pt) + pdv * (
+                    XLVTT + (XCPV - XCL) * (pt - XTT)
+                ) * (XESTT - prs_ev) / (XRV * pt)
+
+                prgmltr = max(
+                    0.0,
+                    (
+                        -prgmltr
+                        * (X0DEPG * plbdag**XEX0DEPG + X1DEPG * pcj * plbdag**XEX1DEPG)
+                        - (rcdryg_tend + rrdryg_tend) * (prhodref * XCL * (XTT - pt))
+                    )
+                    / (prhodref * XLMTT),
+                )
         else:
-            prgmltr[i, j, k] = 0.0
+            prgmltr = 0.0
