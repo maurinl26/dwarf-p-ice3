@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Nebn - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Nebn";
+        var mkdocs_page_input_path = "ice3/phyex_common/nebn.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >phyex_common</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Nebn</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">phyex_common</li>
+      <li class="breadcrumb-item active">Nebn</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.phyex_common.nebn"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.nebn.Condens" class="doc doc-heading">
+            <code>Condens</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Enumeration for condensation variance</p>
+<p>HCONDENS in .F90
+CB02 for AROME</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/nebn.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Condens</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for condensation variance</span>
+
+<span class="sd">    HCONDENS in .F90</span>
+<span class="sd">    CB02 for AROME</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CB02</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">GAUS</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.nebn.FracIceAdjust" class="doc doc-heading">
+            <code>FracIceAdjust</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Enumeration for ice fraction adjustments modes</p>
+<p>T in case of AROME</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/nebn.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FracIceAdjust</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for ice fraction adjustments modes</span>
+
+<span class="sd">    T in case of AROME</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">O</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="mi">3</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.nebn.FracIceShallow" class="doc doc-heading">
+            <code>FracIceShallow</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>Enumeration of ice fraction for shallow mass fluxes</p>
+<p>T in case of AROME</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/nebn.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FracIceShallow</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration of ice fraction for shallow mass fluxes</span>
+
+<span class="sd">    T in case of AROME</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="mi">1</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.nebn.Lambda3" class="doc doc-heading">
+            <code>Lambda3</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="enum.Enum">Enum</span></code></p>
+
+
+
+        <p>LAMBDA3 in AROME</p>
+<p>CB by default in AROME</p>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/nebn.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Lambda3</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LAMBDA3 in AROME</span>
+
+<span class="sd">    CB by default in AROME</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CB</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.nebn.Neb" class="doc doc-heading">
+            <code>Neb</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Subgrid cloud fraction and statistical cloud scheme parameters.</p>
+<p>This dataclass configures the subgrid condensation and cloud fraction
+schemes used in the atmospheric model. It controls how cloud heterogeneity
+is represented at scales smaller than the model grid, including the treatment
+of ice/liquid partitioning, supersaturation variance, and PDF-based
+condensation schemes.</p>
+<h4 id="ice3.phyex_common.nebn.Neb--attributes">Attributes</h4>
+<p><strong>Model Configuration</strong></p>
+
+
+<details class="hprogram-" open>
+  <summary>{"AROME", "MESO-NH", "LMDZ"}</summary>
+  <p>Target atmospheric model. Sets appropriate defaults in <strong>post_init</strong>.</p>
+</details>        <p><strong>Mixed-Phase Temperature Range</strong></p>
+
+
+<details class="tminmix-" open>
+  <summary>float</summary>
+  <p>Minimum temperature for mixed-phase clouds (K). Default: 273.16 (0°C).
+Below this, all condensate is liquid.</p>
+</details>        <p>TMAXMIX : float
+    Maximum temperature for mixed-phase clouds (K). Default: 253.16 (-20°C).
+    Above this, all condensate is ice.</p>
+<p>Between TMAXMIX and TMINMIX, ice fraction varies from 0 to 1.</p>
+<p><strong>Ice Fraction Parameterizations</strong></p>
+
+
+<details class="frac_ice_adjust-" open>
+  <summary>int</summary>
+  <p>Ice fraction method for saturation adjustments:
+- FracIceAdjust.T (0): Temperature-based (AROME default)
+- FracIceAdjust.O (1): Original scheme
+- FracIceAdjust.N (2): New scheme
+- FracIceAdjust.S (3): Statistical (Meso-NH default)</p>
+</details>
+
+<details class="frac_ice_shallow-" open>
+  <summary>int</summary>
+  <p>Ice fraction method for shallow convection mass fluxes:
+- FracIceShallow.T (0): Temperature-based (AROME default)
+- FracIceShallow.S (1): Statistical (Meso-NH default)</p>
+</details>        <p><strong>Subgrid Variability Parameters</strong></p>
+
+
+<details class="vsigqsat-" open>
+  <summary>float</summary>
+  <p>Coefficient for saturation specific humidity variance contribution.
+Default: 0.02 (dimensionless).
+Controls subgrid variability of q_sat in cloud fraction calculation.</p>
+</details>
+
+<details class="lhgt_qs-" open>
+  <summary>bool</summary>
+  <p>Use height-dependent VSIGQSAT. Default: False.
+When True, VSIGQSAT varies with altitude to account for
+different variability at different levels.</p>
+</details>        <p><strong>Subgrid Condensation PDF</strong></p>
+
+
+<details class="condens-" open>
+  <summary>int</summary>
+  <p>Probability distribution function for subgrid condensation:
+- Condens.CB02 (0): Chaboureau and Bechtold (2002) (AROME default)
+- Condens.GAUS (1): Gaussian PDF</p>
+</details>        <p>The CB02 scheme uses a triangular PDF for supersaturation variance,
+while GAUS uses a normal distribution.</p>
+
+
+<details class="lambda3-" open>
+  <summary>int</summary>
+  <p>Lambda3 parameter choice for subgrid cloud scheme:
+- Lambda3.CB (0): Chaboureau and Bechtold formulation (default)</p>
+</details>        <p>Defines the characteristic scale of subgrid variability.</p>
+<p><strong>Statistical Cloud Scheme Options</strong></p>
+
+
+<details class="lstatnw-" open>
+  <summary>bool</summary>
+  <p>Use updated full statistical cloud scheme. Default: False.
+When True, employs advanced statistical methods for cloud
+fraction and condensate distribution.</p>
+</details>
+
+<details class="lsigmas-" open>
+  <summary>bool</summary>
+  <p>Use sigma_s from turbulence scheme for cloud variability. Default: True.
+When True, subgrid standard deviation comes from prognostic
+turbulence equations. When False, diagnostic formulation used.</p>
+</details>
+
+<details class="lsubg_cond-" open>
+  <summary>bool</summary>
+  <p>Enable subgrid condensation scheme. Default: False.
+When True, allows condensation at grid points with partial
+cloud cover using PDF-based approach.
+Set to True for AROME and LMDZ.</p>
+</details>        <h4 id="ice3.phyex_common.nebn.Neb--notes">Notes</h4>
+<p><strong>Physical Basis:</strong></p>
+<p>Real clouds are heterogeneous at all scales. Grid-scale models cannot
+resolve subgrid variability, leading to:
+- All-or-nothing cloud decisions (0% or 100% cloud cover)
+- Inaccurate radiative transfer
+- Poor representation of precipitation onset</p>
+<p><strong>Statistical Approach:</strong></p>
+<p>The statistical cloud scheme represents subgrid variability using:
+1. PDF of total water mixing ratio q_t
+2. PDF of saturation mixing ratio q_sat
+3. Cloud fraction as probability q_t &gt; q_sat</p>
+<p><strong>CB02 Scheme (Chaboureau and Bechtold, 2002):</strong>
+- Triangular PDF for supersaturation
+- Cloud fraction: σ = max(0, 1 - a|S|/σ_s) where S is saturation deficit
+- Efficient and commonly used in NWP models
+- Performs well for stratiform and convective clouds</p>
+<p><strong>Ice Fraction Methods:</strong></p>
+<p>Temperature-based (T):
+- Simple linear interpolation between TMAXMIX and TMINMIX
+- f_ice = (T_mix - T) / (T_mix - T_max)
+- Fast and robust</p>
+<p>Statistical (S):
+- Accounts for subgrid temperature variability
+- More physical but computationally expensive</p>
+<p><strong>Supersaturation Variance:</strong></p>
+<p>VSIGQSAT controls how much q_sat variability contributes:
+- Higher values → more cloud at grid scale
+- Lower values → sharper cloud edges
+- Typical range: 0.01-0.05</p>
+<p><strong>Model-Specific Settings:</strong></p>
+<p>AROME:
+- FRAC_ICE_ADJUST = T (temperature-based)
+- FRAC_ICE_SHALLOW = T
+- VSIGQSAT = 0.02
+- LSIGMAS = True (use prognostic variance)
+- LSUBG_COND = True (enable subgrid condensation)</p>
+<p>LMDZ:
+- LSUBG_COND = True
+- Other parameters at defaults</p>
+<p>Meso-NH:
+- Uses default values (statistical methods)</p>
+<h4 id="ice3.phyex_common.nebn.Neb--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/aux/modd_nebn.F90</p>
+<h4 id="ice3.phyex_common.nebn.Neb--references">References</h4>
+<p>Chaboureau, J.-P., and P. Bechtold, 2002: A simple cloud
+parameterization derived from cloud resolving model data:
+Diagnostic and prognostic applications. J. Atmos. Sci., 59, 2362-2372.</p>
+<p>Sommeria, G., and J.W. Deardorff, 1977: Subgrid-scale condensation
+in models of nonprecipitating clouds. J. Atmos. Sci., 34, 344-355.</p>
+<p>Bougeault, P., 1981: Modeling the trade-wind cumulus boundary layer.
+Part I: Testing the ensemble cloud relations against numerical data.
+J. Atmos. Sci., 38, 2414-2428.</p>
+<h4 id="ice3.phyex_common.nebn.Neb--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<h3 id="ice3.phyex_common.nebn.Neb--arome-configuration">AROME configuration</h3>
+<p>neb_arome = Neb(HPROGRAM="AROME")
+print(neb_arome.LSUBG_COND)  # Subgrid condensation enabled
+True
+print(neb_arome.FRAC_ICE_ADJUST)  # Temperature-based
+0</p>
+<h3 id="ice3.phyex_common.nebn.Neb--meso-nh-with-statistical-ice-fraction">Meso-NH with statistical ice fraction</h3>
+<p>neb_mnh = Neb(HPROGRAM="MESO-NH")
+print(neb_mnh.FRAC_ICE_ADJUST)  # Statistical method
+3</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/nebn.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Neb</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subgrid cloud fraction and statistical cloud scheme parameters.</span>
+
+<span class="sd">    This dataclass configures the subgrid condensation and cloud fraction</span>
+<span class="sd">    schemes used in the atmospheric model. It controls how cloud heterogeneity</span>
+<span class="sd">    is represented at scales smaller than the model grid, including the treatment</span>
+<span class="sd">    of ice/liquid partitioning, supersaturation variance, and PDF-based</span>
+<span class="sd">    condensation schemes.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    **Model Configuration**</span>
+
+<span class="sd">    HPROGRAM : {&quot;AROME&quot;, &quot;MESO-NH&quot;, &quot;LMDZ&quot;}</span>
+<span class="sd">        Target atmospheric model. Sets appropriate defaults in __post_init__.</span>
+
+<span class="sd">    **Mixed-Phase Temperature Range**</span>
+
+<span class="sd">    TMINMIX : float</span>
+<span class="sd">        Minimum temperature for mixed-phase clouds (K). Default: 273.16 (0°C).</span>
+<span class="sd">        Below this, all condensate is liquid.</span>
+<span class="sd">    TMAXMIX : float</span>
+<span class="sd">        Maximum temperature for mixed-phase clouds (K). Default: 253.16 (-20°C).</span>
+<span class="sd">        Above this, all condensate is ice.</span>
+
+<span class="sd">    Between TMAXMIX and TMINMIX, ice fraction varies from 0 to 1.</span>
+
+<span class="sd">    **Ice Fraction Parameterizations**</span>
+
+<span class="sd">    FRAC_ICE_ADJUST : int</span>
+<span class="sd">        Ice fraction method for saturation adjustments:</span>
+<span class="sd">        - FracIceAdjust.T (0): Temperature-based (AROME default)</span>
+<span class="sd">        - FracIceAdjust.O (1): Original scheme</span>
+<span class="sd">        - FracIceAdjust.N (2): New scheme</span>
+<span class="sd">        - FracIceAdjust.S (3): Statistical (Meso-NH default)</span>
+
+<span class="sd">    FRAC_ICE_SHALLOW : int</span>
+<span class="sd">        Ice fraction method for shallow convection mass fluxes:</span>
+<span class="sd">        - FracIceShallow.T (0): Temperature-based (AROME default)</span>
+<span class="sd">        - FracIceShallow.S (1): Statistical (Meso-NH default)</span>
+
+<span class="sd">    **Subgrid Variability Parameters**</span>
+
+<span class="sd">    VSIGQSAT : float</span>
+<span class="sd">        Coefficient for saturation specific humidity variance contribution.</span>
+<span class="sd">        Default: 0.02 (dimensionless).</span>
+<span class="sd">        Controls subgrid variability of q_sat in cloud fraction calculation.</span>
+
+<span class="sd">    LHGT_QS : bool</span>
+<span class="sd">        Use height-dependent VSIGQSAT. Default: False.</span>
+<span class="sd">        When True, VSIGQSAT varies with altitude to account for</span>
+<span class="sd">        different variability at different levels.</span>
+
+<span class="sd">    **Subgrid Condensation PDF**</span>
+
+<span class="sd">    CONDENS : int</span>
+<span class="sd">        Probability distribution function for subgrid condensation:</span>
+<span class="sd">        - Condens.CB02 (0): Chaboureau and Bechtold (2002) (AROME default)</span>
+<span class="sd">        - Condens.GAUS (1): Gaussian PDF</span>
+
+<span class="sd">    The CB02 scheme uses a triangular PDF for supersaturation variance,</span>
+<span class="sd">    while GAUS uses a normal distribution.</span>
+
+<span class="sd">    LAMBDA3 : int</span>
+<span class="sd">        Lambda3 parameter choice for subgrid cloud scheme:</span>
+<span class="sd">        - Lambda3.CB (0): Chaboureau and Bechtold formulation (default)</span>
+
+<span class="sd">    Defines the characteristic scale of subgrid variability.</span>
+
+<span class="sd">    **Statistical Cloud Scheme Options**</span>
+
+<span class="sd">    LSTATNW : bool</span>
+<span class="sd">        Use updated full statistical cloud scheme. Default: False.</span>
+<span class="sd">        When True, employs advanced statistical methods for cloud</span>
+<span class="sd">        fraction and condensate distribution.</span>
+
+<span class="sd">    LSIGMAS : bool</span>
+<span class="sd">        Use sigma_s from turbulence scheme for cloud variability. Default: True.</span>
+<span class="sd">        When True, subgrid standard deviation comes from prognostic</span>
+<span class="sd">        turbulence equations. When False, diagnostic formulation used.</span>
+
+<span class="sd">    LSUBG_COND : bool</span>
+<span class="sd">        Enable subgrid condensation scheme. Default: False.</span>
+<span class="sd">        When True, allows condensation at grid points with partial</span>
+<span class="sd">        cloud cover using PDF-based approach.</span>
+<span class="sd">        Set to True for AROME and LMDZ.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    **Physical Basis:**</span>
+
+<span class="sd">    Real clouds are heterogeneous at all scales. Grid-scale models cannot</span>
+<span class="sd">    resolve subgrid variability, leading to:</span>
+<span class="sd">    - All-or-nothing cloud decisions (0% or 100% cloud cover)</span>
+<span class="sd">    - Inaccurate radiative transfer</span>
+<span class="sd">    - Poor representation of precipitation onset</span>
+
+<span class="sd">    **Statistical Approach:**</span>
+
+<span class="sd">    The statistical cloud scheme represents subgrid variability using:</span>
+<span class="sd">    1. PDF of total water mixing ratio q_t</span>
+<span class="sd">    2. PDF of saturation mixing ratio q_sat</span>
+<span class="sd">    3. Cloud fraction as probability q_t &gt; q_sat</span>
+
+<span class="sd">    **CB02 Scheme (Chaboureau and Bechtold, 2002):**</span>
+<span class="sd">    - Triangular PDF for supersaturation</span>
+<span class="sd">    - Cloud fraction: σ = max(0, 1 - a|S|/σ_s) where S is saturation deficit</span>
+<span class="sd">    - Efficient and commonly used in NWP models</span>
+<span class="sd">    - Performs well for stratiform and convective clouds</span>
+
+<span class="sd">    **Ice Fraction Methods:**</span>
+
+<span class="sd">    Temperature-based (T):</span>
+<span class="sd">    - Simple linear interpolation between TMAXMIX and TMINMIX</span>
+<span class="sd">    - f_ice = (T_mix - T) / (T_mix - T_max)</span>
+<span class="sd">    - Fast and robust</span>
+
+<span class="sd">    Statistical (S):</span>
+<span class="sd">    - Accounts for subgrid temperature variability</span>
+<span class="sd">    - More physical but computationally expensive</span>
+
+<span class="sd">    **Supersaturation Variance:**</span>
+
+<span class="sd">    VSIGQSAT controls how much q_sat variability contributes:</span>
+<span class="sd">    - Higher values → more cloud at grid scale</span>
+<span class="sd">    - Lower values → sharper cloud edges</span>
+<span class="sd">    - Typical range: 0.01-0.05</span>
+
+<span class="sd">    **Model-Specific Settings:**</span>
+
+<span class="sd">    AROME:</span>
+<span class="sd">    - FRAC_ICE_ADJUST = T (temperature-based)</span>
+<span class="sd">    - FRAC_ICE_SHALLOW = T</span>
+<span class="sd">    - VSIGQSAT = 0.02</span>
+<span class="sd">    - LSIGMAS = True (use prognostic variance)</span>
+<span class="sd">    - LSUBG_COND = True (enable subgrid condensation)</span>
+
+<span class="sd">    LMDZ:</span>
+<span class="sd">    - LSUBG_COND = True</span>
+<span class="sd">    - Other parameters at defaults</span>
+
+<span class="sd">    Meso-NH:</span>
+<span class="sd">    - Uses default values (statistical methods)</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/aux/modd_nebn.F90</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Chaboureau, J.-P., and P. Bechtold, 2002: A simple cloud</span>
+<span class="sd">    parameterization derived from cloud resolving model data:</span>
+<span class="sd">    Diagnostic and prognostic applications. J. Atmos. Sci., 59, 2362-2372.</span>
+
+<span class="sd">    Sommeria, G., and J.W. Deardorff, 1977: Subgrid-scale condensation</span>
+<span class="sd">    in models of nonprecipitating clouds. J. Atmos. Sci., 34, 344-355.</span>
+
+<span class="sd">    Bougeault, P., 1981: Modeling the trade-wind cumulus boundary layer.</span>
+<span class="sd">    Part I: Testing the ensemble cloud relations against numerical data.</span>
+<span class="sd">    J. Atmos. Sci., 38, 2414-2428.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # AROME configuration</span>
+<span class="sd">    &gt;&gt;&gt; neb_arome = Neb(HPROGRAM=&quot;AROME&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(neb_arome.LSUBG_COND)  # Subgrid condensation enabled</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; print(neb_arome.FRAC_ICE_ADJUST)  # Temperature-based</span>
+<span class="sd">    0</span>
+
+<span class="sd">    &gt;&gt;&gt; # Meso-NH with statistical ice fraction</span>
+<span class="sd">    &gt;&gt;&gt; neb_mnh = Neb(HPROGRAM=&quot;MESO-NH&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(neb_mnh.FRAC_ICE_ADJUST)  # Statistical method</span>
+<span class="sd">    3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HPROGRAM</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;AROME&quot;</span><span class="p">,</span> <span class="s2">&quot;MESO-NH&quot;</span><span class="p">,</span> <span class="s2">&quot;LMDZ&quot;</span><span class="p">]</span>
+
+    <span class="n">TMINMIX</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">273.16</span><span class="p">)</span>
+    <span class="n">TMAXMIX</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">253.16</span><span class="p">)</span>
+    <span class="n">LHGT_QS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">FRAC_ICE_ADJUST</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">FracIceAdjust</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">FRAC_ICE_SHALLOW</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">FracIceShallow</span><span class="o">.</span><span class="n">S</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">VSIGQSAT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+    <span class="n">CONDENS</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">Condens</span><span class="o">.</span><span class="n">CB02</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">LAMBDA3</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">Lambda3</span><span class="o">.</span><span class="n">CB</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">LSTATNW</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LSIGMAS</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LSUBG_COND</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">HPROGRAM</span> <span class="o">==</span> <span class="s2">&quot;AROME&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">FRAC_ICE_ADJUST</span> <span class="o">=</span> <span class="n">FracIceAdjust</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">FRAC_ICE_SHALLOW</span> <span class="o">=</span> <span class="n">FracIceShallow</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">VSIGQSAT</span> <span class="o">=</span> <span class="mf">0.02</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LSIGMAS</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LSUBG_COND</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">HPROGRAM</span> <span class="o">==</span> <span class="s2">&quot;LMDZ&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LSUBG_COND</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../namparar/" class="btn btn-neutral float-left" title="Namparar"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../phyex/" class="btn btn-neutral float-right" title="Phyex">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../namparar/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../phyex/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

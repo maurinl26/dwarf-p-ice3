@@ -1,0 +1,2299 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Ice adjust modular - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ice adjust modular";
+        var mkdocs_page_input_path = "ice3/components/ice_adjust_modular.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" >components</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Ice adjust modular</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">components</li>
+      <li class="breadcrumb-item active">Ice adjust modular</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.components.ice_adjust_modular"></a>
+    <div class="doc doc-contents first">
+
+        <p>Composant ICE_ADJUST modulaire utilisant condensation.py et cloud_fraction.py.</p>
+<p>Ce composant reproduit le schéma d'ajustement microphysique ICE_ADJUST de PHYEX
+en utilisant les stencils séparés plutôt qu'un stencil monolithique.</p>
+
+
+<details class="référence" open>
+  <summary>Référence</summary>
+  <p>PHYEX-IAL_CY50T1/micro/ice_adjust.F90
+PHYEX-IAL_CY50T1/micro/condensation.F90</p>
+</details>
+
+<details class="architecture" open>
+  <summary>Architecture</summary>
+  <ol>
+<li>thermodynamic_fields : Calcul T, Lv, Ls, Cph</li>
+<li>condensation         : Schéma CB02, production rc_out, ri_out</li>
+<li>cloud_fraction_1     : Sources microphysiques, conservation</li>
+<li>cloud_fraction_2     : Fraction nuageuse finale, autoconversion</li>
+</ol>
+</details>
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.components.ice_adjust_modular.IceAdjustModular" class="doc doc-heading">
+            <code>IceAdjustModular</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Composant d'ajustement microphysique modulaire.</p>
+<p>Implémentation modulaire d'ICE_ADJUST reproduisant la référence PHYEX
+en utilisant les stencils séparés condensation.py et cloud_fraction.py.</p>
+<p>Séquence d'exécution:
+    1. thermodynamic_fields : T = θ×Π, Lv, Ls, Cph
+    2. condensation         : Schéma CB02 → rc_tmp, ri_tmp
+    3. cloud_fraction_1     : Calcul sources, conservation eau/énergie
+    4. cloud_fraction_2     : Fraction nuageuse, autoconversion</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>phyex</code></b>
+                  (<code><a class="autorefs autorefs-internal" title="Phyex
+
+
+  
+      dataclass
+   (ice3.phyex_common.phyex.Phyex)" href="../../phyex_common/phyex/#ice3.phyex_common.phyex.Phyex">Phyex</a></code>, default:
+                      <code><a class="autorefs autorefs-internal" title="Phyex
+
+
+  
+      dataclass
+   (ice3.phyex_common.phyex.Phyex)" href="../../phyex_common/phyex/#ice3.phyex_common.phyex.Phyex">Phyex</a>(&#39;AROME&#39;)</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Configuration PHYEX (AROME par défaut)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>dtypes</code></b>
+                  (<code><span title="typing.Dict">Dict</span></code>, default:
+                      <code><span title="ice3.utils.env.DTYPES">DTYPES</span></code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Types de données (float32/float64)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>backend</code></b>
+                  (<code><span title="str">str</span></code>, default:
+                      <code><span title="ice3.utils.env.BACKEND">BACKEND</span></code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Backend GT4Py (numpy, cpu, gpu)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Attributes:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>thermodynamic_fields_stencil</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Stencil champs thermodynamiques</p>
+              </div>
+            </li>
+            <li>
+              <b><code>condensation_stencil</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Stencil condensation CB02</p>
+              </div>
+            </li>
+            <li>
+              <b><code>cloud_fraction_1_stencil</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Stencil sources microphysiques</p>
+              </div>
+            </li>
+            <li>
+              <b><code>cloud_fraction_2_stencil</code></b>
+              –
+              <div class="doc-md-description">
+                <p>Stencil fraction nuageuse</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<details class="example" open>
+  <summary>Example</summary>
+  <blockquote>
+<blockquote>
+<blockquote>
+<p>phyex = Phyex("AROME")
+ice_adjust = IceAdjustModular(phyex)
+ice_adjust(
+...     sigqsat, exn, exnref, rhodref, pabs, sigs,
+...     cf_mf, rc_mf, ri_mf, th, rv, rc, rr, ri, rs, rg,
+...     cldfr, hlc_hrc, hlc_hcf, hli_hri, hli_hcf, sigrc,
+...     ths, rvs, rcs, ris, timestep, domain, exec_info
+... )</p>
+</blockquote>
+</blockquote>
+</blockquote>
+</details>
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/components/ice_adjust_modular.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">IceAdjustModular</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Composant d&#39;ajustement microphysique modulaire.</span>
+
+<span class="sd">    Implémentation modulaire d&#39;ICE_ADJUST reproduisant la référence PHYEX</span>
+<span class="sd">    en utilisant les stencils séparés condensation.py et cloud_fraction.py.</span>
+
+<span class="sd">    Séquence d&#39;exécution:</span>
+<span class="sd">        1. thermodynamic_fields : T = θ×Π, Lv, Ls, Cph</span>
+<span class="sd">        2. condensation         : Schéma CB02 → rc_tmp, ri_tmp</span>
+<span class="sd">        3. cloud_fraction_1     : Calcul sources, conservation eau/énergie</span>
+<span class="sd">        4. cloud_fraction_2     : Fraction nuageuse, autoconversion</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        phyex: Configuration PHYEX (AROME par défaut)</span>
+<span class="sd">        dtypes: Types de données (float32/float64)</span>
+<span class="sd">        backend: Backend GT4Py (numpy, cpu, gpu)</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        thermodynamic_fields_stencil: Stencil champs thermodynamiques</span>
+<span class="sd">        condensation_stencil: Stencil condensation CB02</span>
+<span class="sd">        cloud_fraction_1_stencil: Stencil sources microphysiques</span>
+<span class="sd">        cloud_fraction_2_stencil: Stencil fraction nuageuse</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        &gt;&gt;&gt; phyex = Phyex(&quot;AROME&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; ice_adjust = IceAdjustModular(phyex)</span>
+<span class="sd">        &gt;&gt;&gt; ice_adjust(</span>
+<span class="sd">        ...     sigqsat, exn, exnref, rhodref, pabs, sigs,</span>
+<span class="sd">        ...     cf_mf, rc_mf, ri_mf, th, rv, rc, rr, ri, rs, rg,</span>
+<span class="sd">        ...     cldfr, hlc_hrc, hlc_hcf, hli_hri, hli_hcf, sigrc,</span>
+<span class="sd">        ...     ths, rvs, rcs, ris, timestep, domain, exec_info</span>
+<span class="sd">        ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">phyex</span><span class="p">:</span> <span class="n">Phyex</span> <span class="o">=</span> <span class="n">Phyex</span><span class="p">(</span><span class="s2">&quot;AROME&quot;</span><span class="p">),</span>
+        <span class="n">dtypes</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="n">DTYPES</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BACKEND</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise le composant ICE_ADJUST modulaire.</span>
+
+<span class="sd">        Compile tous les stencils nécessaires avec la configuration PHYEX.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phyex</span> <span class="o">=</span> <span class="n">phyex</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">=</span> <span class="n">dtypes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
+
+        <span class="n">externals</span> <span class="o">=</span> <span class="n">phyex</span><span class="o">.</span><span class="n">externals</span>
+        <span class="n">externals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;OCND2&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Configuration de la compilation des stencils</span>
+        <span class="n">compile_stencil</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+            <span class="n">stencil</span><span class="p">,</span>
+            <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+            <span class="n">externals</span><span class="o">=</span><span class="n">externals</span><span class="p">,</span>
+            <span class="n">dtypes</span><span class="o">=</span><span class="n">dtypes</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Import et compilation des stencils</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..stencils.cloud_fraction</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">thermodynamic_fields</span><span class="p">,</span>
+            <span class="n">cloud_fraction_1</span><span class="p">,</span>
+            <span class="n">cloud_fraction_2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..stencils.condensation</span><span class="w"> </span><span class="kn">import</span> <span class="n">condensation</span>
+
+        <span class="c1"># Compilation des stencils</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thermodynamic_fields_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;thermodynamic_fields&quot;</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">=</span><span class="n">thermodynamic_fields</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">condensation_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;condensation&quot;</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">=</span><span class="n">condensation</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_1_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cloud_fraction_1&quot;</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">=</span><span class="n">cloud_fraction_1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_2_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cloud_fraction_2&quot;</span><span class="p">,</span>
+            <span class="n">definition</span><span class="o">=</span><span class="n">cloud_fraction_2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Log de la configuration</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;IceAdjustModular - Configuration PHYEX&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Backend          : </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Precision        : </span><span class="si">{</span><span class="n">dtypes</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SUBG_COND        : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">LSUBG_COND</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SUBG_MF_PDF      : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">param_icen</span><span class="o">.</span><span class="n">SUBG_MF_PDF</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SIGMAS           : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">LSIGMAS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LMFCONV          : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">LMFCONV</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONDENS (scheme) : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">CONDENS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FRAC_ICE_ADJUST  : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">FRAC_ICE_ADJUST</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sigqsat</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">exn</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">exnref</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rhodref</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">pabs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">sigs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">cf_mf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rc_mf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">ri_mf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">th</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rv</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">ri</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rg</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">cldfr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">hlc_hrc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">hlc_hcf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">hli_hri</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">hli_hcf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">sigrc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">ths</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rvs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">rcs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">ris</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+        <span class="n">timestep</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">domain</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+        <span class="n">exec_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+        <span class="n">validate_args</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Exécute la séquence complète d&#39;ajustement microphysique ICE_ADJUST.</span>
+
+<span class="sd">        Séquence d&#39;exécution correspondant à ice_adjust.F90:</span>
+
+<span class="sd">        1. THERMODYNAMIC_FIELDS (ice_adjust.F90, l.450-473)</span>
+<span class="sd">           - Calcul température T = θ × Π</span>
+<span class="sd">           - Chaleurs latentes Lv, Ls (dépendantes de T)</span>
+<span class="sd">           - Chaleur spécifique Cph (fonction des hydrométéores)</span>
+
+<span class="sd">        2. CONDENSATION (condensation.F90, l.186-575)</span>
+<span class="sd">           - Schéma CB02 (Chaboureau &amp; Bechtold 2002)</span>
+<span class="sd">           - Calcul variabilité sous-maille</span>
+<span class="sd">           - Production condensats rc_out, ri_out</span>
+<span class="sd">           - Fraction nuageuse initiale</span>
+
+<span class="sd">        3. CLOUD_FRACTION_1 (ice_adjust.F90, l.278-312)</span>
+<span class="sd">           - Calcul sources microphysiques drc/dt, dri/dt</span>
+<span class="sd">           - Conservation eau totale</span>
+<span class="sd">           - Ajustement thermique température potentielle</span>
+
+<span class="sd">        4. CLOUD_FRACTION_2 (ice_adjust.F90, l.313-419)</span>
+<span class="sd">           - Fraction nuageuse finale avec flux de masse</span>
+<span class="sd">           - Autoconversion liquide (cloud → rain)</span>
+<span class="sd">           - Autoconversion solide (ice → snow)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            sigqsat: Coefficient σ_qsat pour variabilité sous-maille</span>
+<span class="sd">            exn: Fonction d&#39;Exner (Π = (P/P0)^(R/Cp))</span>
+<span class="sd">            exnref: Fonction d&#39;Exner de référence</span>
+<span class="sd">            rhodref: Densité de l&#39;air sec de référence [kg/m³]</span>
+<span class="sd">            pabs: Pression absolue [Pa]</span>
+<span class="sd">            sigs: Écart-type sous-maille de s</span>
+<span class="sd">            cf_mf: Fraction nuageuse des flux de masse</span>
+<span class="sd">            rc_mf: Contenu en eau liquide des flux de masse [kg/kg]</span>
+<span class="sd">            ri_mf: Contenu en glace des flux de masse [kg/kg]</span>
+<span class="sd">            th: Température potentielle [K]</span>
+<span class="sd">            rv: Rapport mélange vapeur [kg/kg]</span>
+<span class="sd">            rc: Rapport mélange liquide nuageux [kg/kg]</span>
+<span class="sd">            rr: Rapport mélange pluie [kg/kg]</span>
+<span class="sd">            ri: Rapport mélange glace [kg/kg]</span>
+<span class="sd">            rs: Rapport mélange neige [kg/kg]</span>
+<span class="sd">            rg: Rapport mélange graupel [kg/kg]</span>
+<span class="sd">            cldfr: Fraction nuageuse [0-1] (modifié)</span>
+<span class="sd">            hlc_hrc: Contenu liquide haute résolution [kg/kg] (modifié)</span>
+<span class="sd">            hlc_hcf: Fraction liquide haute résolution [0-1] (modifié)</span>
+<span class="sd">            hli_hri: Contenu glace haute résolution [kg/kg] (modifié)</span>
+<span class="sd">            hli_hcf: Fraction glace haute résolution [0-1] (modifié)</span>
+<span class="sd">            sigrc: σ_rc pour autoconversion [kg/kg]</span>
+<span class="sd">            ths: Température potentielle source [K] (modifié)</span>
+<span class="sd">            rvs: Rapport mélange vapeur source [kg/kg] (modifié)</span>
+<span class="sd">            rcs: Rapport mélange liquide source [kg/kg] (modifié)</span>
+<span class="sd">            ris: Rapport mélange glace source [kg/kg] (modifié)</span>
+<span class="sd">            timestep: Pas de temps [s]</span>
+<span class="sd">            domain: Taille du domaine (ni, nj, nk)</span>
+<span class="sd">            exec_info: Informations d&#39;exécution GT4Py</span>
+<span class="sd">            validate_args: Validation des arguments GT4Py</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None (modification in-place des champs de sortie)</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ValueError: Si les dimensions des champs ne correspondent pas</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Création des champs temporaires nécessaires</span>
+        <span class="k">with</span> <span class="n">managed_temporaries</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="o">*</span><span class="n">repeat</span><span class="p">((</span><span class="n">IJK</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">),</span> <span class="mi">18</span><span class="p">)</span>
+            <span class="p">],</span>
+            <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+            <span class="n">dtypes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">,</span>
+            <span class="n">backend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="p">(</span>
+            <span class="n">t</span><span class="p">,</span>          <span class="c1"># Température [K]</span>
+            <span class="n">lv</span><span class="p">,</span>         <span class="c1"># Chaleur latente vaporisation [J/kg]</span>
+            <span class="n">ls</span><span class="p">,</span>         <span class="c1"># Chaleur latente sublimation [J/kg]</span>
+            <span class="n">cph</span><span class="p">,</span>        <span class="c1"># Chaleur spécifique air humide [J/kg/K]</span>
+            <span class="n">rv_out</span><span class="p">,</span>     <span class="c1"># Rapport mélange vapeur après condensation [kg/kg]</span>
+            <span class="n">rc_out</span><span class="p">,</span>     <span class="c1"># Rapport mélange liquide après condensation [kg/kg]</span>
+            <span class="n">ri_out</span><span class="p">,</span>     <span class="c1"># Rapport mélange glace après condensation [kg/kg]</span>
+            <span class="n">q1</span><span class="p">,</span>         <span class="c1"># Paramètre distribution sous-maille</span>
+            <span class="n">pv_out</span><span class="p">,</span>
+            <span class="n">piv_out</span><span class="p">,</span>
+            <span class="n">frac_out</span><span class="p">,</span>
+            <span class="n">qsl_out</span><span class="p">,</span>
+            <span class="n">qsi_out</span><span class="p">,</span>
+            <span class="n">sigma_out</span><span class="p">,</span>
+            <span class="n">cond_out</span><span class="p">,</span>
+            <span class="n">a_out</span><span class="p">,</span>
+            <span class="n">b_out</span><span class="p">,</span>
+            <span class="n">sbar_out</span><span class="p">,</span>
+        <span class="p">):</span>
+
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 1/4: Calcul champs thermodynamiques&quot;</span><span class="p">)</span>
+            <span class="c1"># ================================================================</span>
+            <span class="c1"># ÉTAPE 1: CHAMPS THERMODYNAMIQUES</span>
+            <span class="c1"># Référence: ice_adjust.F90, lignes 450-473</span>
+            <span class="c1"># ================================================================</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">thermodynamic_fields_stencil</span><span class="p">(</span>
+                <span class="n">th</span><span class="o">=</span><span class="n">th</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">exn</span><span class="o">=</span><span class="n">exn</span><span class="p">,</span>            <span class="c1"># IN</span>
+                <span class="n">rv</span><span class="o">=</span><span class="n">rv</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">rr</span><span class="o">=</span><span class="n">rr</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ri</span><span class="o">=</span><span class="n">ri</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">rs</span><span class="o">=</span><span class="n">rs</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">rg</span><span class="o">=</span><span class="n">rg</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># OUT</span>
+                <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># OUT</span>
+                <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># OUT</span>
+                <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>                <span class="c1"># OUT</span>
+                <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+                <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+                <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 2/4: Condensation (schéma CB02)&quot;</span><span class="p">)</span>
+            <span class="c1"># ================================================================</span>
+            <span class="c1"># ÉTAPE 2: CONDENSATION</span>
+            <span class="c1"># Référence: condensation.F90, lignes 186-575</span>
+            <span class="c1"># Schéma CB02 de Chaboureau &amp; Bechtold (2002)</span>
+            <span class="c1"># ================================================================</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">condensation_stencil</span><span class="p">(</span>
+                <span class="n">sigqsat</span><span class="o">=</span><span class="n">sigqsat</span><span class="p">,</span>    <span class="c1"># IN</span>
+                <span class="n">pabs</span><span class="o">=</span><span class="n">pabs</span><span class="p">,</span>          <span class="c1"># IN</span>
+                <span class="n">sigs</span><span class="o">=</span><span class="n">sigs</span><span class="p">,</span>          <span class="c1"># IN</span>
+                <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>                <span class="c1"># IN</span>
+                <span class="n">rv</span><span class="o">=</span><span class="n">rv</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ri</span><span class="o">=</span><span class="n">ri</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">rv_out</span><span class="o">=</span><span class="n">rv_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+                <span class="n">rc_out</span><span class="o">=</span><span class="n">rc_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+                <span class="n">ri_out</span><span class="o">=</span><span class="n">ri_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+                <span class="n">cldfr</span><span class="o">=</span><span class="n">cldfr</span><span class="p">,</span>        <span class="c1"># OUT</span>
+                <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># IN</span>
+                <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">q1</span><span class="o">=</span><span class="n">q1</span><span class="p">,</span>              <span class="c1"># OUT</span>
+                <span class="n">pv_out</span><span class="o">=</span><span class="n">pv_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+                <span class="n">piv_out</span><span class="o">=</span><span class="n">piv_out</span><span class="p">,</span>    <span class="c1"># OUT</span>
+                <span class="n">frac_out</span><span class="o">=</span><span class="n">frac_out</span><span class="p">,</span>  <span class="c1"># OUT</span>
+                <span class="n">qsl_out</span><span class="o">=</span><span class="n">qsl_out</span><span class="p">,</span>    <span class="c1"># OUT</span>
+                <span class="n">qsi_out</span><span class="o">=</span><span class="n">qsi_out</span><span class="p">,</span>    <span class="c1"># OUT</span>
+                <span class="n">sigma_out</span><span class="o">=</span><span class="n">sigma_out</span><span class="p">,</span><span class="c1"># OUT</span>
+                <span class="n">cond_out</span><span class="o">=</span><span class="n">cond_out</span><span class="p">,</span>  <span class="c1"># OUT</span>
+                <span class="n">a_out</span><span class="o">=</span><span class="n">a_out</span><span class="p">,</span>        <span class="c1"># OUT</span>
+                <span class="n">b_out</span><span class="o">=</span><span class="n">b_out</span><span class="p">,</span>        <span class="c1"># OUT</span>
+                <span class="n">sbar_out</span><span class="o">=</span><span class="n">sbar_out</span><span class="p">,</span>  <span class="c1"># OUT</span>
+                <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+                <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+                <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 3/4: Calcul sources microphysiques&quot;</span><span class="p">)</span>
+            <span class="c1"># ================================================================</span>
+            <span class="c1"># ÉTAPE 3: SOURCES MICROPHYSIQUES</span>
+            <span class="c1"># Référence: ice_adjust.F90, lignes 278-312</span>
+            <span class="c1"># Conservation de l&#39;eau et ajustement thermique</span>
+            <span class="c1"># ================================================================</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_1_stencil</span><span class="p">(</span>
+                <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># IN</span>
+                <span class="n">exnref</span><span class="o">=</span><span class="n">exnref</span><span class="p">,</span>      <span class="c1"># IN</span>
+                <span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ri</span><span class="o">=</span><span class="n">ri</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ths</span><span class="o">=</span><span class="n">ths</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">rvs</span><span class="o">=</span><span class="n">rvs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">rcs</span><span class="o">=</span><span class="n">rcs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">ris</span><span class="o">=</span><span class="n">ris</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">rc_tmp</span><span class="o">=</span><span class="n">rc_out</span><span class="p">,</span>      <span class="c1"># IN (condensation output)</span>
+                <span class="n">ri_tmp</span><span class="o">=</span><span class="n">ri_out</span><span class="p">,</span>      <span class="c1"># IN (condensation output)</span>
+                <span class="n">dt</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span>        <span class="c1"># IN</span>
+                <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+                <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+                <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 4/4: Fraction nuageuse et autoconversion&quot;</span><span class="p">)</span>
+            <span class="c1"># ================================================================</span>
+            <span class="c1"># ÉTAPE 4: FRACTION NUAGEUSE ET AUTOCONVERSION</span>
+            <span class="c1"># Référence: ice_adjust.F90, lignes 313-419</span>
+            <span class="c1"># Calcul fraction nuageuse finale, autoconversion</span>
+            <span class="c1"># ================================================================</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_2_stencil</span><span class="p">(</span>
+                <span class="n">rhodref</span><span class="o">=</span><span class="n">rhodref</span><span class="p">,</span>    <span class="c1"># IN</span>
+                <span class="n">exnref</span><span class="o">=</span><span class="n">exnref</span><span class="p">,</span>      <span class="c1"># IN</span>
+                <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>                <span class="c1"># IN</span>
+                <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># IN</span>
+                <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># IN</span>
+                <span class="n">ths</span><span class="o">=</span><span class="n">ths</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">rvs</span><span class="o">=</span><span class="n">rvs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">rcs</span><span class="o">=</span><span class="n">rcs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">ris</span><span class="o">=</span><span class="n">ris</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+                <span class="n">rc_mf</span><span class="o">=</span><span class="n">rc_mf</span><span class="p">,</span>        <span class="c1"># IN</span>
+                <span class="n">ri_mf</span><span class="o">=</span><span class="n">ri_mf</span><span class="p">,</span>        <span class="c1"># IN</span>
+                <span class="n">cf_mf</span><span class="o">=</span><span class="n">cf_mf</span><span class="p">,</span>        <span class="c1"># IN</span>
+                <span class="n">cldfr</span><span class="o">=</span><span class="n">cldfr</span><span class="p">,</span>        <span class="c1"># INOUT</span>
+                <span class="n">hlc_hrc</span><span class="o">=</span><span class="n">hlc_hrc</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+                <span class="n">hlc_hcf</span><span class="o">=</span><span class="n">hlc_hcf</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+                <span class="n">hli_hri</span><span class="o">=</span><span class="n">hli_hri</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+                <span class="n">hli_hcf</span><span class="o">=</span><span class="n">hli_hcf</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+                <span class="n">dt</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span>        <span class="c1"># IN</span>
+                <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+                <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+                <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;ICE_ADJUST modulaire: séquence complète terminée&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Représentation textuelle du composant.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;IceAdjustModular(backend=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;dtype=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;SUBG_COND=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">LSUBG_COND</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ice3.components.ice_adjust_modular.IceAdjustModular.__call__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__call__</span><span class="p">(</span><span class="n">sigqsat</span><span class="p">,</span> <span class="n">exn</span><span class="p">,</span> <span class="n">exnref</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">pabs</span><span class="p">,</span> <span class="n">sigs</span><span class="p">,</span> <span class="n">cf_mf</span><span class="p">,</span> <span class="n">rc_mf</span><span class="p">,</span> <span class="n">ri_mf</span><span class="p">,</span> <span class="n">th</span><span class="p">,</span> <span class="n">rv</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">rr</span><span class="p">,</span> <span class="n">ri</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="n">rg</span><span class="p">,</span> <span class="n">cldfr</span><span class="p">,</span> <span class="n">hlc_hrc</span><span class="p">,</span> <span class="n">hlc_hcf</span><span class="p">,</span> <span class="n">hli_hri</span><span class="p">,</span> <span class="n">hli_hcf</span><span class="p">,</span> <span class="n">sigrc</span><span class="p">,</span> <span class="n">ths</span><span class="p">,</span> <span class="n">rvs</span><span class="p">,</span> <span class="n">rcs</span><span class="p">,</span> <span class="n">ris</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">domain</span><span class="p">,</span> <span class="n">exec_info</span><span class="p">,</span> <span class="n">validate_args</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Exécute la séquence complète d'ajustement microphysique ICE_ADJUST.</p>
+<p>Séquence d'exécution correspondant à ice_adjust.F90:</p>
+<ol>
+<li>THERMODYNAMIC_FIELDS (ice_adjust.F90, l.450-473)</li>
+<li>Calcul température T = θ × Π</li>
+<li>Chaleurs latentes Lv, Ls (dépendantes de T)</li>
+<li>
+<p>Chaleur spécifique Cph (fonction des hydrométéores)</p>
+</li>
+<li>
+<p>CONDENSATION (condensation.F90, l.186-575)</p>
+</li>
+<li>Schéma CB02 (Chaboureau &amp; Bechtold 2002)</li>
+<li>Calcul variabilité sous-maille</li>
+<li>Production condensats rc_out, ri_out</li>
+<li>
+<p>Fraction nuageuse initiale</p>
+</li>
+<li>
+<p>CLOUD_FRACTION_1 (ice_adjust.F90, l.278-312)</p>
+</li>
+<li>Calcul sources microphysiques drc/dt, dri/dt</li>
+<li>Conservation eau totale</li>
+<li>
+<p>Ajustement thermique température potentielle</p>
+</li>
+<li>
+<p>CLOUD_FRACTION_2 (ice_adjust.F90, l.313-419)</p>
+</li>
+<li>Fraction nuageuse finale avec flux de masse</li>
+<li>Autoconversion liquide (cloud → rain)</li>
+<li>Autoconversion solide (ice → snow)</li>
+</ol>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>sigqsat</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Coefficient σ_qsat pour variabilité sous-maille</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exn</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Fonction d'Exner (Π = (P/P0)^(R/Cp))</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exnref</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Fonction d'Exner de référence</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rhodref</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Densité de l'air sec de référence [kg/m³]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>pabs</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Pression absolue [Pa]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>sigs</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Écart-type sous-maille de s</p>
+              </div>
+            </li>
+            <li>
+              <b><code>cf_mf</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Fraction nuageuse des flux de masse</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rc_mf</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Contenu en eau liquide des flux de masse [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ri_mf</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Contenu en glace des flux de masse [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>th</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Température potentielle [K]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rv</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange vapeur [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rc</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange liquide nuageux [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rr</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange pluie [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ri</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange glace [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange neige [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rg</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange graupel [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>cldfr</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Fraction nuageuse [0-1] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>hlc_hrc</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Contenu liquide haute résolution [kg/kg] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>hlc_hcf</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Fraction liquide haute résolution [0-1] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>hli_hri</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Contenu glace haute résolution [kg/kg] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>hli_hcf</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Fraction glace haute résolution [0-1] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>sigrc</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>σ_rc pour autoconversion [kg/kg]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ths</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Température potentielle source [K] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rvs</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange vapeur source [kg/kg] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rcs</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange liquide source [kg/kg] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ris</code></b>
+                  (<code><span title="numpy.typing.NDArray">NDArray</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Rapport mélange glace source [kg/kg] (modifié)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>timestep</code></b>
+                  (<code><span title="float">float</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Pas de temps [s]</p>
+              </div>
+            </li>
+            <li>
+              <b><code>domain</code></b>
+                  (<code><span title="typing.Tuple">Tuple</span>[<span title="int">int</span>, ...]</code>)
+              –
+              <div class="doc-md-description">
+                <p>Taille du domaine (ni, nj, nk)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>exec_info</code></b>
+                  (<code><span title="typing.Dict">Dict</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Informations d'exécution GT4Py</p>
+              </div>
+            </li>
+            <li>
+              <b><code>validate_args</code></b>
+                  (<code><span title="bool">bool</span></code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Validation des arguments GT4Py</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>None (modification in-place des champs de sortie)</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Raises:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="ValueError">ValueError</span></code>
+              –
+              <div class="doc-md-description">
+                <p>Si les dimensions des champs ne correspondent pas</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/components/ice_adjust_modular.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">sigqsat</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">exn</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">exnref</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">pabs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">sigs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">cf_mf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rc_mf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">ri_mf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">th</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rv</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">ri</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rg</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">cldfr</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">hlc_hrc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">hlc_hcf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">hli_hri</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">hli_hcf</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">sigrc</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">ths</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rvs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">rcs</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">ris</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">,</span>
+    <span class="n">timestep</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">domain</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="n">exec_info</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span>
+    <span class="n">validate_args</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exécute la séquence complète d&#39;ajustement microphysique ICE_ADJUST.</span>
+
+<span class="sd">    Séquence d&#39;exécution correspondant à ice_adjust.F90:</span>
+
+<span class="sd">    1. THERMODYNAMIC_FIELDS (ice_adjust.F90, l.450-473)</span>
+<span class="sd">       - Calcul température T = θ × Π</span>
+<span class="sd">       - Chaleurs latentes Lv, Ls (dépendantes de T)</span>
+<span class="sd">       - Chaleur spécifique Cph (fonction des hydrométéores)</span>
+
+<span class="sd">    2. CONDENSATION (condensation.F90, l.186-575)</span>
+<span class="sd">       - Schéma CB02 (Chaboureau &amp; Bechtold 2002)</span>
+<span class="sd">       - Calcul variabilité sous-maille</span>
+<span class="sd">       - Production condensats rc_out, ri_out</span>
+<span class="sd">       - Fraction nuageuse initiale</span>
+
+<span class="sd">    3. CLOUD_FRACTION_1 (ice_adjust.F90, l.278-312)</span>
+<span class="sd">       - Calcul sources microphysiques drc/dt, dri/dt</span>
+<span class="sd">       - Conservation eau totale</span>
+<span class="sd">       - Ajustement thermique température potentielle</span>
+
+<span class="sd">    4. CLOUD_FRACTION_2 (ice_adjust.F90, l.313-419)</span>
+<span class="sd">       - Fraction nuageuse finale avec flux de masse</span>
+<span class="sd">       - Autoconversion liquide (cloud → rain)</span>
+<span class="sd">       - Autoconversion solide (ice → snow)</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sigqsat: Coefficient σ_qsat pour variabilité sous-maille</span>
+<span class="sd">        exn: Fonction d&#39;Exner (Π = (P/P0)^(R/Cp))</span>
+<span class="sd">        exnref: Fonction d&#39;Exner de référence</span>
+<span class="sd">        rhodref: Densité de l&#39;air sec de référence [kg/m³]</span>
+<span class="sd">        pabs: Pression absolue [Pa]</span>
+<span class="sd">        sigs: Écart-type sous-maille de s</span>
+<span class="sd">        cf_mf: Fraction nuageuse des flux de masse</span>
+<span class="sd">        rc_mf: Contenu en eau liquide des flux de masse [kg/kg]</span>
+<span class="sd">        ri_mf: Contenu en glace des flux de masse [kg/kg]</span>
+<span class="sd">        th: Température potentielle [K]</span>
+<span class="sd">        rv: Rapport mélange vapeur [kg/kg]</span>
+<span class="sd">        rc: Rapport mélange liquide nuageux [kg/kg]</span>
+<span class="sd">        rr: Rapport mélange pluie [kg/kg]</span>
+<span class="sd">        ri: Rapport mélange glace [kg/kg]</span>
+<span class="sd">        rs: Rapport mélange neige [kg/kg]</span>
+<span class="sd">        rg: Rapport mélange graupel [kg/kg]</span>
+<span class="sd">        cldfr: Fraction nuageuse [0-1] (modifié)</span>
+<span class="sd">        hlc_hrc: Contenu liquide haute résolution [kg/kg] (modifié)</span>
+<span class="sd">        hlc_hcf: Fraction liquide haute résolution [0-1] (modifié)</span>
+<span class="sd">        hli_hri: Contenu glace haute résolution [kg/kg] (modifié)</span>
+<span class="sd">        hli_hcf: Fraction glace haute résolution [0-1] (modifié)</span>
+<span class="sd">        sigrc: σ_rc pour autoconversion [kg/kg]</span>
+<span class="sd">        ths: Température potentielle source [K] (modifié)</span>
+<span class="sd">        rvs: Rapport mélange vapeur source [kg/kg] (modifié)</span>
+<span class="sd">        rcs: Rapport mélange liquide source [kg/kg] (modifié)</span>
+<span class="sd">        ris: Rapport mélange glace source [kg/kg] (modifié)</span>
+<span class="sd">        timestep: Pas de temps [s]</span>
+<span class="sd">        domain: Taille du domaine (ni, nj, nk)</span>
+<span class="sd">        exec_info: Informations d&#39;exécution GT4Py</span>
+<span class="sd">        validate_args: Validation des arguments GT4Py</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None (modification in-place des champs de sortie)</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: Si les dimensions des champs ne correspondent pas</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Création des champs temporaires nécessaires</span>
+    <span class="k">with</span> <span class="n">managed_temporaries</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="o">*</span><span class="n">repeat</span><span class="p">((</span><span class="n">IJK</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">),</span> <span class="mi">18</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+        <span class="n">dtypes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="p">(</span>
+        <span class="n">t</span><span class="p">,</span>          <span class="c1"># Température [K]</span>
+        <span class="n">lv</span><span class="p">,</span>         <span class="c1"># Chaleur latente vaporisation [J/kg]</span>
+        <span class="n">ls</span><span class="p">,</span>         <span class="c1"># Chaleur latente sublimation [J/kg]</span>
+        <span class="n">cph</span><span class="p">,</span>        <span class="c1"># Chaleur spécifique air humide [J/kg/K]</span>
+        <span class="n">rv_out</span><span class="p">,</span>     <span class="c1"># Rapport mélange vapeur après condensation [kg/kg]</span>
+        <span class="n">rc_out</span><span class="p">,</span>     <span class="c1"># Rapport mélange liquide après condensation [kg/kg]</span>
+        <span class="n">ri_out</span><span class="p">,</span>     <span class="c1"># Rapport mélange glace après condensation [kg/kg]</span>
+        <span class="n">q1</span><span class="p">,</span>         <span class="c1"># Paramètre distribution sous-maille</span>
+        <span class="n">pv_out</span><span class="p">,</span>
+        <span class="n">piv_out</span><span class="p">,</span>
+        <span class="n">frac_out</span><span class="p">,</span>
+        <span class="n">qsl_out</span><span class="p">,</span>
+        <span class="n">qsi_out</span><span class="p">,</span>
+        <span class="n">sigma_out</span><span class="p">,</span>
+        <span class="n">cond_out</span><span class="p">,</span>
+        <span class="n">a_out</span><span class="p">,</span>
+        <span class="n">b_out</span><span class="p">,</span>
+        <span class="n">sbar_out</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 1/4: Calcul champs thermodynamiques&quot;</span><span class="p">)</span>
+        <span class="c1"># ================================================================</span>
+        <span class="c1"># ÉTAPE 1: CHAMPS THERMODYNAMIQUES</span>
+        <span class="c1"># Référence: ice_adjust.F90, lignes 450-473</span>
+        <span class="c1"># ================================================================</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">thermodynamic_fields_stencil</span><span class="p">(</span>
+            <span class="n">th</span><span class="o">=</span><span class="n">th</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">exn</span><span class="o">=</span><span class="n">exn</span><span class="p">,</span>            <span class="c1"># IN</span>
+            <span class="n">rv</span><span class="o">=</span><span class="n">rv</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">rr</span><span class="o">=</span><span class="n">rr</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ri</span><span class="o">=</span><span class="n">ri</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">rs</span><span class="o">=</span><span class="n">rs</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">rg</span><span class="o">=</span><span class="n">rg</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># OUT</span>
+            <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># OUT</span>
+            <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># OUT</span>
+            <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>                <span class="c1"># OUT</span>
+            <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+            <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+            <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 2/4: Condensation (schéma CB02)&quot;</span><span class="p">)</span>
+        <span class="c1"># ================================================================</span>
+        <span class="c1"># ÉTAPE 2: CONDENSATION</span>
+        <span class="c1"># Référence: condensation.F90, lignes 186-575</span>
+        <span class="c1"># Schéma CB02 de Chaboureau &amp; Bechtold (2002)</span>
+        <span class="c1"># ================================================================</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">condensation_stencil</span><span class="p">(</span>
+            <span class="n">sigqsat</span><span class="o">=</span><span class="n">sigqsat</span><span class="p">,</span>    <span class="c1"># IN</span>
+            <span class="n">pabs</span><span class="o">=</span><span class="n">pabs</span><span class="p">,</span>          <span class="c1"># IN</span>
+            <span class="n">sigs</span><span class="o">=</span><span class="n">sigs</span><span class="p">,</span>          <span class="c1"># IN</span>
+            <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>                <span class="c1"># IN</span>
+            <span class="n">rv</span><span class="o">=</span><span class="n">rv</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ri</span><span class="o">=</span><span class="n">ri</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">rv_out</span><span class="o">=</span><span class="n">rv_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+            <span class="n">rc_out</span><span class="o">=</span><span class="n">rc_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+            <span class="n">ri_out</span><span class="o">=</span><span class="n">ri_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+            <span class="n">cldfr</span><span class="o">=</span><span class="n">cldfr</span><span class="p">,</span>        <span class="c1"># OUT</span>
+            <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># IN</span>
+            <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">q1</span><span class="o">=</span><span class="n">q1</span><span class="p">,</span>              <span class="c1"># OUT</span>
+            <span class="n">pv_out</span><span class="o">=</span><span class="n">pv_out</span><span class="p">,</span>      <span class="c1"># OUT</span>
+            <span class="n">piv_out</span><span class="o">=</span><span class="n">piv_out</span><span class="p">,</span>    <span class="c1"># OUT</span>
+            <span class="n">frac_out</span><span class="o">=</span><span class="n">frac_out</span><span class="p">,</span>  <span class="c1"># OUT</span>
+            <span class="n">qsl_out</span><span class="o">=</span><span class="n">qsl_out</span><span class="p">,</span>    <span class="c1"># OUT</span>
+            <span class="n">qsi_out</span><span class="o">=</span><span class="n">qsi_out</span><span class="p">,</span>    <span class="c1"># OUT</span>
+            <span class="n">sigma_out</span><span class="o">=</span><span class="n">sigma_out</span><span class="p">,</span><span class="c1"># OUT</span>
+            <span class="n">cond_out</span><span class="o">=</span><span class="n">cond_out</span><span class="p">,</span>  <span class="c1"># OUT</span>
+            <span class="n">a_out</span><span class="o">=</span><span class="n">a_out</span><span class="p">,</span>        <span class="c1"># OUT</span>
+            <span class="n">b_out</span><span class="o">=</span><span class="n">b_out</span><span class="p">,</span>        <span class="c1"># OUT</span>
+            <span class="n">sbar_out</span><span class="o">=</span><span class="n">sbar_out</span><span class="p">,</span>  <span class="c1"># OUT</span>
+            <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+            <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+            <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 3/4: Calcul sources microphysiques&quot;</span><span class="p">)</span>
+        <span class="c1"># ================================================================</span>
+        <span class="c1"># ÉTAPE 3: SOURCES MICROPHYSIQUES</span>
+        <span class="c1"># Référence: ice_adjust.F90, lignes 278-312</span>
+        <span class="c1"># Conservation de l&#39;eau et ajustement thermique</span>
+        <span class="c1"># ================================================================</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_1_stencil</span><span class="p">(</span>
+            <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># IN</span>
+            <span class="n">exnref</span><span class="o">=</span><span class="n">exnref</span><span class="p">,</span>      <span class="c1"># IN</span>
+            <span class="n">rc</span><span class="o">=</span><span class="n">rc</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ri</span><span class="o">=</span><span class="n">ri</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ths</span><span class="o">=</span><span class="n">ths</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">rvs</span><span class="o">=</span><span class="n">rvs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">rcs</span><span class="o">=</span><span class="n">rcs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">ris</span><span class="o">=</span><span class="n">ris</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">rc_tmp</span><span class="o">=</span><span class="n">rc_out</span><span class="p">,</span>      <span class="c1"># IN (condensation output)</span>
+            <span class="n">ri_tmp</span><span class="o">=</span><span class="n">ri_out</span><span class="p">,</span>      <span class="c1"># IN (condensation output)</span>
+            <span class="n">dt</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span>        <span class="c1"># IN</span>
+            <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+            <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+            <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Étape 4/4: Fraction nuageuse et autoconversion&quot;</span><span class="p">)</span>
+        <span class="c1"># ================================================================</span>
+        <span class="c1"># ÉTAPE 4: FRACTION NUAGEUSE ET AUTOCONVERSION</span>
+        <span class="c1"># Référence: ice_adjust.F90, lignes 313-419</span>
+        <span class="c1"># Calcul fraction nuageuse finale, autoconversion</span>
+        <span class="c1"># ================================================================</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_2_stencil</span><span class="p">(</span>
+            <span class="n">rhodref</span><span class="o">=</span><span class="n">rhodref</span><span class="p">,</span>    <span class="c1"># IN</span>
+            <span class="n">exnref</span><span class="o">=</span><span class="n">exnref</span><span class="p">,</span>      <span class="c1"># IN</span>
+            <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">,</span>                <span class="c1"># IN</span>
+            <span class="n">cph</span><span class="o">=</span><span class="n">cph</span><span class="p">,</span>            <span class="c1"># IN</span>
+            <span class="n">lv</span><span class="o">=</span><span class="n">lv</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span>              <span class="c1"># IN</span>
+            <span class="n">ths</span><span class="o">=</span><span class="n">ths</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">rvs</span><span class="o">=</span><span class="n">rvs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">rcs</span><span class="o">=</span><span class="n">rcs</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">ris</span><span class="o">=</span><span class="n">ris</span><span class="p">,</span>            <span class="c1"># INOUT</span>
+            <span class="n">rc_mf</span><span class="o">=</span><span class="n">rc_mf</span><span class="p">,</span>        <span class="c1"># IN</span>
+            <span class="n">ri_mf</span><span class="o">=</span><span class="n">ri_mf</span><span class="p">,</span>        <span class="c1"># IN</span>
+            <span class="n">cf_mf</span><span class="o">=</span><span class="n">cf_mf</span><span class="p">,</span>        <span class="c1"># IN</span>
+            <span class="n">cldfr</span><span class="o">=</span><span class="n">cldfr</span><span class="p">,</span>        <span class="c1"># INOUT</span>
+            <span class="n">hlc_hrc</span><span class="o">=</span><span class="n">hlc_hrc</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+            <span class="n">hlc_hcf</span><span class="o">=</span><span class="n">hlc_hcf</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+            <span class="n">hli_hri</span><span class="o">=</span><span class="n">hli_hri</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+            <span class="n">hli_hcf</span><span class="o">=</span><span class="n">hli_hcf</span><span class="p">,</span>    <span class="c1"># INOUT</span>
+            <span class="n">dt</span><span class="o">=</span><span class="n">timestep</span><span class="p">,</span>        <span class="c1"># IN</span>
+            <span class="n">origin</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="n">domain</span><span class="o">=</span><span class="n">domain</span><span class="p">,</span>
+            <span class="n">validate_args</span><span class="o">=</span><span class="n">validate_args</span><span class="p">,</span>
+            <span class="n">exec_info</span><span class="o">=</span><span class="n">exec_info</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;ICE_ADJUST modulaire: séquence complète terminée&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ice3.components.ice_adjust_modular.IceAdjustModular.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">phyex</span><span class="o">=</span><span class="n">Phyex</span><span class="p">(</span><span class="s1">&#39;AROME&#39;</span><span class="p">),</span> <span class="n">dtypes</span><span class="o">=</span><span class="n">DTYPES</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">BACKEND</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialise le composant ICE_ADJUST modulaire.</p>
+<p>Compile tous les stencils nécessaires avec la configuration PHYEX.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/components/ice_adjust_modular.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">phyex</span><span class="p">:</span> <span class="n">Phyex</span> <span class="o">=</span> <span class="n">Phyex</span><span class="p">(</span><span class="s2">&quot;AROME&quot;</span><span class="p">),</span>
+    <span class="n">dtypes</span><span class="p">:</span> <span class="n">Dict</span> <span class="o">=</span> <span class="n">DTYPES</span><span class="p">,</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">BACKEND</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialise le composant ICE_ADJUST modulaire.</span>
+
+<span class="sd">    Compile tous les stencils nécessaires avec la configuration PHYEX.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">phyex</span> <span class="o">=</span> <span class="n">phyex</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">=</span> <span class="n">dtypes</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
+
+    <span class="n">externals</span> <span class="o">=</span> <span class="n">phyex</span><span class="o">.</span><span class="n">externals</span>
+    <span class="n">externals</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;OCND2&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Configuration de la compilation des stencils</span>
+    <span class="n">compile_stencil</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+        <span class="n">stencil</span><span class="p">,</span>
+        <span class="n">backend</span><span class="o">=</span><span class="n">backend</span><span class="p">,</span>
+        <span class="n">externals</span><span class="o">=</span><span class="n">externals</span><span class="p">,</span>
+        <span class="n">dtypes</span><span class="o">=</span><span class="n">dtypes</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Import et compilation des stencils</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..stencils.cloud_fraction</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">thermodynamic_fields</span><span class="p">,</span>
+        <span class="n">cloud_fraction_1</span><span class="p">,</span>
+        <span class="n">cloud_fraction_2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..stencils.condensation</span><span class="w"> </span><span class="kn">import</span> <span class="n">condensation</span>
+
+    <span class="c1"># Compilation des stencils</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">thermodynamic_fields_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;thermodynamic_fields&quot;</span><span class="p">,</span>
+        <span class="n">definition</span><span class="o">=</span><span class="n">thermodynamic_fields</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">condensation_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;condensation&quot;</span><span class="p">,</span>
+        <span class="n">definition</span><span class="o">=</span><span class="n">condensation</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_1_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cloud_fraction_1&quot;</span><span class="p">,</span>
+        <span class="n">definition</span><span class="o">=</span><span class="n">cloud_fraction_1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">cloud_fraction_2_stencil</span> <span class="o">=</span> <span class="n">compile_stencil</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;cloud_fraction_2&quot;</span><span class="p">,</span>
+        <span class="n">definition</span><span class="o">=</span><span class="n">cloud_fraction_2</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Log de la configuration</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;IceAdjustModular - Configuration PHYEX&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Backend          : </span><span class="si">{</span><span class="n">backend</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Precision        : </span><span class="si">{</span><span class="n">dtypes</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SUBG_COND        : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">LSUBG_COND</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SUBG_MF_PDF      : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">param_icen</span><span class="o">.</span><span class="n">SUBG_MF_PDF</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SIGMAS           : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">LSIGMAS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;LMFCONV          : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">LMFCONV</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CONDENS (scheme) : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">CONDENS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FRAC_ICE_ADJUST  : </span><span class="si">{</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">FRAC_ICE_ADJUST</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">70</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="ice3.components.ice_adjust_modular.IceAdjustModular.__repr__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__repr__</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Représentation textuelle du composant.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/components/ice_adjust_modular.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Représentation textuelle du composant.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;IceAdjustModular(backend=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;dtype=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dtypes</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;SUBG_COND=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">phyex</span><span class="o">.</span><span class="n">nebn</span><span class="o">.</span><span class="n">LSUBG_COND</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ice_adjust/" class="btn btn-neutral float-left" title="Ice adjust"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rain_ice/" class="btn btn-neutral float-right" title="Rain ice">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ice_adjust/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../rain_ice/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Incomplete gamma - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Incomplete gamma";
+        var mkdocs_page_input_path = "ice3/phyex_common/incomplete_gamma.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >phyex_common</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Incomplete gamma</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">phyex_common</li>
+      <li class="breadcrumb-item active">Incomplete gamma</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.phyex_common.incomplete_gamma"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.phyex_common.incomplete_gamma.gamma_function" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gamma_function</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the complete gamma function using numerical integration.</p>
+<p>Evaluates the gamma function Γ(x) using scipy's quadrature integration:</p>
+<p>Γ(x) = ∫₀^∞ t^(x-1) × e^(-t) dt</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_function--parameters">Parameters</h4>
+<p>x : float
+    Argument of the gamma function. Must be positive.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_function--returns">Returns</h4>
+<p>float
+    Value of Γ(x).</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_function--notes">Notes</h4>
+<p>This is a direct numerical integration implementation, less efficient
+than the built-in math.gamma() but useful for reference or validation.
+For production use, prefer math.gamma() or scipy.special.gamma().</p>
+<p>The gamma function extends the factorial function to real and complex
+numbers: Γ(n) = (n-1)! for positive integers n.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_function--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>gamma_function(4.0)  # Should be close to 6 = 3!
+6.000...
+gamma_function(1.5)  # Should be close to sqrt(π)/2
+0.886...</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/phyex_common/incomplete_gamma.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gamma_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the complete gamma function using numerical integration.</span>
+
+<span class="sd">    Evaluates the gamma function Γ(x) using scipy&#39;s quadrature integration:</span>
+
+<span class="sd">    Γ(x) = ∫₀^∞ t^(x-1) × e^(-t) dt</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Argument of the gamma function. Must be positive.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Value of Γ(x).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is a direct numerical integration implementation, less efficient</span>
+<span class="sd">    than the built-in math.gamma() but useful for reference or validation.</span>
+<span class="sd">    For production use, prefer math.gamma() or scipy.special.gamma().</span>
+
+<span class="sd">    The gamma function extends the factorial function to real and complex</span>
+<span class="sd">    numbers: Γ(n) = (n-1)! for positive integers n.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; gamma_function(4.0)  # Should be close to 6 = 3!</span>
+<span class="sd">    6.000...</span>
+<span class="sd">    &gt;&gt;&gt; gamma_function(1.5)  # Should be close to sqrt(π)/2</span>
+<span class="sd">    0.886...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Define the integrand t^(x-1) * e^(-t)</span>
+    <span class="n">integrand</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">**</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span>
+    <span class="c1"># Compute the integral from 0 to infinity</span>
+    <span class="n">result</span><span class="p">,</span> <span class="n">error</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.phyex_common.incomplete_gamma.gamma_increment" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">gamma_increment</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the normalized lower incomplete gamma function P(a,x) efficiently.</p>
+<p>This function evaluates the regularized lower incomplete gamma function
+using optimized series expansion or continued fraction methods from
+Numerical Recipes, providing accurate and efficient computation:</p>
+<p>P(a,x) = γ(a,x) / Γ(a) = [∫₀^x t^(a-1) × e^(-t) dt] / Γ(a)</p>
+<p>The algorithm automatically selects the most efficient method:
+- Series expansion for x &lt; a+1 (converges quickly)
+- Continued fraction for x ≥ a+1 (more stable)</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--parameters">Parameters</h4>
+<p>a : float
+    Shape parameter, must be positive (a &gt; 0).
+    Corresponds to the order of the gamma distribution.
+x : float
+    Upper integration limit, must be non-negative (x ≥ 0).
+    Defines the integration range [0, x].</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--returns">Returns</h4>
+<p>float
+    Normalized incomplete gamma function value, 0 ≤ P(a,x) ≤ 1.
+    - P(a,0) = 0
+    - P(a,∞) = 1
+    - Monotonically increasing in x</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--raises">Raises</h4>
+<p>ValueError
+    If x &lt; 0 or a ≤ 0 (invalid arguments).
+    If iteration fails to converge within ITMAX iterations.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--notes">Notes</h4>
+<p><strong>Algorithm Selection:</strong></p>
+<p>For x &lt; a+1:
+    Uses series expansion:
+    P(a,x) = exp(-x + a×ln(x) - ln(Γ(a))) × Σₙ₌₀^∞ [x^n / Γ(a+1+n)]</p>
+<p>For x ≥ a+1:
+    Uses continued fraction via complementary function Q(a,x) = 1 - P(a,x):
+    Q(a,x) = exp(-x + a×ln(x) - ln(Γ(a))) × [continued fraction]
+    Then: P(a,x) = 1 - Q(a,x)</p>
+<p><strong>Convergence Criteria:</strong></p>
+<p>ZEPS = 3×10⁻⁷ : Relative accuracy threshold
+ITMAX = 100 : Maximum iterations
+ZFPMIN = 1×10⁻³⁰ : Minimum representable positive value</p>
+<p><strong>Numerical Stability:</strong></p>
+<ul>
+<li>Uses logarithmic form exp(-x + a×ln(x) - ln(Γ(a))) to avoid overflow</li>
+<li>Protects against division by zero with ZFPMIN</li>
+<li>Monitors relative convergence |Δ|/|sum| &lt; ε</li>
+</ul>
+<p><strong>Computational Efficiency:</strong></p>
+<p>Typical convergence in 10-30 iterations for most atmospheric
+microphysics applications. Much faster than numerical quadrature.</p>
+<p><strong>Physical Applications:</strong></p>
+<p>In ICE3/ICE4 microphysics:
+- Riming collection kernels (GAMINC_RIM1, GAMINC_RIM2, GAMINC_RIM4)
+- Particle size distribution moments
+- Mass-weighted fall speed calculations
+- Collection efficiency integrals</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/aux/gamma_inc.F90</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--references">References</h4>
+<p>Press, W.H., S.A. Teukolsky, W.T. Vetterling, and B.P. Flannery, 1992:
+Numerical Recipes in Fortran 77: The Art of Scientific Computing,
+2nd Ed. Cambridge University Press, 209-213.</p>
+<p>Abramowitz, M., and I.A. Stegun, 1965: Handbook of Mathematical
+Functions. Dover Publications, equation 6.5.1.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.gamma_increment--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>gamma_increment(1.0, 1.0)  # Exponential distribution: 1 - 1/e
+0.6321205588285577</p>
+<p>gamma_increment(2.0, 2.0)  # Chi-square distribution
+0.5939941502901619</p>
+<p>gamma_increment(5.0, 3.0)  # Intermediate case
+0.18473675547622787</p>
+<h3 id="ice3.phyex_common.incomplete_gamma.gamma_increment--verify-pa0-0">Verify P(a,0) = 0</h3>
+<p>gamma_increment(3.0, 0.0)
+0.0</p>
+<h3 id="ice3.phyex_common.incomplete_gamma.gamma_increment--verify-monotonicity-pax1-pax2-for-x1-x2">Verify monotonicity: P(a,x₁) &lt; P(a,x₂) for x₁ &lt; x₂</h3>
+<p>p1 = gamma_increment(2.5, 1.0)
+p2 = gamma_increment(2.5, 3.0)
+p1 &lt; p2
+True</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/phyex_common/incomplete_gamma.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">gamma_increment</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the normalized lower incomplete gamma function P(a,x) efficiently.</span>
+
+<span class="sd">    This function evaluates the regularized lower incomplete gamma function</span>
+<span class="sd">    using optimized series expansion or continued fraction methods from</span>
+<span class="sd">    Numerical Recipes, providing accurate and efficient computation:</span>
+
+<span class="sd">    P(a,x) = γ(a,x) / Γ(a) = [∫₀^x t^(a-1) × e^(-t) dt] / Γ(a)</span>
+
+<span class="sd">    The algorithm automatically selects the most efficient method:</span>
+<span class="sd">    - Series expansion for x &lt; a+1 (converges quickly)</span>
+<span class="sd">    - Continued fraction for x ≥ a+1 (more stable)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a : float</span>
+<span class="sd">        Shape parameter, must be positive (a &gt; 0).</span>
+<span class="sd">        Corresponds to the order of the gamma distribution.</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Upper integration limit, must be non-negative (x ≥ 0).</span>
+<span class="sd">        Defines the integration range [0, x].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Normalized incomplete gamma function value, 0 ≤ P(a,x) ≤ 1.</span>
+<span class="sd">        - P(a,0) = 0</span>
+<span class="sd">        - P(a,∞) = 1</span>
+<span class="sd">        - Monotonically increasing in x</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If x &lt; 0 or a ≤ 0 (invalid arguments).</span>
+<span class="sd">        If iteration fails to converge within ITMAX iterations.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Algorithm Selection:**</span>
+
+<span class="sd">    For x &lt; a+1:</span>
+<span class="sd">        Uses series expansion:</span>
+<span class="sd">        P(a,x) = exp(-x + a×ln(x) - ln(Γ(a))) × Σₙ₌₀^∞ [x^n / Γ(a+1+n)]</span>
+
+<span class="sd">    For x ≥ a+1:</span>
+<span class="sd">        Uses continued fraction via complementary function Q(a,x) = 1 - P(a,x):</span>
+<span class="sd">        Q(a,x) = exp(-x + a×ln(x) - ln(Γ(a))) × [continued fraction]</span>
+<span class="sd">        Then: P(a,x) = 1 - Q(a,x)</span>
+
+<span class="sd">    **Convergence Criteria:**</span>
+
+<span class="sd">    ZEPS = 3×10⁻⁷ : Relative accuracy threshold</span>
+<span class="sd">    ITMAX = 100 : Maximum iterations</span>
+<span class="sd">    ZFPMIN = 1×10⁻³⁰ : Minimum representable positive value</span>
+
+<span class="sd">    **Numerical Stability:**</span>
+
+<span class="sd">    - Uses logarithmic form exp(-x + a×ln(x) - ln(Γ(a))) to avoid overflow</span>
+<span class="sd">    - Protects against division by zero with ZFPMIN</span>
+<span class="sd">    - Monitors relative convergence |Δ|/|sum| &lt; ε</span>
+
+<span class="sd">    **Computational Efficiency:**</span>
+
+<span class="sd">    Typical convergence in 10-30 iterations for most atmospheric</span>
+<span class="sd">    microphysics applications. Much faster than numerical quadrature.</span>
+
+<span class="sd">    **Physical Applications:**</span>
+
+<span class="sd">    In ICE3/ICE4 microphysics:</span>
+<span class="sd">    - Riming collection kernels (GAMINC_RIM1, GAMINC_RIM2, GAMINC_RIM4)</span>
+<span class="sd">    - Particle size distribution moments</span>
+<span class="sd">    - Mass-weighted fall speed calculations</span>
+<span class="sd">    - Collection efficiency integrals</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/aux/gamma_inc.F90</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Press, W.H., S.A. Teukolsky, W.T. Vetterling, and B.P. Flannery, 1992:</span>
+<span class="sd">    Numerical Recipes in Fortran 77: The Art of Scientific Computing,</span>
+<span class="sd">    2nd Ed. Cambridge University Press, 209-213.</span>
+
+<span class="sd">    Abramowitz, M., and I.A. Stegun, 1965: Handbook of Mathematical</span>
+<span class="sd">    Functions. Dover Publications, equation 6.5.1.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; gamma_increment(1.0, 1.0)  # Exponential distribution: 1 - 1/e</span>
+<span class="sd">    0.6321205588285577</span>
+
+<span class="sd">    &gt;&gt;&gt; gamma_increment(2.0, 2.0)  # Chi-square distribution</span>
+<span class="sd">    0.5939941502901619</span>
+
+<span class="sd">    &gt;&gt;&gt; gamma_increment(5.0, 3.0)  # Intermediate case</span>
+<span class="sd">    0.18473675547622787</span>
+
+<span class="sd">    &gt;&gt;&gt; # Verify P(a,0) = 0</span>
+<span class="sd">    &gt;&gt;&gt; gamma_increment(3.0, 0.0)</span>
+<span class="sd">    0.0</span>
+
+<span class="sd">    &gt;&gt;&gt; # Verify monotonicity: P(a,x₁) &lt; P(a,x₂) for x₁ &lt; x₂</span>
+<span class="sd">    &gt;&gt;&gt; p1 = gamma_increment(2.5, 1.0)</span>
+<span class="sd">    &gt;&gt;&gt; p2 = gamma_increment(2.5, 3.0)</span>
+<span class="sd">    &gt;&gt;&gt; p1 &lt; p2</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">zeps</span> <span class="o">=</span> <span class="mf">3e-7</span>
+    <span class="n">itmax</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">zfpmin</span> <span class="o">=</span> <span class="mf">1e-30</span>
+
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">a</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid arguments: x &lt; 0 or a &lt;= 0&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">ap</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="n">zsum</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">a</span>
+        <span class="n">zdel</span> <span class="o">=</span> <span class="n">zsum</span>
+        <span class="n">jn</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c1"># LOOP_SERIES: DO</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">zdel</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">zsum</span><span class="p">)</span> <span class="o">*</span> <span class="n">zeps</span><span class="p">):</span>
+            <span class="n">ap</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">zdel</span> <span class="o">*=</span> <span class="n">x</span> <span class="o">/</span> <span class="n">ap</span>
+            <span class="n">zsum</span> <span class="o">+=</span> <span class="n">zdel</span>
+            <span class="n">jn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">jn</span> <span class="o">&gt;</span> <span class="n">itmax</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;a argument is too large or ITMAX is too small the incomplete GAMMA_INC &quot;</span>
+                    <span class="s2">&quot;function cannot be evaluated correctly by the series method&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">zsum</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">log</span><span class="p">(</span><span class="n">gamma</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">zdel</span> <span class="o">=</span> <span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">a</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">b</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">d</span>
+        <span class="n">jn</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">zdel</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">zeps</span><span class="p">):</span>
+
+            <span class="n">an</span> <span class="o">=</span> <span class="o">-</span><span class="n">jn</span> <span class="o">*</span> <span class="p">(</span><span class="n">jn</span> <span class="o">-</span> <span class="n">a</span><span class="p">)</span>
+            <span class="n">b</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">an</span> <span class="o">*</span> <span class="n">d</span> <span class="o">+</span> <span class="n">b</span>
+
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">zfpmin</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">finfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">tiny</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">zfpmin</span>
+
+            <span class="n">d</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">d</span>
+            <span class="n">zdel</span> <span class="o">=</span> <span class="n">d</span> <span class="o">*</span> <span class="n">c</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">h</span> <span class="o">*</span> <span class="n">zdel</span>
+            <span class="n">jn</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="n">jn</span> <span class="o">&gt;</span> <span class="n">itmax</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;a argument is too large or ITMAX is too small the incomplete GAMMA_INC &quot;</span>
+                    <span class="s2">&quot;function cannot be evaluated correctly by the series method&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">h</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">+</span> <span class="n">a</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">log</span><span class="p">(</span><span class="n">gamma</span><span class="p">(</span><span class="n">a</span><span class="p">)))</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">generalized_incomplete_gamma</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute the normalized lower incomplete gamma function P(a,x).</p>
+<p>This function evaluates the regularized (normalized) lower incomplete
+gamma function using scipy's numerical quadrature:</p>
+<p>P(a,x) = γ(a,x) / Γ(a) = [∫₀^x t^(a-1) × e^(-t) dt] / Γ(a)</p>
+<p>where γ(a,x) is the lower incomplete gamma function and Γ(a) is the
+complete gamma function.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma--parameters">Parameters</h4>
+<p>a : float
+    Shape parameter (must be positive). Corresponds to the order of
+    the gamma distribution or the power in the integrand.
+x : float
+    Upper integration limit (must be non-negative). Defines the
+    integration range [0, x].</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma--returns">Returns</h4>
+<p>float
+    Normalized incomplete gamma function value, 0 ≤ P(a,x) ≤ 1.
+    - P(a,0) = 0 (no integration range)
+    - P(a,∞) = 1 (complete gamma function)</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma--notes">Notes</h4>
+<p><strong>Physical Interpretation:</strong></p>
+<p>In atmospheric microphysics, P(a,x) represents the cumulative
+distribution function for particle size distributions following
+a generalized gamma distribution. It gives the fraction of particles
+with size parameter less than x.</p>
+<p><strong>Numerical Method:</strong></p>
+<p>Uses scipy.integrate.quad for both numerator and denominator:
+- Numerator: ∫₀^x t^(a-1) × e^(-t) dt
+- Denominator: ∫₀^∞ t^(a-1) × e^(-t) dt = Γ(a)</p>
+<p>This implementation is slower than gamma_increment() which uses
+analytical recurrence relations from Numerical Recipes. For
+production code, prefer gamma_increment() or scipy.special.gammainc().</p>
+<p><strong>Usage in Microphysics:</strong></p>
+<p>Used in snow riming calculations (init_gaminc_rim_tables in
+RainIceParameters) to compute collection kernel moments for
+particle size distributions.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma--see-also">See Also</h4>
+<p>gamma_increment : Efficient implementation using series/continued fraction
+gamma_function : Complete gamma function
+scipy.special.gammainc : Optimized SciPy implementation</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma--references">References</h4>
+<p>Abramowitz, M., and I.A. Stegun, 1965: Handbook of Mathematical
+Functions. Dover Publications, 260.</p>
+<h4 id="ice3.phyex_common.incomplete_gamma.generalized_incomplete_gamma--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>generalized_incomplete_gamma(1.0, 1.0)  # Should be 1 - 1/e ≈ 0.632
+0.632...
+generalized_incomplete_gamma(2.0, 0.0)  # Should be 0
+0.0
+generalized_incomplete_gamma(5.0, 10.0)  # Should be close to 1
+0.997...</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/phyex_common/incomplete_gamma.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generalized_incomplete_gamma</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the normalized lower incomplete gamma function P(a,x).</span>
+
+<span class="sd">    This function evaluates the regularized (normalized) lower incomplete</span>
+<span class="sd">    gamma function using scipy&#39;s numerical quadrature:</span>
+
+<span class="sd">    P(a,x) = γ(a,x) / Γ(a) = [∫₀^x t^(a-1) × e^(-t) dt] / Γ(a)</span>
+
+<span class="sd">    where γ(a,x) is the lower incomplete gamma function and Γ(a) is the</span>
+<span class="sd">    complete gamma function.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a : float</span>
+<span class="sd">        Shape parameter (must be positive). Corresponds to the order of</span>
+<span class="sd">        the gamma distribution or the power in the integrand.</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Upper integration limit (must be non-negative). Defines the</span>
+<span class="sd">        integration range [0, x].</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Normalized incomplete gamma function value, 0 ≤ P(a,x) ≤ 1.</span>
+<span class="sd">        - P(a,0) = 0 (no integration range)</span>
+<span class="sd">        - P(a,∞) = 1 (complete gamma function)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Physical Interpretation:**</span>
+
+<span class="sd">    In atmospheric microphysics, P(a,x) represents the cumulative</span>
+<span class="sd">    distribution function for particle size distributions following</span>
+<span class="sd">    a generalized gamma distribution. It gives the fraction of particles</span>
+<span class="sd">    with size parameter less than x.</span>
+
+<span class="sd">    **Numerical Method:**</span>
+
+<span class="sd">    Uses scipy.integrate.quad for both numerator and denominator:</span>
+<span class="sd">    - Numerator: ∫₀^x t^(a-1) × e^(-t) dt</span>
+<span class="sd">    - Denominator: ∫₀^∞ t^(a-1) × e^(-t) dt = Γ(a)</span>
+
+<span class="sd">    This implementation is slower than gamma_increment() which uses</span>
+<span class="sd">    analytical recurrence relations from Numerical Recipes. For</span>
+<span class="sd">    production code, prefer gamma_increment() or scipy.special.gammainc().</span>
+
+<span class="sd">    **Usage in Microphysics:**</span>
+
+<span class="sd">    Used in snow riming calculations (init_gaminc_rim_tables in</span>
+<span class="sd">    RainIceParameters) to compute collection kernel moments for</span>
+<span class="sd">    particle size distributions.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    gamma_increment : Efficient implementation using series/continued fraction</span>
+<span class="sd">    gamma_function : Complete gamma function</span>
+<span class="sd">    scipy.special.gammainc : Optimized SciPy implementation</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Abramowitz, M., and I.A. Stegun, 1965: Handbook of Mathematical</span>
+<span class="sd">    Functions. Dover Publications, 260.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; generalized_incomplete_gamma(1.0, 1.0)  # Should be 1 - 1/e ≈ 0.632</span>
+<span class="sd">    0.632...</span>
+<span class="sd">    &gt;&gt;&gt; generalized_incomplete_gamma(2.0, 0.0)  # Should be 0</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; generalized_incomplete_gamma(5.0, 10.0)  # Should be close to 1</span>
+<span class="sd">    0.997...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">integrand</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">**</span><span class="p">(</span><span class="n">a</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">quad</span><span class="p">(</span><span class="n">integrand</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ice_parameters/" class="btn btn-neutral float-left" title="Ice parameters"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../lookup_table/" class="btn btn-neutral float-right" title="Lookup table">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ice_parameters/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../lookup_table/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

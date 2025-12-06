@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Constants - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Constants";
+        var mkdocs_page_input_path = "ice3/phyex_common/constants.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >phyex_common</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Constants</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">phyex_common</li>
+      <li class="breadcrumb-item active">Constants</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.phyex_common.constants"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.constants.Constants" class="doc doc-heading">
+            <code>Constants</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Physical, thermodynamic, and astronomical constants for atmospheric modeling.</p>
+<p>This dataclass defines all fundamental constants used in the PHYEX atmospheric
+physics package, including universal physical constants, Earth parameters,
+thermodynamic properties of air and water substances, and machine precision
+limits. Values match the Meso-NH atmospheric model conventions.</p>
+<h4 id="ice3.phyex_common.constants.Constants--attributes">Attributes</h4>
+<p><strong>1. Fundamental Physical Constants</strong></p>
+
+
+<details class="pi-" open>
+  <summary>float</summary>
+  <p>Mathematical constant π (dimensionless).</p>
+</details>        <p>KARMAN : float
+    Von Kármán constant for turbulence (dimensionless), typically 0.4.
+LIGHTSPEED : float
+    Speed of light in vacuum (m/s), 299792458.
+PLANCK : float
+    Planck constant (J·s), 6.6260775×10⁻³⁴.
+BOLTZ : float
+    Boltzmann constant (J/K), 1.380658×10⁻²³.
+AVOGADRO : float
+    Avogadro's number (mol⁻¹), 6.0221367×10²³.</p>
+<p><strong>2. Astronomical Constants</strong></p>
+
+
+<details class="day-" open>
+  <summary>float</summary>
+  <p>Duration of one day (s), 86400.</p>
+</details>        <p>SIYEA : float
+    Sidereal year duration (s), computed from DAY.
+SIDAY : float
+    Sidereal day duration (s), computed from DAY and SIYEA.
+NSDAY : int
+    Number of seconds in a day, 86400.
+OMEGA : float
+    Earth's angular rotation rate (rad/s), 2π/SIDAY.</p>
+<p><strong>3. Terrestrial Geoid Constants</strong></p>
+
+
+<details class="radius-" open>
+  <summary>float</summary>
+  <p>Mean Earth radius (m), 6371229.</p>
+</details>        <p>GRAVITY0 : float
+    Standard gravitational acceleration (m/s²), 9.80665.</p>
+<p><strong>4. Reference States</strong></p>
+<p>Ocean Model (1D/CMO SURFEX):
+P00OCEAN : float
+    Reference pressure for ocean (Pa), 201×10⁵.
+RHO0OCEAN : float
+    Reference density for ocean (kg/m³), 1024.
+TH00OCEAN : float
+    Reference potential temperature for ocean (K), 286.65.
+SA00OCEAN : float
+    Reference salinity for ocean (psu), 32.6.</p>
+<p>Atmospheric Model:
+P00 : float
+    Reference pressure (Pa), 10⁵ (1000 hPa).
+TH00 : float
+    Reference potential temperature (K), 300.</p>
+<p><strong>5. Radiation Constants</strong></p>
+
+
+<details class="stefan-" open>
+  <summary>float</summary>
+  <p>Stefan-Boltzmann constant (W/(m²·K⁴)), computed from fundamental constants.</p>
+</details>        <p>IO : float
+    Solar constant at top of atmosphere (W/m²), 1370.</p>
+<p><strong>6. Thermodynamic Constants</strong></p>
+<p>Molecular Properties:
+MD : float
+    Molar mass of dry air (kg/mol), 28.9644×10⁻³.
+MV : float
+    Molar mass of water vapor (kg/mol), 18.0153×10⁻³.
+RD : float
+    Gas constant for dry air (J/(kg·K)), computed as R/MD.
+RV : float
+    Gas constant for water vapor (J/(kg·K)), computed as R/MV.
+EPSILO : float
+    Ratio of molecular weights MV/MD (dimensionless), ≈0.622.</p>
+<p>Specific Heat Capacities:
+CPD : float
+    Specific heat of dry air at constant pressure (J/(kg·K)), 3.5×RD.
+CPV : float
+    Specific heat of water vapor at constant pressure (J/(kg·K)), 4×RV.
+CL : float
+    Specific heat of liquid water (J/(kg·K)), 4218.
+CI : float
+    Specific heat of ice (J/(kg·K)), 2106.</p>
+<p>Densities:
+RHOLW : float
+    Density of liquid water (kg/m³), 1000.
+RHOLI : float
+    Density of ice (kg/m³), 900.</p>
+<p>Phase Change Properties:
+TT : float
+    Triple point temperature (K), 273.16.
+LVTT : float
+    Latent heat of vaporization at TT (J/kg), 2.5008×10⁶.
+LSTT : float
+    Latent heat of sublimation at TT (J/kg), 2.8345×10⁶.
+LMTT : float
+    Latent heat of melting (J/kg), LSTT - LVTT.
+ESTT : float
+    Saturation vapor pressure at TT (Pa), 611.24.</p>
+<p>Saturation Vapor Pressure Coefficients:
+ALPW, BETAW, GAMW : float
+    Coefficients for e_sat over liquid water.
+    Formula: e_sat = exp(ALPW - BETAW/T - GAMW×ln(T))
+ALPI, BETAI, GAMI : float
+    Coefficients for e_sat over ice.
+    Formula: e_sat = exp(ALPI - BETAI/T - GAMI×ln(T))</p>
+<p>Ocean/Ice Properties:
+CONDI : float
+    Thermal conductivity of ice (W/(m·K)), 2.2.
+ALPHAOC : float
+    Thermal expansion coefficient for ocean water (K⁻¹), 1.9×10⁻⁴.
+BETAOC : float
+    Haline contraction coefficient for ocean (psu⁻¹), 7.7475.
+ROC : float
+    Coefficient for shortwave penetration in ocean, 0.69 (Hoecker et al).
+D1, D2 : float
+    Coefficients for shortwave penetration depth in ocean (m), 1.1 and 23.0.</p>
+<p><strong>7. Precomputed Convenience Constants</strong></p>
+
+
+<details class="rd_rv-" open>
+  <summary>float</summary>
+  <p>Ratio RD/RV (dimensionless).</p>
+</details>        <p>RD_CPD : float
+    Ratio RD/CPD (dimensionless).
+INVXP00 : float
+    Inverse reference pressure 1/P00 (Pa⁻¹).</p>
+<p><strong>8. Machine Precision</strong></p>
+
+
+<details class="mnh_tiny-" open>
+  <summary>float</summary>
+  <p>Machine epsilon, smallest representable positive number.</p>
+</details>        <h4 id="ice3.phyex_common.constants.Constants--notes">Notes</h4>
+<p>The constants are initialized with physical values or computed in
+<strong>post_init</strong> from fundamental constants. This ensures consistency
+between related constants (e.g., latent heats, gas constants).</p>
+<p>The saturation vapor pressure formulas use constants fitted to
+observational data and are temperature-dependent to account for
+varying molecular properties across the atmospheric temperature range.</p>
+<h4 id="ice3.phyex_common.constants.Constants--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/aux/modd_cst.F90</p>
+<h4 id="ice3.phyex_common.constants.Constants--references">References</h4>
+<p>Coesa, 1976: U.S. Standard Atmosphere.
+NOAA, NASA, USAF.</p>
+<h4 id="ice3.phyex_common.constants.Constants--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>cst = Constants()
+print(f"Gas constant for dry air: {cst.RD:.2f} J/(kg·K)")
+Gas constant for dry air: 287.06 J/(kg·K)
+print(f"Molecular weight ratio: {cst.EPSILO:.4f}")
+Molecular weight ratio: 0.6220</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/constants.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Constants</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Physical, thermodynamic, and astronomical constants for atmospheric modeling.</span>
+
+<span class="sd">    This dataclass defines all fundamental constants used in the PHYEX atmospheric</span>
+<span class="sd">    physics package, including universal physical constants, Earth parameters,</span>
+<span class="sd">    thermodynamic properties of air and water substances, and machine precision</span>
+<span class="sd">    limits. Values match the Meso-NH atmospheric model conventions.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    **1. Fundamental Physical Constants**</span>
+
+<span class="sd">    PI : float</span>
+<span class="sd">        Mathematical constant π (dimensionless).</span>
+<span class="sd">    KARMAN : float</span>
+<span class="sd">        Von Kármán constant for turbulence (dimensionless), typically 0.4.</span>
+<span class="sd">    LIGHTSPEED : float</span>
+<span class="sd">        Speed of light in vacuum (m/s), 299792458.</span>
+<span class="sd">    PLANCK : float</span>
+<span class="sd">        Planck constant (J·s), 6.6260775×10⁻³⁴.</span>
+<span class="sd">    BOLTZ : float</span>
+<span class="sd">        Boltzmann constant (J/K), 1.380658×10⁻²³.</span>
+<span class="sd">    AVOGADRO : float</span>
+<span class="sd">        Avogadro&#39;s number (mol⁻¹), 6.0221367×10²³.</span>
+
+<span class="sd">    **2. Astronomical Constants**</span>
+
+<span class="sd">    DAY : float</span>
+<span class="sd">        Duration of one day (s), 86400.</span>
+<span class="sd">    SIYEA : float</span>
+<span class="sd">        Sidereal year duration (s), computed from DAY.</span>
+<span class="sd">    SIDAY : float</span>
+<span class="sd">        Sidereal day duration (s), computed from DAY and SIYEA.</span>
+<span class="sd">    NSDAY : int</span>
+<span class="sd">        Number of seconds in a day, 86400.</span>
+<span class="sd">    OMEGA : float</span>
+<span class="sd">        Earth&#39;s angular rotation rate (rad/s), 2π/SIDAY.</span>
+
+<span class="sd">    **3. Terrestrial Geoid Constants**</span>
+
+<span class="sd">    RADIUS : float</span>
+<span class="sd">        Mean Earth radius (m), 6371229.</span>
+<span class="sd">    GRAVITY0 : float</span>
+<span class="sd">        Standard gravitational acceleration (m/s²), 9.80665.</span>
+
+<span class="sd">    **4. Reference States**</span>
+
+<span class="sd">    Ocean Model (1D/CMO SURFEX):</span>
+<span class="sd">    P00OCEAN : float</span>
+<span class="sd">        Reference pressure for ocean (Pa), 201×10⁵.</span>
+<span class="sd">    RHO0OCEAN : float</span>
+<span class="sd">        Reference density for ocean (kg/m³), 1024.</span>
+<span class="sd">    TH00OCEAN : float</span>
+<span class="sd">        Reference potential temperature for ocean (K), 286.65.</span>
+<span class="sd">    SA00OCEAN : float</span>
+<span class="sd">        Reference salinity for ocean (psu), 32.6.</span>
+
+<span class="sd">    Atmospheric Model:</span>
+<span class="sd">    P00 : float</span>
+<span class="sd">        Reference pressure (Pa), 10⁵ (1000 hPa).</span>
+<span class="sd">    TH00 : float</span>
+<span class="sd">        Reference potential temperature (K), 300.</span>
+
+<span class="sd">    **5. Radiation Constants**</span>
+
+<span class="sd">    STEFAN : float</span>
+<span class="sd">        Stefan-Boltzmann constant (W/(m²·K⁴)), computed from fundamental constants.</span>
+<span class="sd">    IO : float</span>
+<span class="sd">        Solar constant at top of atmosphere (W/m²), 1370.</span>
+
+<span class="sd">    **6. Thermodynamic Constants**</span>
+
+<span class="sd">    Molecular Properties:</span>
+<span class="sd">    MD : float</span>
+<span class="sd">        Molar mass of dry air (kg/mol), 28.9644×10⁻³.</span>
+<span class="sd">    MV : float</span>
+<span class="sd">        Molar mass of water vapor (kg/mol), 18.0153×10⁻³.</span>
+<span class="sd">    RD : float</span>
+<span class="sd">        Gas constant for dry air (J/(kg·K)), computed as R/MD.</span>
+<span class="sd">    RV : float</span>
+<span class="sd">        Gas constant for water vapor (J/(kg·K)), computed as R/MV.</span>
+<span class="sd">    EPSILO : float</span>
+<span class="sd">        Ratio of molecular weights MV/MD (dimensionless), ≈0.622.</span>
+
+<span class="sd">    Specific Heat Capacities:</span>
+<span class="sd">    CPD : float</span>
+<span class="sd">        Specific heat of dry air at constant pressure (J/(kg·K)), 3.5×RD.</span>
+<span class="sd">    CPV : float</span>
+<span class="sd">        Specific heat of water vapor at constant pressure (J/(kg·K)), 4×RV.</span>
+<span class="sd">    CL : float</span>
+<span class="sd">        Specific heat of liquid water (J/(kg·K)), 4218.</span>
+<span class="sd">    CI : float</span>
+<span class="sd">        Specific heat of ice (J/(kg·K)), 2106.</span>
+
+<span class="sd">    Densities:</span>
+<span class="sd">    RHOLW : float</span>
+<span class="sd">        Density of liquid water (kg/m³), 1000.</span>
+<span class="sd">    RHOLI : float</span>
+<span class="sd">        Density of ice (kg/m³), 900.</span>
+
+<span class="sd">    Phase Change Properties:</span>
+<span class="sd">    TT : float</span>
+<span class="sd">        Triple point temperature (K), 273.16.</span>
+<span class="sd">    LVTT : float</span>
+<span class="sd">        Latent heat of vaporization at TT (J/kg), 2.5008×10⁶.</span>
+<span class="sd">    LSTT : float</span>
+<span class="sd">        Latent heat of sublimation at TT (J/kg), 2.8345×10⁶.</span>
+<span class="sd">    LMTT : float</span>
+<span class="sd">        Latent heat of melting (J/kg), LSTT - LVTT.</span>
+<span class="sd">    ESTT : float</span>
+<span class="sd">        Saturation vapor pressure at TT (Pa), 611.24.</span>
+
+<span class="sd">    Saturation Vapor Pressure Coefficients:</span>
+<span class="sd">    ALPW, BETAW, GAMW : float</span>
+<span class="sd">        Coefficients for e_sat over liquid water.</span>
+<span class="sd">        Formula: e_sat = exp(ALPW - BETAW/T - GAMW×ln(T))</span>
+<span class="sd">    ALPI, BETAI, GAMI : float</span>
+<span class="sd">        Coefficients for e_sat over ice.</span>
+<span class="sd">        Formula: e_sat = exp(ALPI - BETAI/T - GAMI×ln(T))</span>
+
+<span class="sd">    Ocean/Ice Properties:</span>
+<span class="sd">    CONDI : float</span>
+<span class="sd">        Thermal conductivity of ice (W/(m·K)), 2.2.</span>
+<span class="sd">    ALPHAOC : float</span>
+<span class="sd">        Thermal expansion coefficient for ocean water (K⁻¹), 1.9×10⁻⁴.</span>
+<span class="sd">    BETAOC : float</span>
+<span class="sd">        Haline contraction coefficient for ocean (psu⁻¹), 7.7475.</span>
+<span class="sd">    ROC : float</span>
+<span class="sd">        Coefficient for shortwave penetration in ocean, 0.69 (Hoecker et al).</span>
+<span class="sd">    D1, D2 : float</span>
+<span class="sd">        Coefficients for shortwave penetration depth in ocean (m), 1.1 and 23.0.</span>
+
+<span class="sd">    **7. Precomputed Convenience Constants**</span>
+
+<span class="sd">    RD_RV : float</span>
+<span class="sd">        Ratio RD/RV (dimensionless).</span>
+<span class="sd">    RD_CPD : float</span>
+<span class="sd">        Ratio RD/CPD (dimensionless).</span>
+<span class="sd">    INVXP00 : float</span>
+<span class="sd">        Inverse reference pressure 1/P00 (Pa⁻¹).</span>
+
+<span class="sd">    **8. Machine Precision**</span>
+
+<span class="sd">    MNH_TINY : float</span>
+<span class="sd">        Machine epsilon, smallest representable positive number.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The constants are initialized with physical values or computed in</span>
+<span class="sd">    __post_init__ from fundamental constants. This ensures consistency</span>
+<span class="sd">    between related constants (e.g., latent heats, gas constants).</span>
+
+<span class="sd">    The saturation vapor pressure formulas use constants fitted to</span>
+<span class="sd">    observational data and are temperature-dependent to account for</span>
+<span class="sd">    varying molecular properties across the atmospheric temperature range.</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/aux/modd_cst.F90</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Coesa, 1976: U.S. Standard Atmosphere.</span>
+<span class="sd">    NOAA, NASA, USAF.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; cst = Constants()</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Gas constant for dry air: {cst.RD:.2f} J/(kg·K)&quot;)</span>
+<span class="sd">    Gas constant for dry air: 287.06 J/(kg·K)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Molecular weight ratio: {cst.EPSILO:.4f}&quot;)</span>
+<span class="sd">    Molecular weight ratio: 0.6220</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># 1. Fondamental constants</span>
+    <span class="n">PI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arcsin</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+    <span class="n">KARMAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">LIGHTSPEED</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">299792458.0</span><span class="p">)</span>
+    <span class="n">PLANCK</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">6.6260775e-34</span><span class="p">)</span>
+    <span class="n">BOLTZ</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.380658e-23</span><span class="p">)</span>
+    <span class="n">AVOGADRO</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">6.0221367e23</span><span class="p">)</span>
+
+    <span class="c1"># 2. Astronomical constants</span>
+    <span class="n">DAY</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">86400</span><span class="p">)</span>  <span class="c1"># day duration</span>
+    <span class="n">SIYEA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># sideral year duration</span>
+    <span class="n">SIDAY</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># sideral day duration</span>
+    <span class="n">NSDAY</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">24</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span>  <span class="c1"># number of seconds in a day</span>
+    <span class="n">OMEGA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># earth rotation</span>
+
+    <span class="c1"># 3. Terrestrial geoide constants</span>
+    <span class="n">RADIUS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">6371229</span><span class="p">)</span>  <span class="c1"># earth radius</span>
+    <span class="n">GRAVITY0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">9.80665</span><span class="p">)</span>  <span class="c1"># gravity constant</span>
+
+    <span class="c1"># 4. Reference pressure</span>
+    <span class="n">P00OCEAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">201e5</span><span class="p">)</span>  <span class="c1"># Ref pressure for ocean model</span>
+    <span class="n">RHO0OCEAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1024</span><span class="p">)</span>  <span class="c1"># Ref density for ocean model</span>
+    <span class="n">TH00OCEAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">286.65</span><span class="p">)</span>  <span class="c1"># Ref value for pot temp in ocean model</span>
+    <span class="n">SA00OCEAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">32.6</span><span class="p">)</span>  <span class="c1"># Ref value for salinity in ocean model</span>
+
+    <span class="n">P00</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>  <span class="c1"># Reference pressure</span>
+    <span class="n">TH00</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>  <span class="c1"># Ref value for potential temperature</span>
+
+    <span class="c1"># 5. Radiation constants</span>
+    <span class="n">STEFAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Stefan-Boltzman constant</span>
+    <span class="n">IO</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1370</span><span class="p">)</span>  <span class="c1"># Solar constant</span>
+
+    <span class="c1"># 6. Thermodynamic constants</span>
+    <span class="n">MD</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">28.9644e-3</span><span class="p">)</span>  <span class="c1"># Molar mass of dry air</span>
+    <span class="n">MV</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">18.0153e-3</span><span class="p">)</span>  <span class="c1"># Molar mass of water vapour</span>
+    <span class="n">RD</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Gas constant for dry air</span>
+    <span class="n">RV</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Gas constant for vapour</span>
+    <span class="n">EPSILO</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Mv / Md</span>
+    <span class="n">CPD</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Cpd (dry air)</span>
+    <span class="n">CPV</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Cpv (vapour)</span>
+    <span class="n">RHOLW</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Volumic mass of liquid water</span>
+    <span class="n">RHOLI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">900</span><span class="p">)</span>  <span class="c1"># Volumic mass of ice</span>
+    <span class="n">CL</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">4.218e3</span><span class="p">)</span>  <span class="c1"># Cl (liquid)</span>
+    <span class="n">CI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2.106e3</span><span class="p">)</span>  <span class="c1"># Ci (ice)</span>
+    <span class="n">TT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">273.16</span><span class="p">)</span>  <span class="c1"># triple point temperature</span>
+    <span class="n">LVTT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2.5008e6</span><span class="p">)</span>  <span class="c1"># vaporisation heat constant</span>
+    <span class="n">LSTT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2.8345e6</span><span class="p">)</span>  <span class="c1"># sublimation heat constant</span>
+    <span class="n">LMTT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># melting heat constant</span>
+    <span class="n">ESTT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">611.24</span>
+    <span class="p">)</span>  <span class="c1"># Saturation vapor pressure at triple point temperature</span>
+
+    <span class="n">ALPW</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Constants for saturation vapor pressure function</span>
+    <span class="n">BETAW</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">GAMW</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">ALPI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">init</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>  <span class="c1"># Constants for saturation vapor pressure function over solid ice</span>
+    <span class="n">BETAI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">GAMI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">CONDI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2.2</span><span class="p">)</span>  <span class="c1"># Thermal conductivity of ice (W m-1 K-1)</span>
+    <span class="n">ALPHAOC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1.9e-4</span>
+    <span class="p">)</span>  <span class="c1"># Thermal expansion coefficient for ocean (K-1)</span>
+    <span class="n">BETAOC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">7.7475</span><span class="p">)</span>  <span class="c1"># Haline contraction coeff for ocean (S-1)</span>
+    <span class="n">ROC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.69</span>  <span class="c1"># coeff for SW penetration in ocean (Hoecker et al)</span>
+    <span class="n">D1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.1</span>  <span class="c1"># coeff for SW penetration in ocean (Hoecker et al)</span>
+    <span class="n">D2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">23.0</span>  <span class="c1"># coeff for SW penetration in ocean (Hoecker et al)</span>
+
+    <span class="c1"># 7. Precomputed constants</span>
+    <span class="n">RD_RV</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Rd / Rv</span>
+    <span class="n">RD_CPD</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># Rd / cpd</span>
+    <span class="n">INVXP00</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 1 / p00</span>
+
+    <span class="c1"># 8. Machine precision</span>
+    <span class="n">MNH_TINY</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">float_info</span><span class="o">.</span><span class="n">epsilon</span>
+    <span class="p">)</span>  <span class="c1"># minimum real on this machine</span>
+    <span class="c1"># MNH_TINY_12: float = field(default=sys.float_info.) # sqrt(minimum real on this machine)</span>
+    <span class="c1"># MNH_EPSILON: float # minimum space with 1.0</span>
+    <span class="c1"># MNH_HUGE: float    # minimum real on this machine</span>
+    <span class="c1"># MNH_HUGE_12_LOG: float # maximum log(sqrt(real)) on this machine</span>
+    <span class="c1"># EPS_DT: float      # default value for dt</span>
+    <span class="c1"># RES_FLAT_CART: float   # default     flat&amp;cart residual tolerance</span>
+    <span class="c1"># RES_OTHER: float   # default not flat&amp;cart residual tolerance</span>
+    <span class="c1"># RES_PREP: float    # default     prep      residual tolerance</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 2. Astronomical constants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SIYEA</span> <span class="o">=</span> <span class="mf">365.25</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">DAY</span> <span class="o">/</span> <span class="mf">6.283076</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SIDAY</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DAY</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">DAY</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SIYEA</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OMEGA</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PI</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">SIDAY</span>
+
+        <span class="c1"># 5. Radiation constants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">STEFAN</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">2</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PI</span><span class="o">**</span><span class="mi">5</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOLTZ</span><span class="o">**</span><span class="mi">4</span>
+            <span class="o">/</span> <span class="p">(</span><span class="mi">15</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">LIGHTSPEED</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">PLANCK</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># 6. Thermodynamic constants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RD</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AVOGADRO</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOLTZ</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">MD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AVOGADRO</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOLTZ</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">MV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">EPSILO</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">MV</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">MD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CPD</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">RD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">CPV</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">RV</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">LMTT</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">LSTT</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">LVTT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GAMW</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CL</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">CPV</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BETAW</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LVTT</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RV</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GAMW</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">TT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ALPW</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ESTT</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BETAW</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">TT</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GAMW</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TT</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GAMI</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CI</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">CPV</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">BETAI</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">LSTT</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RV</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">GAMI</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">TT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ALPI</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ESTT</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">BETAI</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">TT</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">GAMI</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TT</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">RD_RV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RD</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">RV</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RD_CPD</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">RD</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">CPD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">INVXP00</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">P00</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../initialisation/state_rain_ice/" class="btn btn-neutral float-left" title="State rain ice"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ice_parameters/" class="btn btn-neutral float-right" title="Ice parameters">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../initialisation/state_rain_ice/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ice_parameters/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

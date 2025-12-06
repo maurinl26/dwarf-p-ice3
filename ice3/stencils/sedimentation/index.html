@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Sedimentation - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Sedimentation";
+        var mkdocs_page_input_path = "ice3/stencils/sedimentation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >stencils</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Sedimentation</a>
+    <ul class="current">
+    </ul>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">stencils</li>
+      <li class="breadcrumb-item active">Sedimentation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.stencils.sedimentation"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.conc3d" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">conc3d</span><span class="p">(</span><span class="n">town</span><span class="p">,</span> <span class="n">sea</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute 3D concentration based on town and sea fractions</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">conc3d</span><span class="p">(</span><span class="n">town</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span> <span class="n">sea</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute 3D concentration based on town and sea fractions&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONC_LAND</span><span class="p">,</span> <span class="n">CONC_SEA</span><span class="p">,</span> <span class="n">CONC_URBAN</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">town</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">sea</span><span class="p">)</span> <span class="o">*</span> <span class="n">CONC_LAND</span> <span class="o">+</span> <span class="n">sea</span> <span class="o">*</span> <span class="n">CONC_SEA</span><span class="p">)</span> <span class="o">+</span> <span class="n">town</span> <span class="o">*</span> <span class="n">CONC_URBAN</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.fsedc" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fsedc</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute FSEDC parameter weighted by sea fraction</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fsedc</span><span class="p">(</span><span class="n">sea</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute FSEDC parameter weighted by sea fraction&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSEDC_LAND</span><span class="p">,</span> <span class="n">FSEDC_SEA</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">sea</span><span class="p">)</span> <span class="o">*</span> <span class="n">FSEDC_LAND</span> <span class="o">+</span> <span class="n">sea</span> <span class="o">*</span> <span class="n">FSEDC_SEA</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.fwsed1" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fwsed1</span><span class="p">(</span><span class="n">wsedw</span><span class="p">,</span> <span class="n">tstep</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">invtstep</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute weighted sedimentation flux (first component)</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fwsed1</span><span class="p">(</span><span class="n">wsedw</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">tstep</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">dzz</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">invtstep</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute weighted sedimentation flux (first component)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">dzz</span> <span class="o">*</span> <span class="n">content</span> <span class="o">*</span> <span class="n">invtstep</span><span class="p">,</span> <span class="n">wsedw</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">*</span> <span class="n">content</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.fwsed2" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fwsed2</span><span class="p">(</span><span class="n">wsedw</span><span class="p">,</span> <span class="n">tstep</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">wsedw_above</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute weighted sedimentation flux (second component from level above)</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span> 
+<span class="k">def</span><span class="w"> </span><span class="nf">fwsed2</span><span class="p">(</span><span class="n">wsedw</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">tstep</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">dzz</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">wsedw_above</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute weighted sedimentation flux (second component from level above)&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="n">dzz</span> <span class="o">/</span> <span class="p">(</span><span class="n">tstep</span> <span class="o">*</span> <span class="n">wsedw</span><span class="p">))</span> <span class="o">*</span> <span class="n">wsedw_above</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.lbc" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">lbc</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute LBC parameter weighted by sea fraction</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span> 
+<span class="k">def</span><span class="w"> </span><span class="nf">lbc</span><span class="p">(</span><span class="n">sea</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute LBC parameter weighted by sea fraction&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">LBC_LAND</span><span class="p">,</span> <span class="n">LBC_SEA</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">sea</span><span class="p">)</span> <span class="o">*</span> <span class="n">LBC_LAND</span> <span class="o">+</span> <span class="n">sea</span> <span class="o">*</span> <span class="n">LBC_SEA</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.other_species_velocity" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">other_species_velocity</span><span class="p">(</span><span class="n">fsed</span><span class="p">,</span> <span class="n">exsed</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute terminal velocity for rain, snow, graupel, hail</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">other_species_velocity</span><span class="p">(</span>
+    <span class="n">fsed</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+    <span class="n">exsed</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> 
+    <span class="n">content</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute terminal velocity for rain, snow, graupel, hail&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">CEXVT</span>
+
+    <span class="k">return</span> <span class="n">fsed</span> <span class="o">*</span> <span class="n">content</span> <span class="o">**</span> <span class="p">(</span><span class="n">exsed</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="n">exsed</span> <span class="o">-</span> <span class="n">CEXVT</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.pristine_ice_velocity" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">pristine_ice_velocity</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute terminal velocity for pristine ice</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pristine_ice_velocity</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute terminal velocity for pristine ice&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSEDI</span><span class="p">,</span> <span class="n">EXCSEDI</span><span class="p">,</span> <span class="n">CEXVT</span>
+
+    <span class="k">return</span> <span class="n">FSEDI</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span><span class="p">)</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.05e6</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.15319e6</span> <span class="o">-</span> <span class="mf">0.021454e6</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">content</span><span class="p">))</span> <span class="o">**</span> <span class="n">EXCSEDI</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.ray" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ray</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute cloud mean radius parameter based on sea fraction</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ray</span><span class="p">(</span><span class="n">sea</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute cloud mean radius parameter based on sea fraction&quot;&quot;&quot;</span>
+    <span class="c1"># Simplified: returns 1.0 (would need gamma function ratios for full implementation)</span>
+    <span class="k">return</span> <span class="mf">1.0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.sedimentation_stat" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sedimentation_stat</span><span class="p">(</span><span class="n">rhodref</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">pabs_t</span><span class="p">,</span> <span class="n">th_t</span><span class="p">,</span> <span class="n">rcs</span><span class="p">,</span> <span class="n">rrs</span><span class="p">,</span> <span class="n">ris</span><span class="p">,</span> <span class="n">rss</span><span class="p">,</span> <span class="n">rgs</span><span class="p">,</span> <span class="n">sea</span><span class="p">,</span> <span class="n">town</span><span class="p">,</span> <span class="n">fpr_c</span><span class="p">,</span> <span class="n">fpr_r</span><span class="p">,</span> <span class="n">fpr_i</span><span class="p">,</span> <span class="n">fpr_s</span><span class="p">,</span> <span class="n">fpr_g</span><span class="p">,</span> <span class="n">inprr</span><span class="p">,</span> <span class="n">inprc</span><span class="p">,</span> <span class="n">inpri</span><span class="p">,</span> <span class="n">inprs</span><span class="p">,</span> <span class="n">inprg</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute gravitational sedimentation using statistical method.</p>
+<p>This stencil implements the statistical sedimentation scheme for ICE4
+microphysics, computing the vertical transport of hydrometeors due to
+gravitational settling. It uses size-distribution-averaged terminal
+velocities and backward-in-time flux calculations to ensure numerical
+stability and mass conservation.</p>
+<h4 id="ice3.stencils.sedimentation.sedimentation_stat--parameters">Parameters</h4>
+<p>rhodref : Field[float]
+    Reference air density (kg/m³). Input field.
+dzz : Field[float]
+    Vertical grid spacing (m). Input field.
+pabs_t : Field[float]
+    Absolute pressure (Pa). Input field.
+th_t : Field[float]
+    Potential temperature (K). Input field.
+rcs : Field[float]
+    Cloud droplet tendency (kg/kg/s). Modified in place.
+rrs : Field[float]
+    Rain tendency (kg/kg/s). Modified in place.
+ris : Field[float]
+    Ice crystal tendency (kg/kg/s). Modified in place.
+rss : Field[float]
+    Snow tendency (kg/kg/s). Modified in place.
+rgs : Field[float]
+    Graupel tendency (kg/kg/s). Modified in place.
+sea : Field[IJ, float]
+    Sea fraction (0-1). Input field (2D).
+    Used to weight microphysical parameters.
+town : Field[IJ, float]
+    Urban fraction (0-1). Input field (2D).
+    Used to weight cloud droplet concentration.
+fpr_c, fpr_r, fpr_i, fpr_s, fpr_g : Field[float]
+    Sedimentation fluxes (kg/(m²·s)). Output fields.
+inprr, inprc, inpri, inprs, inprg : Field[IJ, float]
+    Instantaneous surface precipitation rates (m/s). Output fields (2D).</p>
+<h4 id="ice3.stencils.sedimentation.sedimentation_stat--returns">Returns</h4>
+<p>None
+    Modifies tendency and flux fields in place.</p>
+<h4 id="ice3.stencils.sedimentation.sedimentation_stat--notes">Notes</h4>
+<p><strong>Statistical Sedimentation Method:</strong></p>
+<p>The statistical approach assumes particles follow a gamma size
+distribution and computes mean terminal velocities based on:
+- Size distribution parameters (λ, N)
+- Power-law velocity-diameter relationships
+- Environmental corrections (air density, pressure)</p>
+<p><strong>Terminal Velocity Formulations:</strong></p>
+<ol>
+<li><strong>Cloud Droplets:</strong>
+   V_c = ρ^(-CEXVT) × λ_c^(-D_c) × C_c × F_SEDC</li>
+</ol>
+<p>where:
+   - λ_c: Slope parameter (m⁻¹)
+   - C_c: Correction factor C_c = CC × (1 + 1.26λ_mfp/r_mean)
+   - λ_mfp: Mean free path ~6.6×10⁻⁸ m at surface
+   - Accounts for slip-flow regime (Cunningham correction)</p>
+<ol>
+<li><strong>Rain:</strong>
+   V_r = F_SEDR × r_r^(EXSEDR-1) × ρ^(EXSEDR-CEXVT-1)</li>
+</ol>
+<p>Power law with exponent EXSEDR ≈ 0.25</p>
+<ol>
+<li><strong>Pristine Ice:</strong>
+   V_i = F_SEDI × ρ^(-CEXVT) × D_max^EXCSEDI</li>
+</ol>
+<p>where D_max = max(50 μm, f(ρ×r_i))
+   Special formulation for plate/columnar crystals</p>
+<ol>
+<li><strong>Snow:</strong>
+   V_s = F_SEDS × r_s^(EXSEDS-1) × ρ^(EXSEDS-CEXVT-1)</li>
+</ol>
+<p>Aggregate fall speed, EXSEDS ≈ 0.125</p>
+<ol>
+<li><strong>Graupel:</strong>
+   V_g = F_SEDG × r_g^(EXSEDG-1) × ρ^(EXSEDG-CEXVT-1)</li>
+</ol>
+<p>Dense rimed particles, EXSEDG ≈ 0.33</p>
+<p><strong>Flux Computation (Backward Sweep):</strong></p>
+<p>Fluxes computed from top to bottom (BACKWARD computation):</p>
+<p>F_x(k) = F_wsed1 + F_wsed2</p>
+<p>where:
+- F_wsed1 = min(ρ×Δz×r_x/Δt, V_x×ρ×r_x)  [local contribution]
+- F_wsed2 = max(0, 1 - Δz/(Δt×V_x)) × F_x(k+1)  [from above]</p>
+<p>The first term ensures CFL stability, the second propagates flux
+from the level above.</p>
+<p><strong>Tendency Update:</strong></p>
+<p>Sedimentation tendency:</p>
+<p>dr_x/dt = (1/(ρ×Δz)) × [F_x(k+1) - F_x(k)]</p>
+<p>Positive: convergence (flux in &gt; flux out), mass increases
+Negative: divergence (flux out &gt; flux in), mass decreases</p>
+<p><strong>Surface Precipitation:</strong></p>
+<p>Instantaneous surface precipitation rate:</p>
+<p>P_x = F_x(k=1) / ρ_water  (m/s or mm/s)</p>
+<p>Converted from mass flux to depth rate using ρ_water = 1000 kg/m³</p>
+<p><strong>Parameter Dependence on Surface Type:</strong></p>
+<p>Parameters vary with sea/land/urban fractions:</p>
+<ul>
+<li>Cloud: λ_bc, F_SEDC, N (concentration)</li>
+<li>Sea: Higher concentration, smaller drops</li>
+<li>Land: Lower concentration, larger drops</li>
+<li>
+<p>Urban: Highest concentration (pollution)</p>
+</li>
+<li>
+<p>Rain/snow/graupel: Independent of surface type
+  (large particles, surface effects negligible)</p>
+</li>
+</ul>
+<p><strong>Weighting Formula:</strong></p>
+<p>param = (1 - f_town) × [(1 - f_sea)×param_land + f_sea×param_sea]
+        + f_town × param_urban</p>
+<p><strong>Numerical Stability:</strong></p>
+<p>CFL condition automatically satisfied by min() in F_wsed1:</p>
+<p>V × Δt / Δz ≤ 1</p>
+<p>This prevents flux from exceeding available mass in grid cell.</p>
+<p><strong>Mass Conservation:</strong></p>
+<p>Total column mass conserved:</p>
+<p>∫ρ×Δz×(dr/dt) dz = F_top - F_surface</p>
+<p>With F_top = 0 at model top:
+∫ρ×Δz×(dr/dt) dz = -F_surface</p>
+<p>All mass lost from column appears as surface precipitation.</p>
+<p><strong>Typical Terminal Velocities:</strong></p>
+<p>Cloud droplets: ~1 cm/s (very slow)
+Ice crystals: ~10-50 cm/s (slow)
+Rain: ~1-5 m/s (moderate to fast)
+Snow: ~0.5-1.5 m/s (moderate)
+Graupel: ~2-5 m/s (fast)</p>
+<p><strong>Computational Flow:</strong></p>
+<ol>
+<li>Convert tendencies to mixing ratios (×TSTEP)</li>
+<li>Initialize fluxes to zero</li>
+<li>Loop from top to bottom (BACKWARD):
+   a. Compute terminal velocity
+   b. Calculate flux from local content
+   c. Add flux from level above</li>
+<li>Update tendencies from flux divergence</li>
+<li>Extract surface precipitation from bottom flux</li>
+</ol>
+<p><strong>Advantages of Statistical Method:</strong></p>
+<ul>
+<li>Computationally efficient (one pass)</li>
+<li>Unconditionally stable (CFL built-in)</li>
+<li>Mass conservative</li>
+<li>Smooth fields (no numerical dispersion)</li>
+</ul>
+<p><strong>Comparison with Upwind Method:</strong></p>
+<p>Statistical (this function):
+- Mean velocities from size distribution
+- Backward sweep, single time step
+- Faster, simpler
+- Used in AROME operational</p>
+<p>Upwind (separate function):
+- Explicit particle tracking
+- Multiple substeps possible
+- More accurate for resolution
+- Used in research mode</p>
+<p><strong>Physical Process:</strong></p>
+<p>Sedimentation removes hydrometeors from upper levels and deposits
+them at lower levels or surface:</p>
+<ul>
+<li>Cloud → slow removal, minimal surface impact</li>
+<li>Rain → fast removal, surface precipitation</li>
+<li>Snow/graupel → moderate removal, surface accumulation</li>
+<li>Ice → very slow removal, redistributes in cloud</li>
+</ul>
+<h4 id="ice3.stencils.sedimentation.sedimentation_stat--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90</p>
+<h4 id="ice3.stencils.sedimentation.sedimentation_stat--see-also">See Also</h4>
+<p>upwind_sedimentation : Alternative sedimentation method
+ice4_stepping : Time integration framework</p>
+<h4 id="ice3.stencils.sedimentation.sedimentation_stat--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--warm-rain-sedimentation">Warm rain sedimentation</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--r_r-1e-3-kgkg-at-z500m">r_r = 1e-3 kg/kg at z=500m</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--v_r-5-ms-precip-at-surface-in-100-s">V_r ≈ 5 m/s, precip at surface in ~100 s</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--snow-sedimentation">Snow sedimentation</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--r_s-5e-4-kgkg-at-z2000m">r_s = 5e-4 kg/kg at z=2000m</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--v_s-1-ms-precip-at-surface-in-2000-s">V_s ≈ 1 m/s, precip at surface in ~2000 s</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--cloud-droplets-negligible-sedimentation">Cloud droplets (negligible sedimentation)</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--r_c-5e-4-kgkg-v_c-001-ms">r_c = 5e-4 kg/kg, V_c ≈ 0.01 m/s</h3>
+<h3 id="ice3.stencils.sedimentation.sedimentation_stat--removed-mainly-by-collection-not-sedimentation">Removed mainly by collection, not sedimentation</h3>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sedimentation_stat</span><span class="p">(</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">dzz</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">pabs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">th_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rcs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rrs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ris</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rss</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rgs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">sea</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">town</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_c</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_r</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_i</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_s</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_g</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inprr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inprc</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inpri</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inprs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inprg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute gravitational sedimentation using statistical method.</span>
+
+<span class="sd">    This stencil implements the statistical sedimentation scheme for ICE4</span>
+<span class="sd">    microphysics, computing the vertical transport of hydrometeors due to</span>
+<span class="sd">    gravitational settling. It uses size-distribution-averaged terminal</span>
+<span class="sd">    velocities and backward-in-time flux calculations to ensure numerical</span>
+<span class="sd">    stability and mass conservation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rhodref : Field[float]</span>
+<span class="sd">        Reference air density (kg/m³). Input field.</span>
+<span class="sd">    dzz : Field[float]</span>
+<span class="sd">        Vertical grid spacing (m). Input field.</span>
+<span class="sd">    pabs_t : Field[float]</span>
+<span class="sd">        Absolute pressure (Pa). Input field.</span>
+<span class="sd">    th_t : Field[float]</span>
+<span class="sd">        Potential temperature (K). Input field.</span>
+<span class="sd">    rcs : Field[float]</span>
+<span class="sd">        Cloud droplet tendency (kg/kg/s). Modified in place.</span>
+<span class="sd">    rrs : Field[float]</span>
+<span class="sd">        Rain tendency (kg/kg/s). Modified in place.</span>
+<span class="sd">    ris : Field[float]</span>
+<span class="sd">        Ice crystal tendency (kg/kg/s). Modified in place.</span>
+<span class="sd">    rss : Field[float]</span>
+<span class="sd">        Snow tendency (kg/kg/s). Modified in place.</span>
+<span class="sd">    rgs : Field[float]</span>
+<span class="sd">        Graupel tendency (kg/kg/s). Modified in place.</span>
+<span class="sd">    sea : Field[IJ, float]</span>
+<span class="sd">        Sea fraction (0-1). Input field (2D).</span>
+<span class="sd">        Used to weight microphysical parameters.</span>
+<span class="sd">    town : Field[IJ, float]</span>
+<span class="sd">        Urban fraction (0-1). Input field (2D).</span>
+<span class="sd">        Used to weight cloud droplet concentration.</span>
+<span class="sd">    fpr_c, fpr_r, fpr_i, fpr_s, fpr_g : Field[float]</span>
+<span class="sd">        Sedimentation fluxes (kg/(m²·s)). Output fields.</span>
+<span class="sd">    inprr, inprc, inpri, inprs, inprg : Field[IJ, float]</span>
+<span class="sd">        Instantaneous surface precipitation rates (m/s). Output fields (2D).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Modifies tendency and flux fields in place.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Statistical Sedimentation Method:**</span>
+
+<span class="sd">    The statistical approach assumes particles follow a gamma size</span>
+<span class="sd">    distribution and computes mean terminal velocities based on:</span>
+<span class="sd">    - Size distribution parameters (λ, N)</span>
+<span class="sd">    - Power-law velocity-diameter relationships</span>
+<span class="sd">    - Environmental corrections (air density, pressure)</span>
+
+<span class="sd">    **Terminal Velocity Formulations:**</span>
+
+<span class="sd">    1. **Cloud Droplets:**</span>
+<span class="sd">       V_c = ρ^(-CEXVT) × λ_c^(-D_c) × C_c × F_SEDC</span>
+
+<span class="sd">       where:</span>
+<span class="sd">       - λ_c: Slope parameter (m⁻¹)</span>
+<span class="sd">       - C_c: Correction factor C_c = CC × (1 + 1.26λ_mfp/r_mean)</span>
+<span class="sd">       - λ_mfp: Mean free path ~6.6×10⁻⁸ m at surface</span>
+<span class="sd">       - Accounts for slip-flow regime (Cunningham correction)</span>
+
+<span class="sd">    2. **Rain:**</span>
+<span class="sd">       V_r = F_SEDR × r_r^(EXSEDR-1) × ρ^(EXSEDR-CEXVT-1)</span>
+
+<span class="sd">       Power law with exponent EXSEDR ≈ 0.25</span>
+
+<span class="sd">    3. **Pristine Ice:**</span>
+<span class="sd">       V_i = F_SEDI × ρ^(-CEXVT) × D_max^EXCSEDI</span>
+
+<span class="sd">       where D_max = max(50 μm, f(ρ×r_i))</span>
+<span class="sd">       Special formulation for plate/columnar crystals</span>
+
+<span class="sd">    4. **Snow:**</span>
+<span class="sd">       V_s = F_SEDS × r_s^(EXSEDS-1) × ρ^(EXSEDS-CEXVT-1)</span>
+
+<span class="sd">       Aggregate fall speed, EXSEDS ≈ 0.125</span>
+
+<span class="sd">    5. **Graupel:**</span>
+<span class="sd">       V_g = F_SEDG × r_g^(EXSEDG-1) × ρ^(EXSEDG-CEXVT-1)</span>
+
+<span class="sd">       Dense rimed particles, EXSEDG ≈ 0.33</span>
+
+<span class="sd">    **Flux Computation (Backward Sweep):**</span>
+
+<span class="sd">    Fluxes computed from top to bottom (BACKWARD computation):</span>
+
+<span class="sd">    F_x(k) = F_wsed1 + F_wsed2</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - F_wsed1 = min(ρ×Δz×r_x/Δt, V_x×ρ×r_x)  [local contribution]</span>
+<span class="sd">    - F_wsed2 = max(0, 1 - Δz/(Δt×V_x)) × F_x(k+1)  [from above]</span>
+
+<span class="sd">    The first term ensures CFL stability, the second propagates flux</span>
+<span class="sd">    from the level above.</span>
+
+<span class="sd">    **Tendency Update:**</span>
+
+<span class="sd">    Sedimentation tendency:</span>
+
+<span class="sd">    dr_x/dt = (1/(ρ×Δz)) × [F_x(k+1) - F_x(k)]</span>
+
+<span class="sd">    Positive: convergence (flux in &gt; flux out), mass increases</span>
+<span class="sd">    Negative: divergence (flux out &gt; flux in), mass decreases</span>
+
+<span class="sd">    **Surface Precipitation:**</span>
+
+<span class="sd">    Instantaneous surface precipitation rate:</span>
+
+<span class="sd">    P_x = F_x(k=1) / ρ_water  (m/s or mm/s)</span>
+
+<span class="sd">    Converted from mass flux to depth rate using ρ_water = 1000 kg/m³</span>
+
+<span class="sd">    **Parameter Dependence on Surface Type:**</span>
+
+<span class="sd">    Parameters vary with sea/land/urban fractions:</span>
+
+<span class="sd">    - Cloud: λ_bc, F_SEDC, N (concentration)</span>
+<span class="sd">      * Sea: Higher concentration, smaller drops</span>
+<span class="sd">      * Land: Lower concentration, larger drops</span>
+<span class="sd">      * Urban: Highest concentration (pollution)</span>
+
+<span class="sd">    - Rain/snow/graupel: Independent of surface type</span>
+<span class="sd">      (large particles, surface effects negligible)</span>
+
+<span class="sd">    **Weighting Formula:**</span>
+
+<span class="sd">    param = (1 - f_town) × [(1 - f_sea)×param_land + f_sea×param_sea]</span>
+<span class="sd">            + f_town × param_urban</span>
+
+<span class="sd">    **Numerical Stability:**</span>
+
+<span class="sd">    CFL condition automatically satisfied by min() in F_wsed1:</span>
+
+<span class="sd">    V × Δt / Δz ≤ 1</span>
+
+<span class="sd">    This prevents flux from exceeding available mass in grid cell.</span>
+
+<span class="sd">    **Mass Conservation:**</span>
+
+<span class="sd">    Total column mass conserved:</span>
+
+<span class="sd">    ∫ρ×Δz×(dr/dt) dz = F_top - F_surface</span>
+
+<span class="sd">    With F_top = 0 at model top:</span>
+<span class="sd">    ∫ρ×Δz×(dr/dt) dz = -F_surface</span>
+
+<span class="sd">    All mass lost from column appears as surface precipitation.</span>
+
+<span class="sd">    **Typical Terminal Velocities:**</span>
+
+<span class="sd">    Cloud droplets: ~1 cm/s (very slow)</span>
+<span class="sd">    Ice crystals: ~10-50 cm/s (slow)</span>
+<span class="sd">    Rain: ~1-5 m/s (moderate to fast)</span>
+<span class="sd">    Snow: ~0.5-1.5 m/s (moderate)</span>
+<span class="sd">    Graupel: ~2-5 m/s (fast)</span>
+
+<span class="sd">    **Computational Flow:**</span>
+
+<span class="sd">    1. Convert tendencies to mixing ratios (×TSTEP)</span>
+<span class="sd">    2. Initialize fluxes to zero</span>
+<span class="sd">    3. Loop from top to bottom (BACKWARD):</span>
+<span class="sd">       a. Compute terminal velocity</span>
+<span class="sd">       b. Calculate flux from local content</span>
+<span class="sd">       c. Add flux from level above</span>
+<span class="sd">    4. Update tendencies from flux divergence</span>
+<span class="sd">    5. Extract surface precipitation from bottom flux</span>
+
+<span class="sd">    **Advantages of Statistical Method:**</span>
+
+<span class="sd">    - Computationally efficient (one pass)</span>
+<span class="sd">    - Unconditionally stable (CFL built-in)</span>
+<span class="sd">    - Mass conservative</span>
+<span class="sd">    - Smooth fields (no numerical dispersion)</span>
+
+<span class="sd">    **Comparison with Upwind Method:**</span>
+
+<span class="sd">    Statistical (this function):</span>
+<span class="sd">    - Mean velocities from size distribution</span>
+<span class="sd">    - Backward sweep, single time step</span>
+<span class="sd">    - Faster, simpler</span>
+<span class="sd">    - Used in AROME operational</span>
+
+<span class="sd">    Upwind (separate function):</span>
+<span class="sd">    - Explicit particle tracking</span>
+<span class="sd">    - Multiple substeps possible</span>
+<span class="sd">    - More accurate for resolution</span>
+<span class="sd">    - Used in research mode</span>
+
+<span class="sd">    **Physical Process:**</span>
+
+<span class="sd">    Sedimentation removes hydrometeors from upper levels and deposits</span>
+<span class="sd">    them at lower levels or surface:</span>
+
+<span class="sd">    - Cloud → slow removal, minimal surface impact</span>
+<span class="sd">    - Rain → fast removal, surface precipitation</span>
+<span class="sd">    - Snow/graupel → moderate removal, surface accumulation</span>
+<span class="sd">    - Ice → very slow removal, redistributes in cloud</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/micro/mode_ice4_sedimentation_stat.F90</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    upwind_sedimentation : Alternative sedimentation method</span>
+<span class="sd">    ice4_stepping : Time integration framework</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Warm rain sedimentation</span>
+<span class="sd">    &gt;&gt;&gt; # r_r = 1e-3 kg/kg at z=500m</span>
+<span class="sd">    &gt;&gt;&gt; # V_r ≈ 5 m/s, precip at surface in ~100 s</span>
+
+<span class="sd">    &gt;&gt;&gt; # Snow sedimentation</span>
+<span class="sd">    &gt;&gt;&gt; # r_s = 5e-4 kg/kg at z=2000m  </span>
+<span class="sd">    &gt;&gt;&gt; # V_s ≈ 1 m/s, precip at surface in ~2000 s</span>
+
+<span class="sd">    &gt;&gt;&gt; # Cloud droplets (negligible sedimentation)</span>
+<span class="sd">    &gt;&gt;&gt; # r_c = 5e-4 kg/kg, V_c ≈ 0.01 m/s</span>
+<span class="sd">    &gt;&gt;&gt; # Removed mainly by collection, not sedimentation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">C_RTMIN</span><span class="p">,</span>
+        <span class="n">CC</span><span class="p">,</span>
+        <span class="n">CEXVT</span><span class="p">,</span>
+        <span class="n">DC</span><span class="p">,</span>
+        <span class="n">EXSEDG</span><span class="p">,</span>
+        <span class="n">EXSEDR</span><span class="p">,</span>
+        <span class="n">EXSEDS</span><span class="p">,</span>
+        <span class="n">FSEDG</span><span class="p">,</span>
+        <span class="n">FSEDR</span><span class="p">,</span>
+        <span class="n">FSEDS</span><span class="p">,</span>
+        <span class="n">G_RTMIN</span><span class="p">,</span>
+        <span class="n">I_RTMIN</span><span class="p">,</span>
+        <span class="n">LBEXC</span><span class="p">,</span>
+        <span class="n">R_RTMIN</span><span class="p">,</span>
+        <span class="n">RHOLW</span><span class="p">,</span>
+        <span class="n">S_RTMIN</span><span class="p">,</span>
+        <span class="n">TSTEP</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Convert tendencies to mixing ratios</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rc_t</span> <span class="o">=</span> <span class="n">rcs</span> <span class="o">*</span> <span class="n">TSTEP</span>
+        <span class="n">rr_t</span> <span class="o">=</span> <span class="n">rrs</span> <span class="o">*</span> <span class="n">TSTEP</span>
+        <span class="n">ri_t</span> <span class="o">=</span> <span class="n">ris</span> <span class="o">*</span> <span class="n">TSTEP</span>
+        <span class="n">rs_t</span> <span class="o">=</span> <span class="n">rss</span> <span class="o">*</span> <span class="n">TSTEP</span>
+        <span class="n">rg_t</span> <span class="o">=</span> <span class="n">rgs</span> <span class="o">*</span> <span class="n">TSTEP</span>
+
+    <span class="c1"># Initialize fluxes</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">fpr_c</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">fpr_r</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">fpr_i</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">fpr_s</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">fpr_g</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Compute the sedimentation fluxes from top to bottom</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">BACKWARD</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">TSTEP__rho_dz</span> <span class="o">=</span> <span class="n">TSTEP</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">dzz</span><span class="p">)</span>
+        <span class="n">zinvtstep</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">TSTEP</span>
+
+        <span class="c1"># Compute parameters for cloud (depend on sea/land/town)</span>
+        <span class="n">_ray</span> <span class="o">=</span> <span class="n">ray</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span>
+        <span class="n">_lbc</span> <span class="o">=</span> <span class="n">lbc</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span>
+        <span class="n">_fsedc</span> <span class="o">=</span> <span class="n">fsedc</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span>
+        <span class="n">_conc3d</span> <span class="o">=</span> <span class="n">conc3d</span><span class="p">(</span><span class="n">town</span><span class="p">,</span> <span class="n">sea</span><span class="p">)</span>
+
+        <span class="c1"># 2.1 Cloud droplets</span>
+        <span class="n">qp</span> <span class="o">=</span> <span class="n">fpr_c</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">TSTEP__rho_dz</span>
+
+        <span class="c1"># Compute terminal velocities</span>
+        <span class="k">if</span> <span class="n">rc_t</span> <span class="o">&gt;</span> <span class="n">C_RTMIN</span><span class="p">:</span>
+            <span class="n">wlbda</span> <span class="o">=</span> <span class="mf">6.6e-8</span> <span class="o">*</span> <span class="p">(</span><span class="mf">101325.0</span> <span class="o">/</span> <span class="n">pabs_t</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">th_t</span> <span class="o">/</span> <span class="mf">293.15</span><span class="p">)</span>
+            <span class="n">wlbdc</span> <span class="o">=</span> <span class="p">(</span><span class="n">_lbc</span> <span class="o">*</span> <span class="n">_conc3d</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">rc_t</span><span class="p">))</span> <span class="o">**</span> <span class="n">LBEXC</span>
+            <span class="n">cc</span> <span class="o">=</span> <span class="n">CC</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.26</span> <span class="o">*</span> <span class="n">wlbda</span> <span class="o">*</span> <span class="n">wlbdc</span> <span class="o">/</span> <span class="n">_ray</span><span class="p">)</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span><span class="p">)</span> <span class="o">*</span> <span class="n">wlbdc</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">DC</span><span class="p">)</span> <span class="o">*</span> <span class="n">cc</span> <span class="o">*</span> <span class="n">_fsedc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">qp</span> <span class="o">&gt;</span> <span class="n">C_RTMIN</span><span class="p">:</span>
+            <span class="n">wlbda</span> <span class="o">=</span> <span class="mf">6.6e-8</span> <span class="o">*</span> <span class="p">(</span><span class="mf">101325.0</span> <span class="o">/</span> <span class="n">pabs_t</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">th_t</span> <span class="o">/</span> <span class="mf">293.15</span><span class="p">)</span>
+            <span class="n">wlbdc</span> <span class="o">=</span> <span class="p">(</span><span class="n">_lbc</span> <span class="o">*</span> <span class="n">_conc3d</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">qp</span><span class="p">))</span> <span class="o">**</span> <span class="n">LBEXC</span>
+            <span class="n">cc</span> <span class="o">=</span> <span class="n">CC</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.26</span> <span class="o">*</span> <span class="n">wlbda</span> <span class="o">*</span> <span class="n">wlbdc</span> <span class="o">/</span> <span class="n">_ray</span><span class="p">)</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span><span class="p">)</span> <span class="o">*</span> <span class="n">wlbdc</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">DC</span><span class="p">)</span> <span class="o">*</span> <span class="n">cc</span> <span class="o">*</span> <span class="n">_fsedc</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">fpr_c</span> <span class="o">=</span> <span class="n">fwsed1</span><span class="p">(</span><span class="n">wsedw1</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">zinvtstep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wsedw2</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">fpr_c</span> <span class="o">=</span> <span class="n">fpr_c</span> <span class="o">+</span> <span class="n">fwsed2</span><span class="p">(</span><span class="n">wsedw2</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">fpr_c</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># 2.2 Rain</span>
+        <span class="n">qp</span> <span class="o">=</span> <span class="n">fpr_r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">TSTEP__rho_dz</span>
+
+        <span class="k">if</span> <span class="n">rr_t</span> <span class="o">&gt;</span> <span class="n">R_RTMIN</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="n">other_species_velocity</span><span class="p">(</span><span class="n">FSEDR</span><span class="p">,</span> <span class="n">EXSEDR</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">qp</span> <span class="o">&gt;</span> <span class="n">R_RTMIN</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="n">other_species_velocity</span><span class="p">(</span><span class="n">FSEDR</span><span class="p">,</span> <span class="n">EXSEDR</span><span class="p">,</span> <span class="n">qp</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">fpr_r</span> <span class="o">=</span> <span class="n">fwsed1</span><span class="p">(</span><span class="n">wsedw1</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">zinvtstep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wsedw2</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">fpr_r</span> <span class="o">=</span> <span class="n">fpr_r</span> <span class="o">+</span> <span class="n">fwsed2</span><span class="p">(</span><span class="n">wsedw2</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">fpr_r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># 2.3 Pristine ice</span>
+        <span class="n">qp</span> <span class="o">=</span> <span class="n">fpr_i</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">TSTEP__rho_dz</span>
+
+        <span class="k">if</span> <span class="n">ri_t</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">I_RTMIN</span><span class="p">,</span> <span class="mf">1.0e-7</span><span class="p">):</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="n">pristine_ice_velocity</span><span class="p">(</span><span class="n">ri_t</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">qp</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">(</span><span class="n">I_RTMIN</span><span class="p">,</span> <span class="mf">1.0e-7</span><span class="p">):</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="n">pristine_ice_velocity</span><span class="p">(</span><span class="n">qp</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">fpr_i</span> <span class="o">=</span> <span class="n">fwsed1</span><span class="p">(</span><span class="n">wsedw1</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">zinvtstep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wsedw2</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">fpr_i</span> <span class="o">=</span> <span class="n">fpr_i</span> <span class="o">+</span> <span class="n">fwsed2</span><span class="p">(</span><span class="n">wsedw2</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">fpr_i</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># 2.4 Snow</span>
+        <span class="n">qp</span> <span class="o">=</span> <span class="n">fpr_s</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">TSTEP__rho_dz</span>
+
+        <span class="k">if</span> <span class="n">rs_t</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="n">other_species_velocity</span><span class="p">(</span><span class="n">FSEDS</span><span class="p">,</span> <span class="n">EXSEDS</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">qp</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="n">other_species_velocity</span><span class="p">(</span><span class="n">FSEDS</span><span class="p">,</span> <span class="n">EXSEDS</span><span class="p">,</span> <span class="n">qp</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">fpr_s</span> <span class="o">=</span> <span class="n">fwsed1</span><span class="p">(</span><span class="n">wsedw1</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">zinvtstep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wsedw2</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">fpr_s</span> <span class="o">=</span> <span class="n">fpr_s</span> <span class="o">+</span> <span class="n">fwsed2</span><span class="p">(</span><span class="n">wsedw2</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">fpr_s</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># 2.5 Graupel</span>
+        <span class="n">qp</span> <span class="o">=</span> <span class="n">fpr_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">TSTEP__rho_dz</span>
+
+        <span class="k">if</span> <span class="n">rg_t</span> <span class="o">&gt;</span> <span class="n">G_RTMIN</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="n">other_species_velocity</span><span class="p">(</span><span class="n">FSEDG</span><span class="p">,</span> <span class="n">EXSEDG</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw1</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">qp</span> <span class="o">&gt;</span> <span class="n">G_RTMIN</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="n">other_species_velocity</span><span class="p">(</span><span class="n">FSEDG</span><span class="p">,</span> <span class="n">EXSEDG</span><span class="p">,</span> <span class="n">qp</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wsedw2</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">fpr_g</span> <span class="o">=</span> <span class="n">fwsed1</span><span class="p">(</span><span class="n">wsedw1</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">zinvtstep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wsedw2</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">fpr_g</span> <span class="o">=</span> <span class="n">fpr_g</span> <span class="o">+</span> <span class="n">fwsed2</span><span class="p">(</span><span class="n">wsedw2</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">fpr_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+    <span class="c1"># 3. Source - Calculate tendencies</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">=</span> <span class="n">rcs</span> <span class="o">+</span> <span class="n">TSTEP__rho_dz</span> <span class="o">*</span> <span class="p">(</span><span class="n">fpr_c</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fpr_c</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">rrs</span> <span class="o">=</span> <span class="n">rrs</span> <span class="o">+</span> <span class="n">TSTEP__rho_dz</span> <span class="o">*</span> <span class="p">(</span><span class="n">fpr_r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fpr_r</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">ris</span> <span class="o">=</span> <span class="n">ris</span> <span class="o">+</span> <span class="n">TSTEP__rho_dz</span> <span class="o">*</span> <span class="p">(</span><span class="n">fpr_i</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fpr_i</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">rss</span> <span class="o">=</span> <span class="n">rss</span> <span class="o">+</span> <span class="n">TSTEP__rho_dz</span> <span class="o">*</span> <span class="p">(</span><span class="n">fpr_s</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fpr_s</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">rgs</span> <span class="o">=</span> <span class="n">rgs</span> <span class="o">+</span> <span class="n">TSTEP__rho_dz</span> <span class="o">*</span> <span class="p">(</span><span class="n">fpr_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">fpr_g</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="n">TSTEP</span>
+
+    <span class="c1"># Instantaneous fluxes at ground level</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">FORWARD</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">inprc</span> <span class="o">=</span> <span class="n">fpr_c</span> <span class="o">/</span> <span class="n">RHOLW</span>
+        <span class="n">inprr</span> <span class="o">=</span> <span class="n">fpr_r</span> <span class="o">/</span> <span class="n">RHOLW</span>
+        <span class="n">inpri</span> <span class="o">=</span> <span class="n">fpr_i</span> <span class="o">/</span> <span class="n">RHOLW</span>
+        <span class="n">inprs</span> <span class="o">=</span> <span class="n">fpr_s</span> <span class="o">/</span> <span class="n">RHOLW</span>
+        <span class="n">inprg</span> <span class="o">=</span> <span class="n">fpr_g</span> <span class="o">/</span> <span class="n">RHOLW</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.sedimentation.upwind_sedimentation" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">upwind_sedimentation</span><span class="p">(</span><span class="n">rhodref</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">pabs_t</span><span class="p">,</span> <span class="n">th_t</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">rcs</span><span class="p">,</span> <span class="n">rrs</span><span class="p">,</span> <span class="n">ris</span><span class="p">,</span> <span class="n">rss</span><span class="p">,</span> <span class="n">rgs</span><span class="p">,</span> <span class="n">inst_rr</span><span class="p">,</span> <span class="n">inst_rc</span><span class="p">,</span> <span class="n">inst_ri</span><span class="p">,</span> <span class="n">inst_rs</span><span class="p">,</span> <span class="n">inst_rg</span><span class="p">,</span> <span class="n">fpr_c</span><span class="p">,</span> <span class="n">fpr_r</span><span class="p">,</span> <span class="n">fpr_s</span><span class="p">,</span> <span class="n">fpr_i</span><span class="p">,</span> <span class="n">fpr_g</span><span class="p">,</span> <span class="n">sea</span><span class="p">,</span> <span class="n">town</span><span class="p">,</span> <span class="n">remaining_time</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute sedimentation of contents (rx_t) with piecewise
+constant method.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>rhodref</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>dry density of air</p>
+              </div>
+            </li>
+            <li>
+              <b><code>dzz</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>spacing between cell centers</p>
+              </div>
+            </li>
+            <li>
+              <b><code>pabs_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>absolute pressure at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>th_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>potential temperature at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rc_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>cloud droplets m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rr_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>rain m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ri_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>ice m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>snow m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rg_t</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>graupel m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rcs</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>cloud droplets m.r. tendency</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rrs</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>rain m.r. tendency</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ris</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>ice m.r. tendency</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rss</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>snow m.r. tendency</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rgs</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>graupel m.r. tendency</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inst_rr</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="gt4py.cartesian.gtscript.IJ">IJ</span>, <span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>instant precip of rain</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inst_rc</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="gt4py.cartesian.gtscript.IJ">IJ</span>, <span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>instant precip of cloud droplets</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inst_ri</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="gt4py.cartesian.gtscript.IJ">IJ</span>, <span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>instant precip of ice</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inst_rs</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="gt4py.cartesian.gtscript.IJ">IJ</span>, <span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>instant precip of snow</p>
+              </div>
+            </li>
+            <li>
+              <b><code>inst_rg</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="gt4py.cartesian.gtscript.IJ">IJ</span>, <span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>instant precipe of graupel</p>
+              </div>
+            </li>
+            <li>
+              <b><code>fpr_c</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p><em>description</em></p>
+              </div>
+            </li>
+            <li>
+              <b><code>fpr_r</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p><em>description</em></p>
+              </div>
+            </li>
+            <li>
+              <b><code>fpr_s</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p><em>description</em></p>
+              </div>
+            </li>
+            <li>
+              <b><code>fpr_i</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p><em>description</em></p>
+              </div>
+            </li>
+            <li>
+              <b><code>fpr_g</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p><em>description</em></p>
+              </div>
+            </li>
+            <li>
+              <b><code>sea</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>mask for presence of sea</p>
+              </div>
+            </li>
+            <li>
+              <b><code>town</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>mask for presence of town</p>
+              </div>
+            </li>
+            <li>
+              <b><code>remaining_time</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="gt4py.cartesian.gtscript.IJ">IJ</span>, <span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p><em>description</em></p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/sedimentation.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span>
+<span class="normal">538</span>
+<span class="normal">539</span>
+<span class="normal">540</span>
+<span class="normal">541</span>
+<span class="normal">542</span>
+<span class="normal">543</span>
+<span class="normal">544</span>
+<span class="normal">545</span>
+<span class="normal">546</span>
+<span class="normal">547</span>
+<span class="normal">548</span>
+<span class="normal">549</span>
+<span class="normal">550</span>
+<span class="normal">551</span>
+<span class="normal">552</span>
+<span class="normal">553</span>
+<span class="normal">554</span>
+<span class="normal">555</span>
+<span class="normal">556</span>
+<span class="normal">557</span>
+<span class="normal">558</span>
+<span class="normal">559</span>
+<span class="normal">560</span>
+<span class="normal">561</span>
+<span class="normal">562</span>
+<span class="normal">563</span>
+<span class="normal">564</span>
+<span class="normal">565</span>
+<span class="normal">566</span>
+<span class="normal">567</span>
+<span class="normal">568</span>
+<span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span>
+<span class="normal">583</span>
+<span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span>
+<span class="normal">597</span>
+<span class="normal">598</span>
+<span class="normal">599</span>
+<span class="normal">600</span>
+<span class="normal">601</span>
+<span class="normal">602</span>
+<span class="normal">603</span>
+<span class="normal">604</span>
+<span class="normal">605</span>
+<span class="normal">606</span>
+<span class="normal">607</span>
+<span class="normal">608</span>
+<span class="normal">609</span>
+<span class="normal">610</span>
+<span class="normal">611</span>
+<span class="normal">612</span>
+<span class="normal">613</span>
+<span class="normal">614</span>
+<span class="normal">615</span>
+<span class="normal">616</span>
+<span class="normal">617</span>
+<span class="normal">618</span>
+<span class="normal">619</span>
+<span class="normal">620</span>
+<span class="normal">621</span>
+<span class="normal">622</span>
+<span class="normal">623</span>
+<span class="normal">624</span>
+<span class="normal">625</span>
+<span class="normal">626</span>
+<span class="normal">627</span>
+<span class="normal">628</span>
+<span class="normal">629</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span>
+<span class="normal">649</span>
+<span class="normal">650</span>
+<span class="normal">651</span>
+<span class="normal">652</span>
+<span class="normal">653</span>
+<span class="normal">654</span>
+<span class="normal">655</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">upwind_sedimentation</span><span class="p">(</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">dzz</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">pabs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">th_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rr_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rg_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rcs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rrs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ris</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rss</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rgs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inst_rr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inst_rc</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inst_ri</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inst_rs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inst_rg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_c</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_r</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_s</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_i</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">fpr_g</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">sea</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">town</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">remaining_time</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute sedimentation of contents (rx_t) with piecewise</span>
+<span class="sd">    constant method.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        rhodref (Field[float]): dry density of air</span>
+<span class="sd">        dzz (Field[float]): spacing between cell centers</span>
+<span class="sd">        pabs_t (Field[float]): absolute pressure at t</span>
+<span class="sd">        th_t (Field[float]): potential temperature at t</span>
+<span class="sd">        rc_t (Field[float]): cloud droplets m.r. at t</span>
+<span class="sd">        rr_t (Field[float]): rain m.r. at t</span>
+<span class="sd">        ri_t (Field[float]): ice m.r. at t</span>
+<span class="sd">        rs_t (Field[float]): snow m.r. at t</span>
+<span class="sd">        rg_t (Field[float]): graupel m.r. at t</span>
+<span class="sd">        rcs (Field[float]): cloud droplets m.r. tendency</span>
+<span class="sd">        rrs (Field[float]): rain m.r. tendency</span>
+<span class="sd">        ris (Field[float]): ice m.r. tendency</span>
+<span class="sd">        rss (Field[float]): snow m.r. tendency</span>
+<span class="sd">        rgs (Field[float]): graupel m.r. tendency</span>
+<span class="sd">        inst_rr (Field[IJ, float]): instant precip of rain</span>
+<span class="sd">        inst_rc (Field[IJ, float]): instant precip of cloud droplets</span>
+<span class="sd">        inst_ri (Field[IJ, float]): instant precip of ice</span>
+<span class="sd">        inst_rs (Field[IJ, float]): instant precip of snow</span>
+<span class="sd">        inst_rg (Field[IJ, float]): instant precipe of graupel</span>
+<span class="sd">        fpr_c (Field[float]): _description_</span>
+<span class="sd">        fpr_r (Field[float]): _description_</span>
+<span class="sd">        fpr_s (Field[float]): _description_</span>
+<span class="sd">        fpr_i (Field[float]): _description_</span>
+<span class="sd">        fpr_g (Field[float]): _description_</span>
+<span class="sd">        sea (Field[float]): mask for presence of sea</span>
+<span class="sd">        town (Field[float]): mask for presence of town</span>
+<span class="sd">        remaining_time (Field[IJ, float]): _description_</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">C_RTMIN</span><span class="p">,</span>
+        <span class="n">CC</span><span class="p">,</span>
+        <span class="n">CEXVT</span><span class="p">,</span>
+        <span class="n">CPD</span><span class="p">,</span>
+        <span class="n">G_RTMIN</span><span class="p">,</span>
+        <span class="n">I_RTMIN</span><span class="p">,</span>
+        <span class="n">LBEXC</span><span class="p">,</span>
+        <span class="n">P00</span><span class="p">,</span>
+        <span class="n">R_RTMIN</span><span class="p">,</span>
+        <span class="n">RD</span><span class="p">,</span>
+        <span class="n">S_RTMIN</span><span class="p">,</span>
+        <span class="n">TSTEP</span><span class="p">,</span>
+        <span class="n">TT</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">dt__rho_dz</span> <span class="o">=</span> <span class="n">TSTEP</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">dzz</span><span class="p">)</span>
+        <span class="n">oorhodz</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">dzz</span><span class="p">)</span>
+
+    <span class="c1"># 2. Compute the fluxes</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">-=</span> <span class="n">rc_t</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">ris</span> <span class="o">-=</span> <span class="n">ri_t</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">rrs</span> <span class="o">-=</span> <span class="n">rr_t</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">rss</span> <span class="o">-=</span> <span class="n">rs_t</span> <span class="o">/</span> <span class="n">TSTEP</span>
+        <span class="n">rgs</span> <span class="o">-=</span> <span class="n">rg_t</span> <span class="o">/</span> <span class="n">TSTEP</span>
+
+        <span class="n">wsed_c</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">wsed_r</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">wsed_i</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">wsed_s</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">wsed_g</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="n">remaining_time</span> <span class="o">=</span> <span class="n">TSTEP</span>
+
+    <span class="c1"># Compute parameters</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">_ray</span> <span class="o">=</span> <span class="n">ray</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span>
+        <span class="n">_lbc</span> <span class="o">=</span> <span class="n">lbc</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span>
+        <span class="n">_fsedc</span> <span class="o">=</span> <span class="n">fsedc</span><span class="p">(</span><span class="n">sea</span><span class="p">)</span>
+        <span class="n">_conc3d</span> <span class="o">=</span> <span class="n">conc3d</span><span class="p">(</span><span class="n">town</span><span class="p">,</span> <span class="n">sea</span><span class="p">)</span>
+
+    <span class="c1">## 2.1 For cloud droplets</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">wlbdc</span> <span class="o">=</span> <span class="p">(</span><span class="n">_lbc</span> <span class="o">*</span> <span class="n">_conc3d</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">rc_t</span><span class="p">))</span> <span class="o">**</span> <span class="n">LBEXC</span>
+        <span class="n">_ray</span> <span class="o">/=</span> <span class="n">wlbdc</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">th_t</span> <span class="o">*</span> <span class="p">(</span><span class="n">pabs_t</span> <span class="o">/</span> <span class="n">P00</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="n">RD</span> <span class="o">/</span> <span class="n">CPD</span><span class="p">)</span>
+        <span class="n">wlbda</span> <span class="o">=</span> <span class="mf">6.6e-8</span> <span class="o">*</span> <span class="p">(</span><span class="n">P00</span> <span class="o">/</span> <span class="n">pabs_t</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">/</span> <span class="n">TT</span><span class="p">)</span>
+        <span class="n">cc</span> <span class="o">=</span> <span class="n">CC</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1.26</span> <span class="o">*</span> <span class="n">wlbda</span> <span class="o">/</span> <span class="n">_ray</span><span class="p">)</span>
+        <span class="n">wsed</span> <span class="o">=</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">wlbdc</span> <span class="o">*</span> <span class="n">cc</span> <span class="o">*</span> <span class="n">_fsedc</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">max_tstep</span> <span class="o">=</span> <span class="n">maximum_time_step</span><span class="p">(</span>
+            <span class="n">C_RTMIN</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">wsed_c</span><span class="p">,</span> <span class="n">remaining_time</span>
+        <span class="p">)</span>
+        <span class="n">remaining_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">max_tstep</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">inst_rc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">instant_precipitation</span><span class="p">(</span><span class="n">wsed_c</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">=</span> <span class="n">mixing_ratio_update</span><span class="p">(</span><span class="n">max_tstep</span><span class="p">,</span> <span class="n">oorhodz</span><span class="p">,</span> <span class="n">wsed_s</span><span class="p">,</span> <span class="n">rcs</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+        <span class="n">fpr_c</span> <span class="o">+=</span> <span class="n">upper_air_flux</span><span class="p">(</span><span class="n">wsed_s</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="c1">## 2.2 for ice</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">max_tstep</span> <span class="o">=</span> <span class="n">maximum_time_step</span><span class="p">(</span>
+            <span class="n">I_RTMIN</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">wsed_i</span><span class="p">,</span> <span class="n">remaining_time</span>
+        <span class="p">)</span>
+        <span class="n">remaining_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">max_tstep</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">inst_ri</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">instant_precipitation</span><span class="p">(</span><span class="n">wsed_i</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">=</span> <span class="n">mixing_ratio_update</span><span class="p">(</span><span class="n">max_tstep</span><span class="p">,</span> <span class="n">oorhodz</span><span class="p">,</span> <span class="n">wsed_i</span><span class="p">,</span> <span class="n">ris</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+        <span class="n">fpr_i</span> <span class="o">+=</span> <span class="n">upper_air_flux</span><span class="p">(</span><span class="n">wsed_i</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="c1">## 2.3 for rain</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">max_tstep</span> <span class="o">=</span> <span class="n">maximum_time_step</span><span class="p">(</span>
+            <span class="n">R_RTMIN</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">wsed_r</span><span class="p">,</span> <span class="n">remaining_time</span>
+        <span class="p">)</span>
+        <span class="n">remaining_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">max_tstep</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">inst_rr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">instant_precipitation</span><span class="p">(</span><span class="n">wsed</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rrs</span> <span class="o">=</span> <span class="n">mixing_ratio_update</span><span class="p">(</span><span class="n">max_tstep</span><span class="p">,</span> <span class="n">oorhodz</span><span class="p">,</span> <span class="n">wsed</span><span class="p">,</span> <span class="n">rrs</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+        <span class="n">fpr_r</span> <span class="o">+=</span> <span class="n">upper_air_flux</span><span class="p">(</span><span class="n">wsed</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="c1">## 2.4. for snow</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">max_tstep</span> <span class="o">=</span> <span class="n">maximum_time_step</span><span class="p">(</span>
+            <span class="n">S_RTMIN</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">wsed</span><span class="p">,</span> <span class="n">remaining_time</span>
+        <span class="p">)</span>
+        <span class="n">remaining_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">max_tstep</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">inst_rs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">instant_precipitation</span><span class="p">(</span><span class="n">wsed_s</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">=</span> <span class="n">mixing_ratio_update</span><span class="p">(</span><span class="n">max_tstep</span><span class="p">,</span> <span class="n">oorhodz</span><span class="p">,</span> <span class="n">wsed_s</span><span class="p">,</span> <span class="n">rss</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+        <span class="n">fpr_s</span> <span class="o">+=</span> <span class="n">upper_air_flux</span><span class="p">(</span><span class="n">wsed_s</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="c1"># 2.5. for graupel</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">max_tstep</span> <span class="o">=</span> <span class="n">maximum_time_step</span><span class="p">(</span>
+            <span class="n">G_RTMIN</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">wsed_g</span><span class="p">,</span> <span class="n">remaining_time</span>
+        <span class="p">)</span>
+        <span class="n">remaining_time</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="n">max_tstep</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">inst_rg</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">instant_precipitation</span><span class="p">(</span><span class="n">wsed_g</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">=</span> <span class="n">mixing_ratio_update</span><span class="p">(</span><span class="n">max_tstep</span><span class="p">,</span> <span class="n">oorhodz</span><span class="p">,</span> <span class="n">wsed_g</span><span class="p">,</span> <span class="n">rgs</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+        <span class="n">fpr_g</span> <span class="o">+=</span> <span class="n">upper_air_flux</span><span class="p">(</span><span class="n">wsed_g</span><span class="p">,</span> <span class="n">max_tstep</span><span class="p">,</span> <span class="n">TSTEP</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../rain_ice/" class="btn btn-neutral float-left" title="Rain ice"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../utils/allocate_random_fields/" class="btn btn-neutral float-right" title="Allocate random fields">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../rain_ice/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../utils/allocate_random_fields/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

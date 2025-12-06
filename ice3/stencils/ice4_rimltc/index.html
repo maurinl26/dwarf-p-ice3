@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Ice4 rimltc - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ice4 rimltc";
+        var mkdocs_page_input_path = "ice3/stencils/ice4_rimltc.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >stencils</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Ice4 rimltc</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">stencils</li>
+      <li class="breadcrumb-item active">Ice4 rimltc</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.stencils.ice4_rimltc"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.ice4_rimltc.ice4_rimltc" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_rimltc</span><span class="p">(</span><span class="n">ldcompute</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">exn</span><span class="p">,</span> <span class="n">lvfact</span><span class="p">,</span> <span class="n">lsfact</span><span class="p">,</span> <span class="n">tht</span><span class="p">,</span> <span class="n">rit</span><span class="p">,</span> <span class="n">rimltc_mr</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute melting of cloud ice crystals above freezing temperature.</p>
+<p>This stencil computes the RIMLTC process: instantaneous melting of
+ice crystals when temperature rises above 0°C. This phase transition
+converts ice crystals to cloud droplets, releasing latent heat of
+melting and providing a thermodynamic constraint on the melting layer.</p>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--parameters">Parameters</h4>
+<p>ldcompute : Field[bool]
+    Computation mask (True = compute, False = skip). Input field.
+t : Field[float]
+    Temperature (K). Input field.
+exn : Field[float]
+    Exner function π = (p/p₀)^(R_d/c_pd) (dimensionless). Input field.
+lvfact : Field[float]
+    Vaporization latent heat factor L_v/(c_ph×π) (K). Input field.
+    Used for temperature feedback calculation.
+lsfact : Field[float]
+    Sublimation latent heat factor L_s/(c_ph×π) (K). Input field.
+    Used for temperature feedback calculation.
+tht : Field[float]
+    Potential temperature θ (K). Input field.
+rit : Field[float]
+    Ice crystal mixing ratio (kg/kg). Input field.
+rimltc_mr : Field[float]
+    Ice melting rate: r_i → r_c (kg/kg/s). Output field.</p>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--returns">Returns</h4>
+<p>None
+    Modifies rimltc_mr in place.</p>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--notes">Notes</h4>
+<p><strong>Physical Process:</strong></p>
+<p>Ice crystal melting (RIMLTC) represents the phase transition from
+ice to liquid water when temperature exceeds the melting point.
+This is a fundamental process that:</p>
+<ol>
+<li>Defines the 0°C bright band in radar observations</li>
+<li>Consumes latent heat, cooling the environment</li>
+<li>Converts ice crystals to cloud droplets</li>
+<li>Creates the melting layer in stratiform precipitation</li>
+</ol>
+<p><strong>Melting Condition:</strong></p>
+<p>T &gt; T_t = 273.15 K  (T &gt; 0°C)</p>
+<p>Ice crystals are thermodynamically unstable above freezing and
+melt rapidly when exposed to positive temperatures.</p>
+<p><strong>Conversion Rate:</strong></p>
+<p>When conditions are met:</p>
+<p>dr_i/dt = -r_i  (instantaneous, all ice melts)</p>
+<p>The melted ice becomes cloud droplets (r_c), which may then
+undergo warm rain processes (autoconversion, accretion).</p>
+<p><strong>Temperature Feedback (LFEEDBACKT=True):</strong></p>
+<p>Melting consumes latent heat, cooling the environment:</p>
+<p>ΔT = -(L_s - L_v) × Δr_i / c_ph</p>
+<p>where:
+- L_s: Sublimation latent heat (~2.83×10⁶ J/kg)
+- L_v: Vaporization latent heat (~2.50×10⁶ J/kg)
+- L_m = L_s - L_v: Melting latent heat (~3.35×10⁵ J/kg)</p>
+<p>Note: Melting is an endothermic process (ΔT &lt; 0), opposite of freezing.</p>
+<p>To prevent unphysical temperature undershoot (T &lt; 0°C after melting),
+the melting rate is limited:</p>
+<p>dr_i/dt ≤ max(0, (θ - T_t/π) / (L_s_fact - L_v_fact))</p>
+<p>This ensures T_final ≈ 0°C, preventing the temperature from dropping
+below the melting threshold due to latent heat consumption.</p>
+<p><strong>Without Feedback (LFEEDBACKT=False):</strong></p>
+<p>All available ice melts instantaneously:</p>
+<p>dr_i/dt = -r_i</p>
+<p>Temperature feedback ignored (diagnostic mode or for testing).</p>
+<p><strong>Physical Interpretation:</strong></p>
+<p>RIMLTC represents:
+- The warm-cloud limit where ice phase becomes impossible
+- Bright band in radar (enhanced reflectivity from melting)
+- Conversion of ice to liquid in warm layer
+- Temperature "ceiling" at approximately 0°C</p>
+<p><strong>Melting Layer Characteristics:</strong></p>
+<p>In stratiform precipitation, melting creates distinctive features:</p>
+<ol>
+<li><strong>Bright Band:</strong></li>
+<li>Enhanced radar reflectivity at melting level</li>
+<li>Due to water coating on ice (larger dielectric constant)</li>
+<li>
+<p>Particles also aggregate during melting (larger size)</p>
+</li>
+<li>
+<p><strong>Temperature Profile:</strong></p>
+</li>
+<li>Isothermal layer near 0°C</li>
+<li>Latent heat cooling balances adiabatic warming</li>
+<li>
+<p>"Onion layer" structure in soundings</p>
+</li>
+<li>
+<p><strong>Particle Transition:</strong></p>
+</li>
+<li>Ice → Wet ice/slush → Liquid drops</li>
+<li>Density decreases during melting</li>
+<li>Fall speed increases (ice → rain)</li>
+</ol>
+<p><strong>Comparison with Other Phase Change Processes:</strong></p>
+<p>Melting (RIMLTC):
+- Warm side of 0°C (T &gt; 0°C)
+- Endothermic (cools environment)
+- Instantaneous (parameterized)
+- Ice → Cloud droplets
+- All ice melts</p>
+<p>Freezing (RRHONG, RCHONI):
+- Cold side of 0°C (T &lt; 0°C, typically &lt; -35°C)
+- Exothermic (warms environment)
+- Instantaneous (parameterized)
+- Liquid → Ice/Graupel
+- All liquid freezes</p>
+<p>Deposition/Sublimation:
+- Any T &lt; 0°C
+- Vapor ↔ Ice directly
+- Continuous (diffusion-limited)
+- Depends on supersaturation
+- Gradual process</p>
+<p><strong>Timescale:</strong></p>
+<p>τ ~ 1-100 s (rapid but not instantaneous)</p>
+<p>In reality, melting takes finite time (~1-10 minutes for precipitation
+particles), but model treats as instantaneous adjustment relative to
+model time step.</p>
+<p><strong>Energy Budget:</strong></p>
+<p>Melting consumes approximately:
+- 335 J/g (latent heat of melting)
+- For 1 g/kg ice: ΔT ≈ -0.3 K</p>
+<p>This cooling is significant and must be accounted for to:
+- Maintain energy conservation
+- Prevent spurious temperature changes
+- Represent melting layer dynamics correctly</p>
+<p><strong>Temperature Limitation Logic:</strong></p>
+<p>The feedback limiter prevents:</p>
+<ol>
+<li>
+<p><strong>Unrealistic cooling:</strong> Melting large amounts of ice could
+   cool air below 0°C, creating unphysical situation</p>
+</li>
+<li>
+<p><strong>Oscillations:</strong> Without limiter, T could oscillate across
+   melting point, causing numerical instability</p>
+</li>
+<li>
+<p><strong>Energy conservation:</strong> Ensures latent heat consumption
+   consistent with temperature change</p>
+</li>
+</ol>
+<p>The limiter computes maximum meltable ice:</p>
+<p>r_max = (T_current - T_threshold) / (L_m/c_ph)</p>
+<p>Only enough ice melts to bring T down to 0°C, remaining ice
+stays frozen (unphysical, but prevents numerical issues).</p>
+<p><strong>Practical Considerations:</strong></p>
+<p>In nature, melting layer is typically:
+- 200-500 m thick
+- Located just below 0°C isotherm
+- Characterized by rapid changes in hydrometeor properties</p>
+<p>Model must resolve this layer adequately:
+- Vertical resolution important
+- Time step affects melting rate
+- Feedback crucial for realistic profiles</p>
+<p><strong>Applications:</strong></p>
+<p>RIMLTC is important for:
+- Radar forward operators (simulating bright band)
+- Surface precipitation type (rain vs snow)
+- Aviation icing forecasts (wet snow/slush)
+- Flood prediction (rain intensity below melting layer)</p>
+<p><strong>Cloud Microphysics Context:</strong></p>
+<p>Melting fits into overall ice-liquid transitions:</p>
+<p>Freezing processes (liquid → ice):
+- Homogeneous nucleation (&lt; -35°C)
+- Heterogeneous nucleation (-10°C to -35°C)
+- Riming (0°C to -40°C)</p>
+<p>Melting processes (ice → liquid):
+- RIMLTC: Ice crystals melt (&gt; 0°C)
+- RSMLTR: Snow melts (&gt; 0°C, not shown here)
+- RGMLTR: Graupel melts (&gt; 0°C, not shown here)</p>
+<p><strong>Numerical Stability:</strong></p>
+<ul>
+<li>Binary activation (on/off based on temperature)</li>
+<li>Rate limiter prevents temperature overshoot</li>
+<li>All ice melts unless limited by feedback</li>
+<li>Simple, robust parameterization</li>
+</ul>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/micro/mode_ice4_rimltc.F90</p>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--see-also">See Also</h4>
+<p>ice4_rrhong : Homogeneous freezing of rain
+ice4_slow : Other slow processes including deposition
+ice4_fast_rs : Snow processes (including snow melting)</p>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--references">References</h4>
+<p>Pruppacher, H.R., and J.D. Klett, 1997: Microphysics of Clouds
+and Precipitation, 2nd ed. Kluwer Academic Publishers, 954 pp.</p>
+<p>Stewart, R.E., 1985: Precipitation types in winter storms.
+Pure Appl. Geophys., 123, 597-609.</p>
+<h4 id="ice3.stencils.ice4_rimltc.ice4_rimltc--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--warm-air-advection-ice-present-above-freezing">Warm air advection, ice present above freezing</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--t-2c-r_i-1e-4-kgkg">T = +2°C, r_i = 1e-4 kg/kg</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--all-ice-melts-rimltc_mr-1e-4-kgkgs">→ All ice melts: rimltc_mr = 1e-4 kg/kg/s</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--becomes-cloud-droplets-may-autoconvert-to-rain">→ Becomes cloud droplets, may autoconvert to rain</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--just-below-freezing">Just below freezing</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--t-1c-r_i-5e-4-kgkg">T = -1°C, r_i = 5e-4 kg/kg</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--no-melting-rimltc_mr-0">→ No melting: rimltc_mr = 0</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--ice-remains-frozen">→ Ice remains frozen</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--with-feedback-limiter-large-ice-content">With feedback limiter, large ice content</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--t-1c-r_i-3e-3-kgkg">T = +1°C, r_i = 3e-3 kg/kg</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--partial-melting-rimltc_mr-limited-to-prevent-t-0c">→ Partial melting: rimltc_mr limited to prevent T &lt; 0°C</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--latent-heat-cooling-brings-t-close-to-0c">→ Latent heat cooling brings T close to 0°C</h3>
+<h3 id="ice3.stencils.ice4_rimltc.ice4_rimltc--melting-layer-maintained-near-freezing-level">→ Melting layer maintained near freezing level</h3>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/ice4_rimltc.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ice4_rimltc</span><span class="p">(</span>
+    <span class="n">ldcompute</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;bool&quot;</span><span class="p">],</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">exn</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lvfact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lsfact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">tht</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>  <span class="c1"># theta at time t</span>
+    <span class="n">rit</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>  <span class="c1"># rain water mixing ratio at t</span>
+    <span class="n">rimltc_mr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute melting of cloud ice crystals above freezing temperature.</span>
+
+<span class="sd">    This stencil computes the RIMLTC process: instantaneous melting of</span>
+<span class="sd">    ice crystals when temperature rises above 0°C. This phase transition</span>
+<span class="sd">    converts ice crystals to cloud droplets, releasing latent heat of</span>
+<span class="sd">    melting and providing a thermodynamic constraint on the melting layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ldcompute : Field[bool]</span>
+<span class="sd">        Computation mask (True = compute, False = skip). Input field.</span>
+<span class="sd">    t : Field[float]</span>
+<span class="sd">        Temperature (K). Input field.</span>
+<span class="sd">    exn : Field[float]</span>
+<span class="sd">        Exner function π = (p/p₀)^(R_d/c_pd) (dimensionless). Input field.</span>
+<span class="sd">    lvfact : Field[float]</span>
+<span class="sd">        Vaporization latent heat factor L_v/(c_ph×π) (K). Input field.</span>
+<span class="sd">        Used for temperature feedback calculation.</span>
+<span class="sd">    lsfact : Field[float]</span>
+<span class="sd">        Sublimation latent heat factor L_s/(c_ph×π) (K). Input field.</span>
+<span class="sd">        Used for temperature feedback calculation.</span>
+<span class="sd">    tht : Field[float]</span>
+<span class="sd">        Potential temperature θ (K). Input field.</span>
+<span class="sd">    rit : Field[float]</span>
+<span class="sd">        Ice crystal mixing ratio (kg/kg). Input field.</span>
+<span class="sd">    rimltc_mr : Field[float]</span>
+<span class="sd">        Ice melting rate: r_i → r_c (kg/kg/s). Output field.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Modifies rimltc_mr in place.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Physical Process:**</span>
+
+<span class="sd">    Ice crystal melting (RIMLTC) represents the phase transition from</span>
+<span class="sd">    ice to liquid water when temperature exceeds the melting point.</span>
+<span class="sd">    This is a fundamental process that:</span>
+
+<span class="sd">    1. Defines the 0°C bright band in radar observations</span>
+<span class="sd">    2. Consumes latent heat, cooling the environment</span>
+<span class="sd">    3. Converts ice crystals to cloud droplets</span>
+<span class="sd">    4. Creates the melting layer in stratiform precipitation</span>
+
+<span class="sd">    **Melting Condition:**</span>
+
+<span class="sd">    T &gt; T_t = 273.15 K  (T &gt; 0°C)</span>
+
+<span class="sd">    Ice crystals are thermodynamically unstable above freezing and</span>
+<span class="sd">    melt rapidly when exposed to positive temperatures.</span>
+
+<span class="sd">    **Conversion Rate:**</span>
+
+<span class="sd">    When conditions are met:</span>
+
+<span class="sd">    dr_i/dt = -r_i  (instantaneous, all ice melts)</span>
+
+<span class="sd">    The melted ice becomes cloud droplets (r_c), which may then</span>
+<span class="sd">    undergo warm rain processes (autoconversion, accretion).</span>
+
+<span class="sd">    **Temperature Feedback (LFEEDBACKT=True):**</span>
+
+<span class="sd">    Melting consumes latent heat, cooling the environment:</span>
+
+<span class="sd">    ΔT = -(L_s - L_v) × Δr_i / c_ph</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - L_s: Sublimation latent heat (~2.83×10⁶ J/kg)</span>
+<span class="sd">    - L_v: Vaporization latent heat (~2.50×10⁶ J/kg)</span>
+<span class="sd">    - L_m = L_s - L_v: Melting latent heat (~3.35×10⁵ J/kg)</span>
+
+<span class="sd">    Note: Melting is an endothermic process (ΔT &lt; 0), opposite of freezing.</span>
+
+<span class="sd">    To prevent unphysical temperature undershoot (T &lt; 0°C after melting),</span>
+<span class="sd">    the melting rate is limited:</span>
+
+<span class="sd">    dr_i/dt ≤ max(0, (θ - T_t/π) / (L_s_fact - L_v_fact))</span>
+
+<span class="sd">    This ensures T_final ≈ 0°C, preventing the temperature from dropping</span>
+<span class="sd">    below the melting threshold due to latent heat consumption.</span>
+
+<span class="sd">    **Without Feedback (LFEEDBACKT=False):**</span>
+
+<span class="sd">    All available ice melts instantaneously:</span>
+
+<span class="sd">    dr_i/dt = -r_i</span>
+
+<span class="sd">    Temperature feedback ignored (diagnostic mode or for testing).</span>
+
+<span class="sd">    **Physical Interpretation:**</span>
+
+<span class="sd">    RIMLTC represents:</span>
+<span class="sd">    - The warm-cloud limit where ice phase becomes impossible</span>
+<span class="sd">    - Bright band in radar (enhanced reflectivity from melting)</span>
+<span class="sd">    - Conversion of ice to liquid in warm layer</span>
+<span class="sd">    - Temperature &quot;ceiling&quot; at approximately 0°C</span>
+
+<span class="sd">    **Melting Layer Characteristics:**</span>
+
+<span class="sd">    In stratiform precipitation, melting creates distinctive features:</span>
+
+<span class="sd">    1. **Bright Band:**</span>
+<span class="sd">       - Enhanced radar reflectivity at melting level</span>
+<span class="sd">       - Due to water coating on ice (larger dielectric constant)</span>
+<span class="sd">       - Particles also aggregate during melting (larger size)</span>
+
+<span class="sd">    2. **Temperature Profile:**</span>
+<span class="sd">       - Isothermal layer near 0°C</span>
+<span class="sd">       - Latent heat cooling balances adiabatic warming</span>
+<span class="sd">       - &quot;Onion layer&quot; structure in soundings</span>
+
+<span class="sd">    3. **Particle Transition:**</span>
+<span class="sd">       - Ice → Wet ice/slush → Liquid drops</span>
+<span class="sd">       - Density decreases during melting</span>
+<span class="sd">       - Fall speed increases (ice → rain)</span>
+
+<span class="sd">    **Comparison with Other Phase Change Processes:**</span>
+
+<span class="sd">    Melting (RIMLTC):</span>
+<span class="sd">    - Warm side of 0°C (T &gt; 0°C)</span>
+<span class="sd">    - Endothermic (cools environment)</span>
+<span class="sd">    - Instantaneous (parameterized)</span>
+<span class="sd">    - Ice → Cloud droplets</span>
+<span class="sd">    - All ice melts</span>
+
+<span class="sd">    Freezing (RRHONG, RCHONI):</span>
+<span class="sd">    - Cold side of 0°C (T &lt; 0°C, typically &lt; -35°C)</span>
+<span class="sd">    - Exothermic (warms environment)</span>
+<span class="sd">    - Instantaneous (parameterized)</span>
+<span class="sd">    - Liquid → Ice/Graupel</span>
+<span class="sd">    - All liquid freezes</span>
+
+<span class="sd">    Deposition/Sublimation:</span>
+<span class="sd">    - Any T &lt; 0°C</span>
+<span class="sd">    - Vapor ↔ Ice directly</span>
+<span class="sd">    - Continuous (diffusion-limited)</span>
+<span class="sd">    - Depends on supersaturation</span>
+<span class="sd">    - Gradual process</span>
+
+<span class="sd">    **Timescale:**</span>
+
+<span class="sd">    τ ~ 1-100 s (rapid but not instantaneous)</span>
+
+<span class="sd">    In reality, melting takes finite time (~1-10 minutes for precipitation</span>
+<span class="sd">    particles), but model treats as instantaneous adjustment relative to</span>
+<span class="sd">    model time step.</span>
+
+<span class="sd">    **Energy Budget:**</span>
+
+<span class="sd">    Melting consumes approximately:</span>
+<span class="sd">    - 335 J/g (latent heat of melting)</span>
+<span class="sd">    - For 1 g/kg ice: ΔT ≈ -0.3 K</span>
+
+<span class="sd">    This cooling is significant and must be accounted for to:</span>
+<span class="sd">    - Maintain energy conservation</span>
+<span class="sd">    - Prevent spurious temperature changes</span>
+<span class="sd">    - Represent melting layer dynamics correctly</span>
+
+<span class="sd">    **Temperature Limitation Logic:**</span>
+
+<span class="sd">    The feedback limiter prevents:</span>
+
+<span class="sd">    1. **Unrealistic cooling:** Melting large amounts of ice could</span>
+<span class="sd">       cool air below 0°C, creating unphysical situation</span>
+
+<span class="sd">    2. **Oscillations:** Without limiter, T could oscillate across</span>
+<span class="sd">       melting point, causing numerical instability</span>
+
+<span class="sd">    3. **Energy conservation:** Ensures latent heat consumption</span>
+<span class="sd">       consistent with temperature change</span>
+
+<span class="sd">    The limiter computes maximum meltable ice:</span>
+
+<span class="sd">    r_max = (T_current - T_threshold) / (L_m/c_ph)</span>
+
+<span class="sd">    Only enough ice melts to bring T down to 0°C, remaining ice</span>
+<span class="sd">    stays frozen (unphysical, but prevents numerical issues).</span>
+
+<span class="sd">    **Practical Considerations:**</span>
+
+<span class="sd">    In nature, melting layer is typically:</span>
+<span class="sd">    - 200-500 m thick</span>
+<span class="sd">    - Located just below 0°C isotherm</span>
+<span class="sd">    - Characterized by rapid changes in hydrometeor properties</span>
+
+<span class="sd">    Model must resolve this layer adequately:</span>
+<span class="sd">    - Vertical resolution important</span>
+<span class="sd">    - Time step affects melting rate</span>
+<span class="sd">    - Feedback crucial for realistic profiles</span>
+
+<span class="sd">    **Applications:**</span>
+
+<span class="sd">    RIMLTC is important for:</span>
+<span class="sd">    - Radar forward operators (simulating bright band)</span>
+<span class="sd">    - Surface precipitation type (rain vs snow)</span>
+<span class="sd">    - Aviation icing forecasts (wet snow/slush)</span>
+<span class="sd">    - Flood prediction (rain intensity below melting layer)</span>
+
+<span class="sd">    **Cloud Microphysics Context:**</span>
+
+<span class="sd">    Melting fits into overall ice-liquid transitions:</span>
+
+<span class="sd">    Freezing processes (liquid → ice):</span>
+<span class="sd">    - Homogeneous nucleation (&lt; -35°C)</span>
+<span class="sd">    - Heterogeneous nucleation (-10°C to -35°C)</span>
+<span class="sd">    - Riming (0°C to -40°C)</span>
+
+<span class="sd">    Melting processes (ice → liquid):</span>
+<span class="sd">    - RIMLTC: Ice crystals melt (&gt; 0°C)</span>
+<span class="sd">    - RSMLTR: Snow melts (&gt; 0°C, not shown here)</span>
+<span class="sd">    - RGMLTR: Graupel melts (&gt; 0°C, not shown here)</span>
+
+<span class="sd">    **Numerical Stability:**</span>
+
+<span class="sd">    - Binary activation (on/off based on temperature)</span>
+<span class="sd">    - Rate limiter prevents temperature overshoot</span>
+<span class="sd">    - All ice melts unless limited by feedback</span>
+<span class="sd">    - Simple, robust parameterization</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/micro/mode_ice4_rimltc.F90</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ice4_rrhong : Homogeneous freezing of rain</span>
+<span class="sd">    ice4_slow : Other slow processes including deposition</span>
+<span class="sd">    ice4_fast_rs : Snow processes (including snow melting)</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Pruppacher, H.R., and J.D. Klett, 1997: Microphysics of Clouds</span>
+<span class="sd">    and Precipitation, 2nd ed. Kluwer Academic Publishers, 954 pp.</span>
+
+<span class="sd">    Stewart, R.E., 1985: Precipitation types in winter storms.</span>
+<span class="sd">    Pure Appl. Geophys., 123, 597-609.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Warm air advection, ice present above freezing</span>
+<span class="sd">    &gt;&gt;&gt; # T = +2°C, r_i = 1e-4 kg/kg</span>
+<span class="sd">    &gt;&gt;&gt; # → All ice melts: rimltc_mr = 1e-4 kg/kg/s</span>
+<span class="sd">    &gt;&gt;&gt; # → Becomes cloud droplets, may autoconvert to rain</span>
+
+<span class="sd">    &gt;&gt;&gt; # Just below freezing</span>
+<span class="sd">    &gt;&gt;&gt; # T = -1°C, r_i = 5e-4 kg/kg</span>
+<span class="sd">    &gt;&gt;&gt; # → No melting: rimltc_mr = 0</span>
+<span class="sd">    &gt;&gt;&gt; # → Ice remains frozen</span>
+
+<span class="sd">    &gt;&gt;&gt; # With feedback limiter, large ice content</span>
+<span class="sd">    &gt;&gt;&gt; # T = +1°C, r_i = 3e-3 kg/kg</span>
+<span class="sd">    &gt;&gt;&gt; # → Partial melting: rimltc_mr limited to prevent T &lt; 0°C</span>
+<span class="sd">    &gt;&gt;&gt; # → Latent heat cooling brings T close to 0°C</span>
+<span class="sd">    &gt;&gt;&gt; # → Melting layer maintained near freezing level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">LFEEDBACKT</span><span class="p">,</span> <span class="n">TT</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="c1"># 7.1 cloud ice melting</span>
+        <span class="k">if</span> <span class="n">rit</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">rimltc_mr</span> <span class="o">=</span> <span class="n">rit</span>
+
+            <span class="c1"># limitation due to zero crossing of temperature</span>
+            <span class="k">if</span> <span class="n">LFEEDBACKT</span><span class="p">:</span>
+                <span class="n">rimltc_mr</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                    <span class="n">rimltc_mr</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">tht</span> <span class="o">-</span> <span class="n">TT</span> <span class="o">/</span> <span class="n">exn</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">lsfact</span> <span class="o">-</span> <span class="n">lvfact</span><span class="p">))</span>
+                <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rimltc_mr</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ice4_nucleation/" class="btn btn-neutral float-left" title="Ice4 nucleation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ice4_rrhong/" class="btn btn-neutral float-right" title="Ice4 rrhong">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ice4_nucleation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ice4_rrhong/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

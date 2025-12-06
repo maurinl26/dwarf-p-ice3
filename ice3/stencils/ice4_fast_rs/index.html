@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Ice4 fast rs - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ice4 fast rs";
+        var mkdocs_page_input_path = "ice3/stencils/ice4_fast_rs.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >stencils</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Ice4 fast rs</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">stencils</li>
+      <li class="breadcrumb-item active">Ice4 fast rs</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.stencils.ice4_fast_rs"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.ice4_fast_rs.ice4_fast_rs" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_fast_rs</span><span class="p">(</span><span class="n">ldsoft</span><span class="p">,</span> <span class="n">ldcompute</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">pres</span><span class="p">,</span> <span class="n">dv</span><span class="p">,</span> <span class="n">ka</span><span class="p">,</span> <span class="n">cj</span><span class="p">,</span> <span class="n">lbdar</span><span class="p">,</span> <span class="n">lbdas</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">rvt</span><span class="p">,</span> <span class="n">rct</span><span class="p">,</span> <span class="n">rrt</span><span class="p">,</span> <span class="n">rst</span><span class="p">,</span> <span class="n">riaggs</span><span class="p">,</span> <span class="n">rcrimss</span><span class="p">,</span> <span class="n">rcrimsg</span><span class="p">,</span> <span class="n">rsrimcg</span><span class="p">,</span> <span class="n">rraccss</span><span class="p">,</span> <span class="n">rraccsg</span><span class="p">,</span> <span class="n">rsaccrg</span><span class="p">,</span> <span class="n">rs_mltg_tnd</span><span class="p">,</span> <span class="n">rc_mltsr_tnd</span><span class="p">,</span> <span class="n">rs_rcrims_tnd</span><span class="p">,</span> <span class="n">rs_rcrimss_tnd</span><span class="p">,</span> <span class="n">rs_rsrimcg_tnd</span><span class="p">,</span> <span class="n">rs_rraccs_tnd</span><span class="p">,</span> <span class="n">rs_rraccss_tnd</span><span class="p">,</span> <span class="n">rs_rsaccrg_tnd</span><span class="p">,</span> <span class="n">rs_freez1_tnd</span><span class="p">,</span> <span class="n">rs_freez2_tnd</span><span class="p">,</span> <span class="n">gaminc_rim1</span><span class="p">,</span> <span class="n">gaminc_rim2</span><span class="p">,</span> <span class="n">gaminc_rim4</span><span class="p">,</span> <span class="n">ker_raccs</span><span class="p">,</span> <span class="n">ker_raccss</span><span class="p">,</span> <span class="n">ker_saccrg</span><span class="p">,</span> <span class="n">index_floor</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">,</span> <span class="n">index_floor_s</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Computes fast processes for snow</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>ldsoft</code></b>
+                  (<code><span title="bool">bool</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>switch to recompute sources or adapt tendencies</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ldcompute</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="bool">bool</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>mask for sources computations</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rhodref</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>dry density of air</p>
+              </div>
+            </li>
+            <li>
+              <b><code>lv_fact</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>latent heat of vapourisation over heat capacity</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ls_fact</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>latent heat of sublimation over heat capacity</p>
+              </div>
+            </li>
+            <li>
+              <b><code>pres</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>absolute pressure</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rrt</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>rain m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rst</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>snow m.r. at t</p>
+              </div>
+            </li>
+            <li>
+              <b><code>riaggs</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>ice aggregation to snow</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rsrimcg</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>snow riming over graupel</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rraccss</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>accretion of rain and aggregates</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rsaccrg</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>accretion of graupel</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_mltg_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>melting of snow</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_rsrimcg_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>heavy riming of the aggregates</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_rraccs_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>accretion of rain and aggregates</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_rraccss_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>accretion of rain and aggregates</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_rsaccrg_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>accretion of rain and aggregates</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_freez1_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>snow freezing source (tendency)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>rs_freez2_tnd</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="float">float</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>snow freezing source (tendency)</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gaminc_rim1</code></b>
+                  (<code>GlobalTable[float,</code>)
+              –
+              <div class="doc-md-description">
+                <p>look up table for riming</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gaminc_rim2</code></b>
+                  (<code>GlobalTable[float,</code>)
+              –
+              <div class="doc-md-description">
+                <p>look up table for riming</p>
+              </div>
+            </li>
+            <li>
+              <b><code>gaminc_rim4</code></b>
+                  (<code>GlobalTable[float,</code>)
+              –
+              <div class="doc-md-description">
+                <p>look up table for riming</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ker_raccs</code></b>
+                  (<code>GlobalTable[float,</code>)
+              –
+              <div class="doc-md-description">
+                <p>look-up table for rain accretion over snow</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ker_raccss</code></b>
+                  (<code>GlobalTable[float,</code>)
+              –
+              <div class="doc-md-description">
+                <p>look-up table for rain accretion over snow</p>
+              </div>
+            </li>
+            <li>
+              <b><code>ker_saccrg</code></b>
+                  (<code>GlobalTable[float,</code>)
+              –
+              <div class="doc-md-description">
+                <p>look-up table for snow accretion over graupel</p>
+              </div>
+            </li>
+            <li>
+              <b><code>index_floor</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>integer index for riming look up tables</p>
+              </div>
+            </li>
+            <li>
+              <b><code>index_floor_r</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>integer index for accretion look up tables</p>
+              </div>
+            </li>
+            <li>
+              <b><code>index_floor_s</code></b>
+                  (<code><span title="gt4py.cartesian.gtscript.Field">Field</span>[<span title="int">int</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>integer index for accretion look up tables</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/ice4_fast_rs.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ice4_fast_rs</span><span class="p">(</span>
+    <span class="n">ldsoft</span><span class="p">:</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+    <span class="n">ldcompute</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;bool&quot;</span><span class="p">],</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">pres</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">dv</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ka</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">cj</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lbdar</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lbdas</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rvt</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rct</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rrt</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rst</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">riaggs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rcrimss</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rcrimsg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rsrimcg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rraccss</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rraccsg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rsaccrg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_mltg_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_mltsr_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_rcrims_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_rcrimss_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_rsrimcg_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_rraccs_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_rraccss_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_rsaccrg_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_freez1_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_freez2_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">gaminc_rim1</span><span class="p">:</span> <span class="n">GlobalTable</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="p">(</span><span class="mi">80</span><span class="p">)],</span>
+    <span class="n">gaminc_rim2</span><span class="p">:</span> <span class="n">GlobalTable</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="p">(</span><span class="mi">80</span><span class="p">)],</span>
+    <span class="n">gaminc_rim4</span><span class="p">:</span> <span class="n">GlobalTable</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="p">(</span><span class="mi">80</span><span class="p">)],</span>
+    <span class="n">ker_raccs</span><span class="p">:</span> <span class="n">GlobalTable</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">41</span><span class="p">)],</span>
+    <span class="n">ker_raccss</span><span class="p">:</span> <span class="n">GlobalTable</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">41</span><span class="p">)],</span>
+    <span class="n">ker_saccrg</span><span class="p">:</span> <span class="n">GlobalTable</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="p">(</span><span class="mi">41</span><span class="p">,</span> <span class="mi">41</span><span class="p">)],</span>
+    <span class="n">index_floor</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">],</span>
+    <span class="n">index_floor_r</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">],</span>
+    <span class="n">index_floor_s</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes fast processes for snow</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ldsoft (bool): switch to recompute sources or adapt tendencies</span>
+<span class="sd">        ldcompute (Field[bool]): mask for sources computations</span>
+<span class="sd">        rhodref (Field[float]): dry density of air</span>
+<span class="sd">        lv_fact (Field[float]): latent heat of vapourisation over heat capacity</span>
+<span class="sd">        ls_fact (Field[float]): latent heat of sublimation over heat capacity</span>
+<span class="sd">        pres (Field[float]): absolute pressure</span>
+<span class="sd">        rrt (Field[float]): rain m.r. at t</span>
+<span class="sd">        rst (Field[float]): snow m.r. at t</span>
+<span class="sd">        riaggs (Field[float]): ice aggregation to snow</span>
+<span class="sd">        rsrimcg (Field[float]): snow riming over graupel</span>
+<span class="sd">        rraccss (Field[float]): accretion of rain and aggregates</span>
+<span class="sd">        rsaccrg (Field[float]): accretion of graupel</span>
+<span class="sd">        rs_mltg_tnd (Field[float]): melting of snow</span>
+<span class="sd">        rs_rsrimcg_tnd (Field[float]): heavy riming of the aggregates</span>
+<span class="sd">        rs_rraccs_tnd (Field[float]): accretion of rain and aggregates</span>
+<span class="sd">        rs_rraccss_tnd (Field[float]): accretion of rain and aggregates</span>
+<span class="sd">        rs_rsaccrg_tnd (Field[float]): accretion of rain and aggregates</span>
+<span class="sd">        rs_freez1_tnd (Field[float]): snow freezing source (tendency)</span>
+<span class="sd">        rs_freez2_tnd (Field[float]): snow freezing source (tendency)</span>
+<span class="sd">        gaminc_rim1 (GlobalTable[float,): look up table for riming</span>
+<span class="sd">        gaminc_rim2 (GlobalTable[float,): look up table for riming</span>
+<span class="sd">        gaminc_rim4 (GlobalTable[float,): look up table for riming</span>
+<span class="sd">        ker_raccs (GlobalTable[float,): look-up table for rain accretion over snow</span>
+<span class="sd">        ker_raccss (GlobalTable[float,): look-up table for rain accretion over snow</span>
+<span class="sd">        ker_saccrg (GlobalTable[float,): look-up table for snow accretion over graupel</span>
+<span class="sd">        index_floor (Field[int]): integer index for riming look up tables</span>
+<span class="sd">        index_floor_r (Field[int]): integer index for accretion look up tables</span>
+<span class="sd">        index_floor_s (Field[int]): integer index for accretion look up tables</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">ALPI</span><span class="p">,</span> <span class="n">ALPW</span><span class="p">,</span> <span class="n">BETAI</span><span class="p">,</span> <span class="n">BETAW</span><span class="p">,</span> <span class="n">BS</span><span class="p">,</span> <span class="n">C_RTMIN</span><span class="p">,</span> <span class="n">CEXVT</span><span class="p">,</span>
+                               <span class="n">CI</span><span class="p">,</span> <span class="n">CL</span><span class="p">,</span> <span class="n">CPV</span><span class="p">,</span> <span class="n">CRIMSG</span><span class="p">,</span> <span class="n">CRIMSS</span><span class="p">,</span> <span class="n">CXS</span><span class="p">,</span> <span class="n">EPSILO</span><span class="p">,</span> <span class="n">ESTT</span><span class="p">,</span>
+                               <span class="n">EX0DEPS</span><span class="p">,</span> <span class="n">EX1DEPS</span><span class="p">,</span> <span class="n">EXCRIMSG</span><span class="p">,</span> <span class="n">EXCRIMSS</span><span class="p">,</span> <span class="n">EXSRIMCG</span><span class="p">,</span>
+                               <span class="n">EXSRIMCG2</span><span class="p">,</span> <span class="n">FRACCSS</span><span class="p">,</span> <span class="n">FSACCRG</span><span class="p">,</span> <span class="n">FSCVMG</span><span class="p">,</span> <span class="n">GAMI</span><span class="p">,</span> <span class="n">GAMW</span><span class="p">,</span>
+                               <span class="n">LBRACCS1</span><span class="p">,</span> <span class="n">LBRACCS2</span><span class="p">,</span> <span class="n">LBRACCS3</span><span class="p">,</span> <span class="n">LBSACCR1</span><span class="p">,</span>
+                               <span class="n">LBSACCR2</span><span class="p">,</span> <span class="n">LBSACCR3</span><span class="p">,</span> <span class="n">LEVLIMIT</span><span class="p">,</span> <span class="n">LMTT</span><span class="p">,</span> <span class="n">LVTT</span><span class="p">,</span>
+                               <span class="n">O0DEPS</span><span class="p">,</span> <span class="n">O1DEPS</span><span class="p">,</span> <span class="n">R_RTMIN</span><span class="p">,</span> <span class="n">RV</span><span class="p">,</span> <span class="n">S_RTMIN</span><span class="p">,</span>
+                               <span class="n">SNOW_RIMING</span><span class="p">,</span> <span class="n">SRIMCG</span><span class="p">,</span> <span class="n">SRIMCG2</span><span class="p">,</span> <span class="n">SRIMCG3</span><span class="p">,</span> <span class="n">TT</span><span class="p">)</span>
+
+    <span class="c1"># 5.0 maximum freezing rate</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="c1"># Translation note l106 removed not LDSOFT</span>
+        <span class="k">if</span> <span class="n">rst</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">rs_freez1_tnd</span> <span class="o">=</span> <span class="n">rvt</span> <span class="o">*</span> <span class="n">pres</span> <span class="o">/</span> <span class="p">(</span><span class="n">EPSILO</span> <span class="o">+</span> <span class="n">rvt</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">LEVLIMIT</span><span class="p">:</span>
+                <span class="n">rs_freez1_tnd</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                    <span class="n">rs_freez1_tnd</span><span class="p">,</span> <span class="n">exp</span><span class="p">(</span><span class="n">ALPI</span> <span class="o">-</span> <span class="n">BETAI</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">GAMI</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                <span class="p">)</span>
+
+            <span class="n">rs_freez1_tnd</span> <span class="o">=</span> <span class="n">ka</span> <span class="o">*</span> <span class="p">(</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">dv</span> <span class="o">*</span> <span class="p">(</span><span class="n">LVTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CPV</span> <span class="o">-</span> <span class="n">CL</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">ESTT</span> <span class="o">-</span> <span class="n">rs_freez1_tnd</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">RV</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+
+            <span class="c1"># Translation note l115 to l177 kept #ifdef REPRO48</span>
+            <span class="c1"># Translation note l119 to l122 removed #else REPRO48</span>
+
+            <span class="n">rs_freez1_tnd</span> <span class="o">*=</span> <span class="p">(</span>
+                <span class="n">O0DEPS</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EX0DEPS</span> <span class="o">+</span> <span class="n">O1DEPS</span> <span class="o">*</span> <span class="n">cj</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EX1DEPS</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="p">(</span><span class="n">LMTT</span> <span class="o">-</span> <span class="n">CL</span> <span class="o">*</span> <span class="p">(</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">)))</span>
+            <span class="n">rs_freez2_tnd</span> <span class="o">=</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="p">(</span><span class="n">LMTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CI</span> <span class="o">-</span> <span class="n">CL</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">)))</span> <span class="o">/</span> <span class="p">(</span>
+                <span class="n">rhodref</span> <span class="o">*</span> <span class="p">(</span><span class="n">LMTT</span> <span class="o">-</span> <span class="n">CL</span> <span class="o">*</span> <span class="p">(</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">))</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Translation note l129 removed</span>
+            <span class="n">freez_rate_tmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rs_freez1_tnd</span> <span class="o">+</span> <span class="n">rs_freez2_tnd</span> <span class="o">*</span> <span class="n">riaggs</span><span class="p">)</span> <span class="o">-</span> <span class="n">riaggs</span>
+            <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rs_freez1_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_freez2_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">freez_rate_tmp</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 5.1 cloud droplet riming of the aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rct</span> <span class="o">&gt;</span> <span class="n">C_RTMIN</span> <span class="ow">and</span> <span class="n">rst</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">zw_tmp</span> <span class="o">=</span> <span class="n">lbdas</span>
+
+            <span class="c1"># Translation note : l144 kept</span>
+            <span class="c1">#                    l146 removed</span>
+
+            <span class="n">grim_tmp</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">grim_tmp</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">rs_rcrims_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_rcrimss_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_rsrimcg_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Interpolation + Lookup Table</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ldsoft</span><span class="p">)</span> <span class="ow">and</span> <span class="n">grim_tmp</span><span class="p">:</span>
+            <span class="c1"># Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h</span>
+            <span class="c1">#                                    l90 to l123 kept</span>
+            <span class="n">index_floor</span><span class="p">,</span> <span class="n">index_float</span> <span class="o">=</span> <span class="n">index_interp_micro_1d</span><span class="p">(</span><span class="n">zw_tmp</span><span class="p">)</span>
+            <span class="n">zw1_tmp</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">index_float</span> <span class="o">*</span> <span class="n">gaminc_rim1</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float</span><span class="p">)</span> <span class="o">*</span> <span class="n">gaminc_rim1</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">zw2_tmp</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">index_float</span> <span class="o">*</span> <span class="n">gaminc_rim2</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float</span><span class="p">)</span> <span class="o">*</span> <span class="n">gaminc_rim2</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">zw3_tmp</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">index_float</span> <span class="o">*</span> <span class="n">gaminc_rim4</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float</span><span class="p">)</span> <span class="o">*</span> <span class="n">gaminc_rim4</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor</span><span class="p">]</span>
+            <span class="p">)</span>
+
+    <span class="c1"># 5.1.4 riming of the small sized aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">grim_tmp</span><span class="p">:</span>
+            <span class="c1"># Translation note : #ifdef REPRO48 l170 to l172 kept</span>
+            <span class="c1">#                                   l174 to l178 removed</span>
+            <span class="n">rs_rcrimss_tnd</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">CRIMSS</span> <span class="o">*</span> <span class="n">zw1_tmp</span> <span class="o">*</span> <span class="n">rct</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EXCRIMSS</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># 5.1.6 riming convesion of the large size aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">grim_tmp</span><span class="p">:</span>
+            <span class="c1"># Translation note : #ifdef REPRO48 l189 to l191 kept</span>
+            <span class="c1">#                                   l193 to l197 removed</span>
+            <span class="n">rs_rcrims_tnd</span> <span class="o">=</span> <span class="n">CRIMSG</span> <span class="o">*</span> <span class="n">rct</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EXCRIMSG</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span><span class="p">)</span>
+
+    <span class="c1"># if parami  csnowriming == M90</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="c1"># PARAMI%CSNOWRIMING == M90</span>
+        <span class="c1"># TODO : refactor if statement out of stencil for performance</span>
+        <span class="k">if</span> <span class="n">SNOW_RIMING</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">grim_tmp</span><span class="p">:</span>
+                <span class="n">zw_tmp</span> <span class="o">=</span> <span class="n">rs_rsrimcg_tnd</span> <span class="o">-</span> <span class="n">rs_rcrimss_tnd</span>
+                <span class="c1"># Translation note : #ifdef REPRO48 l208 kept</span>
+                <span class="c1">#                                   l210 and l211 removed</span>
+                <span class="n">rs_rsrimcg_tnd</span> <span class="o">=</span> <span class="n">SRIMCG</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EXSRIMCG</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">zw2_tmp</span><span class="p">)</span>
+
+                <span class="c1"># Translation note : #ifdef REPRO48 l214 to l217 kept</span>
+                <span class="c1">#                                   l219 to l223 removed</span>
+                <span class="n">rs_rsrimcg_tnd</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">zw_tmp</span>
+                    <span class="o">*</span> <span class="n">rs_rsrimcg_tnd</span>
+                    <span class="o">/</span> <span class="nb">max</span><span class="p">(</span>
+                        <span class="mf">1e-20</span><span class="p">,</span>
+                        <span class="n">SRIMCG3</span> <span class="o">*</span> <span class="n">SRIMCG2</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EXSRIMCG2</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">zw3_tmp</span><span class="p">)</span>
+                        <span class="o">-</span> <span class="n">SRIMCG3</span> <span class="o">*</span> <span class="n">rs_rsrimcg_tnd</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rs_rsrimcg_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1">#</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">grim_tmp</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span><span class="p">:</span>
+            <span class="n">rcrimss</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">freez_rate_tmp</span><span class="p">,</span> <span class="n">rs_rcrimss_tnd</span><span class="p">)</span>
+            <span class="n">freez_rate_tmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">freez_rate_tmp</span> <span class="o">-</span> <span class="n">rcrimss</span><span class="p">)</span>
+
+            <span class="c1"># proportion we are able to freeze</span>
+            <span class="n">zw0_tmp</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">freez_rate_tmp</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1e-20</span><span class="p">,</span> <span class="n">rs_rcrims_tnd</span> <span class="o">-</span> <span class="n">rcrimss</span><span class="p">))</span>
+            <span class="n">rcrimsg</span> <span class="o">=</span> <span class="n">zw0_tmp</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rs_rcrims_tnd</span> <span class="o">-</span> <span class="n">rcrimss</span><span class="p">)</span>  <span class="c1"># rc_rimsg</span>
+            <span class="n">freez_rate_tmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">freez_rate_tmp</span> <span class="o">-</span> <span class="n">rcrimsg</span><span class="p">)</span>
+            <span class="n">rsrimcg</span> <span class="o">=</span> <span class="n">zw0_tmp</span> <span class="o">*</span> <span class="n">rs_rsrimcg_tnd</span>
+
+            <span class="n">rsrimcg</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">sign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">rcrimsg</span><span class="p">))</span>
+            <span class="n">rcrimsg</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rcrimsg</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rcrimss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rcrimsg</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rsrimcg</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 5.2. rain accretion onto the aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rrt</span> <span class="o">&gt;</span> <span class="n">R_RTMIN</span> <span class="ow">and</span> <span class="n">rst</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="n">gacc_tmp</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gacc_tmp</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">rs_rraccs_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_rraccss_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_rsaccrg_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="c1"># Translation note : LDPACK is False l159 to l223 removed in interp_micro.func.h</span>
+        <span class="c1">#                                    l226 to l266 kept</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">ldsoft</span><span class="p">)</span> <span class="ow">and</span> <span class="n">gacc_tmp</span><span class="p">:</span>
+            <span class="n">rs_rraccs_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_rraccss_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rs_rsaccrg_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">index_floor_r</span><span class="p">,</span> <span class="n">index_float_r</span> <span class="o">=</span> <span class="n">index_micro2d_acc_r</span><span class="p">(</span><span class="n">lbdar</span><span class="p">)</span>
+            <span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_float_s</span> <span class="o">=</span> <span class="n">index_micro2d_acc_s</span><span class="p">(</span><span class="n">lbdas</span><span class="p">)</span>
+            <span class="n">zw1_tmp</span> <span class="o">=</span> <span class="n">index_float_s</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">index_float_r</span> <span class="o">*</span> <span class="n">ker_raccss</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index_floor_r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">ker_raccss</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">index_float_r</span> <span class="o">*</span> <span class="n">ker_raccss</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_floor_r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">ker_raccss</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="n">zw2_tmp</span> <span class="o">=</span> <span class="n">index_float_s</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">index_float_r</span> <span class="o">*</span> <span class="n">ker_raccs</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index_floor_r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">ker_raccs</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">index_float_r</span> <span class="o">*</span> <span class="n">ker_raccs</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_floor_r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">ker_raccs</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="n">zw3_tmp</span> <span class="o">=</span> <span class="n">index_float_s</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">index_float_r</span> <span class="o">*</span> <span class="n">ker_saccrg</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index_floor_r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">ker_saccrg</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">]</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_s</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
+                <span class="n">index_float_r</span> <span class="o">*</span> <span class="n">ker_saccrg</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_floor_r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">index_float_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">ker_saccrg</span><span class="o">.</span><span class="n">A</span><span class="p">[</span><span class="n">index_floor_s</span><span class="p">,</span> <span class="n">index_floor_r</span><span class="p">]</span>
+            <span class="p">)</span>
+
+    <span class="c1">#         # CALL INTERP_MICRO_2D</span>
+
+    <span class="c1"># 5.2.4. raindrop accreation on the small sized aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">gacc_tmp</span><span class="p">:</span>
+            <span class="c1"># Translation note : REPRO48 l279 to l283 kept</span>
+            <span class="c1">#                            l285 to l289 removed</span>
+
+            <span class="n">zw_tmp</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">FRACCSS</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">lbdas</span><span class="o">**</span><span class="n">CXS</span><span class="p">)</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="o">*</span> <span class="p">(</span>
+                    <span class="n">LBRACCS1</span> <span class="o">/</span> <span class="p">(</span><span class="n">lbdas</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="n">LBRACCS2</span> <span class="o">/</span> <span class="p">(</span><span class="n">lbdas</span> <span class="o">*</span> <span class="n">lbdar</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="n">LBRACCS3</span> <span class="o">/</span> <span class="p">(</span><span class="n">lbdar</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="n">lbdar</span><span class="o">**</span><span class="mi">4</span>
+            <span class="p">)</span>
+
+            <span class="n">rs_rraccss_tnd</span> <span class="o">=</span> <span class="n">zw1_tmp</span> <span class="o">*</span> <span class="n">zw_tmp</span>
+            <span class="n">rs_rraccs_tnd</span> <span class="o">=</span> <span class="n">zw2_tmp</span> <span class="o">*</span> <span class="n">zw_tmp</span>
+
+    <span class="c1"># 5.2.6 raindrop accretion-conversion of the large sized aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">gacc_tmp</span><span class="p">:</span>
+            <span class="n">rs_rsaccrg_tnd</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">FSACCRG</span>
+                <span class="o">*</span> <span class="n">zw3_tmp</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">lbdas</span> <span class="o">**</span> <span class="p">(</span><span class="n">CXS</span> <span class="o">-</span> <span class="n">BS</span><span class="p">))</span>
+                <span class="o">*</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="o">*</span> <span class="p">(</span>
+                    <span class="n">LBSACCR1</span> <span class="o">/</span> <span class="p">(</span><span class="n">lbdas</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="n">LBSACCR2</span> <span class="o">/</span> <span class="p">(</span><span class="n">lbdar</span> <span class="o">*</span> <span class="n">lbdas</span><span class="p">)</span>
+                    <span class="o">+</span> <span class="n">LBSACCR3</span> <span class="o">/</span> <span class="p">(</span><span class="n">lbdas</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="o">/</span> <span class="n">lbdar</span>
+            <span class="p">)</span>
+
+    <span class="c1"># l324</span>
+    <span class="c1"># More restrictive ACC mask to be used for accretion by negative temperature only</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">gacc_tmp</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span><span class="p">:</span>
+            <span class="n">rraccss</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">freez_rate_tmp</span><span class="p">,</span> <span class="n">rs_rraccss_tnd</span><span class="p">)</span>
+            <span class="n">freez_rate_tmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">freez_rate_tmp</span> <span class="o">-</span> <span class="n">rraccss</span><span class="p">)</span>
+
+            <span class="c1"># proportion we are able to freeze</span>
+            <span class="n">zw_tmp</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">freez_rate_tmp</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1e-20</span><span class="p">,</span> <span class="n">rs_rraccs_tnd</span> <span class="o">-</span> <span class="n">rraccss</span><span class="p">))</span>
+            <span class="n">rraccsg</span> <span class="o">=</span> <span class="n">zw_tmp</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rs_rraccs_tnd</span> <span class="o">-</span> <span class="n">rraccss</span><span class="p">)</span>
+            <span class="n">freez_rate_tmp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">freez_rate_tmp</span> <span class="o">-</span> <span class="n">rraccsg</span><span class="p">)</span>
+            <span class="n">rsaccrg</span> <span class="o">=</span> <span class="n">zw_tmp</span> <span class="o">*</span> <span class="n">rs_rsaccrg_tnd</span>
+
+            <span class="n">rsaccrg</span> <span class="o">*=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">sign</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">rraccsg</span><span class="p">))</span>
+            <span class="n">rraccsg</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">rraccsg</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rraccss</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rraccsg</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rsaccrg</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 5.3 Conversion-Melting of the aggregates</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rst</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">TT</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldsoft</span><span class="p">:</span>
+                <span class="n">rs_mltg_tnd</span> <span class="o">=</span> <span class="n">rvt</span> <span class="o">*</span> <span class="n">pres</span> <span class="o">/</span> <span class="p">(</span><span class="n">EPSILO</span> <span class="o">+</span> <span class="n">rvt</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">LEVLIMIT</span><span class="p">:</span>
+                    <span class="n">rs_mltg_tnd</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
+                        <span class="n">rs_mltg_tnd</span><span class="p">,</span> <span class="n">exp</span><span class="p">(</span><span class="n">ALPW</span> <span class="o">-</span> <span class="n">BETAW</span> <span class="o">/</span> <span class="n">t</span> <span class="o">-</span> <span class="n">GAMW</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                    <span class="p">)</span>
+                <span class="n">rs_mltg_tnd</span> <span class="o">=</span> <span class="n">ka</span> <span class="o">*</span> <span class="p">(</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span>
+                    <span class="n">dv</span>
+                    <span class="o">*</span> <span class="p">(</span><span class="n">LVTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CPV</span> <span class="o">-</span> <span class="n">CL</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span>
+                    <span class="o">*</span> <span class="p">(</span><span class="n">ESTT</span> <span class="o">-</span> <span class="n">rs_mltg_tnd</span><span class="p">)</span>
+                    <span class="o">/</span> <span class="p">(</span><span class="n">RV</span> <span class="o">*</span> <span class="n">t</span><span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Tranlsation note : #ifdef REPRO48 l360 to l365 kept</span>
+                <span class="c1">#                                   l367 to l374 removed</span>
+                <span class="n">rs_mltg_tnd</span> <span class="o">=</span> <span class="n">FSCVMG</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span>
+                    <span class="mi">0</span><span class="p">,</span>
+                    <span class="p">(</span>
+                        <span class="o">-</span><span class="n">rs_mltg_tnd</span>
+                        <span class="o">*</span> <span class="p">(</span><span class="n">O0DEPS</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EX0DEPS</span> <span class="o">+</span> <span class="n">O1DEPS</span> <span class="o">*</span> <span class="n">cj</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EX1DEPS</span><span class="p">)</span>
+                        <span class="o">-</span> <span class="p">(</span><span class="n">rs_rcrims_tnd</span> <span class="o">+</span> <span class="n">rs_rraccs_tnd</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">CL</span> <span class="o">*</span> <span class="p">(</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">))</span>
+                    <span class="p">)</span>
+                    <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">LMTT</span><span class="p">),</span>
+                <span class="p">)</span>
+
+                <span class="c1"># note that RSCVMG = RSMLT*XFSCVMG but no heat is exchanged (at the rate RSMLT)</span>
+                <span class="c1"># because the graupeln produced by this process are still icy###</span>
+                <span class="c1">#</span>
+                <span class="c1"># When T &lt; XTT, rc is collected by snow (riming) to produce snow and graupel</span>
+                <span class="c1"># When T &gt; XTT, if riming was still enabled, rc would produce snow and graupel with snow becomming graupel (conversion/melting) and graupel becomming rain (melting)</span>
+                <span class="c1"># To insure consistency when crossing T=XTT, rc collected with T&gt;XTT must be transformed in rain.</span>
+                <span class="c1"># rc cannot produce iced species with a positive temperature but is still collected with a good efficiency by snow</span>
+
+                <span class="n">rc_mltsr_tnd</span> <span class="o">=</span> <span class="n">rs_rcrims_tnd</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rs_mltg_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">rc_mltsr_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ice4_fast_ri/" class="btn btn-neutral float-left" title="Ice4 fast ri"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ice4_nucleation/" class="btn btn-neutral float-right" title="Ice4 nucleation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ice4_fast_ri/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ice4_nucleation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

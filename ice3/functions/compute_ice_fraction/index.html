@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Compute ice fraction - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Compute ice fraction";
+        var mkdocs_page_input_path = "ice3/functions/compute_ice_fraction.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >functions</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../backup/">Backup</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Compute ice fraction</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">functions</li>
+      <li class="breadcrumb-item active">Compute ice fraction</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.functions.compute_ice_fraction"></a>
+    <div class="doc doc-contents first">
+
+        <p>Ice fraction computation for mixed-phase cloud microphysics.</p>
+<p>This module provides GT4Py implementations for calculating the fraction
+of condensate that exists as ice versus liquid water in mixed-phase clouds.
+The ice fraction depends on temperature and is controlled by different
+parameterization modes.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.compute_ice_fraction.compute_frac_ice" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">compute_frac_ice</span><span class="p">(</span><span class="n">frac_ice</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute ice fraction in mixed-phase clouds based on temperature.</p>
+<p>This function calculates the fraction of total condensate (ice + liquid)
+that exists as ice, using temperature-dependent parameterizations.
+The computation mode is selected via the FRAC_ICE_ADJUST external parameter.</p>
+<h4 id="ice3.functions.compute_ice_fraction.compute_frac_ice--parameters">Parameters</h4>
+<p>frac_ice : Field[float]
+    Ice fraction field to be computed (dimensionless, 0 to 1).
+    Input value may be used in mode 3 (previous value).
+t : Field[float]
+    Temperature field in Kelvin (K).</p>
+<h4 id="ice3.functions.compute_ice_fraction.compute_frac_ice--returns">Returns</h4>
+<p>Field[float]
+    Ice fraction field with values between 0 (all liquid) and 1 (all ice).</p>
+<h4 id="ice3.functions.compute_ice_fraction.compute_frac_ice--notes">Notes</h4>
+<p>External Parameters:
+- FRAC_ICE_ADJUST: Mode selector (0, 1, 2, or 3)
+- TMAXMIX: Maximum temperature for mixed-phase (K), typically 273.15 K
+- TMINMIX: Minimum temperature for mixed-phase (K), typically 233.15 K
+- TT: Triple point temperature (K), 273.15 K</p>
+<h4 id="ice3.functions.compute_ice_fraction.compute_frac_ice--computation-modes">Computation Modes</h4>
+<p>Mode 0 (T): Linear interpolation between TMINMIX and TMAXMIX
+    frac_ice = (TMAXMIX - T) / (TMAXMIX - TMINMIX)
+    This provides a smooth transition from all liquid above TMAXMIX
+    to all ice below TMINMIX.</p>
+<p>Mode 1 (O): Old formula using triple point
+    frac_ice = (TT - T) / 40
+    Linear decrease over 40 K range below triple point.</p>
+<p>Mode 2 (N): No ice
+    frac_ice = 0
+    All condensate remains liquid regardless of temperature.</p>
+<p>Mode 3 (S): Same as previous value
+    frac_ice = max(0, min(1, frac_ice))
+    Maintains the input frac_ice value, only clamping to [0,1].</p>
+<p>All modes clamp the result to [0, 1] to ensure physical values.</p>
+<h4 id="ice3.functions.compute_ice_fraction.compute_frac_ice--examples">Examples</h4>
+<p>Mode 0 with TMAXMIX=273.15, TMINMIX=233.15:
+- T = 273.15 K → frac_ice = 0 (all liquid)
+- T = 253.15 K → frac_ice = 0.5 (50% ice)
+- T = 233.15 K → frac_ice = 1.0 (all ice)</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/compute_ice_fraction.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_frac_ice</span><span class="p">(</span>
+    <span class="n">frac_ice</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute ice fraction in mixed-phase clouds based on temperature.</span>
+
+<span class="sd">    This function calculates the fraction of total condensate (ice + liquid)</span>
+<span class="sd">    that exists as ice, using temperature-dependent parameterizations.</span>
+<span class="sd">    The computation mode is selected via the FRAC_ICE_ADJUST external parameter.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    frac_ice : Field[float]</span>
+<span class="sd">        Ice fraction field to be computed (dimensionless, 0 to 1).</span>
+<span class="sd">        Input value may be used in mode 3 (previous value).</span>
+<span class="sd">    t : Field[float]</span>
+<span class="sd">        Temperature field in Kelvin (K).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Field[float]</span>
+<span class="sd">        Ice fraction field with values between 0 (all liquid) and 1 (all ice).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - FRAC_ICE_ADJUST: Mode selector (0, 1, 2, or 3)</span>
+<span class="sd">    - TMAXMIX: Maximum temperature for mixed-phase (K), typically 273.15 K</span>
+<span class="sd">    - TMINMIX: Minimum temperature for mixed-phase (K), typically 233.15 K</span>
+<span class="sd">    - TT: Triple point temperature (K), 273.15 K</span>
+
+<span class="sd">    Computation Modes</span>
+<span class="sd">    -----------------</span>
+<span class="sd">    Mode 0 (T): Linear interpolation between TMINMIX and TMAXMIX</span>
+<span class="sd">        frac_ice = (TMAXMIX - T) / (TMAXMIX - TMINMIX)</span>
+<span class="sd">        This provides a smooth transition from all liquid above TMAXMIX</span>
+<span class="sd">        to all ice below TMINMIX.</span>
+
+<span class="sd">    Mode 1 (O): Old formula using triple point</span>
+<span class="sd">        frac_ice = (TT - T) / 40</span>
+<span class="sd">        Linear decrease over 40 K range below triple point.</span>
+
+<span class="sd">    Mode 2 (N): No ice</span>
+<span class="sd">        frac_ice = 0</span>
+<span class="sd">        All condensate remains liquid regardless of temperature.</span>
+
+<span class="sd">    Mode 3 (S): Same as previous value</span>
+<span class="sd">        frac_ice = max(0, min(1, frac_ice))</span>
+<span class="sd">        Maintains the input frac_ice value, only clamping to [0,1].</span>
+
+<span class="sd">    All modes clamp the result to [0, 1] to ensure physical values.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Mode 0 with TMAXMIX=273.15, TMINMIX=233.15:</span>
+<span class="sd">    - T = 273.15 K → frac_ice = 0 (all liquid)</span>
+<span class="sd">    - T = 253.15 K → frac_ice = 0.5 (50% ice)</span>
+<span class="sd">    - T = 233.15 K → frac_ice = 1.0 (all ice)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">FRAC_ICE_ADJUST</span><span class="p">,</span> <span class="n">TMAXMIX</span><span class="p">,</span> <span class="n">TMINMIX</span><span class="p">,</span> <span class="n">TT</span>
+
+    <span class="n">frac_ice</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Mode 0: using temperature with linear interpolation</span>
+    <span class="c1"># FracIceAdjust.T.value</span>
+    <span class="k">if</span> <span class="n">__INLINED</span><span class="p">(</span><span class="n">FRAC_ICE_ADJUST</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">frac_ice</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">((</span><span class="n">TMAXMIX</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">TMAXMIX</span> <span class="o">-</span> <span class="n">TMINMIX</span><span class="p">))))</span>
+
+    <span class="c1"># Mode 1: using temperature with old formula</span>
+    <span class="c1"># FracIceAdjust.O.value</span>
+    <span class="k">elif</span> <span class="n">__INLINED</span><span class="p">(</span><span class="n">FRAC_ICE_ADJUST</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">frac_ice</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">((</span><span class="n">TT</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span> <span class="o">/</span> <span class="mi">40</span><span class="p">)))</span>
+
+    <span class="c1"># Mode 2: no ice</span>
+    <span class="c1"># FracIceAdjust.N.value</span>
+    <span class="k">elif</span> <span class="n">__INLINED</span><span class="p">(</span><span class="n">FRAC_ICE_ADJUST</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">frac_ice</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Mode 3: same as previous</span>
+    <span class="c1"># FracIceAdjust.S.value</span>
+    <span class="k">elif</span> <span class="n">__INLINED</span><span class="p">(</span><span class="n">FRAC_ICE_ADJUST</span> <span class="o">==</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">frac_ice</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">frac_ice</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">frac_ice</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../backup/" class="btn btn-neutral float-left" title="Backup"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gamma/" class="btn btn-neutral float-right" title="Gamma">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../backup/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gamma/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

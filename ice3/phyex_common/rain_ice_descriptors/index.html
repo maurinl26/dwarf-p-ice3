@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Rain ice descriptors - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Rain ice descriptors";
+        var mkdocs_page_input_path = "ice3/phyex_common/rain_ice_descriptors.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >phyex_common</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Rain ice descriptors</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">phyex_common</li>
+      <li class="breadcrumb-item active">Rain ice descriptors</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.phyex_common.rain_ice_descriptors"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.rain_ice_descriptors.CloudPar" class="doc doc-heading">
+            <code>CloudPar</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Declaration of the model-n dependant Microphysic constants</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>nsplitr</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of required small time step integration
+for rain sedimentation computation</p>
+              </div>
+            </li>
+            <li>
+              <b><code>nsplitg</code></b>
+                  (<code><span title="int">int</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>Number of required small time step integration
+for ice hydrometeor sedimentation computation</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/rain_ice_descriptors.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span>
+<span class="normal">530</span>
+<span class="normal">531</span>
+<span class="normal">532</span>
+<span class="normal">533</span>
+<span class="normal">534</span>
+<span class="normal">535</span>
+<span class="normal">536</span>
+<span class="normal">537</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CloudPar</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Declaration of the model-n dependant Microphysic constants</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        nsplitr (int): Number of required small time step integration</span>
+<span class="sd">            for rain sedimentation computation</span>
+<span class="sd">        nsplitg (int): Number of required small time step integration</span>
+<span class="sd">            for ice hydrometeor sedimentation computation</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NSPLITR</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">NSPLITG</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.rain_ice_descriptors.RainIceDescriptors" class="doc doc-heading">
+            <code>RainIceDescriptors</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Hydrometeor physical properties and size distribution parameters.</p>
+<p>This dataclass defines the fundamental properties of each hydrometeor
+species (cloud, rain, ice, snow, graupel) including mass-diameter
+relations, terminal fall speeds, particle size distributions, and
+ventilation coefficients. These descriptors are used throughout the
+microphysics calculations.</p>
+<p><strong>Key Relationships:</strong></p>
+<p>Mass-Diameter: m(D) = A_x × D^B_x
+Fall Speed: v(D) = C_x × D^D_x × (ρ/ρ₀)^CEXVT
+Size Distribution: N(D) = N₀ × D^ν × exp(-λ×D^α)
+Number Concentration: N = CC_x × λ^CX_x
+Slope Parameter: λ = LB_x × (r_x × ρ_ref)^LBEX_x</p>
+<h4 id="ice3.phyex_common.rain_ice_descriptors.RainIceDescriptors--attributes">Attributes</h4>
+<p><strong>Dependencies</strong></p>
+
+
+<details class="cst-" open>
+  <summary>Constants</summary>
+  <p>Physical constants.</p>
+</details>        <p>parami : IceParameters
+    User configuration parameters.</p>
+<p><strong>General Parameters</strong></p>
+
+
+<details class="cexvt-" open>
+  <summary>float</summary>
+  <p>Air density exponent for fall speed correction. Default: 0.4.
+Accounts for v ∝ (ρ₀/ρ)^CEXVT.</p>
+</details>
+
+<details class="rtmin-" open>
+  <summary>np.ndarray</summary>
+  <p>Minimum allowed mixing ratios for all species (41 values, kg/kg).</p>
+</details>        <p><strong>Cloud Droplets (subscript C)</strong></p>
+<p>Mass-Diameter Relations:
+AC : float
+    Mass prefactor (kg/m^BC). Default: 524 (assumes spherical, ρ=1000 kg/m³).
+BC : float
+    Mass exponent (dimensionless). Default: 3.0 (spherical).</p>
+<p>Fall Speed Relations:
+CC : float
+    Fall speed prefactor (m^(1-DC)/s). Default: 842.
+DC : float
+    Fall speed exponent (dimensionless). Default: 2.0.</p>
+<p>Size Distribution (Bimodal over land/sea):
+ALPHAC : float
+    Shape parameter for gamma distribution over land. Default: 1.0.
+NUC : float
+    Scale parameter over land. Default: 3.0 (narrow distribution).
+ALPHAC2 : float
+    Shape parameter over sea. Default: 1.0.
+NUC2 : float
+    Scale parameter over sea. Default: 1.0 (broader distribution).</p>
+
+
+<details class="lbexc-" open>
+  <summary>float</summary>
+  <p>Slope parameter exponent (computed).</p>
+</details>        <p>LBC_1, LBC_2 : float
+    Slope parameter prefactors for land and sea (computed).</p>
+<p>Diagnostic Concentrations:
+CONC_LAND : float
+    Droplet concentration over land (m⁻³). Default: 3×10⁸.
+CONC_SEA : float
+    Over sea (m⁻³). Default: 1×10⁸.
+CONC_URBAN : float
+    Over urban areas (m⁻³). Default: 5×10⁸.</p>
+<p><strong>Rain Drops (subscript R)</strong></p>
+<p>Mass-Diameter:
+AR : float
+    Mass prefactor (kg/m^BR). Default: 524.
+BR : float
+    Mass exponent. Default: 3.0 (spherical).</p>
+<p>Fall Speed (Marshall-Palmer):
+CR : float
+    Fall speed prefactor (m^(1-DR)/s). Default: 842.
+DR : float
+    Fall speed exponent. Default: 0.8.</p>
+<p>Size Distribution:
+CCR : float
+    Number concentration prefactor (m⁻⁴). Default: 8×10⁻⁶.
+ALPHAR : float
+    Shape parameter. Default: 3.0.
+NUR : float
+    Scale parameter. Default: 1.0 (exponential).
+LBEXR : float
+    Slope exponent (computed).
+LBR : float
+    Slope prefactor (computed, m⁻¹).</p>
+<p>Ventilation Coefficients:
+F0R : float
+    Non-ventilated coefficient. Default: 1.0.
+F1R : float
+    Ventilated coefficient. Default: 0.26.
+C1R : float
+    Thermodynamic shape parameter. Default: 0.5.</p>
+<p><strong>Ice Crystals (subscript I) - Habit Dependent</strong></p>
+<p>Properties depend on PRISTINE_ICE setting:</p>
+<p>Plates (PLAT):
+AI : float
+    Mass prefactor. Default: 0.82 kg/m^BI.
+BI : float
+    Mass exponent. Default: 2.5.
+C_I : float
+    Fall speed prefactor. Default: 800 m^(1-DI)/s.
+DI : float
+    Fall speed exponent. Default: 1.0.
+C1I : float
+    Shape parameter. Default: 1/π.</p>
+<p>Columns (COLU):
+AI = 2.14×10⁻³, BI = 1.7, C_I = 2.1×10⁵, DI = 1.585, C1I = 0.8</p>
+<p>Bullet Rosettes (BURO):
+AI = 44.0, BI = 3.0, C_I = 4.3×10⁵, DI = 1.663, C1I = 0.5</p>
+<p>Size Distribution:
+ALPHAI : float
+    Shape parameter. Default: 1.0 (exponential).
+NUI : float
+    Scale parameter. Default: 1.0.
+LBEXI, LBI : float
+    Slope parameters (computed).</p>
+<p>Ventilation:
+F0I : float
+    Non-ventilated. Default: 1.0.
+F2I : float
+    Ventilated (enhanced diffusion). Default: 0.14.</p>
+<p><strong>Snow/Aggregates (subscript S)</strong></p>
+<p>Mass-Diameter:
+A_S : float
+    Mass prefactor (kg/m^BS). Default: 0.02 (low density aggregates).
+BS : float
+    Mass exponent. Default: 1.9.</p>
+<p>Fall Speed:
+CS : float
+    Fall speed prefactor. Default: 5.1 m^(1-DS)/s.
+DS : float
+    Fall speed exponent. Default: 0.27.
+FVELOS : float
+    Additional fall speed factor. Default: 0.097.
+    Set to 25.14 if LSNOW_T=True (Wurtz parameterization).</p>
+<p>Size Distribution:
+CCS : float
+    Number concentration prefactor. Default: 5.0.
+CXS : float
+    Concentration-slope relation exponent. Default: 1.0.
+ALPHAS, NUS : float
+    Shape parameters. Default: 1.0, 1.0.
+    Modified if LSNOW_T=True: ALPHAS=0.214, NUS=43.7.
+NS : float
+    Number to mass conversion factor (computed).
+LBEXS, LBS : float
+    Slope parameters (computed).
+TRANS_MP_GAMMAS : float
+    Gamma function transformation coefficient. Default: 1.0.</p>
+<p>Ventilation:
+F0S, F1S : float
+    Ventilation coefficients. Default: 0.86, 0.28.
+C1S : float
+    Shape parameter (computed as 1/π).</p>
+<p><strong>Graupel (subscript G)</strong></p>
+<p>Mass-Diameter:
+AG : float
+    Mass prefactor (kg/m^BG). Default: 19.6.
+BG : float
+    Mass exponent. Default: 2.8.</p>
+<p>Fall Speed:
+CG : float
+    Fall speed prefactor. Default: 124 m^(1-DG)/s.
+DG : float
+    Fall speed exponent. Default: 0.66.</p>
+<p>Size Distribution:
+CCG : float
+    Number concentration prefactor. Default: 5×10⁵.
+CXG : float
+    Concentration-slope exponent. Default: -0.5.
+ALPHAG, NUG : float
+    Shape parameters. Default: 1.0, 1.0 (exponential).
+LBEXG, LBG : float
+    Slope parameters (computed).</p>
+<p>Ventilation:
+F0G, F1G : float
+    Ventilation coefficients. Default: 0.86, 0.28.
+C1G : float
+    Shape parameter. Default: 0.5.</p>
+<p><strong>Minimum Mixing Ratio Thresholds</strong></p>
+
+
+<details class="v_rtmin-" open>
+  <summary>float</summary>
+  <p>Vapor threshold (kg/kg). Default: 1×10⁻²⁰.</p>
+</details>        <p>C_RTMIN : float
+    Cloud threshold. Default: 1×10⁻²⁰.
+R_RTMIN : float
+    Rain threshold. Default: 1×10⁻²⁰.
+I_RTMIN : float
+    Ice threshold. Default: 1×10⁻²⁰.
+S_RTMIN : float
+    Snow threshold. Default: 1×10⁻¹⁵.
+G_RTMIN : float
+    Graupel threshold. Default: 1×10⁻¹⁵.</p>
+<p><strong>Maximum Slope Parameters</strong></p>
+<p>LBDAR_MAX, LBDAS_MAX, LBDAG_MAX : float
+    Maximum λ values (m⁻¹). Default: 1×10⁵.
+LBDAS_MIN : float
+    Minimum λ for snow (m⁻¹). Default: 1×10⁻¹⁰.</p>
+<p><strong>Statistical Sedimentation Parameters</strong></p>
+<p>GAC, GC : float
+    Gamma function values for cloud (land).
+GAC2, GC2 : float
+    Gamma function values for cloud (sea).
+RAYDEF0 : float
+    Default radius factor (computed).</p>
+<h4 id="ice3.phyex_common.rain_ice_descriptors.RainIceDescriptors--notes">Notes</h4>
+<p><strong>Mass-Diameter Relations:</strong>
+The mass m relates to maximum dimension D as m = A × D^B.
+- B=3: Spherical particles (cloud, rain)
+- B&lt;3: Non-spherical aggregates (snow, some ice)
+- B&gt;3: Rimed/dense particles</p>
+<p><strong>Fall Speed Relations:</strong>
+Terminal velocity v = C × D^D × (ρ₀/ρ)^CEXVT
+- D→1: Stokes regime (small particles)
+- D→0.5: Intermediate regime
+- D→0: Best number regime (large particles)</p>
+<p><strong>Size Distributions:</strong>
+Generalized gamma: N(D) = N₀ × D^ν × exp(-λ×D^α)
+- α=1, ν=0: Exponential (Marshall-Palmer for rain)
+- α=3, ν=0: Gamma distribution
+- Higher ν: Broader distributions</p>
+<p><strong>Ventilation Coefficients:</strong>
+Enhanced mass/heat transfer for falling particles:
+- F0: Motionless particle (diffusion only)
+- F1: Enhanced by particle motion (Re^0.5 dependence)
+- F2: Further enhanced (Re dependence)</p>
+<p><strong>Habit Dependencies:</strong>
+Ice crystal properties (A_I, B_I, C_I, D_I, C1I) depend on 
+the dominant crystal habit (plates, columns, or bullet rosettes),
+which affects mass, area, and fall speed.</p>
+<h4 id="ice3.phyex_common.rain_ice_descriptors.RainIceDescriptors--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/aux/modd_rain_ice_descrn.F90</p>
+<h4 id="ice3.phyex_common.rain_ice_descriptors.RainIceDescriptors--references">References</h4>
+<p>Marshall, J.S., and W.M. Palmer, 1948: The distribution of raindrops
+with size. J. Meteor., 5, 165-166.</p>
+<p>Locatelli, J.D., and P.V. Hobbs, 1974: Fall speeds and masses of
+solid precipitation particles. J. Geophys. Res., 79, 2185-2197.</p>
+<p>Field, P.R., et al., 2005: Snow size distribution parameterization
+for midlatitude and tropical ice clouds. J. Atmos. Sci., 62, 4446-4468.</p>
+<h4 id="ice3.phyex_common.rain_ice_descriptors.RainIceDescriptors--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>from ice3.phyex_common.constants import Constants
+from ice3.phyex_common.ice_parameters import IceParameters
+cst = Constants()
+param = IceParameters(HPROGRAM="AROME", PRISTINE_ICE="PLAT")
+rid = RainIceDescriptors(cst=cst, parami=param)
+print(f"Rain mass law: m = {rid.AR} × D^{rid.BR}")
+Rain mass law: m = 524 × D^3.0
+print(f"Ice slope parameter prefactor: {rid.LBI:.2e} m^-1")
+Ice slope parameter prefactor: ...</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/rain_ice_descriptors.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span>
+<span class="normal">483</span>
+<span class="normal">484</span>
+<span class="normal">485</span>
+<span class="normal">486</span>
+<span class="normal">487</span>
+<span class="normal">488</span>
+<span class="normal">489</span>
+<span class="normal">490</span>
+<span class="normal">491</span>
+<span class="normal">492</span>
+<span class="normal">493</span>
+<span class="normal">494</span>
+<span class="normal">495</span>
+<span class="normal">496</span>
+<span class="normal">497</span>
+<span class="normal">498</span>
+<span class="normal">499</span>
+<span class="normal">500</span>
+<span class="normal">501</span>
+<span class="normal">502</span>
+<span class="normal">503</span>
+<span class="normal">504</span>
+<span class="normal">505</span>
+<span class="normal">506</span>
+<span class="normal">507</span>
+<span class="normal">508</span>
+<span class="normal">509</span>
+<span class="normal">510</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RainIceDescriptors</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hydrometeor physical properties and size distribution parameters.</span>
+
+<span class="sd">    This dataclass defines the fundamental properties of each hydrometeor</span>
+<span class="sd">    species (cloud, rain, ice, snow, graupel) including mass-diameter</span>
+<span class="sd">    relations, terminal fall speeds, particle size distributions, and</span>
+<span class="sd">    ventilation coefficients. These descriptors are used throughout the</span>
+<span class="sd">    microphysics calculations.</span>
+
+<span class="sd">    **Key Relationships:**</span>
+
+<span class="sd">    Mass-Diameter: m(D) = A_x × D^B_x</span>
+<span class="sd">    Fall Speed: v(D) = C_x × D^D_x × (ρ/ρ₀)^CEXVT</span>
+<span class="sd">    Size Distribution: N(D) = N₀ × D^ν × exp(-λ×D^α)</span>
+<span class="sd">    Number Concentration: N = CC_x × λ^CX_x</span>
+<span class="sd">    Slope Parameter: λ = LB_x × (r_x × ρ_ref)^LBEX_x</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    **Dependencies**</span>
+
+<span class="sd">    cst : Constants</span>
+<span class="sd">        Physical constants.</span>
+<span class="sd">    parami : IceParameters</span>
+<span class="sd">        User configuration parameters.</span>
+
+<span class="sd">    **General Parameters**</span>
+
+<span class="sd">    CEXVT : float</span>
+<span class="sd">        Air density exponent for fall speed correction. Default: 0.4.</span>
+<span class="sd">        Accounts for v ∝ (ρ₀/ρ)^CEXVT.</span>
+
+<span class="sd">    RTMIN : np.ndarray</span>
+<span class="sd">        Minimum allowed mixing ratios for all species (41 values, kg/kg).</span>
+
+<span class="sd">    **Cloud Droplets (subscript C)**</span>
+
+<span class="sd">    Mass-Diameter Relations:</span>
+<span class="sd">    AC : float</span>
+<span class="sd">        Mass prefactor (kg/m^BC). Default: 524 (assumes spherical, ρ=1000 kg/m³).</span>
+<span class="sd">    BC : float</span>
+<span class="sd">        Mass exponent (dimensionless). Default: 3.0 (spherical).</span>
+
+<span class="sd">    Fall Speed Relations:</span>
+<span class="sd">    CC : float</span>
+<span class="sd">        Fall speed prefactor (m^(1-DC)/s). Default: 842.</span>
+<span class="sd">    DC : float</span>
+<span class="sd">        Fall speed exponent (dimensionless). Default: 2.0.</span>
+
+<span class="sd">    Size Distribution (Bimodal over land/sea):</span>
+<span class="sd">    ALPHAC : float</span>
+<span class="sd">        Shape parameter for gamma distribution over land. Default: 1.0.</span>
+<span class="sd">    NUC : float</span>
+<span class="sd">        Scale parameter over land. Default: 3.0 (narrow distribution).</span>
+<span class="sd">    ALPHAC2 : float</span>
+<span class="sd">        Shape parameter over sea. Default: 1.0.</span>
+<span class="sd">    NUC2 : float</span>
+<span class="sd">        Scale parameter over sea. Default: 1.0 (broader distribution).</span>
+
+<span class="sd">    LBEXC : float</span>
+<span class="sd">        Slope parameter exponent (computed).</span>
+<span class="sd">    LBC_1, LBC_2 : float</span>
+<span class="sd">        Slope parameter prefactors for land and sea (computed).</span>
+
+<span class="sd">    Diagnostic Concentrations:</span>
+<span class="sd">    CONC_LAND : float</span>
+<span class="sd">        Droplet concentration over land (m⁻³). Default: 3×10⁸.</span>
+<span class="sd">    CONC_SEA : float</span>
+<span class="sd">        Over sea (m⁻³). Default: 1×10⁸.</span>
+<span class="sd">    CONC_URBAN : float</span>
+<span class="sd">        Over urban areas (m⁻³). Default: 5×10⁸.</span>
+
+<span class="sd">    **Rain Drops (subscript R)**</span>
+
+<span class="sd">    Mass-Diameter:</span>
+<span class="sd">    AR : float</span>
+<span class="sd">        Mass prefactor (kg/m^BR). Default: 524.</span>
+<span class="sd">    BR : float</span>
+<span class="sd">        Mass exponent. Default: 3.0 (spherical).</span>
+
+<span class="sd">    Fall Speed (Marshall-Palmer):</span>
+<span class="sd">    CR : float</span>
+<span class="sd">        Fall speed prefactor (m^(1-DR)/s). Default: 842.</span>
+<span class="sd">    DR : float</span>
+<span class="sd">        Fall speed exponent. Default: 0.8.</span>
+
+<span class="sd">    Size Distribution:</span>
+<span class="sd">    CCR : float</span>
+<span class="sd">        Number concentration prefactor (m⁻⁴). Default: 8×10⁻⁶.</span>
+<span class="sd">    ALPHAR : float</span>
+<span class="sd">        Shape parameter. Default: 3.0.</span>
+<span class="sd">    NUR : float</span>
+<span class="sd">        Scale parameter. Default: 1.0 (exponential).</span>
+<span class="sd">    LBEXR : float</span>
+<span class="sd">        Slope exponent (computed).</span>
+<span class="sd">    LBR : float</span>
+<span class="sd">        Slope prefactor (computed, m⁻¹).</span>
+
+<span class="sd">    Ventilation Coefficients:</span>
+<span class="sd">    F0R : float</span>
+<span class="sd">        Non-ventilated coefficient. Default: 1.0.</span>
+<span class="sd">    F1R : float</span>
+<span class="sd">        Ventilated coefficient. Default: 0.26.</span>
+<span class="sd">    C1R : float</span>
+<span class="sd">        Thermodynamic shape parameter. Default: 0.5.</span>
+
+<span class="sd">    **Ice Crystals (subscript I) - Habit Dependent**</span>
+
+<span class="sd">    Properties depend on PRISTINE_ICE setting:</span>
+
+<span class="sd">    Plates (PLAT):</span>
+<span class="sd">    AI : float</span>
+<span class="sd">        Mass prefactor. Default: 0.82 kg/m^BI.</span>
+<span class="sd">    BI : float</span>
+<span class="sd">        Mass exponent. Default: 2.5.</span>
+<span class="sd">    C_I : float</span>
+<span class="sd">        Fall speed prefactor. Default: 800 m^(1-DI)/s.</span>
+<span class="sd">    DI : float</span>
+<span class="sd">        Fall speed exponent. Default: 1.0.</span>
+<span class="sd">    C1I : float</span>
+<span class="sd">        Shape parameter. Default: 1/π.</span>
+
+<span class="sd">    Columns (COLU):</span>
+<span class="sd">    AI = 2.14×10⁻³, BI = 1.7, C_I = 2.1×10⁵, DI = 1.585, C1I = 0.8</span>
+
+<span class="sd">    Bullet Rosettes (BURO):</span>
+<span class="sd">    AI = 44.0, BI = 3.0, C_I = 4.3×10⁵, DI = 1.663, C1I = 0.5</span>
+
+<span class="sd">    Size Distribution:</span>
+<span class="sd">    ALPHAI : float</span>
+<span class="sd">        Shape parameter. Default: 1.0 (exponential).</span>
+<span class="sd">    NUI : float</span>
+<span class="sd">        Scale parameter. Default: 1.0.</span>
+<span class="sd">    LBEXI, LBI : float</span>
+<span class="sd">        Slope parameters (computed).</span>
+
+<span class="sd">    Ventilation:</span>
+<span class="sd">    F0I : float</span>
+<span class="sd">        Non-ventilated. Default: 1.0.</span>
+<span class="sd">    F2I : float</span>
+<span class="sd">        Ventilated (enhanced diffusion). Default: 0.14.</span>
+
+<span class="sd">    **Snow/Aggregates (subscript S)**</span>
+
+<span class="sd">    Mass-Diameter:</span>
+<span class="sd">    A_S : float</span>
+<span class="sd">        Mass prefactor (kg/m^BS). Default: 0.02 (low density aggregates).</span>
+<span class="sd">    BS : float</span>
+<span class="sd">        Mass exponent. Default: 1.9.</span>
+
+<span class="sd">    Fall Speed:</span>
+<span class="sd">    CS : float</span>
+<span class="sd">        Fall speed prefactor. Default: 5.1 m^(1-DS)/s.</span>
+<span class="sd">    DS : float</span>
+<span class="sd">        Fall speed exponent. Default: 0.27.</span>
+<span class="sd">    FVELOS : float</span>
+<span class="sd">        Additional fall speed factor. Default: 0.097.</span>
+<span class="sd">        Set to 25.14 if LSNOW_T=True (Wurtz parameterization).</span>
+
+<span class="sd">    Size Distribution:</span>
+<span class="sd">    CCS : float</span>
+<span class="sd">        Number concentration prefactor. Default: 5.0.</span>
+<span class="sd">    CXS : float</span>
+<span class="sd">        Concentration-slope relation exponent. Default: 1.0.</span>
+<span class="sd">    ALPHAS, NUS : float</span>
+<span class="sd">        Shape parameters. Default: 1.0, 1.0.</span>
+<span class="sd">        Modified if LSNOW_T=True: ALPHAS=0.214, NUS=43.7.</span>
+<span class="sd">    NS : float</span>
+<span class="sd">        Number to mass conversion factor (computed).</span>
+<span class="sd">    LBEXS, LBS : float</span>
+<span class="sd">        Slope parameters (computed).</span>
+<span class="sd">    TRANS_MP_GAMMAS : float</span>
+<span class="sd">        Gamma function transformation coefficient. Default: 1.0.</span>
+
+<span class="sd">    Ventilation:</span>
+<span class="sd">    F0S, F1S : float</span>
+<span class="sd">        Ventilation coefficients. Default: 0.86, 0.28.</span>
+<span class="sd">    C1S : float</span>
+<span class="sd">        Shape parameter (computed as 1/π).</span>
+
+<span class="sd">    **Graupel (subscript G)**</span>
+
+<span class="sd">    Mass-Diameter:</span>
+<span class="sd">    AG : float</span>
+<span class="sd">        Mass prefactor (kg/m^BG). Default: 19.6.</span>
+<span class="sd">    BG : float</span>
+<span class="sd">        Mass exponent. Default: 2.8.</span>
+
+<span class="sd">    Fall Speed:</span>
+<span class="sd">    CG : float</span>
+<span class="sd">        Fall speed prefactor. Default: 124 m^(1-DG)/s.</span>
+<span class="sd">    DG : float</span>
+<span class="sd">        Fall speed exponent. Default: 0.66.</span>
+
+<span class="sd">    Size Distribution:</span>
+<span class="sd">    CCG : float</span>
+<span class="sd">        Number concentration prefactor. Default: 5×10⁵.</span>
+<span class="sd">    CXG : float</span>
+<span class="sd">        Concentration-slope exponent. Default: -0.5.</span>
+<span class="sd">    ALPHAG, NUG : float</span>
+<span class="sd">        Shape parameters. Default: 1.0, 1.0 (exponential).</span>
+<span class="sd">    LBEXG, LBG : float</span>
+<span class="sd">        Slope parameters (computed).</span>
+
+<span class="sd">    Ventilation:</span>
+<span class="sd">    F0G, F1G : float</span>
+<span class="sd">        Ventilation coefficients. Default: 0.86, 0.28.</span>
+<span class="sd">    C1G : float</span>
+<span class="sd">        Shape parameter. Default: 0.5.</span>
+
+<span class="sd">    **Minimum Mixing Ratio Thresholds**</span>
+
+<span class="sd">    V_RTMIN : float</span>
+<span class="sd">        Vapor threshold (kg/kg). Default: 1×10⁻²⁰.</span>
+<span class="sd">    C_RTMIN : float</span>
+<span class="sd">        Cloud threshold. Default: 1×10⁻²⁰.</span>
+<span class="sd">    R_RTMIN : float</span>
+<span class="sd">        Rain threshold. Default: 1×10⁻²⁰.</span>
+<span class="sd">    I_RTMIN : float</span>
+<span class="sd">        Ice threshold. Default: 1×10⁻²⁰.</span>
+<span class="sd">    S_RTMIN : float</span>
+<span class="sd">        Snow threshold. Default: 1×10⁻¹⁵.</span>
+<span class="sd">    G_RTMIN : float</span>
+<span class="sd">        Graupel threshold. Default: 1×10⁻¹⁵.</span>
+
+<span class="sd">    **Maximum Slope Parameters**</span>
+
+<span class="sd">    LBDAR_MAX, LBDAS_MAX, LBDAG_MAX : float</span>
+<span class="sd">        Maximum λ values (m⁻¹). Default: 1×10⁵.</span>
+<span class="sd">    LBDAS_MIN : float</span>
+<span class="sd">        Minimum λ for snow (m⁻¹). Default: 1×10⁻¹⁰.</span>
+
+<span class="sd">    **Statistical Sedimentation Parameters**</span>
+
+<span class="sd">    GAC, GC : float</span>
+<span class="sd">        Gamma function values for cloud (land).</span>
+<span class="sd">    GAC2, GC2 : float</span>
+<span class="sd">        Gamma function values for cloud (sea).</span>
+<span class="sd">    RAYDEF0 : float</span>
+<span class="sd">        Default radius factor (computed).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    **Mass-Diameter Relations:**</span>
+<span class="sd">    The mass m relates to maximum dimension D as m = A × D^B.</span>
+<span class="sd">    - B=3: Spherical particles (cloud, rain)</span>
+<span class="sd">    - B&lt;3: Non-spherical aggregates (snow, some ice)</span>
+<span class="sd">    - B&gt;3: Rimed/dense particles</span>
+
+<span class="sd">    **Fall Speed Relations:**</span>
+<span class="sd">    Terminal velocity v = C × D^D × (ρ₀/ρ)^CEXVT</span>
+<span class="sd">    - D→1: Stokes regime (small particles)</span>
+<span class="sd">    - D→0.5: Intermediate regime</span>
+<span class="sd">    - D→0: Best number regime (large particles)</span>
+
+<span class="sd">    **Size Distributions:**</span>
+<span class="sd">    Generalized gamma: N(D) = N₀ × D^ν × exp(-λ×D^α)</span>
+<span class="sd">    - α=1, ν=0: Exponential (Marshall-Palmer for rain)</span>
+<span class="sd">    - α=3, ν=0: Gamma distribution</span>
+<span class="sd">    - Higher ν: Broader distributions</span>
+
+<span class="sd">    **Ventilation Coefficients:**</span>
+<span class="sd">    Enhanced mass/heat transfer for falling particles:</span>
+<span class="sd">    - F0: Motionless particle (diffusion only)</span>
+<span class="sd">    - F1: Enhanced by particle motion (Re^0.5 dependence)</span>
+<span class="sd">    - F2: Further enhanced (Re dependence)</span>
+
+<span class="sd">    **Habit Dependencies:**</span>
+<span class="sd">    Ice crystal properties (A_I, B_I, C_I, D_I, C1I) depend on </span>
+<span class="sd">    the dominant crystal habit (plates, columns, or bullet rosettes),</span>
+<span class="sd">    which affects mass, area, and fall speed.</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/aux/modd_rain_ice_descrn.F90</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Marshall, J.S., and W.M. Palmer, 1948: The distribution of raindrops</span>
+<span class="sd">    with size. J. Meteor., 5, 165-166.</span>
+
+<span class="sd">    Locatelli, J.D., and P.V. Hobbs, 1974: Fall speeds and masses of</span>
+<span class="sd">    solid precipitation particles. J. Geophys. Res., 79, 2185-2197.</span>
+
+<span class="sd">    Field, P.R., et al., 2005: Snow size distribution parameterization</span>
+<span class="sd">    for midlatitude and tropical ice clouds. J. Atmos. Sci., 62, 4446-4468.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from ice3.phyex_common.constants import Constants</span>
+<span class="sd">    &gt;&gt;&gt; from ice3.phyex_common.ice_parameters import IceParameters</span>
+<span class="sd">    &gt;&gt;&gt; cst = Constants()</span>
+<span class="sd">    &gt;&gt;&gt; param = IceParameters(HPROGRAM=&quot;AROME&quot;, PRISTINE_ICE=&quot;PLAT&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; rid = RainIceDescriptors(cst=cst, parami=param)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Rain mass law: m = {rid.AR} × D^{rid.BR}&quot;)</span>
+<span class="sd">    Rain mass law: m = 524 × D^3.0</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Ice slope parameter prefactor: {rid.LBI:.2e} m^-1&quot;)</span>
+<span class="sd">    Ice slope parameter prefactor: ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cst</span><span class="p">:</span> <span class="n">Constants</span>
+    <span class="n">parami</span><span class="p">:</span> <span class="n">IceParameters</span>
+
+    <span class="n">CEXVT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.4</span>  <span class="c1"># Air density fall speed correction</span>
+
+    <span class="n">RTMIN</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">41</span><span class="p">))</span>
+    <span class="c1"># Min values allowed for mixing ratios</span>
+
+    <span class="c1"># Cloud droplet charact.</span>
+    <span class="n">AC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">524</span><span class="p">)</span>
+    <span class="n">BC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+    <span class="n">CC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">842</span><span class="p">)</span>
+    <span class="n">DC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Rain drop charact</span>
+    <span class="n">AR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">524</span><span class="p">)</span>
+    <span class="n">BR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+    <span class="n">CR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">842</span><span class="p">)</span>
+    <span class="n">DR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">CCR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">8e-6</span><span class="p">)</span>
+    <span class="n">F0R</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">F1R</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.26</span><span class="p">)</span>
+    <span class="n">C1R</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="c1"># ar, br -&gt; mass - diameter power law</span>
+    <span class="c1"># cr, dr -&gt; terminal speed velocity - diameter powerlaw</span>
+    <span class="c1"># f0, f1, f2 -&gt; ventilation coefficients</span>
+    <span class="c1"># C1 ?</span>
+
+    <span class="c1"># Cloud ice charact</span>
+    <span class="n">AI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">BI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">C_I</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">DI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">F0I</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.00</span><span class="p">)</span>
+    <span class="n">F2I</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.14</span><span class="p">)</span>
+    <span class="n">C1I</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Snow/agg charact.</span>
+    <span class="n">A_S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+    <span class="n">BS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.9</span><span class="p">)</span>
+    <span class="n">CS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">5.1</span><span class="p">)</span>
+    <span class="n">DS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.27</span><span class="p">)</span>
+    <span class="n">CCS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>  <span class="c1"># not lsnow</span>
+    <span class="n">CXS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">F0S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.86</span><span class="p">)</span>
+    <span class="n">F1S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.28</span><span class="p">)</span>
+    <span class="n">C1S</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Graupel charact.</span>
+    <span class="n">AG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">19.6</span><span class="p">)</span>
+    <span class="n">BG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">2.8</span><span class="p">)</span>
+    <span class="n">CG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">124</span><span class="p">)</span>
+    <span class="n">DG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.66</span><span class="p">)</span>
+    <span class="n">CCG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">5e5</span><span class="p">)</span>
+    <span class="n">CXG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">F0G</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.86</span><span class="p">)</span>
+    <span class="n">F1G</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.28</span><span class="p">)</span>
+    <span class="n">C1G</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># Cloud droplet distribution parameters</span>
+
+    <span class="c1"># Over land</span>
+    <span class="n">ALPHAC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">1.0</span>  <span class="c1"># Gamma law of the Cloud droplet (here volume-like distribution)</span>
+    <span class="p">)</span>
+    <span class="n">NUC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span>  <span class="c1"># Gamma law with little dispersion</span>
+
+    <span class="c1"># Over sea</span>
+    <span class="n">ALPHAC2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">NUC2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">LBEXC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LBC_1</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LBC_2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Rain drop distribution parameters</span>
+    <span class="n">ALPHAR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">3.0</span>  <span class="c1"># Gamma law of the Cloud droplet (here volume-like distribution)</span>
+    <span class="p">)</span>
+    <span class="n">NUR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Gamma law with little dispersion</span>
+    <span class="n">LBEXR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LBR</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Cloud ice distribution parameters</span>
+    <span class="n">ALPHAI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Exponential law</span>
+    <span class="n">NUI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># Exponential law</span>
+    <span class="n">LBEXI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LBI</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Snow/agg. distribution parameters</span>
+    <span class="n">ALPHAS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">NUS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">LBEXS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LBS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">NS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Graupel distribution parameters</span>
+    <span class="n">ALPHAG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">NUG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">LBEXG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LBG</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">FVELOS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.097</span><span class="p">)</span>  <span class="c1"># factor for snow fall speed after Thompson</span>
+    <span class="n">TRANS_MP_GAMMAS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>  <span class="c1"># coefficient to convert lambda for gamma functions</span>
+    <span class="n">LBDAR_MAX</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">1e5</span>
+    <span class="p">)</span>  <span class="c1"># Max values allowed for the shape parameters (rain,snow,graupeln)</span>
+    <span class="n">LBDAS_MAX</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
+    <span class="n">LBDAG_MAX</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span>
+    <span class="n">LBDAS_MIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">)</span>
+
+    <span class="n">V_RTMIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">)</span>
+    <span class="n">C_RTMIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">)</span>
+    <span class="n">R_RTMIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">)</span>
+    <span class="n">I_RTMIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-20</span><span class="p">)</span>
+    <span class="n">S_RTMIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">G_RTMIN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">)</span>
+
+    <span class="n">CONC_SEA</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e8</span>  <span class="c1"># Diagnostic concentration of droplets over sea</span>
+    <span class="n">CONC_LAND</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3e8</span>  <span class="c1"># Diagnostic concentration of droplets over land</span>
+    <span class="n">CONC_URBAN</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5e8</span>  <span class="c1"># Diagnostic concentration of droplets over urban area</span>
+
+    <span class="c1"># Statistical sedimentation</span>
+    <span class="n">GAC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">GC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">GAC2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">GC2</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">RAYDEF0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 2.2    Ice crystal characteristics</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parami</span><span class="o">.</span><span class="n">PRISTINE_ICE</span> <span class="o">==</span> <span class="s2">&quot;PLAT&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AI</span> <span class="o">=</span> <span class="mf">0.82</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BI</span> <span class="o">=</span> <span class="mf">2.5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C_I</span> <span class="o">=</span> <span class="mi">800</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DI</span> <span class="o">=</span> <span class="mf">1.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C1I</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cst</span><span class="o">.</span><span class="n">PI</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parami</span><span class="o">.</span><span class="n">PRISTINE_ICE</span> <span class="o">==</span> <span class="s2">&quot;COLU&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AI</span> <span class="o">=</span> <span class="mf">2.14e-3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BI</span> <span class="o">=</span> <span class="mf">1.7</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C_I</span> <span class="o">=</span> <span class="mf">2.1e5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DI</span> <span class="o">=</span> <span class="mf">1.585</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C1I</span> <span class="o">=</span> <span class="mf">0.8</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parami</span><span class="o">.</span><span class="n">PRISTINE_ICE</span> <span class="o">==</span> <span class="s2">&quot;BURO&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">AI</span> <span class="o">=</span> <span class="mf">44.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">BI</span> <span class="o">=</span> <span class="mf">3.0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C_I</span> <span class="o">=</span> <span class="mf">4.3e5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DI</span> <span class="o">=</span> <span class="mf">1.663</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">C1I</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parami</span><span class="o">.</span><span class="n">LSNOW_T</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CS</span> <span class="o">=</span> <span class="mf">5.1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">DS</span> <span class="o">=</span> <span class="mf">0.27</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">FVELOS</span> <span class="o">=</span> <span class="mf">25.14</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span> <span class="o">=</span> <span class="mf">0.214</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">NUS</span> <span class="o">=</span> <span class="mf">43.7</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">TRANS_MP_GAMMAS</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUS</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span><span class="p">)</span> <span class="o">*</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUS</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span><span class="p">))</span>
+                <span class="o">/</span> <span class="p">(</span>
+                    <span class="mi">8</span>
+                    <span class="o">*</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUS</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span><span class="p">)</span>
+                    <span class="o">*</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUS</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">C1S</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">cst</span><span class="o">.</span><span class="n">PI</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBEXC</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBEXR</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">BR</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBEXI</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">BI</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBEXS</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CXS</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">BS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBEXG</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CXG</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">BG</span><span class="p">)</span>
+
+        <span class="c1"># 3.4 Constant for shape parameter</span>
+        <span class="n">momg</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">nu</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="n">gamma</span><span class="p">(</span><span class="n">nu</span> <span class="o">+</span> <span class="n">p</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="n">gamma</span><span class="p">(</span><span class="n">nu</span><span class="p">)</span>
+
+        <span class="n">gamc</span> <span class="o">=</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAC</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUC</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">gamc2</span> <span class="o">=</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAC2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUC2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBC_1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">LBC_2</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AR</span> <span class="o">*</span> <span class="n">gamc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">AR</span> <span class="o">*</span> <span class="n">gamc2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBR</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AR</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">CCR</span> <span class="o">*</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUR</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BR</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span>
+            <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">LBEXR</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBI</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AI</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">C_I</span> <span class="o">*</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAI</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUI</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BI</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span>
+            <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">LBEXI</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBS</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A_S</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">CCS</span> <span class="o">*</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BS</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span>
+            <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">LBEXS</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LBG</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">AG</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">CCG</span> <span class="o">*</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUG</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BG</span><span class="p">))</span> <span class="o">**</span> <span class="p">(</span>
+            <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">LBEXG</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">NS</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">A_S</span> <span class="o">*</span> <span class="n">momg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ALPHAS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">NUS</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">BS</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">GAC</span> <span class="o">=</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUC</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GC</span> <span class="o">=</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GAC2</span> <span class="o">=</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUC2</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALPHAC2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GC2</span> <span class="o">=</span> <span class="n">gamma</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NUC2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">RAYDEF0</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GAC</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">GC</span><span class="p">))</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../phyex_dimensions/" class="btn btn-neutral float-left" title="Phyex dimensions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../rain_ice_field_address/" class="btn btn-neutral float-right" title="Rain ice field address">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../phyex_dimensions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../rain_ice_field_address/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

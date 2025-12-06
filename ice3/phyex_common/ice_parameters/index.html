@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Ice parameters - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ice parameters";
+        var mkdocs_page_input_path = "ice3/phyex_common/ice_parameters.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >phyex_common</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../constants/">Constants</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Ice parameters</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">phyex_common</li>
+      <li class="breadcrumb-item active">Ice parameters</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.phyex_common.ice_parameters"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="ice3.phyex_common.ice_parameters.IceParameters" class="doc doc-heading">
+            <code>IceParameters</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+
+        <p>Configuration parameters for ICE3/ICE4 microphysics schemes.</p>
+<p>This dataclass contains all tunable parameters, switches, and options
+controlling the behavior of the ICE3 and ICE4 bulk microphysics schemes.
+Default values are taken from PHYEX/modd_param_icen.F90 and can be
+customized for different atmospheric models (AROME, Meso-NH, LMDZ).</p>
+<h4 id="ice3.phyex_common.ice_parameters.IceParameters--attributes">Attributes</h4>
+<p><strong>Model Configuration</strong></p>
+
+
+<details class="hprogram-" open>
+  <summary>{"AROME", "MESO-NH", "LMDZ"}</summary>
+  <p>Target atmospheric model. Sets appropriate default parameters in <strong>post_init</strong>.</p>
+</details>        <p><strong>Warm Cloud Processes</strong></p>
+
+
+<details class="lwarm-" open>
+  <summary>bool</summary>
+  <p>Enable warm rain processes (autoconversion, accretion). Default: True.</p>
+</details>        <p>LSEDIC : bool
+    Enable cloud droplet sedimentation. Default: True.
+LDEPOSC : bool
+    Enable fog deposition on vegetation (surface process). Default: False.
+VDEPOSC : float
+    Fog deposition velocity (m/s). Default: 0.02.</p>
+<p><strong>Ice Crystal Properties</strong></p>
+
+
+<details class="pristine_ice-" open>
+  <summary>{"PLAT", "COLU", "BURO"}</summary>
+  <p>Pristine ice crystal habit:
+- "PLAT": Plate crystals
+- "COLU": Column crystals<br />
+- "BURO": Bullet rosette crystals
+Default: "PLAT".</p>
+</details>        <p><strong>Numerical Schemes</strong></p>
+
+
+<details class="sedim-" open>
+  <summary>int</summary>
+  <p>Sedimentation scheme:
+- Sedim.SPLI (0): Time-split sedimentation
+- Sedim.STAT (1): Statistical sedimentation
+Default: SPLI.</p>
+</details>
+
+<details class="lred-" open>
+  <summary>bool</summary>
+  <p>Use modified ICE3/ICE4 to reduce time step dependency. Default: True.</p>
+</details>
+
+<details class="nmaxiter_micro-" open>
+  <summary>int</summary>
+  <p>Maximum iterations for time/mixing ratio splitting. Default: 5.</p>
+</details>
+
+<details class="mrstep-" open>
+  <summary>float</summary>
+  <p>Maximum mixing ratio step for splitting (kg/kg). Default: 5×10⁻⁵.
+Set to 0 to disable mixing ratio splitting.</p>
+</details>
+
+<details class="split_maxcfl-" open>
+  <summary>float</summary>
+  <p>Maximum CFL number for upwind sedimentation scheme. Default: 0.8.</p>
+</details>        <p><strong>Thermodynamic Options</strong></p>
+
+
+<details class="lfeedbackt-" open>
+  <summary>bool</summary>
+  <p>Include temperature feedback during iterations. Default: True.</p>
+</details>
+
+<details class="levlimit-" open>
+  <summary>bool</summary>
+  <p>Limit water vapor by saturation (prevent supersaturation). Default: True.</p>
+</details>
+
+<details class="lcond2-" open>
+  <summary>bool</summary>
+  <p>Separate liquid and ice condensation processes. Default: False.</p>
+</details>        <p><strong>Graupel Growth Modes</strong></p>
+
+
+<details class="lnullwetg-" open>
+  <summary>bool</summary>
+  <p>Allow graupel wet growth with null rate (enables water shedding). Default: True.</p>
+</details>
+
+<details class="lwetgpost-" open>
+  <summary>bool</summary>
+  <p>Allow graupel wet growth at T &gt; 0°C (for water shedding). Default: True.</p>
+</details>
+
+<details class="lconvhg-" open>
+  <summary>bool</summary>
+  <p>Allow conversion from hail to graupel (7-category scheme only). Default: False.
+Set to True for AROME and LMDZ.</p>
+</details>        <p><strong>Snow Riming Parameterization</strong></p>
+
+
+<details class="snow_riming-" open>
+  <summary>int</summary>
+  <p>Snow riming formulation:
+- SnowRiming.M90 (0): Murakami (1990) formulation
+- SnowRiming.OLD (1): Original formulation
+Default: M90.</p>
+</details>
+
+<details class="frac_m90-" open>
+  <summary>float</summary>
+  <p>Fraction parameter for M90 riming formulation. Default: 0.1.</p>
+</details>
+
+<details class="lsnow_t-" open>
+  <summary>bool</summary>
+  <p>Use temperature-dependent snow parameterization (Wurtz, 2021). Default: False.</p>
+</details>        <p><strong>Contact Freezing</strong></p>
+
+
+<details class="lcrflimit-" open>
+  <summary>bool</summary>
+  <p>Limit rain contact freezing rate by available latent heat. Default: True.</p>
+</details>        <p><strong>Subgrid-Scale Parameterizations</strong></p>
+
+
+<details class="subg_rc_rr_accr-" open>
+  <summary>int</summary>
+  <p>Subgrid cloud-rain accretion method:
+- SubgRRRCAccr.NONE (0): No subgrid treatment
+- SubgRRRCAccr.PRFR (1): Precipitation fraction method
+Default: NONE.</p>
+</details>
+
+<details class="subg_rr_evap-" open>
+  <summary>int</summary>
+  <p>Subgrid rain evaporation method:
+- SubgRREvap.NONE (0): Grid-box mean
+- SubgRREvap.CLFR (1): Cloud fraction
+- SubgRREvap.PRFR (2): Precipitation fraction
+Default: NONE.</p>
+</details>
+
+<details class="subg_pr_pdf-" open>
+  <summary>int</summary>
+  <p>PDF for subgrid precipitation:
+- SubgPRPDF.SIGM (0): Sigma method
+- SubgPRPDF.HLCRECTPDF (1): HLC rectangular PDF
+- SubgPRPDF.HLCISOTRIPDF (2): HLC isotropic triangular PDF
+- SubgPRPDF.HLCTRIANGPDF (3): HLC triangular PDF
+- SubgPRPDF.HLCQUADRAPDF (4): HLC quadratic PDF
+Default: SIGM.</p>
+</details>
+
+<details class="subg_aucv_rc-" open>
+  <summary>int</summary>
+  <p>Subgrid liquid autoconversion method:
+- SubgAucvRc.NONE (0): Grid-box mean
+- SubgAucvRc.PDF (1): PDF-based (default for AROME/LMDZ)
+- SubgAucvRc.ADJU (2): Adjustment-based
+- SubgAucvRc.CLFR (3): Cloud fraction
+- SubgAucvRc.SIGM (4): Sigma method
+Default: NONE.</p>
+</details>
+
+<details class="subg_aucv_ri-" open>
+  <summary>int</summary>
+  <p>Subgrid ice autoconversion method:
+- SubgAucvRi.NONE (0): Grid-box mean
+- SubgAucvRi.CLFR (1): Cloud fraction
+- SubgAucvRi.ADJU (2): Adjustment-based
+Default: NONE.</p>
+</details>
+
+<details class="subg_mf_pdf-" open>
+  <summary>int</summary>
+  <p>PDF for mass flux cloud autoconversion:
+- SubGridMassFluxPDF.NONE (0): No PDF
+- SubGridMassFluxPDF.TRIANGLE (1): Triangular PDF (default)
+Default: TRIANGLE.</p>
+</details>        <p><strong>Saturation Adjustment</strong></p>
+
+
+<details class="ladj_before-" open>
+  <summary>bool</summary>
+  <p>Perform saturation adjustment before microphysics. Default: True.</p>
+</details>
+
+<details class="ladj_after-" open>
+  <summary>bool</summary>
+  <p>Perform saturation adjustment after microphysics. Default: True.
+Set to False for AROME (adjustment done separately).</p>
+</details>
+
+<details class="lsedim_after-" open>
+  <summary>bool</summary>
+  <p>Perform sedimentation after (True) or before (False) microphysics. Default: False.</p>
+</details>        <p><strong>Autoconversion Thresholds</strong></p>
+
+
+<details class="criauti_nam-" open>
+  <summary>float</summary>
+  <p>Minimum ice mixing ratio for ice→snow autoconversion (kg/kg). Default: 2×10⁻⁵.</p>
+</details>
+
+<details class="acriauti_nam-" open>
+  <summary>float</summary>
+  <p>'A' parameter in ice→snow power law: rate = 10^(A×(T-T₀)+B). Default: 0.06.</p>
+</details>
+
+<details class="brcriauti_nam-" open>
+  <summary>float</summary>
+  <p>'B' parameter in ice→snow power law. Default: -3.5.</p>
+</details>
+
+<details class="t0criauti_nam-" open>
+  <summary>float</summary>
+  <p>Threshold temperature for ice→snow autoconversion (°C).
+Computed from other parameters in <strong>post_init</strong>.</p>
+</details>
+
+<details class="criautc_nam-" open>
+  <summary>float</summary>
+  <p>Threshold for cloud→rain autoconversion (kg/kg). Default: 5×10⁻⁴.
+Set to 1×10⁻³ for LMDZ.</p>
+</details>
+
+<details class="lcriauti-" open>
+  <summary>bool</summary>
+  <p>Compute ACRIAUTI and BCRIAUTI parameters. Default: True.</p>
+</details>        <p><strong>Deposition Tuning</strong></p>
+
+
+<details class="rdepsred_nam-" open>
+  <summary>float</summary>
+  <p>Tuning factor for vapor deposition on snow (dimensionless). Default: 1.0.</p>
+</details>
+
+<details class="rdepgred_nam-" open>
+  <summary>float</summary>
+  <p>Tuning factor for vapor deposition on graupel (dimensionless). Default: 1.0.</p>
+</details>        <p><strong>Fortran Optimization (Not Used in GT4Py)</strong></p>
+
+
+<details class="lpack_interp-" open>
+  <summary>bool</summary>
+  <p>Pack arrays before interpolation (Fortran GPU optimization). Default: True.</p>
+</details>
+
+<details class="lpack_micro-" open>
+  <summary>bool</summary>
+  <p>Pack arrays before process calculations (Fortran GPU optimization). Default: True.</p>
+</details>
+
+<details class="npromicro-" open>
+  <summary>int</summary>
+  <p>Cache-blocking block size (Fortran optimization). Default: 0.</p>
+</details>        <p><strong>Time Stepping</strong></p>
+
+
+<details class="tstep_ts-" open>
+  <summary>float</summary>
+  <p>Approximate time step for time-splitting version (s). Default: 0.</p>
+</details>        <p><strong>Tuning Arrays</strong></p>
+
+
+<details class="frmin_nam-" open>
+  <summary>np.ndarray</summary>
+  <p>Array of 41 tuning parameters for various processes.
+Initialized in set_frmin_nam() method.</p>
+</details>        <h4 id="ice3.phyex_common.ice_parameters.IceParameters--notes">Notes</h4>
+<p>Model-Specific Defaults:</p>
+<p><strong>AROME Configuration:</strong>
+- LCONVHG = True
+- LADJ_BEFORE = True, LADJ_AFTER = False
+- LRED = False
+- SEDIM = STAT
+- MRSTEP = 0 (no mixing ratio splitting)
+- SUBG_AUCV_RC = PDF</p>
+<p><strong>LMDZ Configuration:</strong>
+- SUBG_AUCV_RC = PDF
+- SEDIM = STAT
+- NMAXITER_MICRO = 1
+- CRIAUTC_NAM = 1×10⁻³
+- CRIAUTI_NAM = 2×10⁻⁴
+- T0CRIAUTI_NAM = -5°C
+- LRED = True
+- LCONVHG = True
+- LADJ_BEFORE = True, LADJ_AFTER = True</p>
+<p><strong>Meso-NH Configuration:</strong>
+- Uses default values</p>
+<h4 id="ice3.phyex_common.ice_parameters.IceParameters--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/aux/modd_param_icen.F90</p>
+<h4 id="ice3.phyex_common.ice_parameters.IceParameters--references">References</h4>
+<p>Murakami, M., 1990: Numerical modeling of dynamical and microphysical
+evolution of an isolated convective cloud. J. Meteor. Soc. Japan, 68, 107-128.</p>
+<p>Wurtz, J., 2021: Amélioration et évaluation de la paramétrisation des
+hydrométéores mixtes dans le modèle AROME. PhD thesis, Université Toulouse III.</p>
+<h4 id="ice3.phyex_common.ice_parameters.IceParameters--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<h3 id="ice3.phyex_common.ice_parameters.IceParameters--arome-configuration">AROME configuration</h3>
+<p>params_arome = IceParameters(HPROGRAM="AROME")
+print(params_arome.SUBG_AUCV_RC)  # PDF method
+1</p>
+<h3 id="ice3.phyex_common.ice_parameters.IceParameters--meso-nh-with-custom-settings">Meso-NH with custom settings</h3>
+<p>params_mnh = IceParameters(
+...     HPROGRAM="MESO-NH",
+...     LSNOW_T=True,  # Enable Wurtz snow param
+...     CRIAUTC_NAM=1e-3  # Higher autoconversion threshold
+... )</p>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>src/ice3/phyex_common/ice_parameters.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">IceParameters</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration parameters for ICE3/ICE4 microphysics schemes.</span>
+
+<span class="sd">    This dataclass contains all tunable parameters, switches, and options</span>
+<span class="sd">    controlling the behavior of the ICE3 and ICE4 bulk microphysics schemes.</span>
+<span class="sd">    Default values are taken from PHYEX/modd_param_icen.F90 and can be</span>
+<span class="sd">    customized for different atmospheric models (AROME, Meso-NH, LMDZ).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    **Model Configuration**</span>
+
+<span class="sd">    HPROGRAM : {&quot;AROME&quot;, &quot;MESO-NH&quot;, &quot;LMDZ&quot;}</span>
+<span class="sd">        Target atmospheric model. Sets appropriate default parameters in __post_init__.</span>
+
+<span class="sd">    **Warm Cloud Processes**</span>
+
+<span class="sd">    LWARM : bool</span>
+<span class="sd">        Enable warm rain processes (autoconversion, accretion). Default: True.</span>
+<span class="sd">    LSEDIC : bool</span>
+<span class="sd">        Enable cloud droplet sedimentation. Default: True.</span>
+<span class="sd">    LDEPOSC : bool</span>
+<span class="sd">        Enable fog deposition on vegetation (surface process). Default: False.</span>
+<span class="sd">    VDEPOSC : float</span>
+<span class="sd">        Fog deposition velocity (m/s). Default: 0.02.</span>
+
+<span class="sd">    **Ice Crystal Properties**</span>
+
+<span class="sd">    PRISTINE_ICE : {&quot;PLAT&quot;, &quot;COLU&quot;, &quot;BURO&quot;}</span>
+<span class="sd">        Pristine ice crystal habit:</span>
+<span class="sd">        - &quot;PLAT&quot;: Plate crystals</span>
+<span class="sd">        - &quot;COLU&quot;: Column crystals  </span>
+<span class="sd">        - &quot;BURO&quot;: Bullet rosette crystals</span>
+<span class="sd">        Default: &quot;PLAT&quot;.</span>
+
+<span class="sd">    **Numerical Schemes**</span>
+
+<span class="sd">    SEDIM : int</span>
+<span class="sd">        Sedimentation scheme:</span>
+<span class="sd">        - Sedim.SPLI (0): Time-split sedimentation</span>
+<span class="sd">        - Sedim.STAT (1): Statistical sedimentation</span>
+<span class="sd">        Default: SPLI.</span>
+
+<span class="sd">    LRED : bool</span>
+<span class="sd">        Use modified ICE3/ICE4 to reduce time step dependency. Default: True.</span>
+
+<span class="sd">    NMAXITER_MICRO : int</span>
+<span class="sd">        Maximum iterations for time/mixing ratio splitting. Default: 5.</span>
+
+<span class="sd">    MRSTEP : float</span>
+<span class="sd">        Maximum mixing ratio step for splitting (kg/kg). Default: 5×10⁻⁵.</span>
+<span class="sd">        Set to 0 to disable mixing ratio splitting.</span>
+
+<span class="sd">    SPLIT_MAXCFL : float</span>
+<span class="sd">        Maximum CFL number for upwind sedimentation scheme. Default: 0.8.</span>
+
+<span class="sd">    **Thermodynamic Options**</span>
+
+<span class="sd">    LFEEDBACKT : bool</span>
+<span class="sd">        Include temperature feedback during iterations. Default: True.</span>
+
+<span class="sd">    LEVLIMIT : bool</span>
+<span class="sd">        Limit water vapor by saturation (prevent supersaturation). Default: True.</span>
+
+<span class="sd">    LCOND2 : bool</span>
+<span class="sd">        Separate liquid and ice condensation processes. Default: False.</span>
+
+<span class="sd">    **Graupel Growth Modes**</span>
+
+<span class="sd">    LNULLWETG : bool</span>
+<span class="sd">        Allow graupel wet growth with null rate (enables water shedding). Default: True.</span>
+
+<span class="sd">    LWETGPOST : bool</span>
+<span class="sd">        Allow graupel wet growth at T &gt; 0°C (for water shedding). Default: True.</span>
+
+<span class="sd">    LCONVHG : bool</span>
+<span class="sd">        Allow conversion from hail to graupel (7-category scheme only). Default: False.</span>
+<span class="sd">        Set to True for AROME and LMDZ.</span>
+
+<span class="sd">    **Snow Riming Parameterization**</span>
+
+<span class="sd">    SNOW_RIMING : int</span>
+<span class="sd">        Snow riming formulation:</span>
+<span class="sd">        - SnowRiming.M90 (0): Murakami (1990) formulation</span>
+<span class="sd">        - SnowRiming.OLD (1): Original formulation</span>
+<span class="sd">        Default: M90.</span>
+
+<span class="sd">    FRAC_M90 : float</span>
+<span class="sd">        Fraction parameter for M90 riming formulation. Default: 0.1.</span>
+
+<span class="sd">    LSNOW_T : bool</span>
+<span class="sd">        Use temperature-dependent snow parameterization (Wurtz, 2021). Default: False.</span>
+
+<span class="sd">    **Contact Freezing**</span>
+
+<span class="sd">    LCRFLIMIT : bool</span>
+<span class="sd">        Limit rain contact freezing rate by available latent heat. Default: True.</span>
+
+<span class="sd">    **Subgrid-Scale Parameterizations**</span>
+
+<span class="sd">    SUBG_RC_RR_ACCR : int</span>
+<span class="sd">        Subgrid cloud-rain accretion method:</span>
+<span class="sd">        - SubgRRRCAccr.NONE (0): No subgrid treatment</span>
+<span class="sd">        - SubgRRRCAccr.PRFR (1): Precipitation fraction method</span>
+<span class="sd">        Default: NONE.</span>
+
+<span class="sd">    SUBG_RR_EVAP : int</span>
+<span class="sd">        Subgrid rain evaporation method:</span>
+<span class="sd">        - SubgRREvap.NONE (0): Grid-box mean</span>
+<span class="sd">        - SubgRREvap.CLFR (1): Cloud fraction</span>
+<span class="sd">        - SubgRREvap.PRFR (2): Precipitation fraction</span>
+<span class="sd">        Default: NONE.</span>
+
+<span class="sd">    SUBG_PR_PDF : int</span>
+<span class="sd">        PDF for subgrid precipitation:</span>
+<span class="sd">        - SubgPRPDF.SIGM (0): Sigma method</span>
+<span class="sd">        - SubgPRPDF.HLCRECTPDF (1): HLC rectangular PDF</span>
+<span class="sd">        - SubgPRPDF.HLCISOTRIPDF (2): HLC isotropic triangular PDF</span>
+<span class="sd">        - SubgPRPDF.HLCTRIANGPDF (3): HLC triangular PDF</span>
+<span class="sd">        - SubgPRPDF.HLCQUADRAPDF (4): HLC quadratic PDF</span>
+<span class="sd">        Default: SIGM.</span>
+
+<span class="sd">    SUBG_AUCV_RC : int</span>
+<span class="sd">        Subgrid liquid autoconversion method:</span>
+<span class="sd">        - SubgAucvRc.NONE (0): Grid-box mean</span>
+<span class="sd">        - SubgAucvRc.PDF (1): PDF-based (default for AROME/LMDZ)</span>
+<span class="sd">        - SubgAucvRc.ADJU (2): Adjustment-based</span>
+<span class="sd">        - SubgAucvRc.CLFR (3): Cloud fraction</span>
+<span class="sd">        - SubgAucvRc.SIGM (4): Sigma method</span>
+<span class="sd">        Default: NONE.</span>
+
+<span class="sd">    SUBG_AUCV_RI : int</span>
+<span class="sd">        Subgrid ice autoconversion method:</span>
+<span class="sd">        - SubgAucvRi.NONE (0): Grid-box mean</span>
+<span class="sd">        - SubgAucvRi.CLFR (1): Cloud fraction</span>
+<span class="sd">        - SubgAucvRi.ADJU (2): Adjustment-based</span>
+<span class="sd">        Default: NONE.</span>
+
+<span class="sd">    SUBG_MF_PDF : int</span>
+<span class="sd">        PDF for mass flux cloud autoconversion:</span>
+<span class="sd">        - SubGridMassFluxPDF.NONE (0): No PDF</span>
+<span class="sd">        - SubGridMassFluxPDF.TRIANGLE (1): Triangular PDF (default)</span>
+<span class="sd">        Default: TRIANGLE.</span>
+
+<span class="sd">    **Saturation Adjustment**</span>
+
+<span class="sd">    LADJ_BEFORE : bool</span>
+<span class="sd">        Perform saturation adjustment before microphysics. Default: True.</span>
+
+<span class="sd">    LADJ_AFTER : bool</span>
+<span class="sd">        Perform saturation adjustment after microphysics. Default: True.</span>
+<span class="sd">        Set to False for AROME (adjustment done separately).</span>
+
+<span class="sd">    LSEDIM_AFTER : bool</span>
+<span class="sd">        Perform sedimentation after (True) or before (False) microphysics. Default: False.</span>
+
+<span class="sd">    **Autoconversion Thresholds**</span>
+
+<span class="sd">    CRIAUTI_NAM : float</span>
+<span class="sd">        Minimum ice mixing ratio for ice→snow autoconversion (kg/kg). Default: 2×10⁻⁵.</span>
+
+<span class="sd">    ACRIAUTI_NAM : float</span>
+<span class="sd">        &#39;A&#39; parameter in ice→snow power law: rate = 10^(A×(T-T₀)+B). Default: 0.06.</span>
+
+<span class="sd">    BRCRIAUTI_NAM : float</span>
+<span class="sd">        &#39;B&#39; parameter in ice→snow power law. Default: -3.5.</span>
+
+<span class="sd">    T0CRIAUTI_NAM : float</span>
+<span class="sd">        Threshold temperature for ice→snow autoconversion (°C).</span>
+<span class="sd">        Computed from other parameters in __post_init__.</span>
+
+<span class="sd">    CRIAUTC_NAM : float</span>
+<span class="sd">        Threshold for cloud→rain autoconversion (kg/kg). Default: 5×10⁻⁴.</span>
+<span class="sd">        Set to 1×10⁻³ for LMDZ.</span>
+
+<span class="sd">    LCRIAUTI : bool</span>
+<span class="sd">        Compute ACRIAUTI and BCRIAUTI parameters. Default: True.</span>
+
+<span class="sd">    **Deposition Tuning**</span>
+
+<span class="sd">    RDEPSRED_NAM : float</span>
+<span class="sd">        Tuning factor for vapor deposition on snow (dimensionless). Default: 1.0.</span>
+
+<span class="sd">    RDEPGRED_NAM : float</span>
+<span class="sd">        Tuning factor for vapor deposition on graupel (dimensionless). Default: 1.0.</span>
+
+<span class="sd">    **Fortran Optimization (Not Used in GT4Py)**</span>
+
+<span class="sd">    LPACK_INTERP : bool</span>
+<span class="sd">        Pack arrays before interpolation (Fortran GPU optimization). Default: True.</span>
+
+<span class="sd">    LPACK_MICRO : bool</span>
+<span class="sd">        Pack arrays before process calculations (Fortran GPU optimization). Default: True.</span>
+
+<span class="sd">    NPROMICRO : int</span>
+<span class="sd">        Cache-blocking block size (Fortran optimization). Default: 0.</span>
+
+<span class="sd">    **Time Stepping**</span>
+
+<span class="sd">    TSTEP_TS : float</span>
+<span class="sd">        Approximate time step for time-splitting version (s). Default: 0.</span>
+
+<span class="sd">    **Tuning Arrays**</span>
+
+<span class="sd">    FRMIN_NAM : np.ndarray</span>
+<span class="sd">        Array of 41 tuning parameters for various processes.</span>
+<span class="sd">        Initialized in set_frmin_nam() method.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Model-Specific Defaults:</span>
+
+<span class="sd">    **AROME Configuration:**</span>
+<span class="sd">    - LCONVHG = True</span>
+<span class="sd">    - LADJ_BEFORE = True, LADJ_AFTER = False</span>
+<span class="sd">    - LRED = False</span>
+<span class="sd">    - SEDIM = STAT</span>
+<span class="sd">    - MRSTEP = 0 (no mixing ratio splitting)</span>
+<span class="sd">    - SUBG_AUCV_RC = PDF</span>
+
+<span class="sd">    **LMDZ Configuration:**</span>
+<span class="sd">    - SUBG_AUCV_RC = PDF</span>
+<span class="sd">    - SEDIM = STAT</span>
+<span class="sd">    - NMAXITER_MICRO = 1</span>
+<span class="sd">    - CRIAUTC_NAM = 1×10⁻³</span>
+<span class="sd">    - CRIAUTI_NAM = 2×10⁻⁴</span>
+<span class="sd">    - T0CRIAUTI_NAM = -5°C</span>
+<span class="sd">    - LRED = True</span>
+<span class="sd">    - LCONVHG = True</span>
+<span class="sd">    - LADJ_BEFORE = True, LADJ_AFTER = True</span>
+
+<span class="sd">    **Meso-NH Configuration:**</span>
+<span class="sd">    - Uses default values</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/aux/modd_param_icen.F90</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    Murakami, M., 1990: Numerical modeling of dynamical and microphysical</span>
+<span class="sd">    evolution of an isolated convective cloud. J. Meteor. Soc. Japan, 68, 107-128.</span>
+
+<span class="sd">    Wurtz, J., 2021: Amélioration et évaluation de la paramétrisation des</span>
+<span class="sd">    hydrométéores mixtes dans le modèle AROME. PhD thesis, Université Toulouse III.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # AROME configuration</span>
+<span class="sd">    &gt;&gt;&gt; params_arome = IceParameters(HPROGRAM=&quot;AROME&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(params_arome.SUBG_AUCV_RC)  # PDF method</span>
+<span class="sd">    1</span>
+
+<span class="sd">    &gt;&gt;&gt; # Meso-NH with custom settings</span>
+<span class="sd">    &gt;&gt;&gt; params_mnh = IceParameters(</span>
+<span class="sd">    ...     HPROGRAM=&quot;MESO-NH&quot;,</span>
+<span class="sd">    ...     LSNOW_T=True,  # Enable Wurtz snow param</span>
+<span class="sd">    ...     CRIAUTC_NAM=1e-3  # Higher autoconversion threshold</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">HPROGRAM</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;AROME&quot;</span><span class="p">,</span> <span class="s2">&quot;MESO-NH&quot;</span><span class="p">,</span> <span class="s2">&quot;LMDZ&quot;</span><span class="p">]</span>
+
+    <span class="n">LWARM</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Formation of rain by warm processes</span>
+    <span class="n">LSEDIC</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># Enable the droplets sedimentation</span>
+    <span class="n">LDEPOSC</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>  <span class="c1"># Enable cloud droplets deposition on vegetation</span>
+
+    <span class="n">VDEPOSC</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>  <span class="c1"># Droplet deposition velocity</span>
+
+    <span class="n">PRISTINE_ICE</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;PLAT&quot;</span><span class="p">,</span> <span class="s2">&quot;COLU&quot;</span><span class="p">,</span> <span class="s2">&quot;BURO&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;PLAT&quot;</span>
+    <span class="p">)</span>  <span class="c1"># Pristine ice type PLAT, COLU, or BURO</span>
+    <span class="n">SEDIM</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">Sedim</span><span class="o">.</span><span class="n">SPLI</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># Sedimentation calculation mode</span>
+
+    <span class="c1"># To use modified ice3/ice4 - to reduce time step dependency</span>
+    <span class="n">LRED</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LFEEDBACKT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LEVLIMIT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LNULLWETG</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LWETGPOST</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">SNOW_RIMING</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">SnowRiming</span><span class="o">.</span><span class="n">M90</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="n">FRAC_M90</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">NMAXITER_MICRO</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">MRSTEP</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">5e-5</span><span class="p">)</span>
+
+    <span class="n">LCONVHG</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">LCRFLIMIT</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">TSTEP_TS</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">SUBG_RC_RR_ACCR</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">SubgRRRCAccr</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>  <span class="c1"># subgrid rc-rr accretion</span>
+    <span class="n">SUBG_RR_EVAP</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">SubgRREvap</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># subgrid rr evaporation</span>
+    <span class="n">SUBG_PR_PDF</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">SubgPRPDF</span><span class="o">.</span><span class="n">SIGM</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>  <span class="c1"># pdf for subgrid precipitation</span>
+    <span class="n">SUBG_AUCV_RC</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">SubgAucvRc</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>  <span class="c1"># type of subgrid rc-&gt;rr autoconv. method</span>
+    <span class="n">SUBG_AUCV_RI</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">SubgAucvRi</span><span class="o">.</span><span class="n">NONE</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>  <span class="c1"># type of subgrid ri-&gt;rs autoconv. method</span>
+
+    <span class="c1"># PDF to use for MF cloud autoconversions</span>
+    <span class="n">SUBG_MF_PDF</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">SubGridMassFluxPDF</span><span class="o">.</span><span class="n">TRIANGLE</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="c1"># key for adjustment before rain_ice call</span>
+    <span class="n">LADJ_BEFORE</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># key for adjustment after rain_ice call</span>
+    <span class="n">LADJ_AFTER</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># switch to perform sedimentation</span>
+    <span class="c1"># before (.FALSE.)</span>
+    <span class="c1"># or after (.TRUE.) microphysics</span>
+    <span class="n">LSEDIM_AFTER</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># Maximum CFL number allowed for SPLIT scheme</span>
+    <span class="n">SPLIT_MAXCFL</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+
+    <span class="c1"># Snow parameterization from Wurtz (2021)</span>
+    <span class="n">LSNOW_T</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">LPACK_INTERP</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LPACK_MICRO</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">LCRIAUTI</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">NPROMICRO</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">CRIAUTI_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.2e-4</span><span class="p">)</span>
+    <span class="n">ACRIAUTI_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.06</span><span class="p">)</span>
+    <span class="n">BRCRIAUTI_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=-</span><span class="mf">3.5</span><span class="p">)</span>
+    <span class="n">T0CRIAUTI_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">CRIAUTC_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mf">0.5e-3</span><span class="p">)</span>
+    <span class="n">RDEPSRED_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">RDEPGRED_NAM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">LCOND2</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># TODO : replace frmin_nam by a global table</span>
+    <span class="n">FRMIN_NAM</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">T0CRIAUTI_NAM</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">CRIAUTI_NAM</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">BRCRIAUTI_NAM</span><span class="p">)</span> <span class="o">/</span> <span class="mf">0.06</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_frmin_nam</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">HPROGRAM</span> <span class="o">==</span> <span class="s2">&quot;AROME&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LCONVHG</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LADJ_BEFORE</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LADJ_AFTER</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LRED</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SEDIM</span> <span class="o">=</span> <span class="n">Sedim</span><span class="o">.</span><span class="n">STAT</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">MRSTEP</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SUBG_AUCV_RC</span> <span class="o">=</span> <span class="n">SubgAucvRc</span><span class="o">.</span><span class="n">PDF</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">HPROGRAM</span> <span class="o">==</span> <span class="s2">&quot;LMDZ&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SUBG_AUCV_RC</span> <span class="o">=</span> <span class="n">SubgAucvRc</span><span class="o">.</span><span class="n">PDF</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">SEDIM</span> <span class="o">=</span> <span class="n">Sedim</span><span class="o">.</span><span class="n">STAT</span><span class="o">.</span><span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">NMAXITER_MICRO</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CRIAUTC_NAM</span> <span class="o">=</span> <span class="mf">0.001</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">CRIAUTI_NAM</span> <span class="o">=</span> <span class="mf">0.0002</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">T0CRIAUTI_NAM</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LRED</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LCONVHG</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LADJ_BEFORE</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">LADJ_AFTER</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_frmin_nam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tmp_frmin_nam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">41</span><span class="p">)</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e-15</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">=</span> <span class="mf">120.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0e-4</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">16</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">21</span><span class="p">:</span><span class="mi">22</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">23</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.5</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">25</span><span class="p">]</span> <span class="o">=</span> <span class="mf">30.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">26</span><span class="p">:</span><span class="mi">38</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">39</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="n">tmp_frmin_nam</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.15</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FRMIN_NAM</span> <span class="o">=</span> <span class="n">tmp_frmin_nam</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../constants/" class="btn btn-neutral float-left" title="Constants"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../incomplete_gamma/" class="btn btn-neutral float-right" title="Incomplete gamma">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../constants/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../incomplete_gamma/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

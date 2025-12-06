@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Ice4 slow - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ice4 slow";
+        var mkdocs_page_input_path = "ice3/stencils/ice4_slow.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >stencils</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Ice4 slow</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">stencils</li>
+      <li class="breadcrumb-item active">Ice4 slow</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.stencils.ice4_slow"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.ice4_slow.ice4_slow" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_slow</span><span class="p">(</span><span class="n">ldcompute</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">ssi</span><span class="p">,</span> <span class="n">rvt</span><span class="p">,</span> <span class="n">rct</span><span class="p">,</span> <span class="n">rit</span><span class="p">,</span> <span class="n">rst</span><span class="p">,</span> <span class="n">rgt</span><span class="p">,</span> <span class="n">lbdas</span><span class="p">,</span> <span class="n">lbdag</span><span class="p">,</span> <span class="n">ai</span><span class="p">,</span> <span class="n">cj</span><span class="p">,</span> <span class="n">hli_hcf</span><span class="p">,</span> <span class="n">hli_hri</span><span class="p">,</span> <span class="n">rc_honi_tnd</span><span class="p">,</span> <span class="n">rv_deps_tnd</span><span class="p">,</span> <span class="n">ri_aggs_tnd</span><span class="p">,</span> <span class="n">ri_auts_tnd</span><span class="p">,</span> <span class="n">rv_depg_tnd</span><span class="p">,</span> <span class="n">ldsoft</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute slow cold microphysical processes for ICE4 scheme.</p>
+<p>This stencil computes five slow (temperature-dependent) microphysical
+processes that occur over longer timescales than collision processes:
+homogeneous nucleation, vapor deposition on snow and graupel, ice crystal
+aggregation, and ice-to-snow autoconversion. These processes are
+"slow" because they involve phase changes or growth by diffusion rather
+than fast collision-coalescence.</p>
+<h4 id="ice3.stencils.ice4_slow.ice4_slow--parameters">Parameters</h4>
+<p>ldcompute : Field[bool]
+    Computation mask to activate processes (True = compute, False = skip).
+    Used to optimize performance by skipping columns without clouds.
+rhodref : Field[float]
+    Reference air density (kg/m³). Input field.
+t : Field[float]
+    Temperature (K). Input field.
+ssi : Field[float]
+    Supersaturation with respect to ice, S_i = (r_v - r_v,sat,i)/r_v,sat,i
+    (dimensionless). Input field.
+rvt : Field[float]
+    Water vapor mixing ratio (kg/kg). Input field.
+rct : Field[float]
+    Cloud droplet mixing ratio (kg/kg). Input field.
+rit : Field[float]
+    Ice crystal mixing ratio (kg/kg). Input field.
+rst : Field[float]
+    Snow/aggregate mixing ratio (kg/kg). Input field.
+rgt : Field[float]
+    Graupel mixing ratio (kg/kg). Input field.
+lbdas : Field[float]
+    Snow size distribution slope parameter λ_s (m⁻¹). Input field.
+lbdag : Field[float]
+    Graupel size distribution slope parameter λ_g (m⁻¹). Input field.
+ai : Field[float]
+    Thermodynamic diffusion coefficient A_i (s·m⁻²). Input field.
+    Accounts for heat and vapor diffusion limitations.
+cj : Field[float]
+    Ventilation coefficient C_j (m^((1-D)/2)). Input field.
+    Accounts for particle motion enhancement of diffusion.
+hli_hcf : Field[float]
+    Cloud fraction for subgrid ice autoconversion (0-1). Input field.
+    From subgrid condensation scheme.
+hli_hri : Field[float]
+    Ice mixing ratio for subgrid autoconversion (kg/kg). Input field.
+    From subgrid condensation scheme.
+rc_honi_tnd : Field[float]
+    Homogeneous nucleation tendency: r_c → r_i (kg/kg/s). Output field.
+rv_deps_tnd : Field[float]
+    Vapor deposition on snow tendency: r_v → r_s (kg/kg/s). Output field.
+ri_aggs_tnd : Field[float]
+    Ice aggregation to snow tendency: r_i → r_s (kg/kg/s). Output field.
+ri_auts_tnd : Field[float]
+    Ice autoconversion to snow tendency: r_i → r_s (kg/kg/s). Output field.
+rv_depg_tnd : Field[float]
+    Vapor deposition on graupel tendency: r_v → r_g (kg/kg/s). Output field.
+ldsoft : bool
+    Soft threshold mode (scalar). If True, sets all tendencies to zero.
+    Used for special diagnostic modes.</p>
+<h4 id="ice3.stencils.ice4_slow.ice4_slow--returns">Returns</h4>
+<p>None
+    Modifies tendency fields in place.</p>
+<h4 id="ice3.stencils.ice4_slow.ice4_slow--notes">Notes</h4>
+<p><strong>Process 1: Homogeneous Nucleation (RCHONI)</strong></p>
+<p>Condition: T &lt; -35°C and r_c &gt; threshold</p>
+<p>At very cold temperatures, cloud droplets freeze spontaneously:</p>
+<p>dr_c/dt = -HON × ρ × r_c × exp(α₃×(T - T_t) - β₃)</p>
+<p>where:
+- HON: Homogeneous nucleation rate constant (m³·kg⁻¹·s⁻¹)
+- α₃, β₃: Temperature coefficients
+- Rate limited to max 1000 kg/kg/s for numerical stability</p>
+<p>Physical basis: Fletcher's nucleation theory, all droplets freeze
+below approximately -38°C in nature.</p>
+<p><strong>Process 2: Vapor Deposition on Snow (RVDEPS)</strong></p>
+<p>Condition: r_v &gt; threshold, r_s &gt; threshold, supersaturated over ice</p>
+<p>Water vapor deposits directly onto snow crystals:</p>
+<p>dr_v/dt = -(S_i / (ρ × A_i)) × [O0DEPS × λ_s^EX0DEPS + O1DEPS × C_j × λ_s^EX1DEPS]</p>
+<p>Two terms:
+- First term (O0DEPS): Non-ventilated diffusion growth
+- Second term (O1DEPS): Ventilated growth (enhanced by falling)</p>
+<p>where:
+- S_i: Ice supersaturation
+- A_i: Thermodynamic diffusion coefficient
+- λ_s: Snow slope parameter (∝ concentration/size)
+- C_j: Ventilation factor
+- EX0DEPS, EX1DEPS: Size distribution exponents</p>
+<p><strong>Process 3: Ice Aggregation to Snow (RIAGGS)</strong></p>
+<p>Condition: r_i &gt; threshold, r_s &gt; threshold</p>
+<p>Ice crystals collide and stick to form larger snow aggregates:</p>
+<p>dr_i/dt = -F_IAGGS × exp(COLEXIS × (T - T_t)) × r_i × λ_s^EXIAGGS × ρ^(-CEXVT)</p>
+<p>where:
+- F_IAGGS: Aggregation efficiency pre-factor
+- COLEXIS: Temperature factor (sticking efficiency increases near 0°C)
+- EXIAGGS: Size distribution exponent
+- ρ^(-CEXVT): Air density correction for fall speed</p>
+<p>Physical basis: Collision-coalescence between ice crystals and snow,
+temperature-dependent sticking efficiency (dendrites stick better).</p>
+<p><strong>Process 4: Ice Autoconversion to Snow (RIAUTS)</strong></p>
+<p>Condition: hli_hri &gt; threshold (subgrid ice amount)</p>
+<p>Ice crystals grow large enough to be reclassified as snow:</p>
+<p>dr_i/dt = -(T_IMAUTI × exp(T_EXAUTI × (T - T_t))) × max(0, hli_hri - r_crit × hli_hcf)</p>
+<p>where:
+- T_IMAUTI: Time constant at T_t (s⁻¹)
+- T_EXAUTI: Temperature factor (K⁻¹)
+- r_crit(T): Temperature-dependent threshold
+  r_crit = min(CRIAUTI, 10^(ACRIAUTI×(T-T_t) + BCRIAUTI))
+- hli_hri: Subgrid ice mixing ratio
+- hli_hcf: Subgrid cloud fraction</p>
+<p>Threshold increases with warming (more ice needed at warmer T).
+Uses subgrid values to account for cloud heterogeneity.</p>
+<p><strong>Process 5: Vapor Deposition on Graupel (RVDEPG)</strong></p>
+<p>Condition: r_v &gt; threshold, r_g &gt; threshold, supersaturated over ice</p>
+<p>Similar to snow deposition but for graupel:</p>
+<p>dr_v/dt = -(S_i / (ρ × A_i)) × [O0DEPG × λ_g^EX0DEPG + O1DEPG × C_j × λ_g^EX1DEPG]</p>
+<p>Same form as RVDEPS but with graupel parameters (O0DEPG, etc.).
+Graupel has higher terminal velocities → stronger ventilation effects.</p>
+<p><strong>Threshold Logic:</strong></p>
+<p>All processes check minimum mixing ratios (V_RTMIN, C_RTMIN, etc.)
+to prevent:
+- Numerical underflow
+- Spurious tendencies from trace amounts
+- Division by zero in rate calculations</p>
+<p>Typical thresholds: 10⁻²⁰ kg/kg for vapor/cloud, 10⁻¹⁵ kg/kg for snow/graupel</p>
+<p><strong>ldsoft Mode:</strong></p>
+<p>When ldsoft=True, all tendencies set to zero regardless of conditions.
+Used for:
+- Sensitivity tests
+- Process isolation experiments
+- Diagnostic runs</p>
+<p><strong>Time Scales:</strong></p>
+<p>These are "slow" processes compared to collision processes:
+- Homogeneous nucleation: τ ~ 1-10 s (very fast once initiated)
+- Deposition: τ ~ 100-1000 s (diffusion-limited)
+- Aggregation: τ ~ 100-1000 s (collection + temperature dependent)
+- Autoconversion: τ ~ 100-1000 s (size threshold based)</p>
+<p><strong>Physical Interpretation:</strong></p>
+<p>This stencil handles the "background" ice processes:
+- Nucleation: Creates initial ice at cold temperatures
+- Deposition: Grows existing ice/snow by vapor uptake
+- Aggregation: Builds larger particles from crystals
+- Autoconversion: Transitions ice to snow category</p>
+<p>These processes set up the ice phase structure that fast processes
+(riming, accretion) then modify through collisions.</p>
+<p><strong>Ventilation Effects:</strong></p>
+<p>Both deposition processes include ventilation terms (C_j):
+- Stationary particles: diffusion only (O0 term)
+- Falling particles: enhanced diffusion (O1 × C_j term)
+- Enhancement factor ∝ √(Re) from boundary layer thinning</p>
+<h4 id="ice3.stencils.ice4_slow.ice4_slow--source-reference">Source Reference</h4>
+<p>PHYEX/src/common/micro/mode_ice4_slow.F90</p>
+<h4 id="ice3.stencils.ice4_slow.ice4_slow--see-also">See Also</h4>
+<p>ice4_fast_rg : Fast riming processes (rain-graupel)
+ice4_fast_rs : Fast snow processes
+ice4_warm : Warm rain processes
+ice4_stepping : Time integration of all tendencies</p>
+<h4 id="ice3.stencils.ice4_slow.ice4_slow--examples">Examples</h4>
+<blockquote>
+<blockquote>
+<blockquote>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--cold-cloud-with-ice-and-snow">Cold cloud with ice and snow</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--t-20c-r_i-1e-4-kgkg-r_s-5e-4-kgkg">T = -20°C, r_i = 1e-4 kg/kg, r_s = 5e-4 kg/kg</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--aggregation-active-riaggs-0">→ Aggregation active (RIAGGS &gt; 0)</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--deposition-active-if-supersaturated-rvdeps-0">→ Deposition active if supersaturated (RVDEPS &gt; 0)</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--autoconversion-possible-if-r_i-exceeds-threshold">→ Autoconversion possible if r_i exceeds threshold</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--very-cold-cloud-with-supercooled-droplets">Very cold cloud with supercooled droplets</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--t-40c-r_c-1e-4-kgkg">T = -40°C, r_c = 1e-4 kg/kg</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--homogeneous-nucleation-active-rchoni-10-100-kgkgs">→ Homogeneous nucleation active (RCHONI ~ 10-100 kg/kg/s)</h3>
+<h3 id="ice3.stencils.ice4_slow.ice4_slow--all-droplets-freeze-rapidly">→ All droplets freeze rapidly</h3>
+</blockquote>
+</blockquote>
+</blockquote>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/ice4_slow.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ice4_slow</span><span class="p">(</span>
+    <span class="n">ldcompute</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;bool&quot;</span><span class="p">],</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ssi</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rvt</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rct</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rit</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rst</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rgt</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lbdas</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lbdag</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ai</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">cj</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">hli_hcf</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">hli_hri</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_honi_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_deps_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_aggs_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_auts_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_depg_tnd</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ldsoft</span><span class="p">:</span> <span class="s2">&quot;bool&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute slow cold microphysical processes for ICE4 scheme.</span>
+
+<span class="sd">    This stencil computes five slow (temperature-dependent) microphysical</span>
+<span class="sd">    processes that occur over longer timescales than collision processes:</span>
+<span class="sd">    homogeneous nucleation, vapor deposition on snow and graupel, ice crystal</span>
+<span class="sd">    aggregation, and ice-to-snow autoconversion. These processes are</span>
+<span class="sd">    &quot;slow&quot; because they involve phase changes or growth by diffusion rather</span>
+<span class="sd">    than fast collision-coalescence.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ldcompute : Field[bool]</span>
+<span class="sd">        Computation mask to activate processes (True = compute, False = skip).</span>
+<span class="sd">        Used to optimize performance by skipping columns without clouds.</span>
+<span class="sd">    rhodref : Field[float]</span>
+<span class="sd">        Reference air density (kg/m³). Input field.</span>
+<span class="sd">    t : Field[float]</span>
+<span class="sd">        Temperature (K). Input field.</span>
+<span class="sd">    ssi : Field[float]</span>
+<span class="sd">        Supersaturation with respect to ice, S_i = (r_v - r_v,sat,i)/r_v,sat,i</span>
+<span class="sd">        (dimensionless). Input field.</span>
+<span class="sd">    rvt : Field[float]</span>
+<span class="sd">        Water vapor mixing ratio (kg/kg). Input field.</span>
+<span class="sd">    rct : Field[float]</span>
+<span class="sd">        Cloud droplet mixing ratio (kg/kg). Input field.</span>
+<span class="sd">    rit : Field[float]</span>
+<span class="sd">        Ice crystal mixing ratio (kg/kg). Input field.</span>
+<span class="sd">    rst : Field[float]</span>
+<span class="sd">        Snow/aggregate mixing ratio (kg/kg). Input field.</span>
+<span class="sd">    rgt : Field[float]</span>
+<span class="sd">        Graupel mixing ratio (kg/kg). Input field.</span>
+<span class="sd">    lbdas : Field[float]</span>
+<span class="sd">        Snow size distribution slope parameter λ_s (m⁻¹). Input field.</span>
+<span class="sd">    lbdag : Field[float]</span>
+<span class="sd">        Graupel size distribution slope parameter λ_g (m⁻¹). Input field.</span>
+<span class="sd">    ai : Field[float]</span>
+<span class="sd">        Thermodynamic diffusion coefficient A_i (s·m⁻²). Input field.</span>
+<span class="sd">        Accounts for heat and vapor diffusion limitations.</span>
+<span class="sd">    cj : Field[float]</span>
+<span class="sd">        Ventilation coefficient C_j (m^((1-D)/2)). Input field.</span>
+<span class="sd">        Accounts for particle motion enhancement of diffusion.</span>
+<span class="sd">    hli_hcf : Field[float]</span>
+<span class="sd">        Cloud fraction for subgrid ice autoconversion (0-1). Input field.</span>
+<span class="sd">        From subgrid condensation scheme.</span>
+<span class="sd">    hli_hri : Field[float]</span>
+<span class="sd">        Ice mixing ratio for subgrid autoconversion (kg/kg). Input field.</span>
+<span class="sd">        From subgrid condensation scheme.</span>
+<span class="sd">    rc_honi_tnd : Field[float]</span>
+<span class="sd">        Homogeneous nucleation tendency: r_c → r_i (kg/kg/s). Output field.</span>
+<span class="sd">    rv_deps_tnd : Field[float]</span>
+<span class="sd">        Vapor deposition on snow tendency: r_v → r_s (kg/kg/s). Output field.</span>
+<span class="sd">    ri_aggs_tnd : Field[float]</span>
+<span class="sd">        Ice aggregation to snow tendency: r_i → r_s (kg/kg/s). Output field.</span>
+<span class="sd">    ri_auts_tnd : Field[float]</span>
+<span class="sd">        Ice autoconversion to snow tendency: r_i → r_s (kg/kg/s). Output field.</span>
+<span class="sd">    rv_depg_tnd : Field[float]</span>
+<span class="sd">        Vapor deposition on graupel tendency: r_v → r_g (kg/kg/s). Output field.</span>
+<span class="sd">    ldsoft : bool</span>
+<span class="sd">        Soft threshold mode (scalar). If True, sets all tendencies to zero.</span>
+<span class="sd">        Used for special diagnostic modes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    None</span>
+<span class="sd">        Modifies tendency fields in place.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Process 1: Homogeneous Nucleation (RCHONI)**</span>
+
+<span class="sd">    Condition: T &lt; -35°C and r_c &gt; threshold</span>
+
+<span class="sd">    At very cold temperatures, cloud droplets freeze spontaneously:</span>
+
+<span class="sd">    dr_c/dt = -HON × ρ × r_c × exp(α₃×(T - T_t) - β₃)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - HON: Homogeneous nucleation rate constant (m³·kg⁻¹·s⁻¹)</span>
+<span class="sd">    - α₃, β₃: Temperature coefficients</span>
+<span class="sd">    - Rate limited to max 1000 kg/kg/s for numerical stability</span>
+
+<span class="sd">    Physical basis: Fletcher&#39;s nucleation theory, all droplets freeze</span>
+<span class="sd">    below approximately -38°C in nature.</span>
+
+<span class="sd">    **Process 2: Vapor Deposition on Snow (RVDEPS)**</span>
+
+<span class="sd">    Condition: r_v &gt; threshold, r_s &gt; threshold, supersaturated over ice</span>
+
+<span class="sd">    Water vapor deposits directly onto snow crystals:</span>
+
+<span class="sd">    dr_v/dt = -(S_i / (ρ × A_i)) × [O0DEPS × λ_s^EX0DEPS + O1DEPS × C_j × λ_s^EX1DEPS]</span>
+
+<span class="sd">    Two terms:</span>
+<span class="sd">    - First term (O0DEPS): Non-ventilated diffusion growth</span>
+<span class="sd">    - Second term (O1DEPS): Ventilated growth (enhanced by falling)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - S_i: Ice supersaturation</span>
+<span class="sd">    - A_i: Thermodynamic diffusion coefficient</span>
+<span class="sd">    - λ_s: Snow slope parameter (∝ concentration/size)</span>
+<span class="sd">    - C_j: Ventilation factor</span>
+<span class="sd">    - EX0DEPS, EX1DEPS: Size distribution exponents</span>
+
+<span class="sd">    **Process 3: Ice Aggregation to Snow (RIAGGS)**</span>
+
+<span class="sd">    Condition: r_i &gt; threshold, r_s &gt; threshold</span>
+
+<span class="sd">    Ice crystals collide and stick to form larger snow aggregates:</span>
+
+<span class="sd">    dr_i/dt = -F_IAGGS × exp(COLEXIS × (T - T_t)) × r_i × λ_s^EXIAGGS × ρ^(-CEXVT)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - F_IAGGS: Aggregation efficiency pre-factor</span>
+<span class="sd">    - COLEXIS: Temperature factor (sticking efficiency increases near 0°C)</span>
+<span class="sd">    - EXIAGGS: Size distribution exponent</span>
+<span class="sd">    - ρ^(-CEXVT): Air density correction for fall speed</span>
+
+<span class="sd">    Physical basis: Collision-coalescence between ice crystals and snow,</span>
+<span class="sd">    temperature-dependent sticking efficiency (dendrites stick better).</span>
+
+<span class="sd">    **Process 4: Ice Autoconversion to Snow (RIAUTS)**</span>
+
+<span class="sd">    Condition: hli_hri &gt; threshold (subgrid ice amount)</span>
+
+<span class="sd">    Ice crystals grow large enough to be reclassified as snow:</span>
+
+<span class="sd">    dr_i/dt = -(T_IMAUTI × exp(T_EXAUTI × (T - T_t))) × max(0, hli_hri - r_crit × hli_hcf)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - T_IMAUTI: Time constant at T_t (s⁻¹)</span>
+<span class="sd">    - T_EXAUTI: Temperature factor (K⁻¹)</span>
+<span class="sd">    - r_crit(T): Temperature-dependent threshold</span>
+<span class="sd">      r_crit = min(CRIAUTI, 10^(ACRIAUTI×(T-T_t) + BCRIAUTI))</span>
+<span class="sd">    - hli_hri: Subgrid ice mixing ratio</span>
+<span class="sd">    - hli_hcf: Subgrid cloud fraction</span>
+
+<span class="sd">    Threshold increases with warming (more ice needed at warmer T).</span>
+<span class="sd">    Uses subgrid values to account for cloud heterogeneity.</span>
+
+<span class="sd">    **Process 5: Vapor Deposition on Graupel (RVDEPG)**</span>
+
+<span class="sd">    Condition: r_v &gt; threshold, r_g &gt; threshold, supersaturated over ice</span>
+
+<span class="sd">    Similar to snow deposition but for graupel:</span>
+
+<span class="sd">    dr_v/dt = -(S_i / (ρ × A_i)) × [O0DEPG × λ_g^EX0DEPG + O1DEPG × C_j × λ_g^EX1DEPG]</span>
+
+<span class="sd">    Same form as RVDEPS but with graupel parameters (O0DEPG, etc.).</span>
+<span class="sd">    Graupel has higher terminal velocities → stronger ventilation effects.</span>
+
+<span class="sd">    **Threshold Logic:**</span>
+
+<span class="sd">    All processes check minimum mixing ratios (V_RTMIN, C_RTMIN, etc.)</span>
+<span class="sd">    to prevent:</span>
+<span class="sd">    - Numerical underflow</span>
+<span class="sd">    - Spurious tendencies from trace amounts</span>
+<span class="sd">    - Division by zero in rate calculations</span>
+
+<span class="sd">    Typical thresholds: 10⁻²⁰ kg/kg for vapor/cloud, 10⁻¹⁵ kg/kg for snow/graupel</span>
+
+<span class="sd">    **ldsoft Mode:**</span>
+
+<span class="sd">    When ldsoft=True, all tendencies set to zero regardless of conditions.</span>
+<span class="sd">    Used for:</span>
+<span class="sd">    - Sensitivity tests</span>
+<span class="sd">    - Process isolation experiments</span>
+<span class="sd">    - Diagnostic runs</span>
+
+<span class="sd">    **Time Scales:**</span>
+
+<span class="sd">    These are &quot;slow&quot; processes compared to collision processes:</span>
+<span class="sd">    - Homogeneous nucleation: τ ~ 1-10 s (very fast once initiated)</span>
+<span class="sd">    - Deposition: τ ~ 100-1000 s (diffusion-limited)</span>
+<span class="sd">    - Aggregation: τ ~ 100-1000 s (collection + temperature dependent)</span>
+<span class="sd">    - Autoconversion: τ ~ 100-1000 s (size threshold based)</span>
+
+<span class="sd">    **Physical Interpretation:**</span>
+
+<span class="sd">    This stencil handles the &quot;background&quot; ice processes:</span>
+<span class="sd">    - Nucleation: Creates initial ice at cold temperatures</span>
+<span class="sd">    - Deposition: Grows existing ice/snow by vapor uptake</span>
+<span class="sd">    - Aggregation: Builds larger particles from crystals</span>
+<span class="sd">    - Autoconversion: Transitions ice to snow category</span>
+
+<span class="sd">    These processes set up the ice phase structure that fast processes</span>
+<span class="sd">    (riming, accretion) then modify through collisions.</span>
+
+<span class="sd">    **Ventilation Effects:**</span>
+
+<span class="sd">    Both deposition processes include ventilation terms (C_j):</span>
+<span class="sd">    - Stationary particles: diffusion only (O0 term)</span>
+<span class="sd">    - Falling particles: enhanced diffusion (O1 × C_j term)</span>
+<span class="sd">    - Enhancement factor ∝ √(Re) from boundary layer thinning</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    PHYEX/src/common/micro/mode_ice4_slow.F90</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ice4_fast_rg : Fast riming processes (rain-graupel)</span>
+<span class="sd">    ice4_fast_rs : Fast snow processes</span>
+<span class="sd">    ice4_warm : Warm rain processes</span>
+<span class="sd">    ice4_stepping : Time integration of all tendencies</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Cold cloud with ice and snow</span>
+<span class="sd">    &gt;&gt;&gt; # T = -20°C, r_i = 1e-4 kg/kg, r_s = 5e-4 kg/kg</span>
+<span class="sd">    &gt;&gt;&gt; # → Aggregation active (RIAGGS &gt; 0)</span>
+<span class="sd">    &gt;&gt;&gt; # → Deposition active if supersaturated (RVDEPS &gt; 0)</span>
+<span class="sd">    &gt;&gt;&gt; # → Autoconversion possible if r_i exceeds threshold</span>
+
+<span class="sd">    &gt;&gt;&gt; # Very cold cloud with supercooled droplets</span>
+<span class="sd">    &gt;&gt;&gt; # T = -40°C, r_c = 1e-4 kg/kg</span>
+<span class="sd">    &gt;&gt;&gt; # → Homogeneous nucleation active (RCHONI ~ 10-100 kg/kg/s)</span>
+<span class="sd">    &gt;&gt;&gt; # → All droplets freeze rapidly</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">ACRIAUTI</span><span class="p">,</span> <span class="n">ALPHA3</span><span class="p">,</span> <span class="n">BCRIAUTI</span><span class="p">,</span> <span class="n">BETA3</span><span class="p">,</span> <span class="n">C_RTMIN</span><span class="p">,</span>
+                               <span class="n">CEXVT</span><span class="p">,</span> <span class="n">COLEXIS</span><span class="p">,</span> <span class="n">CRIAUTI</span><span class="p">,</span> <span class="n">EX0DEPG</span><span class="p">,</span> <span class="n">EX0DEPS</span><span class="p">,</span>
+                               <span class="n">EX1DEPG</span><span class="p">,</span> <span class="n">EX1DEPS</span><span class="p">,</span> <span class="n">EXIAGGS</span><span class="p">,</span> <span class="n">FIAGGS</span><span class="p">,</span> <span class="n">G_RTMIN</span><span class="p">,</span> <span class="n">HON</span><span class="p">,</span>
+                               <span class="n">I_RTMIN</span><span class="p">,</span> <span class="n">O0DEPG</span><span class="p">,</span> <span class="n">O0DEPS</span><span class="p">,</span> <span class="n">O1DEPG</span><span class="p">,</span> <span class="n">O1DEPS</span><span class="p">,</span>
+                               <span class="n">S_RTMIN</span><span class="p">,</span> <span class="n">TEXAUTI</span><span class="p">,</span> <span class="n">TIMAUTI</span><span class="p">,</span> <span class="n">TT</span><span class="p">,</span> <span class="n">V_RTMIN</span><span class="p">)</span>
+
+    <span class="c1"># 3.2 compute the homogeneous nucleation source : RCHONI</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="n">TT</span> <span class="o">-</span> <span class="mf">35.0</span> <span class="ow">and</span> <span class="n">rct</span> <span class="o">&gt;</span> <span class="n">C_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldsoft</span><span class="p">:</span>
+                <span class="n">rc_honi_tnd</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="n">HON</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">*</span> <span class="n">rct</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="n">ALPHA3</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">)</span> <span class="o">-</span> <span class="n">BETA3</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rc_honi_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 3.4 compute the deposition, aggregation and autoconversion sources</span>
+    <span class="c1"># 3.4.3 compute the deposition on r_s : RVDEPS</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rvt</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">rst</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="c1"># Translation note : #ifdef REPRO48 l118 to 120 kept</span>
+            <span class="c1"># Translation note : #else REPRO48  l121 to 126 omitted</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldsoft</span><span class="p">:</span>
+                <span class="n">rv_deps_tnd</span> <span class="o">=</span> <span class="p">(</span><span class="n">ssi</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">ai</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">O0DEPS</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EX0DEPS</span> <span class="o">+</span> <span class="n">O1DEPS</span> <span class="o">*</span> <span class="n">cj</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EX1DEPS</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rv_deps_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 3.4.4 compute the aggregation on r_s: RIAGGS</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rit</span> <span class="o">&gt;</span> <span class="n">I_RTMIN</span> <span class="ow">and</span> <span class="n">rst</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="c1"># Translation note : #ifdef REPRO48 l138 to 142 kept</span>
+            <span class="c1"># Translation note : #else REPRO48 l143 to 150 omitted</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldsoft</span><span class="p">:</span>
+                <span class="n">ri_aggs_tnd</span> <span class="o">=</span> <span class="n">FIAGGS</span> <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="n">COLEXIS</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span> <span class="o">*</span> <span class="n">rit</span> <span class="o">*</span> <span class="n">lbdas</span><span class="o">**</span><span class="n">EXIAGGS</span> <span class="o">*</span> <span class="n">rhodref</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="n">CEXVT</span><span class="p">)</span>
+        <span class="c1"># Translation note : OELEC = False l151 omitted</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ri_aggs_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 3.4.5 compute the autoconversion of r_i for r_s production: RIAUTS</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">hli_hri</span> <span class="o">&gt;</span> <span class="n">I_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldsoft</span><span class="p">:</span>
+                <span class="n">criauti_tmp</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">CRIAUTI</span><span class="p">,</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">ACRIAUTI</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">)</span> <span class="o">+</span> <span class="n">BCRIAUTI</span><span class="p">))</span>
+                <span class="n">ri_auts_tnd</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">TIMAUTI</span>
+                    <span class="o">*</span> <span class="n">exp</span><span class="p">(</span><span class="n">TEXAUTI</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span>
+                    <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">hli_hri</span> <span class="o">-</span> <span class="n">criauti_tmp</span> <span class="o">*</span> <span class="n">hli_hcf</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ri_auts_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># 3.4.6 compute the depsoition on r_g: RVDEPG</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rvt</span> <span class="o">&gt;</span> <span class="n">V_RTMIN</span> <span class="ow">and</span> <span class="n">rgt</span> <span class="o">&gt;</span> <span class="n">G_RTMIN</span> <span class="ow">and</span> <span class="n">ldcompute</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ldsoft</span><span class="p">:</span>
+                <span class="n">rv_depg_tnd</span> <span class="o">=</span> <span class="p">(</span><span class="n">ssi</span> <span class="o">/</span> <span class="p">(</span><span class="n">rhodref</span> <span class="o">*</span> <span class="n">ai</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">O0DEPG</span> <span class="o">*</span> <span class="n">lbdag</span><span class="o">**</span><span class="n">EX0DEPG</span> <span class="o">+</span> <span class="n">O1DEPG</span> <span class="o">*</span> <span class="n">cj</span> <span class="o">*</span> <span class="n">lbdag</span><span class="o">**</span><span class="n">EX1DEPG</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rv_depg_tnd</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ice4_rrhong/" class="btn btn-neutral float-left" title="Ice4 rrhong"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../ice4_stepping/" class="btn btn-neutral float-right" title="Ice4 stepping">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../ice4_rrhong/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../ice4_stepping/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

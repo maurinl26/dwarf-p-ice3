@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Rain-Ice JAX Translation Plan - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Rain-Ice JAX Translation Plan";
+        var mkdocs_page_input_path = "agent/RAIN_ICE_TRANSLATION_PLAN.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../ice3/stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Rain-Ice JAX Translation Plan</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="rain-ice-jax-translation-plan">Rain-Ice JAX Translation Plan</h1>
+<h2 id="overview">Overview</h2>
+<p>This document tracks the translation of the complete rain_ice component from GT4Py to JAX. The rain_ice scheme is significantly more complex than ice_adjust, involving multiple microphysical processes, nested time-stepping loops, and sedimentation.</p>
+<h2 id="translation-status">Translation Status</h2>
+<h3 id="completed-ice-adjust-foundation">✅ Completed (Ice Adjust Foundation)</h3>
+<p><strong>Helper Functions</strong>
+- [x] <code>functions/ice_adjust.py</code> - Thermodynamic functions
+- [x] <code>functions/tiwmx.py</code> - Saturation vapor pressure</p>
+<p><strong>Stencils</strong>
+- [x] <code>stencils/ice_adjust.py</code> - Saturation adjustment</p>
+<p><strong>Components</strong>
+- [x] <code>components/ice_adjust.py</code> - IceAdjustJAX wrapper</p>
+<p><strong>Rain-Ice Orchestration</strong>
+- [x] <code>stencils/rain_ice.py</code> - Helper stencils (partial)
+  - rain_ice_total_tendencies
+  - rain_ice_thermo
+  - rain_ice_mask
+  - initial_values_saving
+  - ice4_precipitation_fraction_sigma
+  - rain_fraction_sedimentation
+  - ice4_rainfr_vert
+  - fog_deposition</p>
+<h3 id="in-progress-to-be-translated">🔄 In Progress / To Be Translated</h3>
+<p><strong>Core Process Stencils</strong> (from <code>src/ice3/stencils/</code>)
+- [ ] <code>ice4_correct_negativities.py</code> - Negative value corrections
+- [ ] <code>ice4_compute_pdf.py</code> - PDF computations for subgrid
+- [ ] <code>precipitation_fraction_liquid_content.py</code> - Precipitation fraction</p>
+<p><strong>Ice4 Microphysical Process Stencils</strong>
+- [ ] <code>ice4_warm.py</code> - Warm processes (autoconversion, accretion, etc.)
+- [ ] <code>ice4_nucleation.py</code> - Ice nucleation processes
+- [ ] <code>ice4_fast_rs.py</code> - Fast snow processes
+- [ ] <code>ice4_fast_rg.py</code> - Fast graupel processes
+- [ ] <code>ice4_fast_ri.py</code> - Fast ice processes
+- [ ] <code>ice4_slow.py</code> - Slow processes (aggregation, rimming, etc.)
+- [ ] <code>ice4_rimltc.py</code> - Rime splintering
+- [ ] <code>ice4_rrhong.py</code> - Graupel growth</p>
+<p><strong>Time-Stepping &amp; Integration</strong>
+- [ ] <code>ice4_stepping.py</code> - Nested time-stepping loops
+  - ice4_stepping_heat
+  - ice4_step_limiter
+  - ice4_mixing_ratio_step_limiter
+  - ice4_state_update
+  - external_tendencies_update
+  - tmicro_init, tsoft_init, ldcompute_init</p>
+<p><strong>Ice4 Tendencies Component</strong>
+- [ ] <code>components/ice4_tendencies.py</code> - Orchestrates all ice4 processes
+  - Calls fast_rs, fast_rg, fast_ri, slow, warm, nucleation, rimltc, rrhong</p>
+<p><strong>Sedimentation</strong>
+- [ ] <code>sedimentation.py</code> - Fall speed and flux computations
+  - sedimentation_stat (statistical method)
+  - upwind_sedimentation (split method)</p>
+<p><strong>Cloud Fraction &amp; Condensation</strong>
+- [ ] <code>cloud_fraction.py</code> - Cloud fraction schemes
+- [ ] <code>condensation.py</code> - Condensation stencils</p>
+<p><strong>Main Component</strong>
+- [ ] <code>components/rain_ice.py</code> - High-level RainIceJAX wrapper</p>
+<h2 id="dependency-tree">Dependency Tree</h2>
+<pre><code>RainIce (main component)
+├── rain_ice helper stencils [✓]
+│   ├── rain_ice_thermo
+│   ├── rain_ice_mask
+│   ├── initial_values_saving
+│   ├── rain_ice_total_tendencies
+│   └── fog_deposition
+│
+├── Sedimentation [ ]
+│   ├── sedimentation_stat
+│   └── upwind_sedimentation
+│
+├── Ice4Stepping [ ]
+│   ├── ice4_stepping_heat
+│   ├── ice4_step_limiter
+│   ├── ice4_mixing_ratio_step_limiter
+│   ├── ice4_state_update
+│   └── external_tendencies_update
+│
+├── Ice4Tendencies component [ ]
+│   ├── ice4_warm [ ]
+│   ├── ice4_nucleation [ ]
+│   ├── ice4_fast_rs [ ]
+│   ├── ice4_fast_rg [ ]
+│   ├── ice4_fast_ri [ ]
+│   ├── ice4_slow [ ]
+│   ├── ice4_rimltc [ ]
+│   └── ice4_rrhong [ ]
+│
+├── Auxiliary stencils [ ]
+│   ├── ice4_correct_negativities
+│   ├── ice4_compute_pdf
+│   └── precipitation_fraction_liquid_content
+│
+└── IceAdjust [✓]
+    └── (already translated)
+</code></pre>
+<h2 id="translation-priority">Translation Priority</h2>
+<h3 id="phase-1-core-utilities-days-1-2">Phase 1: Core Utilities (Days 1-2)</h3>
+<ol>
+<li>ice4_correct_negativities</li>
+<li>ice4_compute_pdf</li>
+<li>precipitation_fraction_liquid_content</li>
+<li>cloud_fraction</li>
+<li>condensation</li>
+</ol>
+<h3 id="phase-2-sedimentation-days-3-4">Phase 2: Sedimentation (Days 3-4)</h3>
+<ol>
+<li>sedimentation_stat</li>
+<li>upwind_sedimentation</li>
+<li>Helper functions for fall speeds</li>
+</ol>
+<h3 id="phase-3-ice4-processes-days-5-10">Phase 3: Ice4 Processes (Days 5-10)</h3>
+<ol>
+<li>ice4_warm (largest, most complex)</li>
+<li>ice4_slow (second largest)</li>
+<li>ice4_fast_rs</li>
+<li>ice4_fast_rg</li>
+<li>ice4_fast_ri</li>
+<li>ice4_nucleation</li>
+<li>ice4_rimltc</li>
+<li>ice4_rrhong</li>
+</ol>
+<h3 id="phase-4-stepping-integration-days-11-12">Phase 4: Stepping &amp; Integration (Days 11-12)</h3>
+<ol>
+<li>ice4_stepping stencils</li>
+<li>Ice4Tendencies component</li>
+</ol>
+<h3 id="phase-5-main-component-days-13-14">Phase 5: Main Component (Days 13-14)</h3>
+<ol>
+<li>RainIceJAX wrapper</li>
+<li>Integration testing</li>
+<li>Example scripts</li>
+</ol>
+<h2 id="complexity-estimates">Complexity Estimates</h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Lines</th>
+<th>Complexity</th>
+<th>Time Estimate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ice4_warm</td>
+<td>~800</td>
+<td>High</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>ice4_slow</td>
+<td>~600</td>
+<td>High</td>
+<td>1.5 days</td>
+</tr>
+<tr>
+<td>ice4_fast_rs</td>
+<td>~400</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>ice4_fast_rg</td>
+<td>~400</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>ice4_fast_ri</td>
+<td>~400</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>ice4_nucleation</td>
+<td>~300</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>Sedimentation</td>
+<td>~400</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>ice4_stepping</td>
+<td>~300</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>ice4_tendencies</td>
+<td>~500</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>Auxiliary stencils</td>
+<td>~200 each</td>
+<td>Low</td>
+<td>0.5 days each</td>
+</tr>
+<tr>
+<td>Main component</td>
+<td>~400</td>
+<td>Medium</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~6000</strong></td>
+<td><strong>-</strong></td>
+<td><strong>~14 days</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="key-translation-challenges">Key Translation Challenges</h2>
+<h3 id="1-nested-time-stepping-loops">1. Nested Time-Stepping Loops</h3>
+<p>The stepping component has complex nested while loops that need careful translation:</p>
+<pre><code class="language-python"># Outer loop: while t_micro &lt; dt
+#   Inner loop: while ldcompute.any()
+#     - Heat computation
+#     - Tendency updates
+#     - Step limiters
+#     - State updates
+</code></pre>
+<p><strong>JAX Solution</strong>: Use <code>jax.lax.while_loop</code> or <code>jax.lax.scan</code> for JIT-compatible loops.</p>
+<h3 id="2-conditional-process-activation">2. Conditional Process Activation</h3>
+<p>Many processes are conditionally activated based on:
+- Temperature thresholds
+- Mixing ratio thresholds
+- Configuration flags</p>
+<p><strong>JAX Solution</strong>: Use <code>jnp.where</code> for element-wise conditions, static if/else for config flags.</p>
+<h3 id="3-multiple-hydrometeor-species">3. Multiple Hydrometeor Species</h3>
+<p>Ice4 scheme handles 6-7 species with complex interactions:
+- Cloud liquid (rc)
+- Cloud ice (ri)
+- Rain (rr)
+- Snow (rs)
+- Graupel (rg)
+- Hail (rh) - optional</p>
+<p><strong>JAX Solution</strong>: Maintain separate arrays for each species, use structured dictionaries.</p>
+<h3 id="4-sedimentation-schemes">4. Sedimentation Schemes</h3>
+<p>Two different sedimentation methods:
+- Statistical (moments-based)
+- Split explicit (upwind scheme)</p>
+<p><strong>JAX Solution</strong>: Implement both, select based on configuration.</p>
+<h3 id="5-subgrid-variability">5. Subgrid Variability</h3>
+<p>PDF-based schemes for:
+- Cloud fraction
+- Autoconversion
+- Precipitation</p>
+<p><strong>JAX Solution</strong>: Port PDF calculations, maintain sigma calculations.</p>
+<h2 id="translation-guidelines">Translation Guidelines</h2>
+<h3 id="function-signatures">Function Signatures</h3>
+<p>All JAX functions should follow this pattern:</p>
+<pre><code class="language-python">def process_name(
+    # Input fields (Arrays)
+    field1: Array,
+    field2: Array,
+    # Constants dictionary
+    constants: Dict[str, Any],
+) -&gt; Union[Array, Tuple[Array, ...]]:
+    &quot;&quot;&quot;Docstring with algorithm description.&quot;&quot;&quot;
+    # Extract constants
+    PARAM1 = constants[&quot;PARAM1&quot;]
+
+    # Computations
+    result = ...
+
+    return result
+</code></pre>
+<h3 id="pure-functions">Pure Functions</h3>
+<ul>
+<li>No in-place modifications</li>
+<li>All outputs returned explicitly</li>
+<li>No global state</li>
+</ul>
+<h3 id="configuration-handling">Configuration Handling</h3>
+<ul>
+<li>Static config (NRR, SEDIM mode): Python if/elif</li>
+<li>Dynamic conditions: <code>jnp.where</code></li>
+</ul>
+<h3 id="array-operations">Array Operations</h3>
+<ul>
+<li>Use <code>jnp.*</code> for all array ops</li>
+<li>Avoid Python loops where possible</li>
+<li>Use <code>jax.lax.scan</code> for required loops</li>
+</ul>
+<h3 id="documentation">Documentation</h3>
+<ul>
+<li>Port all docstrings from GT4Py version</li>
+<li>Add JAX-specific notes</li>
+<li>Include references to Fortran source lines</li>
+</ul>
+<h2 id="testing-strategy">Testing Strategy</h2>
+<h3 id="unit-tests">Unit Tests</h3>
+<p>For each translated stencil:
+1. Compare outputs with GT4Py version
+2. Test edge cases (zeros, extremes)
+3. Verify conservation properties</p>
+<h3 id="integration-tests">Integration Tests</h3>
+<ol>
+<li>Full rain_ice call with synthetic data</li>
+<li>Compare with GT4Py rain_ice component</li>
+<li>Verify energy/mass conservation</li>
+</ol>
+<h3 id="performance-tests">Performance Tests</h3>
+<ol>
+<li>Benchmark JIT compilation time</li>
+<li>Compare execution speed with GT4Py</li>
+<li>Test on GPU if available</li>
+</ol>
+<h2 id="file-organization">File Organization</h2>
+<pre><code>src/ice3/jax/
+├── functions/
+│   ├── __init__.py
+│   ├── ice_adjust.py [✓]
+│   ├── tiwmx.py [✓]
+│   └── sedimentation_utils.py [ ]
+│
+├── stencils/
+│   ├── __init__.py
+│   ├── ice_adjust.py [✓]
+│   ├── rain_ice.py [✓ partial]
+│   ├── ice4_warm.py [ ]
+│   ├── ice4_slow.py [ ]
+│   ├── ice4_fast_rs.py [ ]
+│   ├── ice4_fast_rg.py [ ]
+│   ├── ice4_fast_ri.py [ ]
+│   ├── ice4_nucleation.py [ ]
+│   ├── ice4_rimltc.py [ ]
+│   ├── ice4_rrhong.py [ ]
+│   ├── ice4_stepping.py [ ]
+│   ├── ice4_correct_negativities.py [ ]
+│   ├── ice4_compute_pdf.py [ ]
+│   ├── sedimentation.py [ ]
+│   ├── cloud_fraction.py [ ]
+│   └── condensation.py [ ]
+│
+├── components/
+│   ├── __init__.py
+│   ├── ice_adjust.py [✓]
+│   ├── ice4_tendencies.py [ ]
+│   └── rain_ice.py [ ]
+│
+├── examples/
+│   ├── __init__.py
+│   ├── simple_ice_adjust.py [✓]
+│   └── simple_rain_ice.py [ ]
+│
+├── README.md [✓]
+├── TRANSLATION_SUMMARY.md [✓]
+└── RAIN_ICE_TRANSLATION_PLAN.md [✓ this file]
+</code></pre>
+<h2 id="dependencies-constants">Dependencies &amp; Constants</h2>
+<h3 id="required-from-phyex">Required from Phyex</h3>
+<ul>
+<li>All physical constants (CPD, CPV, CL, CI, RD, RV, etc.)</li>
+<li>Ice parameters (CRIAUTC, CRIAUTI, etc.)</li>
+<li>Rain-ice descriptors (fall speed parameters)</li>
+<li>Rain-ice parameters (collision efficiencies, etc.)</li>
+</ul>
+<h3 id="new-jax-dependencies">New JAX Dependencies</h3>
+<p>None beyond base JAX (already required for ice_adjust).</p>
+<h2 id="validation-approach">Validation Approach</h2>
+<h3 id="1-algorithm-preservation">1. Algorithm Preservation</h3>
+<ul>
+<li>Port all mathematical operations exactly</li>
+<li>Maintain same physical thresholds</li>
+<li>Preserve process interactions</li>
+</ul>
+<h3 id="2-numerical-verification">2. Numerical Verification</h3>
+<p>Create test cases from GT4Py outputs:</p>
+<pre><code class="language-python"># For each stencil
+gt4py_output = gt4py_stencil(inputs)
+jax_output = jax_stencil(inputs, constants)
+assert jnp.allclose(jax_output, gt4py_output, rtol=1e-10)
+</code></pre>
+<h3 id="3-physical-consistency">3. Physical Consistency</h3>
+<ul>
+<li>Energy conservation</li>
+<li>Mass conservation</li>
+<li>Positive definiteness</li>
+<li>Phase equilibrium</li>
+</ul>
+<h2 id="next-steps">Next Steps</h2>
+<ol>
+<li><strong>Immediate</strong>: Continue with ice4_correct_negativities</li>
+<li><strong>Short-term</strong>: Complete Phase 1 stencils (utilities)</li>
+<li><strong>Medium-term</strong>: Implement Phase 2-3 (sedimentation &amp; processes)</li>
+<li><strong>Long-term</strong>: Complete integration and testing</li>
+</ol>
+<h2 id="notes-for-developers">Notes for Developers</h2>
+<h3 id="common-patterns">Common Patterns</h3>
+<p><strong>GT4Py Iteration to JAX</strong></p>
+<pre><code class="language-python"># GT4Py
+with computation(PARALLEL), interval(...):
+    result = f(x)
+
+# JAX
+result = f(x)  # Vectorized automatically
+</code></pre>
+<p><strong>GT4Py Conditional to JAX</strong></p>
+<pre><code class="language-python"># GT4Py
+if __INLINED(FLAG):
+    result = branch1
+else:
+    result = branch2
+
+# JAX (static)
+if FLAG:
+    result = branch1
+else:
+    result = branch2
+
+# JAX (dynamic)
+result = jnp.where(condition, branch1, branch2)
+</code></pre>
+<p><strong>GT4Py Backward to JAX</strong></p>
+<pre><code class="language-python"># GT4Py
+with computation(BACKWARD), interval(0, -1):
+    field[0,0,0] = f(field[0,0,1])
+
+# JAX
+for k in range(nz-2, -1, -1):
+    field = field.at[:,:,k].set(f(field[:,:,k+1]))
+</code></pre>
+<h3 id="performance-tips">Performance Tips</h3>
+<ol>
+<li>JIT compile entire functions, not just kernels</li>
+<li>Use static arguments for config flags</li>
+<li>Avoid Python loops - use <code>jax.lax.scan</code></li>
+<li>Batch operations when possible</li>
+<li>Profile before optimizing</li>
+</ol>
+<h2 id="references">References</h2>
+<ul>
+<li><strong>Fortran Source</strong>: PHYEX/src/common/micro/</li>
+<li><strong>GT4Py Source</strong>: src/ice3/stencils/</li>
+<li><strong>JAX Documentation</strong>: https://jax.readthedocs.io/</li>
+<li><strong>Ice Adjust Translation</strong>: src/ice3/jax/TRANSLATION_SUMMARY.md</li>
+</ul>
+<h2 id="conclusion">Conclusion</h2>
+<p>The complete rain_ice translation represents approximately 6000 lines of code across 20+ stencils and components. With systematic approach and the foundation from ice_adjust, this is achievable in ~2 weeks of focused development.</p>
+<p><strong>Current Status</strong>: Foundation complete with ice_adjust and rain_ice helpers. Ready to proceed with Phase 1 utilities.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
