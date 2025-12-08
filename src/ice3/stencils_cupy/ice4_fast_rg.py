@@ -21,9 +21,6 @@ Key Features:
 
 Reference:
     PHYEX-IAL_CY50T1/common/micro/mode_ice4_fast_rg.F90
-
-Author:
-    Translated to Python/DaCe from Fortran by Cline AI Assistant
 """
 
 import cupy as cp
