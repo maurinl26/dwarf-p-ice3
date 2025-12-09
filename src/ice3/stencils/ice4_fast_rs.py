@@ -1,374 +1,536 @@
-# -*- coding: utf-8 -*-
-from __future__ import annotations
+"""
+ICE4 Fast RS (Snow/Aggregate) Processes - DaCe Implementation
 
-from gt4py.cartesian.gtscript import (PARALLEL, Field, GlobalTable,
-                                      computation, exp,
-                                      interval, log)
-from ice3.functions.interp_micro import (index_interp_micro_1d,
-                                         index_micro2d_acc_r,
-                                         index_micro2d_acc_s)
-from ice3.functions.sign import sign
-from ice3.phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
+This module implements the fast growth processes for snow/aggregates in the ICE4
+microphysics scheme, translated from the Fortran reference in mode_ice4_fast_rs.F90.
+
+Processes implemented:
+- Cloud droplet riming of aggregates (RCRIMSS, RCRIMSG, RSRIMCG)
+- Rain accretion onto aggregates (RRACCSS, RRACCSG, RSACCRG)
+- Conversion-melting of aggregates (RSMLTG, RCMLTSR)
+
+Reference:
+    PHYEX-IAL_CY50T1/common/micro/mode_ice4_fast_rs.F90
+"""
+
+import numpy as np
+from gt4py.cartesian.gtscript import Field
+from numpy.typing import NDArray
 
 
-# from_file="PHYEX/src/common/micro/mode_ice4_fast_rs.F90"
-def ice4_fast_rs(
-    ldsoft: "bool",
-    ldcompute: Field["bool"],
-    rhodref: Field["float"],
-    pres: Field["float"],
-    dv: Field["float"],
-    ka: Field["float"],
-    cj: Field["float"],
-    lbdar: Field["float"],
-    lbdas: Field["float"],
-    t: Field["float"],
-    rvt: Field["float"],
-    rct: Field["float"],
-    rrt: Field["float"],
-    rst: Field["float"],
-    riaggs: Field["float"],
-    rcrimss: Field["float"],
-    rcrimsg: Field["float"],
-    rsrimcg: Field["float"],
-    rraccss: Field["float"],
-    rraccsg: Field["float"],
-    rsaccrg: Field["float"],
-    rs_mltg_tnd: Field["float"],
-    rc_mltsr_tnd: Field["float"],
-    rs_rcrims_tnd: Field["float"],
-    rs_rcrimss_tnd: Field["float"],
-    rs_rsrimcg_tnd: Field["float"],
-    rs_rraccs_tnd: Field["float"],
-    rs_rraccss_tnd: Field["float"],
-    rs_rsaccrg_tnd: Field["float"],
-    rs_freez1_tnd: Field["float"],
-    rs_freez2_tnd: Field["float"],
-    gaminc_rim1: GlobalTable[float, (80)],
-    gaminc_rim2: GlobalTable[float, (80)],
-    gaminc_rim4: GlobalTable[float, (80)],
-    ker_raccs: GlobalTable[float, (41, 41)],
-    ker_raccss: GlobalTable[float, (41, 41)],
-    ker_saccrg: GlobalTable[float, (41, 41)],
-    index_floor: Field["int"],
-    index_floor_r: Field["int"],
-    index_floor_s: Field["int"],
+def index_micro1d_rim(
+    lambda_s: np.float32,
+    RIMINTP1: np.float32,
+    RIMINTP2: np.float32,
+    NGAMINC: np.int32,
 ):
-    """Computes fast processes for snow
+    """Compute index in logspace for 1D interpolation table (riming)
 
     Args:
-        ldsoft (bool): switch to recompute sources or adapt tendencies
-        ldcompute (Field[bool]): mask for sources computations
-        rhodref (Field[float]): dry density of air
-        lv_fact (Field[float]): latent heat of vapourisation over heat capacity
-        ls_fact (Field[float]): latent heat of sublimation over heat capacity
-        pres (Field[float]): absolute pressure
-        rrt (Field[float]): rain m.r. at t
-        rst (Field[float]): snow m.r. at t
-        riaggs (Field[float]): ice aggregation to snow
-        rsrimcg (Field[float]): snow riming over graupel
-        rraccss (Field[float]): accretion of rain and aggregates
-        rsaccrg (Field[float]): accretion of graupel
-        rs_mltg_tnd (Field[float]): melting of snow
-        rs_rsrimcg_tnd (Field[float]): heavy riming of the aggregates
-        rs_rraccs_tnd (Field[float]): accretion of rain and aggregates
-        rs_rraccss_tnd (Field[float]): accretion of rain and aggregates
-        rs_rsaccrg_tnd (Field[float]): accretion of rain and aggregates
-        rs_freez1_tnd (Field[float]): snow freezing source (tendency)
-        rs_freez2_tnd (Field[float]): snow freezing source (tendency)
-        gaminc_rim1 (GlobalTable[float,): look up table for riming
-        gaminc_rim2 (GlobalTable[float,): look up table for riming
-        gaminc_rim4 (GlobalTable[float,): look up table for riming
-        ker_raccs (GlobalTable[float,): look-up table for rain accretion over snow
-        ker_raccss (GlobalTable[float,): look-up table for rain accretion over snow
-        ker_saccrg (GlobalTable[float,): look-up table for snow accretion over graupel
-        index_floor (Field[int]): integer index for riming look up tables
-        index_floor_r (Field[int]): integer index for accretion look up tables
-        index_floor_s (Field[int]): integer index for accretion look up tables
+        lambda_s: Snow slope parameter
+        RIMINTP1: Scaling factor 1
+        RIMINTP2: Scaling factor 2
+        NGAMINC: Number of points in lookup table
+
+    Returns:
+        Tuple of (floor index, fractional part)
     """
-    from __externals__ import (ALPI, ALPW, BETAI, BETAW, BS, C_RTMIN, CEXVT,
-                               CI, CL, CPV, CRIMSG, CRIMSS, CXS, EPSILO, ESTT,
-                               EX0DEPS, EX1DEPS, EXCRIMSG, EXCRIMSS, EXSRIMCG,
-                               EXSRIMCG2, FRACCSS, FSACCRG, FSCVMG, GAMI, GAMW,
-                               LBRACCS1, LBRACCS2, LBRACCS3, LBSACCR1,
-                               LBSACCR2, LBSACCR3, LEVLIMIT, LMTT, LVTT,
-                               O0DEPS, O1DEPS, R_RTMIN, RV, S_RTMIN,
-                               SNOW_RIMING, SRIMCG, SRIMCG2, SRIMCG3, TT)
+    index = max(1.00001, min(NGAMINC - 0.00001, RIMINTP1 * log(lambda_s) + RIMINTP2))
+    return floor(index), index - floor(index)
 
-    # 5.0 maximum freezing rate
-    with computation(PARALLEL), interval(...):
-        # Translation note l106 removed not LDSOFT
-        if rst > S_RTMIN and ldcompute:
-            rs_freez1_tnd = rvt * pres / (EPSILO + rvt)
-            if LEVLIMIT:
-                rs_freez1_tnd = min(
-                    rs_freez1_tnd, exp(ALPI - BETAI / t - GAMI * log(t))
-                )
 
-            rs_freez1_tnd = ka * (TT - t) + dv * (LVTT + (CPV - CL) * (t - TT)) * (
-                ESTT - rs_freez1_tnd
-            ) / (RV * t)
+# Helper functions for 2D interpolation (for accretion processes)
+def index_micro2d_acc_s(
+    lambda_s: np.float32,
+    ACCINTP1S: np.float32,
+    ACCINTP2S: np.float32,
+    NACCLBDAS: np.int32,
+):
+    """Compute index in logspace for 2D interpolation table (snow dimension)
 
-            # Translation note l115 to l177 kept #ifdef REPRO48
-            # Translation note l119 to l122 removed #else REPRO48
+    Args:
+        lambda_s: Snow slope parameter
+        ACCINTP1S: Scaling factor 1 for snow
+        ACCINTP2S: Scaling factor 2 for snow
+        NACCLBDAS: Number of points in lookup table for snow
 
-            rs_freez1_tnd *= (
-                O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS
-            ) / (rhodref * (LMTT - CL * (TT - t)))
-            rs_freez2_tnd = (rhodref * (LMTT + (CI - CL) * (TT - t))) / (
-                rhodref * (LMTT - CL * (TT - t))
-            )
+    Returns:
+        Tuple of (floor index, fractional part)
+    """
+    index = max(
+        1.00001, min(NACCLBDAS - 0.00001, ACCINTP1S * log(lambda_s) + ACCINTP2S)
+    )
+    return floor(index), index - floor(index)
 
-            # Translation note l129 removed
-            freez_rate_tmp = max(
-                0, max(0, rs_freez1_tnd + rs_freez2_tnd * riaggs) - riaggs
-            )
 
-        else:
-            rs_freez1_tnd = 0
-            rs_freez2_tnd = 0
-            freez_rate_tmp = 0
+def index_micro2d_acc_r(
+    lambda_r: np.float32,
+    ACCINTP1R: np.float32,
+    ACCINTP2R: np.float32,
+    NACCLBDAR: np.int32,
+):
+    """Compute index in logspace for 2D interpolation table (rain dimension)
 
-    # 5.1 cloud droplet riming of the aggregates
-    with computation(PARALLEL), interval(...):
-        if rct > C_RTMIN and rst > S_RTMIN and ldcompute:
-            zw_tmp = lbdas
+    Args:
+        lambda_r: Rain slope parameter
+        ACCINTP1R: Scaling factor 1 for rain
+        ACCINTP2R: Scaling factor 2 for rain
+        NACCLBDAR: Number of points in lookup table for rain
 
-            # Translation note : l144 kept
-            #                    l146 removed
+    Returns:
+        Tuple of (floor index, fractional part)
+    """
+    index = max(
+        1.00001, min(NACCLBDAR - 0.00001, ACCINTP1R * log(lambda_r) + ACCINTP2R)
+    )
+    return floor(index), index - floor(index)
 
-            grim_tmp = True
 
-        else:
-            grim_tmp = False
-            rs_rcrims_tnd = 0
-            rs_rcrimss_tnd = 0
-            rs_rsrimcg_tnd = 0
-
-    # Interpolation + Lookup Table
-    with computation(PARALLEL), interval(...):
-        if (not ldsoft) and grim_tmp:
-            # Translation note : LDPACK is False l46 to l88 removed in interp_micro.func.h
-            #                                    l90 to l123 kept
-            index_floor, index_float = index_interp_micro_1d(zw_tmp)
-            zw1_tmp = (
-                index_float * gaminc_rim1.A[index_floor + 1]
-                + (1 - index_float) * gaminc_rim1.A[index_floor]
-            )
-            zw2_tmp = (
-                index_float * gaminc_rim2.A[index_floor + 1]
-                + (1 - index_float) * gaminc_rim2.A[index_floor]
-            )
-            zw3_tmp = (
-                index_float * gaminc_rim4.A[index_floor + 1]
-                + (1 - index_float) * gaminc_rim4.A[index_floor]
-            )
-
-    # 5.1.4 riming of the small sized aggregates
-    with computation(PARALLEL), interval(...):
-        if grim_tmp:
-            # Translation note : #ifdef REPRO48 l170 to l172 kept
-            #                                   l174 to l178 removed
-            rs_rcrimss_tnd = (
-                CRIMSS * zw1_tmp * rct * lbdas**EXCRIMSS * rhodref ** (-CEXVT)
-            )
-
-    # 5.1.6 riming convesion of the large size aggregates
-    with computation(PARALLEL), interval(...):
-        if grim_tmp:
-            # Translation note : #ifdef REPRO48 l189 to l191 kept
-            #                                   l193 to l197 removed
-            rs_rcrims_tnd = CRIMSG * rct * lbdas**EXCRIMSG * rhodref ** (-CEXVT)
-
-    # if parami  csnowriming == M90
-    with computation(PARALLEL), interval(...):
-        # PARAMI%CSNOWRIMING == M90
-        # TODO : refactor if statement out of stencil for performance
-        if SNOW_RIMING == 0:
-            if grim_tmp:
-                zw_tmp = rs_rsrimcg_tnd - rs_rcrimss_tnd
-                # Translation note : #ifdef REPRO48 l208 kept
-                #                                   l210 and l211 removed
-                rs_rsrimcg_tnd = SRIMCG * lbdas**EXSRIMCG * (1 - zw2_tmp)
-
-                # Translation note : #ifdef REPRO48 l214 to l217 kept
-                #                                   l219 to l223 removed
-                rs_rsrimcg_tnd = (
-                    zw_tmp
-                    * rs_rsrimcg_tnd
-                    / max(
-                        1e-20,
-                        SRIMCG3 * SRIMCG2 * lbdas**EXSRIMCG2 * (1 - zw3_tmp)
-                        - SRIMCG3 * rs_rsrimcg_tnd,
-                    )
-                )
-
-        else:
-            rs_rsrimcg_tnd = 0
-
-    #
-    with computation(PARALLEL), interval(...):
-        if grim_tmp and t < TT:
-            rcrimss = min(freez_rate_tmp, rs_rcrimss_tnd)
-            freez_rate_tmp = max(0, freez_rate_tmp - rcrimss)
-
-            # proportion we are able to freeze
-            zw0_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rcrims_tnd - rcrimss))
-            rcrimsg = zw0_tmp * max(0, rs_rcrims_tnd - rcrimss)  # rc_rimsg
-            freez_rate_tmp = max(0, freez_rate_tmp - rcrimsg)
-            rsrimcg = zw0_tmp * rs_rsrimcg_tnd
-
-            rsrimcg *= max(0, sign(1, rcrimsg))
-            rcrimsg = max(0, rcrimsg)
-
-        else:
-            rcrimss = 0
-            rcrimsg = 0
-            rsrimcg = 0
-
-    # 5.2. rain accretion onto the aggregates
-    with computation(PARALLEL), interval(...):
-        if rrt > R_RTMIN and rst > S_RTMIN and ldcompute:
-            gacc_tmp = True
-        else:
-            gacc_tmp = False
-            rs_rraccs_tnd = 0
-            rs_rraccss_tnd = 0
-            rs_rsaccrg_tnd = 0
+# GT4Py stencil
+def compute_freezing_rate(
+    prhodref: Field["float"],
+    ppres: Field["float"],
+    pdv: Field["float"],
+    pka: Field["float"],
+    pcj: Field["float"],
+    plbdas: Field["float"],
+    pt: Field["float"],
+    prvt: Field["float"],
+    prst: Field["float"],
+    priaggs: Field["float"],
+    ldcompute: Field["bool"],
+    ldsoft: "bool",
+    levlimit: "bool",
+    zfreez_rate: Field["float"],
+    freez1_tend: Field["float"],
+    freez2_tend: Field["float"],
+):
+    """Compute maximum freezing rate for snow processes"""
+    from __externals__ import (
+        S_RTMIN,
+        EPSILO,
+        ALPI,
+        BETAI,
+        GAMI,
+        TT,
+        LVTT,
+        CPV,
+        CL,
+        CI,
+        LMTT,
+        ESTT,
+        RV,
+        O0DEPS,
+        O1DEPS,
+        EX0DEPS,
+        EX1DEPS,
+    )
 
     with computation(PARALLEL), interval(...):
-        # Translation note : LDPACK is False l159 to l223 removed in interp_micro.func.h
-        #                                    l226 to l266 kept
-
-        if (not ldsoft) and gacc_tmp:
-            rs_rraccs_tnd = 0
-            rs_rraccss_tnd = 0
-            rs_rsaccrg_tnd = 0
-
-            index_floor_r, index_float_r = index_micro2d_acc_r(lbdar)
-            index_floor_s, index_float_s = index_micro2d_acc_s(lbdas)
-            zw1_tmp = index_float_s * (
-                index_float_r * ker_raccss.A[index_floor_s + 1, index_floor_r + 1]
-                + (1 - index_float_r) * ker_raccss.A[index_floor_s + 1, index_floor_r]
-            ) + (1 - index_float_s) * (
-                index_float_r * ker_raccss.A[index_floor_s, index_floor_r + 1]
-                + (1 - index_float_r) * ker_raccss.A[index_floor_s, index_floor_r]
-            )
-
-            zw2_tmp = index_float_s * (
-                index_float_r * ker_raccs.A[index_floor_s + 1, index_floor_r + 1]
-                + (1 - index_float_r) * ker_raccs.A[index_floor_s + 1, index_floor_r]
-            ) + (1 - index_float_s) * (
-                index_float_r * ker_raccs.A[index_floor_s, index_floor_r + 1]
-                + (1 - index_float_r) * ker_raccs.A[index_floor_s, index_floor_r]
-            )
-
-            zw3_tmp = index_float_s * (
-                index_float_r * ker_saccrg.A[index_floor_s + 1, index_floor_r + 1]
-                + (1 - index_float_r) * ker_saccrg.A[index_floor_s + 1, index_floor_r]
-            ) + (1 - index_float_s) * (
-                index_float_r * ker_saccrg.A[index_floor_s, index_floor_r + 1]
-                + (1 - index_float_r) * ker_saccrg.A[index_floor_s, index_floor_r]
-            )
-
-    #         # CALL INTERP_MICRO_2D
-
-    # 5.2.4. raindrop accreation on the small sized aggregates
-    with computation(PARALLEL), interval(...):
-        if gacc_tmp:
-            # Translation note : REPRO48 l279 to l283 kept
-            #                            l285 to l289 removed
-
-            zw_tmp = (
-                FRACCSS
-                * (lbdas**CXS)
-                * (rhodref ** (-CEXVT - 1))
-                * (
-                    LBRACCS1 / (lbdas**2)
-                    + LBRACCS2 / (lbdas * lbdar)
-                    + LBRACCS3 / (lbdar**2)
-                )
-                / lbdar**4
-            )
-            
-            rs_rraccss_tnd = zw1_tmp * zw_tmp
-            rs_rraccs_tnd = zw2_tmp * zw_tmp
-
-    # 5.2.6 raindrop accretion-conversion of the large sized aggregates
-    with computation(PARALLEL), interval(...):
-        if gacc_tmp:
-            rs_rsaccrg_tnd = (
-                FSACCRG
-                * zw3_tmp
-                * (lbdas ** (CXS - BS))
-                * (rhodref ** (-CEXVT - 1))
-                * (
-                    LBSACCR1 / (lbdas**2)
-                    + LBSACCR2 / (lbdar * lbdas)
-                    + LBSACCR3 / (lbdas**2)
-                )
-                / lbdar
-            )
-
-    # l324
-    # More restrictive ACC mask to be used for accretion by negative temperature only
-    with computation(PARALLEL), interval(...):
-        if gacc_tmp and t < TT:
-            rraccss = min(freez_rate_tmp, rs_rraccss_tnd)
-            freez_rate_tmp = max(0, freez_rate_tmp - rraccss)
-
-            # proportion we are able to freeze
-            zw_tmp = min(1, freez_rate_tmp / max(1e-20, rs_rraccs_tnd - rraccss))
-            rraccsg = zw_tmp * max(0, rs_rraccs_tnd - rraccss)
-            freez_rate_tmp = max(0, freez_rate_tmp - rraccsg)
-            rsaccrg = zw_tmp * rs_rsaccrg_tnd
-
-            rsaccrg *= max(0, -sign(1, -rraccsg))
-            rraccsg = max(0, rraccsg)
-
-        else:
-            rraccss = 0
-            rraccsg = 0
-            rsaccrg = 0
-
-    # 5.3 Conversion-Melting of the aggregates
-    with computation(PARALLEL), interval(...):
-        if rst > S_RTMIN and t > TT and ldcompute:
+        if prst > S_RTMIN and ldcompute:
             if not ldsoft:
-                rs_mltg_tnd = rvt * pres / (EPSILO + rvt)
-                if LEVLIMIT:
-                    rs_mltg_tnd = min(
-                        rs_mltg_tnd, exp(ALPW - BETAW / t - GAMW * log(t))
-                    )
-                rs_mltg_tnd = ka * (TT - t) + (
-                    dv
-                    * (LVTT + (CPV - CL) * (t - TT))
-                    * (ESTT - rs_mltg_tnd)
-                    / (RV * t)
+                # Compute vapor pressure
+                prs_ev = prvt * ppres / (EPSILO + prvt)
+
+                # Apply saturation limit if requested
+                if levlimit:
+                    prs_ev = min(prs_ev, exp(ALPI - BETAI / pt - GAMI * log(pt)))
+
+                # Compute first freezing term
+                zzw_temp = pka * (TT - pt) + (
+                    pdv
+                    * (LVTT + (CPV - CL) * (pt - TT))
+                    * (ESTT - prs_ev)
+                    / (RV * pt)
                 )
 
-                # Tranlsation note : #ifdef REPRO48 l360 to l365 kept
-                #                                   l367 to l374 removed
-                rs_mltg_tnd = FSCVMG * max(
-                    0,
-                    (
-                        -rs_mltg_tnd
-                        * (O0DEPS * lbdas**EX0DEPS + O1DEPS * cj * lbdas**EX1DEPS)
-                        - (rs_rcrims_tnd + rs_rraccs_tnd) * (rhodref * CL * (TT - t))
-                    )
-                    / (rhodref * LMTT),
+                freez1_tend = (
+                    zzw_temp
+                    * (O0DEPS * plbdas**EX0DEPS + O1DEPS * pcj * plbdas**EX1DEPS)
+                    / (prhodref * (LMTT - CL * (TT - pt)))
                 )
 
-                # note that RSCVMG = RSMLT*XFSCVMG but no heat is exchanged (at the rate RSMLT)
-                # because the graupeln produced by this process are still icy###
-                #
-                # When T < XTT, rc is collected by snow (riming) to produce snow and graupel
-                # When T > XTT, if riming was still enabled, rc would produce snow and graupel with snow becomming graupel (conversion/melting) and graupel becomming rain (melting)
-                # To insure consistency when crossing T=XTT, rc collected with T>XTT must be transformed in rain.
-                # rc cannot produce iced species with a positive temperature but is still collected with a good efficiency by snow
+                # Compute second freezing term
+                freez2_tend = (prhodref * (LMTT + (CI - CL) * (TT - pt))) / (
+                    prhodref * (LMTT - CL * (TT - pt))
+                )
 
-                rc_mltsr_tnd = rs_rcrims_tnd
-
+                # Compute total freezing rate
+                zfreez_rate = max(
+                    0.0, max(0.0, freez1_tend + freez2_tend * priaggs) - priaggs
+                )
+            else:
+                freez1_tend = 0.0
+                freez2_tend = 0.0
+                zfreez_rate = 0.0
         else:
-            rs_mltg_tnd = 0
-            rc_mltsr_tnd = 0
+            freez1_tend = 0.0
+            freez2_tend = 0.0
+            zfreez_rate = 0.0
+
+
+# Cupy interpolation stencil
+def cloud_droplet_riming_snow(
+    prhodref: NDArray,
+    plbdas: NDArray,
+    pt: NDArray,
+    prct: NDArray,
+    prst: NDArray,
+    ldcompute: NDArray, # boolean mask
+    ldsoft: bool,
+    csnowriming: str,
+    grim: NDArray,  # boolean mask
+    zfreez_rate: NDArray,
+    prcrimss: NDArray,
+    prcrimsg: NDArray,
+    prsrimcg: NDArray,
+    zzw1: NDArray,
+    zzw2: NDArray,
+    zzw3: NDArray,
+    rcrims_tend: NDArray,
+    rcrimss_tend: NDArray,
+    rsrimcg_tend: NDArray,
+    ker_gaminc_rim1: NDArray[80],
+    ker_gaminc_rim2: NDArray[80],
+    ker_gaminc_rim4: NDArray[80],
+    C_RTMIN: np.float32,
+    S_RTMIN: np.float32,
+    XTT: np.float32,
+    XCRIMSS: np.float32,
+    XEXCRIMSS: np.float32,
+    XCRIMSG: np.float32,
+    XEXCRIMSG: np.float32,
+    XCEXVT: np.float32,
+    XSRIMCG: np.float32,
+    XEXSRIMCG: np.float32,
+    XSRIMCG2: np.float32,
+    XSRIMCG3: np.float32,
+    XEXSRIMCG2: np.float32,
+    RIMINTP1: np.float32,
+    RIMINTP2: np.float32,
+    NGAMINC: np.int32,
+):
+    """Compute cloud droplet riming of aggregates"""
+
+    # Initialize masks and tendencies
+    grim = prct > C_RTMIN and prst > S_RTMIN and ldcompute
+    rcrims_tend = np.where(grim, rcrims_tend, 0.0)
+    rcrimss_tend = np.where(grim, rcrimss_tend, 0.0)
+    rsrimcg_tend = np.where(grim, rsrimcg_tend, 0.0)
+
+    # Interpolate and compute riming rates
+    if (not ldsoft) and grim:
+            
+            index = np.clip(
+                RIMINTP1 * np.log(plbdas) + RIMINTP2,
+                1.00001,
+                NGAMINC - 0.00001
+            ) 
+            
+            # Compute interpolation indices
+            idx = np.floor(index).astype(np.int32)
+            weight = index - idx
+            idx2 = idx + 1
+
+            # Interpolate from lookup tables
+            zzw1 = (
+                ker_gaminc_rim1.take(idx2) * weight
+            - ker_gaminc_rim1.take(idx) * (weight - 1.)
+            )
+
+            zzw2 = (
+                ker_gaminc_rim2.take(idx2) * weight
+            - ker_gaminc_rim2.take(idx) * (weight - 1.)
+            )
+
+            zzw3 = (
+                ker_gaminc_rim4.take(idx2) * weight
+            - ker_gaminc_rim4.take(idx) * (weight - 1.)
+            )
+        
+
+    # Riming of small sized aggregates
+    rcrimss_tend = XCRIMSS * zzw1 * prct * plbdas**XEXCRIMSS * prhodref ** (-XCEXVT)
+
+    # Riming-conversion of large sized aggregates
+    rcrims_tend = XCRIMSG * prct * plbdas**XEXCRIMSG * prhodref ** (-XCEXVT)
+
+    # Conversion to graupel (Murakami 1990)
+    if csnowriming == "M90":
+        zzw_tmp = rcrims_tend - rcrimss_tend
+        term_conversion = XSRIMCG * plbdas**XEXSRIMCG * (1.0 - zzw2)
+
+        rsrimcg_tend = (
+            zzw_tmp
+            * term_conversion
+            / max(
+                1.0e-20,
+                XSRIMCG3 * XSRIMCG2 * plbdas**XEXSRIMCG2 * (1.0 - zzw3)
+                - XSRIMCG3 * term_conversion,
+            )
+        )
+    else:
+        rsrimcg_tend = 0.0
+
+    # Apply freezing rate limitations and temperature conditions
+    if grim and pt < XTT:
+        # Apply freezing rate limits
+        prcrimss = min(zfreez_rate, rcrimss_tend)
+        zfreez_remaining = max(0.0, zfreez_rate - prcrimss)
+
+        # Proportion we can freeze
+        zzw_prop = min(1.0, zfreez_remaining / max(1.0e-20, rcrims_tend - prcrimss))
+
+        prcrimsg = zzw_prop * max(0.0, rcrims_tend - prcrimss)
+        zfreez_remaining = max(0.0, zfreez_remaining - prcrimsg)
+
+        prsrimcg = zzw_prop * rsrimcg_tend
+
+        # Ensure positive values
+        prsrimcg = prsrimcg * max(0.0, -sign(1.0, -prcrimsg))
+        prcrimsg = max(0.0, prcrimsg)
+    else:
+        prcrimss = 0.0
+        prcrimsg = 0.0
+        prsrimcg = 0.0
+
+
+# Cupy interpolation stencil
+def rain_accretion_snow(
+    prhodref: NDArray,
+    plbdas: NDArray,
+    plbdar: NDArray,
+    pt: NDArray,
+    prrt: NDArray,
+    prst: NDArray,
+    ldcompute: bool,
+    ldsoft: bool,
+    gacc: NDArray,
+    zfreez_rate: NDArray,
+    prraccss: NDArray,
+    prraccsg: NDArray,
+    prsaccrg: NDArray,
+    zzw1: NDArray,
+    zzw2: NDArray,
+    zzw3: NDArray,
+    zzw_coef: NDArray,
+    rraccs_tend: NDArray,
+    rraccss_tend: NDArray,
+    rsaccrg_tend: NDArray,
+    ker_raccss: NDArray,
+    ker_raccs: NDArray,
+    ker_saccrg: NDArray,
+    R_RTMIN: np.float32,
+    S_RTMIN: np.float32,
+    XTT: np.float32,
+    XFRACCSS: np.float32,
+    XCXS: np.float32,
+    XBS: np.float32,
+    XCEXVT: np.float32,
+    XLBRACCS1: np.float32,
+    XLBRACCS2: np.float32,
+    XLBRACCS3: np.float32,
+    XFSACCRG: np.float32,
+    XLBSACCR1: np.float32,
+    XLBSACCR2: np.float32,
+    XLBSACCR3: np.float32,
+    ACCINTP1S: np.float32,
+    ACCINTP2S: np.float32,
+    NACCLBDAS: np.int32,
+    ACCINTP1R: np.float32,
+    ACCINTP2R: np.float32,
+    NACCLBDAR: np.int32,
+):
+    """Compute rain accretion onto aggregates"""
+
+    # Initialize masks and tendencies
+    gacc = prrt > R_RTMIN and prst > S_RTMIN and ldcompute
+    rraccs_tend = np.where(gacc, rraccs_tend, 0.0)
+    rraccss_tend = np.where(gacc, rraccss_tend, 0.0)
+    rsaccrg_tend = np.where(gacc, rsaccrg_tend, 0.0)
+
+    # Interpolate and compute accretion rates
+    if (not ldsoft) and gacc:
+        # Compute 2D interpolation indices
+
+        # Snow
+        index = np.clip(
+            ACCINTP1S * np.log(plbdas) + ACCINTP2S,
+            1.00001,
+            NACCLBDAS - 0.00001
+        )
+
+        idx_s = np.floor(index).astype(np.int32)
+        weight_s = index - idx_s
+        idx_s2 = idx_s + 1
+
+        # Rain
+        index = np.clip(
+            ACCINTP1R * np.log(plbdar) + ACCINTP2R,
+            1.00001,
+            NACCLBDAR - 0.00001
+            )
+        idx_r = np.floor(index).astype(np.int32)
+        weight_r = idx_r - index
+        idx_r2 = idx_r + 1
+
+        # Bilinear interpolation for RACCSS kernel
+        zzw1 = (
+                ker_raccss.take(idx_s2, axis=0).take(idx_r2) * weight_r
+                - ker_raccss.take(idx_s2, axis=0).take(idx_r) * (weight_r - 1.0)
+            ) * weight_s - (
+                ker_raccss.take(idx_s, axis=0).take(idx_r2) * weight_r
+                - ker_raccss.take(idx_s, axis=0).take(idx_r) * (weight_r - 1.0)
+            ) * (weight_s - 1.0)
+
+        # Bilinear interpolation for RACCS kernel
+        zzw2 = (
+                ker_raccs.take(idx_s2, axis=0).take(idx_r2) * weight_r
+                - ker_raccs.take(idx_s2, axis=0).take(idx_r) * (weight_r - 1.0)
+            ) * weight_s - (
+                ker_raccs.take(idx_s, axis=0).take(idx_r2) * weight_r
+                - ker_raccs.take(idx_s, axis=0).take(idx_r) * (weight_r - 1.0)
+            ) * (weight_s - 1.0)
+
+        # Bilinear interpolation for SACCRG kernel
+        zzw3 = (
+                ker_saccrg.take(idx_s2, axis=0).take(idx_r2) * weight_r
+                - ker_saccrg.take(idx_s2, axis=0).take(idx_r) * (weight_r - 1.0)
+            ) * weight_s - (
+                ker_saccrg.take(idx_s, axis=0).take(idx_r2) * weight_r
+                - ker_saccrg.take(idx_s, idx_r) * (weight_r - 1.0)
+            ) * (weight_s - 1.0)
+
+    # Coefficient for RRACCS
+    zzw_coef = (
+        XFRACCSS
+        * (plbdas**XCXS)
+        * (prhodref ** (-XCEXVT - 1.0))
+        * (
+            XLBRACCS1 / (plbdas**2)
+            + XLBRACCS2 / (plbdas * plbdar)
+            + XLBRACCS3 / (plbdar**2)
+        )
+        / (plbdar**4)
+    )
+
+    # Raindrop accretion on small sized aggregates
+    rraccss_tend = zzw1 * zzw_coef
+
+    # Raindrop accretion on aggregates
+    rraccs_tend = zzw2 * zzw_coef
+
+    # Raindrop accretion-conversion to graupel
+    rsaccrg_tend = (
+        XFSACCRG
+        * zzw3
+        * (plbdas ** (XCXS - XBS))
+        * (prhodref ** (-XCEXVT - 1.0))
+        * (
+            XLBSACCR1 / (plbdar**2)
+            + XLBSACCR2 / (plbdar * plbdas)
+            + XLBSACCR3 / (plbdas**2)
+        )
+        / plbdar
+    )
+
+    # Apply freezing rate limitations and temperature conditions
+    if gacc and pt < XTT:
+        # Apply freezing rate limits
+        prraccss = min(zfreez_rate, rraccss_tend)
+        zfreez_remaining = max(0.0, zfreez_rate - prraccss)
+
+        # Proportion we can freeze
+        zzw_prop = min(1.0, zfreez_remaining / max(1.0e-20, rraccs_tend - prraccss))
+
+        prraccsg = zzw_prop * max(0.0, rraccs_tend - prraccss)
+        zfreez_remaining = max(0.0, zfreez_remaining - prraccsg)
+
+        prsaccrg = zzw_prop * rsaccrg_tend
+
+        # Ensure positive values
+        prsaccrg = prsaccrg * max(0.0, -sign(1.0, -prraccsg))
+        prraccsg = max(0.0, prraccsg)
+    else:
+        prraccss = 0.0
+        prraccsg = 0.0
+        prsaccrg = 0.0
+
+
+# GT4Py stencil
+def conversion_melting_snow(
+    prhodref: Field["float"],
+    ppres: Field["float"],
+    pdv: Field["float"],
+    pka: Field["float"],
+    pcj: Field["float"],
+    plbdas: Field["float"],
+    pt: Field["float"],
+    prvt: Field["float"],
+    prst: Field["float"],
+    ldcompute: Field["bool"],
+    ldsoft: "bool",
+    levlimit: "bool",
+    prsmltg: Field["float"],
+    prcmltsr: Field["float"],
+    rcrims_tend: Field["float"],
+    rraccs_tend: Field["float"],
+):
+    """Compute conversion-melting of aggregates"""
+    from __externals__ import (
+        S_RTMIN,
+        EPSILO,
+        ALPW,
+        BETAW,
+        GAMW,
+        TT,
+        LVTT,
+        CPV,
+        CL,
+        LMTT,
+        ESTT,
+        RV,
+        O0DEPS,
+        O1DEPS,
+        EX0DEPS,
+        EX1DEPS,
+        FSCVMG,
+    )
+
+    with computation(PARALLEL), interval(...):
+        if prst > S_RTMIN and pt > TT and ldcompute:
+            if not ldsoft:
+                # Compute vapor pressure
+                prs_ev = prvt * ppres / (EPSILO + prvt)
+
+                # Apply saturation limit if requested
+                if levlimit:
+                    prs_ev = min(prs_ev, exp(ALPW - BETAW / pt - GAMW * log(pt)))
+
+                # Compute melting term
+                zzw_temp = pka * (TT - pt) + (
+                    pdv
+                    * (LVTT + (CPV - CL) * (pt - TT))
+                    * (ESTT - prs_ev)
+                    / (RV * pt)
+                )
+
+                # Compute RSMLT
+                prsmltg = FSCVMG * max(
+                    0.0,
+                    (
+                        -zzw_temp
+                        * (O0DEPS * plbdas**EX0DEPS + O1DEPS * pcj * plbdas**EX1DEPS)
+                        - (rcrims_tend + rraccs_tend) * (prhodref * CL * (TT - pt))
+                    )
+                    / (prhodref * LMTT),
+                )
+
+                # Collection rate (both species liquid, no heat exchange)
+                prcmltsr = rcrims_tend
+            else:
+                prsmltg = 0.0
+                prcmltsr = 0.0
+        else:
+            prsmltg = 0.0
+            prcmltsr = 0.0
