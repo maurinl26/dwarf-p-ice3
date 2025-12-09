@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Ice adjust - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Ice adjust";
+        var mkdocs_page_input_path = "ice3/functions/ice_adjust.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >functions</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Ice adjust</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">functions</li>
+      <li class="breadcrumb-item active">Ice adjust</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.functions.ice_adjust"></a>
+    <div class="doc doc-contents first">
+
+        <p>Thermodynamic functions for ice adjustment calculations.</p>
+<p>This module provides GT4Py implementations of fundamental thermodynamic
+functions used in saturation adjustment schemes for mixed-phase clouds.
+These include latent heat calculations and specific heat capacity
+computations for moist air parcels.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.ice_adjust.constant_pressure_heat_capacity" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">constant_pressure_heat_capacity</span><span class="p">(</span><span class="n">rv</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">ri</span><span class="p">,</span> <span class="n">rr</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="n">rg</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute specific heat at constant pressure for a moist air parcel.</p>
+<p>This function calculates the effective heat capacity of a moist
+air parcel containing various hydrometeor species. The total heat
+capacity is the mass-weighted average of the heat capacities of
+all components (dry air, water vapor, and condensed phases).</p>
+<h4 id="ice3.functions.ice_adjust.constant_pressure_heat_capacity--parameters">Parameters</h4>
+<p>rv : Field[float]
+    Water vapor mixing ratio (kg/kg).
+rc : Field[float]
+    Cloud liquid water mixing ratio (kg/kg).
+ri : Field[float]
+    Cloud ice mixing ratio (kg/kg).
+rr : Field[float]
+    Rain water mixing ratio (kg/kg).
+rs : Field[float]
+    Snow mixing ratio (kg/kg).
+rg : Field[float]
+    Graupel mixing ratio (kg/kg).</p>
+<h4 id="ice3.functions.ice_adjust.constant_pressure_heat_capacity--returns">Returns</h4>
+<p>Field[float]
+    Specific heat capacity at constant pressure in J/(kg·K).</p>
+<h4 id="ice3.functions.ice_adjust.constant_pressure_heat_capacity--notes">Notes</h4>
+<p>The formula is:
+c_p = c_pd + c_pv·r_v + c_l·(r_c + r_r) + c_i·(r_i + r_s + r_g)</p>
+<p>where:
+- c_pd = CPD: Specific heat of dry air at constant pressure (J/(kg·K))
+- c_pv = CPV: Specific heat of water vapor at constant pressure (J/(kg·K))
+- c_l = CL: Specific heat of liquid water (J/(kg·K))
+- c_i = CI: Specific heat of ice (J/(kg·K))</p>
+<p>Typical values:
+- CPD ≈ 1004 J/(kg·K)
+- CPV ≈ 1850 J/(kg·K)
+- CL ≈ 4218 J/(kg·K)
+- CI ≈ 2106 J/(kg·K)</p>
+<p>This function is essential for temperature adjustments during
+phase changes, as it determines how much the temperature changes
+for a given amount of latent heat release or absorption.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/ice_adjust.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">constant_pressure_heat_capacity</span><span class="p">(</span>
+    <span class="n">rv</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute specific heat at constant pressure for a moist air parcel.</span>
+
+<span class="sd">    This function calculates the effective heat capacity of a moist</span>
+<span class="sd">    air parcel containing various hydrometeor species. The total heat</span>
+<span class="sd">    capacity is the mass-weighted average of the heat capacities of</span>
+<span class="sd">    all components (dry air, water vapor, and condensed phases).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rv : Field[float]</span>
+<span class="sd">        Water vapor mixing ratio (kg/kg).</span>
+<span class="sd">    rc : Field[float]</span>
+<span class="sd">        Cloud liquid water mixing ratio (kg/kg).</span>
+<span class="sd">    ri : Field[float]</span>
+<span class="sd">        Cloud ice mixing ratio (kg/kg).</span>
+<span class="sd">    rr : Field[float]</span>
+<span class="sd">        Rain water mixing ratio (kg/kg).</span>
+<span class="sd">    rs : Field[float]</span>
+<span class="sd">        Snow mixing ratio (kg/kg).</span>
+<span class="sd">    rg : Field[float]</span>
+<span class="sd">        Graupel mixing ratio (kg/kg).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Field[float]</span>
+<span class="sd">        Specific heat capacity at constant pressure in J/(kg·K).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The formula is:</span>
+<span class="sd">    c_p = c_pd + c_pv·r_v + c_l·(r_c + r_r) + c_i·(r_i + r_s + r_g)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - c_pd = CPD: Specific heat of dry air at constant pressure (J/(kg·K))</span>
+<span class="sd">    - c_pv = CPV: Specific heat of water vapor at constant pressure (J/(kg·K))</span>
+<span class="sd">    - c_l = CL: Specific heat of liquid water (J/(kg·K))</span>
+<span class="sd">    - c_i = CI: Specific heat of ice (J/(kg·K))</span>
+
+<span class="sd">    Typical values:</span>
+<span class="sd">    - CPD ≈ 1004 J/(kg·K)</span>
+<span class="sd">    - CPV ≈ 1850 J/(kg·K)</span>
+<span class="sd">    - CL ≈ 4218 J/(kg·K)</span>
+<span class="sd">    - CI ≈ 2106 J/(kg·K)</span>
+
+<span class="sd">    This function is essential for temperature adjustments during</span>
+<span class="sd">    phase changes, as it determines how much the temperature changes</span>
+<span class="sd">    for a given amount of latent heat release or absorption.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">CI</span><span class="p">,</span> <span class="n">CL</span><span class="p">,</span> <span class="n">CPD</span><span class="p">,</span> <span class="n">CPV</span>
+
+    <span class="k">return</span> <span class="n">CPD</span> <span class="o">+</span> <span class="n">CPV</span> <span class="o">*</span> <span class="n">rv</span> <span class="o">+</span> <span class="n">CL</span> <span class="o">*</span> <span class="p">(</span><span class="n">rc</span> <span class="o">+</span> <span class="n">rr</span><span class="p">)</span> <span class="o">+</span> <span class="n">CI</span> <span class="o">*</span> <span class="p">(</span><span class="n">ri</span> <span class="o">+</span> <span class="n">rs</span> <span class="o">+</span> <span class="n">rg</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.ice_adjust.sublimation_latent_heat" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">sublimation_latent_heat</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute latent heat of sublimation as a function of temperature.</p>
+<p>This function calculates the temperature-dependent latent heat
+released when water vapor deposits to ice (or absorbed during
+sublimation). The latent heat varies with temperature due to
+differences in specific heat capacities between phases.</p>
+<h4 id="ice3.functions.ice_adjust.sublimation_latent_heat--parameters">Parameters</h4>
+<p>t : Field[float]
+    Temperature field in Kelvin (K).</p>
+<h4 id="ice3.functions.ice_adjust.sublimation_latent_heat--returns">Returns</h4>
+<p>Field[float]
+    Latent heat of sublimation in J/kg.</p>
+<h4 id="ice3.functions.ice_adjust.sublimation_latent_heat--notes">Notes</h4>
+<p>The formula is:
+L_s(T) = L_s(T_t) + (c_pv - c_i) * (T - T_t)</p>
+<p>where:
+- L_s(T_t) = LSTT: Latent heat at triple point (J/kg)
+- c_pv = CPV: Specific heat of water vapor at constant pressure (J/(kg·K))
+- c_i = CI: Specific heat of ice (J/(kg·K))
+- T_t = TT: Triple point temperature (K), 273.15 K</p>
+<p>The latent heat of sublimation equals the sum of latent heats
+of fusion and vaporization: L_s = L_f + L_v</p>
+<p>Typical values:
+- LSTT ≈ 2.83×10⁶ J/kg at 273.15 K
+- CPV ≈ 1850 J/(kg·K)
+- CI ≈ 2106 J/(kg·K)</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/ice_adjust.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sublimation_latent_heat</span><span class="p">(</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute latent heat of sublimation as a function of temperature.</span>
+
+<span class="sd">    This function calculates the temperature-dependent latent heat</span>
+<span class="sd">    released when water vapor deposits to ice (or absorbed during</span>
+<span class="sd">    sublimation). The latent heat varies with temperature due to</span>
+<span class="sd">    differences in specific heat capacities between phases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    t : Field[float]</span>
+<span class="sd">        Temperature field in Kelvin (K).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Field[float]</span>
+<span class="sd">        Latent heat of sublimation in J/kg.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The formula is:</span>
+<span class="sd">    L_s(T) = L_s(T_t) + (c_pv - c_i) * (T - T_t)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - L_s(T_t) = LSTT: Latent heat at triple point (J/kg)</span>
+<span class="sd">    - c_pv = CPV: Specific heat of water vapor at constant pressure (J/(kg·K))</span>
+<span class="sd">    - c_i = CI: Specific heat of ice (J/(kg·K))</span>
+<span class="sd">    - T_t = TT: Triple point temperature (K), 273.15 K</span>
+
+<span class="sd">    The latent heat of sublimation equals the sum of latent heats</span>
+<span class="sd">    of fusion and vaporization: L_s = L_f + L_v</span>
+
+<span class="sd">    Typical values:</span>
+<span class="sd">    - LSTT ≈ 2.83×10⁶ J/kg at 273.15 K</span>
+<span class="sd">    - CPV ≈ 1850 J/(kg·K)</span>
+<span class="sd">    - CI ≈ 2106 J/(kg·K)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">CI</span><span class="p">,</span> <span class="n">CPV</span><span class="p">,</span> <span class="n">LSTT</span><span class="p">,</span> <span class="n">TT</span>
+
+    <span class="k">return</span> <span class="n">LSTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CPV</span> <span class="o">-</span> <span class="n">CI</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.ice_adjust.vaporisation_latent_heat" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">vaporisation_latent_heat</span><span class="p">(</span><span class="n">t</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute latent heat of vaporization as a function of temperature.</p>
+<p>This function calculates the temperature-dependent latent heat
+released when water vapor condenses to liquid water (or absorbed
+during evaporation). The latent heat varies with temperature due
+to differences in specific heat capacities between phases.</p>
+<h4 id="ice3.functions.ice_adjust.vaporisation_latent_heat--parameters">Parameters</h4>
+<p>t : Field[float]
+    Temperature field in Kelvin (K).</p>
+<h4 id="ice3.functions.ice_adjust.vaporisation_latent_heat--returns">Returns</h4>
+<p>Field[float]
+    Latent heat of vaporization in J/kg.</p>
+<h4 id="ice3.functions.ice_adjust.vaporisation_latent_heat--notes">Notes</h4>
+<p>The formula is:
+L_v(T) = L_v(T_t) + (c_pv - c_l) * (T - T_t)</p>
+<p>where:
+- L_v(T_t) = LVTT: Latent heat at triple point (J/kg)
+- c_pv = CPV: Specific heat of water vapor at constant pressure (J/(kg·K))
+- c_l = CL: Specific heat of liquid water (J/(kg·K))
+- T_t = TT: Triple point temperature (K), 273.15 K</p>
+<p>The temperature dependence accounts for the energy difference in
+heating/cooling the phases between the reference temperature and
+the current temperature.</p>
+<p>Typical values:
+- LVTT ≈ 2.5×10⁶ J/kg at 273.15 K
+- CPV ≈ 1850 J/(kg·K)
+- CL ≈ 4218 J/(kg·K)</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/ice_adjust.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">vaporisation_latent_heat</span><span class="p">(</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute latent heat of vaporization as a function of temperature.</span>
+
+<span class="sd">    This function calculates the temperature-dependent latent heat</span>
+<span class="sd">    released when water vapor condenses to liquid water (or absorbed</span>
+<span class="sd">    during evaporation). The latent heat varies with temperature due</span>
+<span class="sd">    to differences in specific heat capacities between phases.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    t : Field[float]</span>
+<span class="sd">        Temperature field in Kelvin (K).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Field[float]</span>
+<span class="sd">        Latent heat of vaporization in J/kg.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The formula is:</span>
+<span class="sd">    L_v(T) = L_v(T_t) + (c_pv - c_l) * (T - T_t)</span>
+
+<span class="sd">    where:</span>
+<span class="sd">    - L_v(T_t) = LVTT: Latent heat at triple point (J/kg)</span>
+<span class="sd">    - c_pv = CPV: Specific heat of water vapor at constant pressure (J/(kg·K))</span>
+<span class="sd">    - c_l = CL: Specific heat of liquid water (J/(kg·K))</span>
+<span class="sd">    - T_t = TT: Triple point temperature (K), 273.15 K</span>
+
+<span class="sd">    The temperature dependence accounts for the energy difference in</span>
+<span class="sd">    heating/cooling the phases between the reference temperature and</span>
+<span class="sd">    the current temperature.</span>
+
+<span class="sd">    Typical values:</span>
+<span class="sd">    - LVTT ≈ 2.5×10⁶ J/kg at 273.15 K</span>
+<span class="sd">    - CPV ≈ 1850 J/(kg·K)</span>
+<span class="sd">    - CL ≈ 4218 J/(kg·K)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">CL</span><span class="p">,</span> <span class="n">CPV</span><span class="p">,</span> <span class="n">LVTT</span><span class="p">,</span> <span class="n">TT</span>
+
+    <span class="k">return</span> <span class="n">LVTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CPV</span> <span class="o">-</span> <span class="n">CL</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../gamma/" class="btn btn-neutral float-left" title="Gamma"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../icecloud/" class="btn btn-neutral float-right" title="Icecloud">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../gamma/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../icecloud/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

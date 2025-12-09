@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Rain ice - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Rain ice";
+        var mkdocs_page_input_path = "ice3/stencils/rain_ice.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >stencils</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Rain ice</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">stencils</li>
+      <li class="breadcrumb-item active">Rain ice</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.stencils.rain_ice"></a>
+    <div class="doc doc-contents first">
+
+        <p>Rain-ice scheme orchestration stencils.</p>
+<p>This module contains utility stencils that support the main rain-ice
+microphysics scheme. These functions handle tendency aggregation,
+thermodynamic computations, masking, and auxiliary processes like
+fog deposition and precipitation fraction calculations.</p>
+<p>Source: PHYEX/src/common/micro/rain_ice.F90</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.fog_deposition" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">fog_deposition</span><span class="p">(</span><span class="n">rcs</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">rhodref</span><span class="p">,</span> <span class="n">dzz</span><span class="p">,</span> <span class="n">inprc</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute fog deposition on vegetation (surface process).</p>
+<p>This function calculates the removal of cloud droplets (fog) by
+deposition on vegetation and other surface features. Not activated
+in standard AROME configuration.</p>
+<h4 id="ice3.stencils.rain_ice.fog_deposition--parameters">Parameters</h4>
+<p>rcs : Field[float]
+    Input/Output: Cloud droplet source term, reduced by deposition (kg/kg/s).
+rc_t : Field[float]
+    Cloud droplet mixing ratio (kg/kg).
+rhodref : Field[float]
+    Reference air density (kg/m³).
+dzz : Field[float]
+    Vertical grid spacing (m).
+inprc : Field[IJ, float]
+    Output: Accumulated deposition on surface (m).
+    Liquid water equivalent depth.</p>
+<h4 id="ice3.stencils.rain_ice.fog_deposition--notes">Notes</h4>
+<p>The deposition rate is parameterized using a deposition velocity:
+- Removal rate = V_dep × r_c / Δz</p>
+<p>Applied only at the surface level (k=0) in a forward computation.</p>
+<p>The accumulated deposition is converted to liquid water equivalent
+depth (meters) for diagnostic purposes.</p>
+<p>Physical Basis:
+- Fog droplets impact and stick to vegetation
+- Parameterized by empirical deposition velocity
+- Important for visibility forecasts near surface</p>
+<p>External Parameters:
+- VDEPOSC: Deposition velocity (m/s)
+- RHOLW: Liquid water density (kg/m³)
+- Activated if LDEPOSC=True in rain_ice.F90</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90.func.h, lines 816-830</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fog_deposition</span><span class="p">(</span>
+    <span class="n">rcs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rhodref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">dzz</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">inprc</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="n">IJ</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute fog deposition on vegetation (surface process).</span>
+
+<span class="sd">    This function calculates the removal of cloud droplets (fog) by</span>
+<span class="sd">    deposition on vegetation and other surface features. Not activated</span>
+<span class="sd">    in standard AROME configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rcs : Field[float]</span>
+<span class="sd">        Input/Output: Cloud droplet source term, reduced by deposition (kg/kg/s).</span>
+<span class="sd">    rc_t : Field[float]</span>
+<span class="sd">        Cloud droplet mixing ratio (kg/kg).</span>
+<span class="sd">    rhodref : Field[float]</span>
+<span class="sd">        Reference air density (kg/m³).</span>
+<span class="sd">    dzz : Field[float]</span>
+<span class="sd">        Vertical grid spacing (m).</span>
+<span class="sd">    inprc : Field[IJ, float]</span>
+<span class="sd">        Output: Accumulated deposition on surface (m).</span>
+<span class="sd">        Liquid water equivalent depth.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The deposition rate is parameterized using a deposition velocity:</span>
+<span class="sd">    - Removal rate = V_dep × r_c / Δz</span>
+
+<span class="sd">    Applied only at the surface level (k=0) in a forward computation.</span>
+
+<span class="sd">    The accumulated deposition is converted to liquid water equivalent</span>
+<span class="sd">    depth (meters) for diagnostic purposes.</span>
+
+<span class="sd">    Physical Basis:</span>
+<span class="sd">    - Fog droplets impact and stick to vegetation</span>
+<span class="sd">    - Parameterized by empirical deposition velocity</span>
+<span class="sd">    - Important for visibility forecasts near surface</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - VDEPOSC: Deposition velocity (m/s)</span>
+<span class="sd">    - RHOLW: Liquid water density (kg/m³)</span>
+<span class="sd">    - Activated if LDEPOSC=True in rain_ice.F90</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90.func.h, lines 816-830</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">RHOLW</span><span class="p">,</span> <span class="n">VDEPOSC</span>
+
+    <span class="c1"># Note : activated if LDEPOSC is True in rain_ice.F90</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">FORWARD</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">rcs</span> <span class="o">-=</span> <span class="n">VDEPOSC</span> <span class="o">*</span> <span class="n">rc_t</span> <span class="o">/</span> <span class="n">dzz</span>
+        <span class="n">inprc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">VDEPOSC</span> <span class="o">*</span> <span class="n">rc_t</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">rhodref</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">RHOLW</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.ice4_precipitation_fraction_sigma" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_precipitation_fraction_sigma</span><span class="p">(</span><span class="n">sigs</span><span class="p">,</span> <span class="n">sigma_rc</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute cloud water variance for subgrid precipitation scheme.</p>
+<p>This function calculates the variance of cloud water mixing ratio
+from the standard deviation of saturation, used in PDF-based
+precipitation parameterizations.</p>
+<h4 id="ice3.stencils.rain_ice.ice4_precipitation_fraction_sigma--parameters">Parameters</h4>
+<p>sigs : Field[float]
+    Standard deviation of saturation (dimensionless).
+sigma_rc : Field[float]
+    Output: Variance of cloud water mixing ratio (dimensionless).</p>
+<h4 id="ice3.stencils.rain_ice.ice4_precipitation_fraction_sigma--notes">Notes</h4>
+<p>This is used when:
+- CSUBG_AUCV_RC = 'PDF' (PDF method for autoconversion)
+- CSUBG_PR_PDF = 'SIGM' (Sigma method for precipitation)</p>
+<p>The variance σ²_rc = σ²_s relates subgrid variability in saturation
+to variability in cloud water for subgrid precipitation calculations.</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90, lines 492-498</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ice4_precipitation_fraction_sigma</span><span class="p">(</span>
+    <span class="n">sigs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">sigma_rc</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute cloud water variance for subgrid precipitation scheme.</span>
+
+<span class="sd">    This function calculates the variance of cloud water mixing ratio</span>
+<span class="sd">    from the standard deviation of saturation, used in PDF-based</span>
+<span class="sd">    precipitation parameterizations.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    sigs : Field[float]</span>
+<span class="sd">        Standard deviation of saturation (dimensionless).</span>
+<span class="sd">    sigma_rc : Field[float]</span>
+<span class="sd">        Output: Variance of cloud water mixing ratio (dimensionless).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is used when:</span>
+<span class="sd">    - CSUBG_AUCV_RC = &#39;PDF&#39; (PDF method for autoconversion)</span>
+<span class="sd">    - CSUBG_PR_PDF = &#39;SIGM&#39; (Sigma method for precipitation)</span>
+
+<span class="sd">    The variance σ²_rc = σ²_s relates subgrid variability in saturation</span>
+<span class="sd">    to variability in cloud water for subgrid precipitation calculations.</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90, lines 492-498</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">sigma_rc</span> <span class="o">=</span> <span class="n">sigs</span><span class="o">**</span><span class="mi">2</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.ice4_rainfr_vert" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">ice4_rainfr_vert</span><span class="p">(</span><span class="n">prfr</span><span class="p">,</span> <span class="n">rr</span><span class="p">,</span> <span class="n">rs</span><span class="p">,</span> <span class="n">rg</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute vertical rain fraction for diagnostics.</p>
+<p>This function determines the vertical extent of precipitation by
+propagating the rain fraction upward from levels with significant
+precipitation content. Used for diagnostic purposes and analysis.</p>
+<h4 id="ice3.stencils.rain_ice.ice4_rainfr_vert--parameters">Parameters</h4>
+<p>prfr : Field[float]
+    Input/Output: Rain fraction (0-1). Updated by backward sweep.
+rr, rs, rg : Field[float]
+    Rain, snow, graupel mixing ratios (kg/kg).</p>
+<h4 id="ice3.stencils.rain_ice.ice4_rainfr_vert--notes">Notes</h4>
+<p>Algorithm (backward/upward sweep):
+1. Start from bottom of domain (highest index)
+2. At each level, if precipitation exists:
+   - Take maximum of current and level below
+   - If no rain fraction, set to 1
+3. If no precipitation, set to 0</p>
+<p>This creates a rain fraction field that:
+- Is 1 where precipitation is present
+- Extends upward through the cloud column
+- Is 0 in clear air</p>
+<p>External Parameters:
+- R_RTMIN, S_RTMIN, G_RTMIN: Minimum thresholds (kg/kg)</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90, lines 792-801</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ice4_rainfr_vert</span><span class="p">(</span>
+    <span class="n">prfr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span> <span class="n">rr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span> <span class="n">rs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span> <span class="n">rg</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">]</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute vertical rain fraction for diagnostics.</span>
+
+<span class="sd">    This function determines the vertical extent of precipitation by</span>
+<span class="sd">    propagating the rain fraction upward from levels with significant</span>
+<span class="sd">    precipitation content. Used for diagnostic purposes and analysis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prfr : Field[float]</span>
+<span class="sd">        Input/Output: Rain fraction (0-1). Updated by backward sweep.</span>
+<span class="sd">    rr, rs, rg : Field[float]</span>
+<span class="sd">        Rain, snow, graupel mixing ratios (kg/kg).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Algorithm (backward/upward sweep):</span>
+<span class="sd">    1. Start from bottom of domain (highest index)</span>
+<span class="sd">    2. At each level, if precipitation exists:</span>
+<span class="sd">       - Take maximum of current and level below</span>
+<span class="sd">       - If no rain fraction, set to 1</span>
+<span class="sd">    3. If no precipitation, set to 0</span>
+
+<span class="sd">    This creates a rain fraction field that:</span>
+<span class="sd">    - Is 1 where precipitation is present</span>
+<span class="sd">    - Extends upward through the cloud column</span>
+<span class="sd">    - Is 0 in clear air</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - R_RTMIN, S_RTMIN, G_RTMIN: Minimum thresholds (kg/kg)</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90, lines 792-801</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">G_RTMIN</span><span class="p">,</span> <span class="n">R_RTMIN</span><span class="p">,</span> <span class="n">S_RTMIN</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">BACKWARD</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rr</span> <span class="o">&gt;</span> <span class="n">R_RTMIN</span> <span class="ow">or</span> <span class="n">rs</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span> <span class="ow">or</span> <span class="n">rg</span> <span class="o">&gt;</span> <span class="n">G_RTMIN</span><span class="p">:</span>
+            <span class="n">prfr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">prfr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">prfr</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">prfr</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">prfr</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prfr</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.initial_values_saving" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">initial_values_saving</span><span class="p">(</span><span class="n">wr_th</span><span class="p">,</span> <span class="n">wr_v</span><span class="p">,</span> <span class="n">wr_c</span><span class="p">,</span> <span class="n">wr_r</span><span class="p">,</span> <span class="n">wr_i</span><span class="p">,</span> <span class="n">wr_s</span><span class="p">,</span> <span class="n">wr_g</span><span class="p">,</span> <span class="n">th_t</span><span class="p">,</span> <span class="n">rv_t</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">evap3d</span><span class="p">,</span> <span class="n">rainfr</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Save initial values before microphysical processing.</p>
+<p>This function stores the initial state of all prognostic variables
+before the microphysical scheme modifies them. These saved values
+are later used to compute total tendencies.</p>
+<h4 id="ice3.stencils.rain_ice.initial_values_saving--parameters">Parameters</h4>
+<p>wr_th, wr_v, wr_c, wr_r, wr_i, wr_s, wr_g : Field[float]
+    Output: Storage fields for initial values of theta and mixing ratios.
+th_t, rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]
+    Current values to be saved.
+evap3d : Field[float]
+    Output: 3D evaporation diagnostic (initialized to 0 if LWARM=True).
+rainfr : Field[float]
+    Output: Rain fraction diagnostic (initialized to 0).</p>
+<h4 id="ice3.stencils.rain_ice.initial_values_saving--notes">Notes</h4>
+<p>This simple copy operation creates a snapshot of the atmosphere state.
+The difference between these saved values and the final values after
+microphysics determines the tendencies.</p>
+<p>The LWARM flag (True for AROME) controls whether evap3d is computed.</p>
+<p>External Parameters:
+- LWARM: Flag for warm processes (True for AROME)</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90, lines 424-444</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">initial_values_saving</span><span class="p">(</span>
+    <span class="n">wr_th</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_v</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_c</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_r</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_i</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_s</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_g</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">th_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rr_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rg_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">evap3d</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rainfr</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save initial values before microphysical processing.</span>
+
+<span class="sd">    This function stores the initial state of all prognostic variables</span>
+<span class="sd">    before the microphysical scheme modifies them. These saved values</span>
+<span class="sd">    are later used to compute total tendencies.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wr_th, wr_v, wr_c, wr_r, wr_i, wr_s, wr_g : Field[float]</span>
+<span class="sd">        Output: Storage fields for initial values of theta and mixing ratios.</span>
+<span class="sd">    th_t, rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]</span>
+<span class="sd">        Current values to be saved.</span>
+<span class="sd">    evap3d : Field[float]</span>
+<span class="sd">        Output: 3D evaporation diagnostic (initialized to 0 if LWARM=True).</span>
+<span class="sd">    rainfr : Field[float]</span>
+<span class="sd">        Output: Rain fraction diagnostic (initialized to 0).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This simple copy operation creates a snapshot of the atmosphere state.</span>
+<span class="sd">    The difference between these saved values and the final values after</span>
+<span class="sd">    microphysics determines the tendencies.</span>
+
+<span class="sd">    The LWARM flag (True for AROME) controls whether evap3d is computed.</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - LWARM: Flag for warm processes (True for AROME)</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90, lines 424-444</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">LWARM</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">wr_th</span> <span class="o">=</span> <span class="n">th_t</span>
+        <span class="n">wr_v</span> <span class="o">=</span> <span class="n">rv_t</span>
+        <span class="n">wr_c</span> <span class="o">=</span> <span class="n">rc_t</span>
+        <span class="n">wr_r</span> <span class="o">=</span> <span class="n">rr_t</span>
+        <span class="n">wr_i</span> <span class="o">=</span> <span class="n">ri_t</span>
+        <span class="n">wr_s</span> <span class="o">=</span> <span class="n">rs_t</span>
+        <span class="n">wr_g</span> <span class="o">=</span> <span class="n">rg_t</span>
+
+        <span class="c1"># LWARM is True for AROME</span>
+        <span class="k">if</span> <span class="n">__INLINED</span><span class="p">(</span><span class="n">LWARM</span><span class="p">):</span>
+            <span class="n">evap3d</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">rainfr</span> <span class="o">=</span> <span class="mi">0</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.rain_fraction_sedimentation" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">rain_fraction_sedimentation</span><span class="p">(</span><span class="n">wr_r</span><span class="p">,</span> <span class="n">wr_s</span><span class="p">,</span> <span class="n">wr_g</span><span class="p">,</span> <span class="n">rrs</span><span class="p">,</span> <span class="n">rss</span><span class="p">,</span> <span class="n">rgs</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Initialize precipitation mixing ratios for sedimentation.</p>
+<p>This function prepares the precipitation fields at the top of the
+domain for the sedimentation calculation by computing the amount
+produced during the time step.</p>
+<h4 id="ice3.stencils.rain_ice.rain_fraction_sedimentation--parameters">Parameters</h4>
+<p>wr_r, wr_s, wr_g : Field[float]
+    Output: Rain, snow, graupel mixing ratios at top boundary (kg/kg).
+rrs, rss, rgs : Field[float]
+    Source terms (tendencies) for rain, snow, graupel (kg/kg/s).</p>
+<h4 id="ice3.stencils.rain_ice.rain_fraction_sedimentation--notes">Notes</h4>
+<p>Applied only at the top level (k=0) of the domain.
+The amount is computed as: r = tendency × Δt</p>
+<p>This sets the upper boundary condition for the sedimentation scheme,
+which then propagates precipitation downward through the column.</p>
+<p>External Parameters:
+- TSTEP: Time step (s)</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90, lines 792-801</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rain_fraction_sedimentation</span><span class="p">(</span>
+    <span class="n">wr_r</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_s</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_g</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rrs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rss</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rgs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize precipitation mixing ratios for sedimentation.</span>
+
+<span class="sd">    This function prepares the precipitation fields at the top of the</span>
+<span class="sd">    domain for the sedimentation calculation by computing the amount</span>
+<span class="sd">    produced during the time step.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wr_r, wr_s, wr_g : Field[float]</span>
+<span class="sd">        Output: Rain, snow, graupel mixing ratios at top boundary (kg/kg).</span>
+<span class="sd">    rrs, rss, rgs : Field[float]</span>
+<span class="sd">        Source terms (tendencies) for rain, snow, graupel (kg/kg/s).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Applied only at the top level (k=0) of the domain.</span>
+<span class="sd">    The amount is computed as: r = tendency × Δt</span>
+
+<span class="sd">    This sets the upper boundary condition for the sedimentation scheme,</span>
+<span class="sd">    which then propagates precipitation downward through the column.</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - TSTEP: Time step (s)</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90, lines 792-801</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">TSTEP</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">wr_r</span> <span class="o">=</span> <span class="n">rrs</span> <span class="o">*</span> <span class="n">TSTEP</span>
+        <span class="n">wr_s</span> <span class="o">=</span> <span class="n">rss</span> <span class="o">*</span> <span class="n">TSTEP</span>
+        <span class="n">wr_g</span> <span class="o">=</span> <span class="n">rgs</span> <span class="o">*</span> <span class="n">TSTEP</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.rain_ice_mask" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">rain_ice_mask</span><span class="p">(</span><span class="n">rc_t</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">,</span> <span class="n">ldmicro</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Determine which grid points require microphysical computations.</p>
+<p>This function creates a boolean mask indicating grid points with
+sufficient hydrometeor content to warrant microphysical calculations.
+This optimization avoids unnecessary computations in clear air.</p>
+<h4 id="ice3.stencils.rain_ice.rain_ice_mask--parameters">Parameters</h4>
+<p>rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]
+    Mixing ratios for cloud, rain, ice, snow, graupel at time t (kg/kg).
+ldmicro : Field[bool]
+    Output: Mask indicating grid points needing microphysics (True/False).</p>
+<h4 id="ice3.stencils.rain_ice.rain_ice_mask--notes">Notes</h4>
+<p>A grid point requires microphysical computation if ANY hydrometeor
+species exceeds its threshold:
+- rc_t &gt; C_RTMIN (cloud droplets)
+- rr_t &gt; R_RTMIN (rain)
+- ri_t &gt; I_RTMIN (ice crystals)
+- rs_t &gt; S_RTMIN (snow)
+- rg_t &gt; G_RTMIN (graupel)</p>
+<p>Typical threshold values are O(10⁻⁸) kg/kg.</p>
+<p>External Parameters:
+- C_RTMIN, R_RTMIN, I_RTMIN, S_RTMIN, G_RTMIN: Minimum thresholds (kg/kg)</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rain_ice_mask</span><span class="p">(</span>
+    <span class="n">rc_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rr_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rg_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ldmicro</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;bool&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine which grid points require microphysical computations.</span>
+
+<span class="sd">    This function creates a boolean mask indicating grid points with</span>
+<span class="sd">    sufficient hydrometeor content to warrant microphysical calculations.</span>
+<span class="sd">    This optimization avoids unnecessary computations in clear air.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]</span>
+<span class="sd">        Mixing ratios for cloud, rain, ice, snow, graupel at time t (kg/kg).</span>
+<span class="sd">    ldmicro : Field[bool]</span>
+<span class="sd">        Output: Mask indicating grid points needing microphysics (True/False).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    A grid point requires microphysical computation if ANY hydrometeor</span>
+<span class="sd">    species exceeds its threshold:</span>
+<span class="sd">    - rc_t &gt; C_RTMIN (cloud droplets)</span>
+<span class="sd">    - rr_t &gt; R_RTMIN (rain)</span>
+<span class="sd">    - ri_t &gt; I_RTMIN (ice crystals)</span>
+<span class="sd">    - rs_t &gt; S_RTMIN (snow)</span>
+<span class="sd">    - rg_t &gt; G_RTMIN (graupel)</span>
+
+<span class="sd">    Typical threshold values are O(10⁻⁸) kg/kg.</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - C_RTMIN, R_RTMIN, I_RTMIN, S_RTMIN, G_RTMIN: Minimum thresholds (kg/kg)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">C_RTMIN</span><span class="p">,</span> <span class="n">G_RTMIN</span><span class="p">,</span> <span class="n">I_RTMIN</span><span class="p">,</span> <span class="n">R_RTMIN</span><span class="p">,</span> <span class="n">S_RTMIN</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">ldmicro</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">rc_t</span> <span class="o">&gt;</span> <span class="n">C_RTMIN</span>
+            <span class="ow">or</span> <span class="n">rr_t</span> <span class="o">&gt;</span> <span class="n">R_RTMIN</span>
+            <span class="ow">or</span> <span class="n">ri_t</span> <span class="o">&gt;</span> <span class="n">I_RTMIN</span>
+            <span class="ow">or</span> <span class="n">rs_t</span> <span class="o">&gt;</span> <span class="n">S_RTMIN</span>
+            <span class="ow">or</span> <span class="n">rg_t</span> <span class="o">&gt;</span> <span class="n">G_RTMIN</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.rain_ice_thermo" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">rain_ice_thermo</span><span class="p">(</span><span class="n">exn</span><span class="p">,</span> <span class="n">ls_fact</span><span class="p">,</span> <span class="n">lv_fact</span><span class="p">,</span> <span class="n">th_t</span><span class="p">,</span> <span class="n">rv_t</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute thermodynamic functions for the microphysics scheme.</p>
+<p>This function calculates the latent heat factors (L/c_p) accounting for
+temperature-dependent variations in latent heat and the specific heat
+capacity of the moist air parcel.</p>
+<h4 id="ice3.stencils.rain_ice.rain_ice_thermo--parameters">Parameters</h4>
+<p>exn : Field[float]
+    Exner function π = (p/p₀)^(R_d/c_p) (dimensionless).
+ls_fact : Field[float]
+    Output: Latent heat of sublimation over heat capacity, L_s/c_p (K).
+lv_fact : Field[float]
+    Output: Latent heat of vaporization over heat capacity, L_v/c_p (K).
+th_t : Field[float]
+    Potential temperature at time t (K).
+rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]
+    Mixing ratios at time t for vapor, cloud, rain, ice, snow, graupel (kg/kg).</p>
+<h4 id="ice3.stencils.rain_ice.rain_ice_thermo--notes">Notes</h4>
+<p>The effective heat capacity of moist air depends on the mixing ratios:
+c_p,moist = c_pd + c_pv·r_v + c_l·(r_c + r_r) + c_i·(r_i + r_s + r_g)</p>
+<p>The latent heats vary with temperature:
+L_v(T) = L_v(T_t) + (c_pv - c_l)·(T - T_t)
+L_s(T) = L_s(T_t) + (c_pv - c_i)·(T - T_t)</p>
+<p>These factors are used throughout the microphysics to convert
+mixing ratio changes to temperature changes and vice versa.</p>
+<p>External Parameters:
+- CPD, CPV, CL, CI: Specific heats (J/(kg·K))
+- LVTT, LSTT: Latent heats at triple point (J/kg)
+- TT: Triple point temperature (K)</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90, lines 367-396</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rain_ice_thermo</span><span class="p">(</span>
+    <span class="n">exn</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ls_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lv_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">th_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rr_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rg_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute thermodynamic functions for the microphysics scheme.</span>
+
+<span class="sd">    This function calculates the latent heat factors (L/c_p) accounting for</span>
+<span class="sd">    temperature-dependent variations in latent heat and the specific heat</span>
+<span class="sd">    capacity of the moist air parcel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exn : Field[float]</span>
+<span class="sd">        Exner function π = (p/p₀)^(R_d/c_p) (dimensionless).</span>
+<span class="sd">    ls_fact : Field[float]</span>
+<span class="sd">        Output: Latent heat of sublimation over heat capacity, L_s/c_p (K).</span>
+<span class="sd">    lv_fact : Field[float]</span>
+<span class="sd">        Output: Latent heat of vaporization over heat capacity, L_v/c_p (K).</span>
+<span class="sd">    th_t : Field[float]</span>
+<span class="sd">        Potential temperature at time t (K).</span>
+<span class="sd">    rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]</span>
+<span class="sd">        Mixing ratios at time t for vapor, cloud, rain, ice, snow, graupel (kg/kg).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The effective heat capacity of moist air depends on the mixing ratios:</span>
+<span class="sd">    c_p,moist = c_pd + c_pv·r_v + c_l·(r_c + r_r) + c_i·(r_i + r_s + r_g)</span>
+
+<span class="sd">    The latent heats vary with temperature:</span>
+<span class="sd">    L_v(T) = L_v(T_t) + (c_pv - c_l)·(T - T_t)</span>
+<span class="sd">    L_s(T) = L_s(T_t) + (c_pv - c_i)·(T - T_t)</span>
+
+<span class="sd">    These factors are used throughout the microphysics to convert</span>
+<span class="sd">    mixing ratio changes to temperature changes and vice versa.</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - CPD, CPV, CL, CI: Specific heats (J/(kg·K))</span>
+<span class="sd">    - LVTT, LSTT: Latent heats at triple point (J/kg)</span>
+<span class="sd">    - TT: Triple point temperature (K)</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90, lines 367-396</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">CI</span><span class="p">,</span> <span class="n">CL</span><span class="p">,</span> <span class="n">CPD</span><span class="p">,</span> <span class="n">CPV</span><span class="p">,</span> <span class="n">LSTT</span><span class="p">,</span> <span class="n">LVTT</span><span class="p">,</span> <span class="n">TT</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="n">divider</span> <span class="o">=</span> <span class="n">CPD</span> <span class="o">+</span> <span class="n">CPV</span> <span class="o">*</span> <span class="n">rv_t</span> <span class="o">+</span> <span class="n">CL</span> <span class="o">*</span> <span class="p">(</span><span class="n">rc_t</span> <span class="o">+</span> <span class="n">rr_t</span><span class="p">)</span> <span class="o">+</span> <span class="n">CI</span> <span class="o">*</span> <span class="p">(</span><span class="n">ri_t</span> <span class="o">+</span> <span class="n">rs_t</span> <span class="o">+</span> <span class="n">rg_t</span><span class="p">)</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">th_t</span> <span class="o">*</span> <span class="n">exn</span>
+        <span class="n">ls_fact</span> <span class="o">=</span> <span class="p">(</span><span class="n">LSTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CPV</span> <span class="o">-</span> <span class="n">CI</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span> <span class="o">/</span> <span class="n">divider</span>
+        <span class="n">lv_fact</span> <span class="o">=</span> <span class="p">(</span><span class="n">LVTT</span> <span class="o">+</span> <span class="p">(</span><span class="n">CPV</span> <span class="o">-</span> <span class="n">CL</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">TT</span><span class="p">))</span> <span class="o">/</span> <span class="n">divider</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.stencils.rain_ice.rain_ice_total_tendencies" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">rain_ice_total_tendencies</span><span class="p">(</span><span class="n">wr_th</span><span class="p">,</span> <span class="n">wr_v</span><span class="p">,</span> <span class="n">wr_c</span><span class="p">,</span> <span class="n">wr_r</span><span class="p">,</span> <span class="n">wr_i</span><span class="p">,</span> <span class="n">wr_s</span><span class="p">,</span> <span class="n">wr_g</span><span class="p">,</span> <span class="n">ls_fact</span><span class="p">,</span> <span class="n">lv_fact</span><span class="p">,</span> <span class="n">exnref</span><span class="p">,</span> <span class="n">ths</span><span class="p">,</span> <span class="n">rvs</span><span class="p">,</span> <span class="n">rcs</span><span class="p">,</span> <span class="n">rrs</span><span class="p">,</span> <span class="n">ris</span><span class="p">,</span> <span class="n">rss</span><span class="p">,</span> <span class="n">rgs</span><span class="p">,</span> <span class="n">rvheni</span><span class="p">,</span> <span class="n">rv_t</span><span class="p">,</span> <span class="n">rc_t</span><span class="p">,</span> <span class="n">rr_t</span><span class="p">,</span> <span class="n">ri_t</span><span class="p">,</span> <span class="n">rs_t</span><span class="p">,</span> <span class="n">rg_t</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute total tendencies and update source terms.</p>
+<p>This function calculates the total change in mixing ratios over the
+time step, converts these to tendencies, and adds them to the source
+terms. It also computes the corresponding potential temperature tendency
+accounting for latent heat release/absorption.</p>
+<h4 id="ice3.stencils.rain_ice.rain_ice_total_tendencies--parameters">Parameters</h4>
+<p>wr_th, wr_v, wr_c, wr_r, wr_i, wr_s, wr_g : Field[float]
+    Initial values for potential temperature and mixing ratios (kg/kg).
+    Input as initial values, output as tendencies (kg/kg/s).
+ls_fact : Field[float]
+    Latent heat of sublimation divided by heat capacity, L_s/c_p (K).
+lv_fact : Field[float]
+    Latent heat of vaporization divided by heat capacity, L_v/c_p (K).
+exnref : Field[float]
+    Reference Exner function (dimensionless).
+ths, rvs, rcs, rrs, ris, rss, rgs : Field[float]
+    Source terms (tendencies) to be updated (units/s).
+rvheni : Field[float]
+    Vapor consumed by heterogeneous nucleation (kg/kg/s).
+rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]
+    Current mixing ratios at time t (kg/kg).</p>
+<h4 id="ice3.stencils.rain_ice.rain_ice_total_tendencies--notes">Notes</h4>
+<p>Process Steps:
+1. Compute mixing ratio changes: Δr = r_initial - r_current
+2. Convert to tendencies: tendency = Δr / Δt
+3. Calculate theta tendency from latent heat:
+   Δθ = (Δr_liquid * L_v + Δr_ice * L_s) / c_p
+4. Add nucleation contribution to ice and vapor tendencies
+5. Update all source terms</p>
+<p>The potential temperature change accounts for:
+- Condensation/evaporation of liquid (using L_v)
+- Deposition/sublimation of ice (using L_s)
+- Heterogeneous nucleation (vapor → ice)</p>
+<p>External Parameters:
+- INV_TSTEP: Inverse of time step (1/s)</p>
+<p>Source Reference:
+PHYEX/src/common/micro/rain_ice.F90, lines 693-728</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/stencils/rain_ice.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rain_ice_total_tendencies</span><span class="p">(</span>
+    <span class="n">wr_th</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_v</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_c</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_r</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_i</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_s</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">wr_g</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ls_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">lv_fact</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">exnref</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ths</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rvs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rcs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rrs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ris</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rss</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rgs</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rvheni</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rv_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rc_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rr_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">ri_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rs_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+    <span class="n">rg_t</span><span class="p">:</span> <span class="n">Field</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">],</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute total tendencies and update source terms.</span>
+
+<span class="sd">    This function calculates the total change in mixing ratios over the</span>
+<span class="sd">    time step, converts these to tendencies, and adds them to the source</span>
+<span class="sd">    terms. It also computes the corresponding potential temperature tendency</span>
+<span class="sd">    accounting for latent heat release/absorption.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    wr_th, wr_v, wr_c, wr_r, wr_i, wr_s, wr_g : Field[float]</span>
+<span class="sd">        Initial values for potential temperature and mixing ratios (kg/kg).</span>
+<span class="sd">        Input as initial values, output as tendencies (kg/kg/s).</span>
+<span class="sd">    ls_fact : Field[float]</span>
+<span class="sd">        Latent heat of sublimation divided by heat capacity, L_s/c_p (K).</span>
+<span class="sd">    lv_fact : Field[float]</span>
+<span class="sd">        Latent heat of vaporization divided by heat capacity, L_v/c_p (K).</span>
+<span class="sd">    exnref : Field[float]</span>
+<span class="sd">        Reference Exner function (dimensionless).</span>
+<span class="sd">    ths, rvs, rcs, rrs, ris, rss, rgs : Field[float]</span>
+<span class="sd">        Source terms (tendencies) to be updated (units/s).</span>
+<span class="sd">    rvheni : Field[float]</span>
+<span class="sd">        Vapor consumed by heterogeneous nucleation (kg/kg/s).</span>
+<span class="sd">    rv_t, rc_t, rr_t, ri_t, rs_t, rg_t : Field[float]</span>
+<span class="sd">        Current mixing ratios at time t (kg/kg).</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Process Steps:</span>
+<span class="sd">    1. Compute mixing ratio changes: Δr = r_initial - r_current</span>
+<span class="sd">    2. Convert to tendencies: tendency = Δr / Δt</span>
+<span class="sd">    3. Calculate theta tendency from latent heat:</span>
+<span class="sd">       Δθ = (Δr_liquid * L_v + Δr_ice * L_s) / c_p</span>
+<span class="sd">    4. Add nucleation contribution to ice and vapor tendencies</span>
+<span class="sd">    5. Update all source terms</span>
+
+<span class="sd">    The potential temperature change accounts for:</span>
+<span class="sd">    - Condensation/evaporation of liquid (using L_v)</span>
+<span class="sd">    - Deposition/sublimation of ice (using L_s)</span>
+<span class="sd">    - Heterogeneous nucleation (vapor → ice)</span>
+
+<span class="sd">    External Parameters:</span>
+<span class="sd">    - INV_TSTEP: Inverse of time step (1/s)</span>
+
+<span class="sd">    Source Reference:</span>
+<span class="sd">    PHYEX/src/common/micro/rain_ice.F90, lines 693-728</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">INV_TSTEP</span>
+
+    <span class="k">with</span> <span class="n">computation</span><span class="p">(</span><span class="n">PARALLEL</span><span class="p">),</span> <span class="n">interval</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+        <span class="c1"># Translation note ls, lv replaced by ls_fact, lv_fact</span>
+
+        <span class="c1"># Hydrometeor tendency</span>
+        <span class="n">wr_v</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_v</span> <span class="o">-</span> <span class="n">rv_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">INV_TSTEP</span>
+        <span class="n">wr_c</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_c</span> <span class="o">-</span> <span class="n">rc_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">INV_TSTEP</span>
+        <span class="n">wr_r</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_r</span> <span class="o">-</span> <span class="n">rr_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">INV_TSTEP</span>
+        <span class="n">wr_i</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_i</span> <span class="o">-</span> <span class="n">ri_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">INV_TSTEP</span>
+        <span class="n">wr_s</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_s</span> <span class="o">-</span> <span class="n">rs_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">INV_TSTEP</span>
+        <span class="n">wr_g</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_g</span> <span class="o">-</span> <span class="n">rg_t</span><span class="p">)</span> <span class="o">*</span> <span class="n">INV_TSTEP</span>
+
+        <span class="c1"># Theta tendency</span>
+        <span class="n">wr_th</span> <span class="o">=</span> <span class="p">(</span><span class="n">wr_c</span> <span class="o">+</span> <span class="n">wr_r</span><span class="p">)</span> <span class="o">*</span> <span class="n">lv_fact</span> <span class="o">+</span> <span class="p">(</span><span class="n">wr_i</span> <span class="o">+</span> <span class="n">wr_s</span> <span class="o">+</span> <span class="n">wr_g</span><span class="p">)</span> <span class="o">*</span> <span class="n">ls_fact</span>
+
+        <span class="c1"># Tendencies to sources, taking nucleation into account (rv_heni)</span>
+        <span class="n">ths</span> <span class="o">+=</span> <span class="n">wr_th</span> <span class="o">+</span> <span class="n">rvheni</span> <span class="o">*</span> <span class="n">ls_fact</span>
+        <span class="n">rvs</span> <span class="o">+=</span> <span class="n">wr_v</span> <span class="o">-</span> <span class="n">rvheni</span>
+        <span class="n">rcs</span> <span class="o">+=</span> <span class="n">wr_c</span>
+        <span class="n">rrs</span> <span class="o">+=</span> <span class="n">wr_r</span>
+        <span class="n">ris</span> <span class="o">+=</span> <span class="n">wr_i</span> <span class="o">+</span> <span class="n">rvheni</span>
+        <span class="n">rss</span> <span class="o">+=</span> <span class="n">wr_s</span>
+        <span class="n">rgs</span> <span class="o">+=</span> <span class="n">wr_g</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../precipitation_fraction_liquid_content/" class="btn btn-neutral float-left" title="Precipitation fraction liquid content"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../sedimentation/" class="btn btn-neutral float-right" title="Sedimentation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../precipitation_fraction_liquid_content/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../sedimentation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

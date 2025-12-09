@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Stencil File Documentation Template - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Stencil File Documentation Template";
+        var mkdocs_page_input_path = "agent/STENCIL_DOCSTRING_TEMPLATE.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../ice3/stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Stencil File Documentation Template</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="stencil-file-documentation-template">Stencil File Documentation Template</h1>
+<p>This template provides a standardized format for documenting stencil files in <code>src/ice3/stencils/</code>.</p>
+<h2 id="module-level-docstring-template">Module-Level Docstring Template</h2>
+<pre><code class="language-python"># -*- coding: utf-8 -*-
+&quot;&quot;&quot;
+[Brief title describing the stencil's purpose]
+
+This module implements [describe what microphysical processes or computations
+are handled]. [Add 1-2 sentences about the scientific context or role in 
+the overall scheme].
+
+Source: PHYEX/src/common/micro/[original Fortran file name]
+&quot;&quot;&quot;
+from __future__ import annotations
+
+# imports...
+</code></pre>
+<h2 id="function-level-docstring-template">Function-Level Docstring Template</h2>
+<pre><code class="language-python">def function_name(
+    param1: Field[&quot;float&quot;],
+    param2: Field[&quot;float&quot;],
+    # ... more parameters
+):
+    &quot;&quot;&quot;
+    [One-line summary of what the function does]
+
+    [2-3 sentences providing more detail about the physical process,
+    algorithm, or computation being performed. Include scientific context
+    where relevant.]
+
+    Parameters
+    ----------
+    param1 : Field[float]
+        Description of parameter including physical meaning and units.
+        E.g., &quot;Temperature (K)&quot; or &quot;Mixing ratio (kg/kg)&quot;.
+    param2 : Field[float]
+        Description with units.
+    output_param : Field[float]
+        Output: Description of what is computed/updated.
+
+    Returns
+    -------
+    Field[float] (if applicable)
+        Description of return value.
+
+    Notes
+    -----
+    [Optional section for:]
+    - Algorithm overview or steps
+    - Physical interpretation
+    - Key equations or formulas
+    - Assumptions or limitations
+    - Related processes
+    - Special cases handled
+
+    [If relevant, add subsections like:]
+
+    Process Overview:
+    1. Step one
+    2. Step two
+    3. Step three
+
+    Physical Basis:
+    - Key physics principle
+    - Governing equations
+
+    External Parameters:
+    - PARAM_NAME: Description (units)
+    - CONSTANT_NAME: Description (value/units)
+
+    Examples
+    --------
+    [Optional: Show typical values or usage]
+
+    References
+    ----------
+    [Optional: Cite scientific papers if relevant]
+    Author, Year: Title. Journal.
+
+    Source Reference:
+    PHYEX/src/common/micro/[file.F90], lines [start-end]
+    &quot;&quot;&quot;
+    # Implementation...
+</code></pre>
+<h2 id="guidelines-for-good-documentation">Guidelines for Good Documentation</h2>
+<h3 id="1-physical-units">1. Physical Units</h3>
+<p>Always specify units for physical quantities:
+- Temperature: K
+- Pressure: Pa or hPa
+- Mixing ratios: kg/kg
+- Density: kg/m³
+- Length scales: m
+- Time: s
+- Rates/tendencies: (quantity)/s</p>
+<h3 id="2-process-descriptions">2. Process Descriptions</h3>
+<p>For microphysical processes, explain:
+- <strong>What</strong>: What physical process (e.g., "rain evaporation")
+- <strong>When</strong>: Conditions for occurrence (e.g., "T &gt; 273.15 K", "r_r &gt; R_RTMIN")
+- <strong>How</strong>: Mechanism (e.g., "droplets fall through subsaturated air")
+- <strong>Energy</strong>: Latent heat effects (L_v, L_s, L_f)</p>
+<h3 id="3-parameter-naming-conventions">3. Parameter Naming Conventions</h3>
+<p>Be consistent with naming:
+- <code>t</code>: Temperature (K)
+- <code>th</code> or <code>tht</code>: Potential temperature (K)
+- <code>rv</code>, <code>rc</code>, <code>rr</code>, <code>ri</code>, <code>rs</code>, <code>rg</code>: Vapor, cloud, rain, ice, snow, graupel mixing ratios (kg/kg)
+- <code>rhodref</code>: Reference density (kg/m³)
+- <code>pres</code>: Pressure (Pa)
+- <code>exn</code>: Exner function (dimensionless)
+- <code>lsfact</code>, <code>lvfact</code>: Latent heat factors L_s/c_p, L_v/c_p (K)
+- <code>lbdar</code>, <code>lbdas</code>, <code>lbdag</code>: Slope parameters for size distributions (m⁻¹)
+- <code>_tnd</code>: Tendency (rate of change per second)
+- <code>_mr</code>: Mixing ratio increment (kg/kg)</p>
+<h3 id="4-external-parameters">4. External Parameters</h3>
+<p>Document external compile-time constants:</p>
+<pre><code class="language-python">External Parameters:
+- TT: Triple point temperature (K), typically 273.15
+- LVTT: Latent heat of vaporization at triple point (J/kg)
+- LSTT: Latent heat of sublimation at triple point (J/kg)
+- R_RTMIN: Minimum rain mixing ratio threshold (kg/kg)
+- LBEXR: Exponent for rain distribution slope
+</code></pre>
+<h3 id="5-translation-notes">5. Translation Notes</h3>
+<p>Include helpful comments about Fortran→Python translation:</p>
+<pre><code class="language-python"># Translation note: l100 to l150 kept (AROME configuration)
+# Translation note: l151 to l200 omitted (LLRFR = False)
+# Translation note: #ifdef REPRO48 version retained
+</code></pre>
+<h3 id="6-scientific-references">6. Scientific References</h3>
+<p>When appropriate, cite key papers:</p>
+<pre><code class="language-python">References
+----------
+Cohard, J.-M., and J.-P. Pinty, 2000: A comprehensive two-moment
+warm microphysical bulk scheme. Q. J. R. Meteorol. Soc., 126, 1815-1842.
+</code></pre>
+<h2 id="common-stencil-patterns">Common Stencil Patterns</h2>
+<h3 id="initialization-stencil">Initialization Stencil</h3>
+<pre><code class="language-python">def init_fields(...):
+    &quot;&quot;&quot;
+    Initialize [what fields] to [what values].
+
+    [Why initialization is needed - e.g., &quot;Resets accumulators before
+    microphysics calculations&quot; or &quot;Sets boundary conditions&quot;]
+    &quot;&quot;&quot;
+</code></pre>
+<h3 id="process-rate-stencil">Process Rate Stencil</h3>
+<pre><code class="language-python">def compute_process_rate(...):
+    &quot;&quot;&quot;
+    Compute [process name] rate.
+
+    Calculates the rate of [physical process] based on [conditions].
+    [Physical interpretation - what happens and why].
+
+    Parameters
+    ----------
+    [inputs with units]
+
+    output : Field[float]
+        Output: Process rate (kg/kg/s).
+
+    Notes
+    -----
+    Process occurs when:
+    - Condition 1  
+    - Condition 2
+
+    Rate depends on:
+    - Factor 1
+    - Factor 2
+
+    Formula: rate = [mathematical expression if simple]
+    ```
+
+### Post-Processing Stencil
+```python
+def apply_changes(...):
+    &quot;&quot;&quot;
+    Apply [what changes] to prognostic variables.
+
+    Updates [which variables] after [which process] with proper
+    accounting for [thermodynamics/mass conservation].
+
+    Notes
+    -----
+    Process: r_x → r_y (describe phase change)
+    Energy: Releases/absorbs [which latent heat]
+    Temperature change: ΔT = [formula]
+    &quot;&quot;&quot;
+</code></pre>
+<h3 id="aggregation-stencil">Aggregation Stencil</h3>
+<pre><code class="language-python">def aggregate_tendencies(...):
+    &quot;&quot;&quot;
+    Aggregate contributions from multiple processes.
+
+    Sums [what] from [which processes] to compute [what result].
+    Ensures [conservation law] is maintained.
+    &quot;&quot;&quot;
+</code></pre>
+<h2 id="checklist-for-complete-documentation">Checklist for Complete Documentation</h2>
+<ul>
+<li>[ ] Module docstring with title, description, source reference</li>
+<li>[ ] All function parameters documented with types and units</li>
+<li>[ ] Physical interpretation provided for key processes</li>
+<li>[ ] Algorithm steps outlined where relevant</li>
+<li>[ ] External parameters documented</li>
+<li>[ ] Conditions/thresholds explained</li>
+<li>[ ] Energy/mass conservation noted where applicable</li>
+<li>[ ] Source line references included</li>
+<li>[ ] Translation notes for Fortran→Python where helpful</li>
+<li>[ ] Special cases or edge cases documented</li>
+</ul>
+<h2 id="example-complete-function-documentation">Example: Complete Function Documentation</h2>
+<pre><code class="language-python">def ice4_rain_evaporation(
+    t: Field[&quot;float&quot;],
+    rhodref: Field[&quot;float&quot;],
+    pres: Field[&quot;float&quot;],
+    rvt: Field[&quot;float&quot;],
+    rrt: Field[&quot;float&quot;],
+    ka: Field[&quot;float&quot;],
+    dv: Field[&quot;float&quot;],
+    cj: Field[&quot;float&quot;],
+    lbdar: Field[&quot;float&quot;],
+    rrevav: Field[&quot;float&quot;],
+    ldsoft: &quot;bool&quot;,
+):
+    &quot;&quot;&quot;
+    Compute rain evaporation rate below cloud base.
+
+    Calculates the rate at which rain droplets evaporate when falling
+    through subsaturated air. The evaporation cools the air and moistens
+    it, which can trigger convection or influence cloud development.
+
+    Parameters
+    ----------
+    t : Field[float]
+        Temperature (K).
+    rhodref : Field[float]
+        Reference air density (kg/m³).
+    pres : Field[float]
+        Pressure (Pa).
+    rvt : Field[float]
+        Water vapor mixing ratio (kg/kg).
+    rrt : Field[float]
+        Rain mixing ratio (kg/kg).
+    ka : Field[float]
+        Thermal conductivity of air (W/(m·K)).
+    dv : Field[float]
+        Diffusivity of water vapor in air (m²/s).
+    cj : Field[float]
+        Ventilation coefficient (dimensionless).
+    lbdar : Field[float]
+        Rain drop size distribution slope parameter (m⁻¹).
+    rrevav : Field[float]
+        Output: Rain evaporation rate (kg/kg/s). Negative values.
+    ldsoft : bool
+        If True, use previously computed value without recalculation.
+
+    Notes
+    -----
+    Physical Process:
+    Rain droplets falling through subsaturated air (RH &lt; 100%) evaporate,
+    absorbing latent heat from the environment and cooling the air. This
+    process is most important in:
+    - Convective downdrafts
+    - Below cloud base in stratiform precipitation
+    - Dry subcloud layers
+
+    The evaporation rate depends on:
+    - Subsaturation: (e_sat - e), larger deficit → faster evaporation
+    - Drop size distribution: via lambda parameter
+    - Ventilation: falling drops enhance mass transfer (cj factor)
+    - Air properties: ka (heat), dv (moisture diffusion)
+
+    Formula:
+    rate = -K × (e_sat(T) - e) × f(λ, cj) × ventilation_correction
+
+    External Parameters:
+    - R_RTMIN: Minimum rain threshold (kg/kg), typically 1e-8
+    - LEVLIMIT: Flag to limit saturation vapor pressure
+    - ALPW, BETAW, GAMW: Saturation vapor pressure coefficients
+    - EX0EVAP, EX1EVAP: Exponents for evaporation formula
+    - O0EVAP, O1EVAP: Coefficients for evaporation formula
+
+    The rate is computed only when:
+    - rrt &gt; R_RTMIN (sufficient rain present)
+    - Air is subsaturated (checked internally)
+    - ldsoft = False (recalculation mode)
+
+    Source Reference:
+    PHYEX/src/common/micro/mode_ice4_warm.F90, lines 250-290
+    &quot;&quot;&quot;
+    from __externals__ import (ALPW, BETAW, EX0EVAP, EX1EVAP, GAMW, LEVLIMIT,
+                               O0EVAP, O1EVAP, R_RTMIN, RV)
+
+    with computation(PARALLEL), interval(...):
+        if rrt &gt; R_RTMIN and ldcompute:
+            if not ldsoft:
+                # Compute saturation vapor pressure
+                esat = exp(ALPW - BETAW / t - GAMW * log(t))
+                if LEVLIMIT:
+                    esat = min(esat, 0.99 * pres)
+
+                # Compute subsaturation
+                e = rvt * pres / (EPSILO + rvt)
+                subsaturation = esat - e
+
+                if subsaturation &gt; 0:  # Only evaporate if subsaturated
+                    # Compute evaporation rate with ventilation
+                    rrevav = (subsaturation / (rhodref * RV * t)) * (
+                        ka * (O0EVAP * lbdar ** EX0EVAP + 
+                              O1EVAP * cj * lbdar ** EX1EVAP)
+                    )
+                    rrevav = -min(rrt / TSTEP, rrevav)  # Don't evaporate more than exists
+                else:
+                    rrevav = 0
+        else:
+            rrevav = 0
+</code></pre>
+<h2 id="file-specific-notes">File-Specific Notes</h2>
+<h3 id="for-remaining-stencil-files-to-document">For remaining stencil files to document:</h3>
+<ol>
+<li><strong>ice4_stepping.py</strong>: Time stepping and iteration control</li>
+<li><strong>ice4_fast_rs.py</strong>: Rain-snow fast processes (already read, 344 lines - complex)</li>
+<li><strong>ice4_warm.py</strong>: Warm cloud processes (autoconversion, accretion, evaporation)</li>
+<li><strong>ice4_slow.py</strong>: Slow depositional growth processes</li>
+<li><strong>ice4_nucleation.py</strong>: Ice nucleation parameterizations</li>
+<li><strong>sedimentation.py</strong>: Vertical transport of precipitation</li>
+<li><strong>ice4_rimltc.py</strong>: Ice crystal melting processes</li>
+<li><strong>ice4_rrhong.py</strong>: Homogeneous freezing of rain/hail</li>
+<li><strong>cloud_fraction.py</strong>: Cloud fraction diagnostics</li>
+<li><strong>condensation.py</strong>: Condensation/evaporation calculations</li>
+<li><strong>ice4_compute_pdf.py</strong>: PDF calculations for subgrid processes</li>
+<li><strong>ice4_correct_negativities.py</strong>: Numerical stability corrections</li>
+<li><strong>ice4_nucleation_processing.py</strong>: Nucleation post-processing</li>
+<li><strong>precipitation_fraction_liquid_content.py</strong>: Precipitation diagnostics</li>
+</ol>
+<p>Priority order reflects scientific importance and usage frequency in the scheme.</p>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

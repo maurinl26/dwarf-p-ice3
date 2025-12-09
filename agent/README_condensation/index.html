@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1 - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Test de reproductibilit\u00e9 - condensation.py vs PHYEX-IAL_CY50T1";
+        var mkdocs_page_input_path = "agent/README_condensation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >functions</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/interp_micro/">Interp micro</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/functions/upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../ice3/stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../ice3/utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >agent</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#objectif">Objectif</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#etat-actuel">État actuel</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#fichier-requis-manquant">Fichier requis manquant</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#wrapper-pre-compile-disponible">Wrapper pré-compilé disponible</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#structure-du-test">Structure du test</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#test-test_condensation">Test: test_condensation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#configuration-testee-arome-par-defaut">Configuration testée (AROME par défaut)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#champs-valides">Champs validés</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#tolerances">Tolérances</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#installation-du-code-fortran-de-reference">Installation du code Fortran de référence</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#execution-du-test">Exécution du test</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#interpretation-des-resultats">Interprétation des résultats</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#succes-attendu">Succès attendu</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#en-cas-dechec">En cas d'échec</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#references">Références</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contact">Contact</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">agent</li>
+      <li class="breadcrumb-item active">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="test-de-reproductibilite-condensationpy-vs-phyex-ial_cy50t1">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</h1>
+<h2 id="objectif">Objectif</h2>
+<p>Ce test valide que l'implémentation Python GT4Py du schéma de condensation (<code>src/ice3/stencils/condensation.py</code>) reproduit fidèlement l'implémentation Fortran de référence issue de PHYEX-IAL_CY50T1.</p>
+<h2 id="etat-actuel">État actuel</h2>
+<p>⚠️ <strong>Le test nécessite le code source Fortran de référence qui n'est pas présent dans le dépôt.</strong></p>
+<h3 id="fichier-requis-manquant">Fichier requis manquant</h3>
+<pre><code>src/ice3/stencils_fortran/mode_condensation.F90
+</code></pre>
+<p>Ce fichier devrait provenir de:</p>
+<pre><code>PHYEX-IAL_CY50T1/micro/condensation.F90
+</code></pre>
+<h3 id="wrapper-pre-compile-disponible">Wrapper pré-compilé disponible</h3>
+<p>Un wrapper Fortran pré-compilé existe dans le répertoire <code>mode_condensation/</code>:
+- <code>mode_condensation.arm64.so</code> : Bibliothèque partagée compilée
+- <code>mode_condensation_python_wrapper.py</code> : Interface Python
+- <code>mode_condensation_c_wrapper.f90</code> : Wrapper C pour l'interface</p>
+<p>Cependant, ce wrapper fait référence à un fichier source manquant via un lien symbolique.</p>
+<h2 id="structure-du-test">Structure du test</h2>
+<h3 id="test-test_condensation">Test: <code>test_condensation</code></h3>
+<p>Le test compare bit-à-bit (à la tolérance numérique près) les résultats de:</p>
+<ol>
+<li><strong>Version Python GT4Py</strong> (<code>src/ice3/stencils/condensation.py</code>)</li>
+<li><strong>Version Fortran PHYEX</strong> (mode_condensation.F90 - manquant)</li>
+</ol>
+<h3 id="configuration-testee-arome-par-defaut">Configuration testée (AROME par défaut)</h3>
+<ul>
+<li><code>OCND2 = False</code> : Schéma CB02 (Chaboureau &amp; Bechtold 2002)</li>
+<li><code>OUSERI = True</code> : Utilisation de la phase glace</li>
+<li><code>LSIGMAS = True</code> : Schéma sous-maille activé</li>
+<li><code>FRAC_ICE_ADJUST = 0</code> : Mode AROME pour la fraction de glace</li>
+<li><code>CONDENS = 0</code> : Option CB02 pour la condensation</li>
+</ul>
+<h3 id="champs-valides">Champs validés</h3>
+<h4 id="principaux">Principaux</h4>
+<ul>
+<li><code>pt_out</code> : Température après condensation [K]</li>
+<li><code>prv_out</code> : Rapport de mélange vapeur d'eau [kg/kg]</li>
+<li><code>prc_out</code> : Rapport de mélange condensat liquide [kg/kg]</li>
+<li><code>pri_out</code> : Rapport de mélange condensat solide [kg/kg]</li>
+<li><code>pcldfr</code> : Fraction nuageuse [0-1]</li>
+<li><code>zq1</code> : Paramètre distribution sous-maille</li>
+</ul>
+<h4 id="intermediaires-diagnostic">Intermédiaires (diagnostic)</h4>
+<ul>
+<li><code>zpv</code>, <code>zpiv</code> : Pressions de saturation (eau/glace) [Pa]</li>
+<li><code>zfrac</code> : Fraction de glace [0-1]</li>
+<li><code>zqsl</code>, <code>zqsi</code> : Rapports de mélange à saturation [kg/kg]</li>
+<li><code>zsigma</code> : Écart-type sous-maille</li>
+<li><code>zcond</code> : Quantité de condensat</li>
+<li><code>za</code>, <code>zb</code> : Coefficients thermodynamiques</li>
+<li><code>zsbar</code> : Sursaturation moyenne sous-maille</li>
+</ul>
+<h3 id="tolerances">Tolérances</h3>
+<ul>
+<li><code>rtol=1e-6, atol=1e-6</code> : Champs principaux</li>
+<li><code>rtol=1e-6, atol=1e-8</code> : Champs intermédiaires</li>
+</ul>
+<h2 id="installation-du-code-fortran-de-reference">Installation du code Fortran de référence</h2>
+<p>Pour exécuter ce test, vous devez:</p>
+<ol>
+<li>
+<p><strong>Obtenir le code source PHYEX-IAL_CY50T1</strong>
+   <code>bash
+   # Cloner ou copier le dépôt PHYEX
+   # Le chemin attendu est: ../PHYEX-IAL_CY50T1/micro/condensation.F90</code></p>
+</li>
+<li>
+<p><strong>Créer le lien vers le code Fortran</strong>
+   <code>bash
+   cd src/ice3/stencils_fortran/
+   ln -s /chemin/vers/PHYEX-IAL_CY50T1/micro/condensation.F90 mode_condensation.F90</code></p>
+</li>
+</ol>
+<p>Ou copier directement le fichier:
+   <code>bash
+   cp /chemin/vers/PHYEX-IAL_CY50T1/micro/condensation.F90 \
+      src/ice3/stencils_fortran/mode_condensation.F90</code></p>
+<ol>
+<li><strong>Compiler le wrapper Fortran</strong> (optionnel, sera fait automatiquement)
+   <code>bash
+   cd mode_condensation/
+   rm mode_condensation.arm64.so  # Forcer la recompilation</code></li>
+</ol>
+<h2 id="execution-du-test">Exécution du test</h2>
+<p>Une fois le code Fortran en place:</p>
+<pre><code class="language-bash"># Test avec backend numpy, simple précision
+pytest tests/repro/test_condensation.py::test_condensation -v -s -m numpy -k dtypes0
+
+# Test avec backend numpy, double précision  
+pytest tests/repro/test_condensation.py::test_condensation -v -s -m numpy -k dtypes1
+
+# Tous les backends
+pytest tests/repro/test_condensation.py::test_condensation -v -s
+</code></pre>
+<h2 id="interpretation-des-resultats">Interprétation des résultats</h2>
+<h3 id="succes-attendu">Succès attendu</h3>
+<pre><code>================================================================================
+TEST DE REPRODUCTIBILITÉ: condensation.py vs PHYEX-IAL_CY50T1
+================================================================================
+✓ pt_out (température) : OK
+✓ prv_out (vapeur d'eau) : OK
+✓ prc_out (condensat liquide) : OK
+✓ pri_out (condensat solide/glace) : OK
+✓ pcldfr (fraction nuageuse) : OK
+✓ zq1 (paramètre distribution sous-maille) : OK
+
+Validation des champs intermédiaires:
+  ✓ zpv (pression saturation eau)
+  ✓ zpiv (pression saturation glace)
+  ✓ zfrac (fraction de glace)
+  ✓ zqsl (rapport mélange saturation eau)
+  ✓ zqsi (rapport mélange saturation glace)
+  ✓ zsigma (écart-type sous-maille)
+  ✓ zcond (quantité de condensat)
+  ✓ za (coefficient thermodynamique a)
+  ✓ zb (coefficient thermodynamique b)
+  ✓ zsbar (sursaturation moyenne sous-maille)
+
+================================================================================
+SUCCÈS: Reproductibilité validée pour tous les champs!
+Le stencil Python GT4Py reproduit fidèlement PHYEX-IAL_CY50T1
+================================================================================
+</code></pre>
+<h3 id="en-cas-dechec">En cas d'échec</h3>
+<p>Si des divergences apparaissent, le test affichera:
+- Le champ concerné
+- Un message d'erreur explicite
+- Les différences numériques (via assert_allclose)</p>
+<p>Cela peut indiquer:
+- Une erreur dans la traduction Python
+- Une différence d'arrondi numérique
+- Un bug dans l'une des implémentations</p>
+<h2 id="references">Références</h2>
+<ul>
+<li><strong>PHYEX</strong> : PHYsique EXternalisée - Bibliothèque de paramétrisations physiques</li>
+<li><strong>IAL_CY50T1</strong> : Version du cycle 50T1 d'ARPEGE/IFS/AROME</li>
+<li><strong>CB02</strong> : Chaboureau &amp; Bechtold (2002) - Schéma de condensation</li>
+<li><strong>GT4Py</strong> : GridTools for Python - Framework de génération de code</li>
+</ul>
+<h2 id="contact">Contact</h2>
+<p>Pour toute question sur ce test ou problème d'installation du code Fortran de référence, contacter l'équipe de développement.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../README_cloud_fraction/" class="btn btn-neutral float-left" title="Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../test_ice4_fast_rg_FIXES/" class="btn btn-neutral float-right" title="Fixes Applied to test_ice4_fast_rg.py">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../README_cloud_fraction/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../test_ice4_fast_rg_FIXES/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

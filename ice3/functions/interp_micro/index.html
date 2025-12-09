@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Interp micro - dwarf-ice3-gt4py</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Interp micro";
+        var mkdocs_page_input_path = "ice3/functions/interp_micro.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> dwarf-ice3-gt4py
+        </a>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../translation_options/">Translation Notes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../namelists/">Namelists</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">drivers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/cli/">Cli</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../drivers/core/">Core</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">ice3</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >components</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/ice_adjust_modular/">Ice adjust modular</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../components/rain_ice/">Rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >functions</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../backup/">Backup</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../compute_ice_fraction/">Compute ice fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma/">Gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../icecloud/">Icecloud</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Interp micro</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sign/">Sign</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../temperature/">Temperature</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../tiwmx/">Tiwmx</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../upwind_sedimentation/">Upwind sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >initialisation</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice4_tendencies/">State ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_ice_adjust/">State ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../initialisation/state_rain_ice/">State rain ice</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >phyex_common</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/constants/">Constants</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/ice_parameters/">Ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/incomplete_gamma/">Incomplete gamma</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/lookup_table/">Lookup table</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/namparar/">Namparar</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/nebn/">Nebn</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex/">Phyex</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/phyex_dimensions/">Phyex dimensions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_descriptors/">Rain ice descriptors</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_field_address/">Rain ice field address</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/rain_ice_parameters/">Rain ice parameters</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_raccs/">Xker raccs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_rdryg/">Xker rdryg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../phyex_common/xker_sdryg/">Xker sdryg</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >stencils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_compute_pdf/">Ice4 compute pdf</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_correct_negativities/">Ice4 correct negativities</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rg/">Ice4 fast rg</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_ri/">Ice4 fast ri</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_fast_rs/">Ice4 fast rs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_nucleation/">Ice4 nucleation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rimltc/">Ice4 rimltc</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_rrhong/">Ice4 rrhong</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_slow/">Ice4 slow</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_stepping/">Ice4 stepping</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_tendencies/">Ice4 tendencies</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice4_warm/">Ice4 warm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/ice_adjust/">Ice adjust</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../stencils/rain_ice_nucleation.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/cloud_fraction/">Cloud fraction</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/condensation/">Condensation</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/precipitation_fraction_liquid_content/">Precipitation fraction liquid content</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/rain_ice/">Rain ice</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stencils/sedimentation/">Sedimentation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >utils</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_random_fields/">Allocate random fields</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/allocate_state/">Allocate state</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/array_dict_operations/">Array dict operations</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/compile_fortran/">Compile fortran</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/doctor_norm/">Doctor norm</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/env/">Env</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../utils/storage/">Storage</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >testprogs_data</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/main/">Main</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../testprogs_data/utils/">Utils</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >agent</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/ICE4_TENDENCIES_STATUS/">ICE4 Tendencies JAX Translation Status</a>
+                </li>
+                <li class="toctree-l2"><a class="" href="../../../agent/RAIN_ICE_TRANSITION_PLAN.md">None</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_ice_adjust_modular/">Composant ICE_ADJUST Modulaire</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/TRANSLATION_SUMMARY/">JAX Translation Summary</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_cloud_fraction/">Test de reproductibilité - cloud_fraction.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/README_condensation/">Test de reproductibilité - condensation.py vs PHYEX-IAL_CY50T1</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rg_FIXES/">Fixes Applied to test_ice4_fast_rg.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_ice4_fast_rs_FIXES/">Fixes Applied to test_ice4_fast_rs.py</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../../agent/test_sigrc_computation_FIXES/">Fixes Applied to test_sigrc_computation.py</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">dwarf-ice3-gt4py</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">ice3</li>
+          <li class="breadcrumb-item">functions</li>
+      <li class="breadcrumb-item active">Interp micro</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="ice3.functions.interp_micro"></a>
+    <div class="doc doc-contents first">
+
+        <p>Microphysical lookup table interpolation functions.</p>
+<p>This module provides GT4Py implementations of index calculation functions
+for bilinear interpolation in pre-computed microphysical kernel lookup tables.
+These tables store collection efficiencies and other microphysical parameters
+as functions of particle size distribution slope parameters (lambda).</p>
+<p>The functions compute both integer floor indices and fractional offsets
+for bilinear interpolation in 1D and 2D tables.</p>
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.interp_micro.index_interp_micro_1d" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">index_interp_micro_1d</span><span class="p">(</span><span class="n">zw</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute interpolation index in logarithmic space for 1D lookup tables.</p>
+<p>This function calculates the position in a 1D lookup table where
+values are distributed logarithmically. It returns both the floor
+index and the fractional offset for linear interpolation.</p>
+<h4 id="ice3.functions.interp_micro.index_interp_micro_1d--parameters">Parameters</h4>
+<p>zw : float
+    Input value for which to compute the table index.
+    Typically a microphysical parameter like incomplete gamma function argument.</p>
+<h4 id="ice3.functions.interp_micro.index_interp_micro_1d--returns">Returns</h4>
+<p>Tuple[float, int]
+    A tuple containing:
+    - floor(index): Integer floor index in the lookup table
+    - offset: Fractional offset from the floor index (0 to 1)</p>
+<h4 id="ice3.functions.interp_micro.index_interp_micro_1d--notes">Notes</h4>
+<p>The index is computed as:
+index = RIMINTP1 * ln(zw) + RIMINTP2</p>
+<p>where RIMINTP1 and RIMINTP2 are external calibration constants
+that map the logarithmic space to table indices.</p>
+<p>The index is clamped to [1, NGAMINC-1e-5] to stay within table bounds.</p>
+<h4 id="ice3.functions.interp_micro.index_interp_micro_1d--source-reference">Source Reference</h4>
+<p>Translated from PHYEX/src/common/micro/interp_micro.func.h,
+lines 5-124</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/interp_micro.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_interp_micro_1d</span><span class="p">(</span>
+    <span class="n">zw</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute interpolation index in logarithmic space for 1D lookup tables.</span>
+
+<span class="sd">    This function calculates the position in a 1D lookup table where</span>
+<span class="sd">    values are distributed logarithmically. It returns both the floor</span>
+<span class="sd">    index and the fractional offset for linear interpolation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    zw : float</span>
+<span class="sd">        Input value for which to compute the table index.</span>
+<span class="sd">        Typically a microphysical parameter like incomplete gamma function argument.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[float, int]</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - floor(index): Integer floor index in the lookup table</span>
+<span class="sd">        - offset: Fractional offset from the floor index (0 to 1)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index is computed as:</span>
+<span class="sd">    index = RIMINTP1 * ln(zw) + RIMINTP2</span>
+
+<span class="sd">    where RIMINTP1 and RIMINTP2 are external calibration constants</span>
+<span class="sd">    that map the logarithmic space to table indices.</span>
+
+<span class="sd">    The index is clamped to [1, NGAMINC-1e-5] to stay within table bounds.</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    Translated from PHYEX/src/common/micro/interp_micro.func.h,</span>
+<span class="sd">    lines 5-124</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="n">NGAMINC</span><span class="p">,</span> <span class="n">RIMINTP1</span><span class="p">,</span> <span class="n">RIMINTP2</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">NGAMINC</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">RIMINTP1</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">zw</span><span class="p">)</span> <span class="o">+</span> <span class="n">RIMINTP2</span><span class="p">))</span>
+    <span class="c1"># Real index for interpolation</span>
+    <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.interp_micro.index_micro2d_acc_r" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">index_micro2d_acc_r</span><span class="p">(</span><span class="n">lambda_r</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute rain slope parameter index for accretion lookup tables.</p>
+<p>This function calculates the table index for the rain (r) dimension
+in 2D accretion kernel lookup tables. The rain slope parameter lambda_r
+characterizes the rain drop size distribution.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_r--parameters">Parameters</h4>
+<p>lambda_r : float
+    Slope parameter of the rain particle size distribution (m⁻¹).
+    From the exponential distribution N(D) = N₀ exp(-λᵣD).</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_r--returns">Returns</h4>
+<p>Tuple[int, float]
+    A tuple containing:
+    - floor(index): Integer floor index in the rain dimension
+    - offset: Fractional offset from the floor index (0 to 1)</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_r--notes">Notes</h4>
+<p>The index is computed as:
+index = ACCINTP1R * ln(λᵣ) + ACCINTP2R</p>
+<p>The index is clamped to [1+1e-5, NACCLBDAR-1e-5] to ensure valid
+table lookup bounds.</p>
+<p>Used for rain-snow and rain-graupel accretion processes.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_r--source-reference">Source Reference</h4>
+<p>Translated from PHYEX/src/common/micro/interp_micro.func.h,
+lines 126-269</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/interp_micro.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_micro2d_acc_r</span><span class="p">(</span><span class="n">lambda_r</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute rain slope parameter index for accretion lookup tables.</span>
+
+<span class="sd">    This function calculates the table index for the rain (r) dimension</span>
+<span class="sd">    in 2D accretion kernel lookup tables. The rain slope parameter lambda_r</span>
+<span class="sd">    characterizes the rain drop size distribution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lambda_r : float</span>
+<span class="sd">        Slope parameter of the rain particle size distribution (m⁻¹).</span>
+<span class="sd">        From the exponential distribution N(D) = N₀ exp(-λᵣD).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[int, float]</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - floor(index): Integer floor index in the rain dimension</span>
+<span class="sd">        - offset: Fractional offset from the floor index (0 to 1)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index is computed as:</span>
+<span class="sd">    index = ACCINTP1R * ln(λᵣ) + ACCINTP2R</span>
+
+<span class="sd">    The index is clamped to [1+1e-5, NACCLBDAR-1e-5] to ensure valid</span>
+<span class="sd">    table lookup bounds.</span>
+
+<span class="sd">    Used for rain-snow and rain-graupel accretion processes.</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    Translated from PHYEX/src/common/micro/interp_micro.func.h,</span>
+<span class="sd">    lines 126-269</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">ACCINTP1R</span><span class="p">,</span>
+        <span class="n">ACCINTP2R</span><span class="p">,</span>
+        <span class="n">NACCLBDAR</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Real index for interpolation</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">NACCLBDAR</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">ACCINTP1R</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">lambda_r</span><span class="p">)</span> <span class="o">+</span> <span class="n">ACCINTP2R</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.interp_micro.index_micro2d_acc_s" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">index_micro2d_acc_s</span><span class="p">(</span><span class="n">lambda_s</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute snow slope parameter index for accretion lookup tables.</p>
+<p>This function calculates the table index for the snow (s) dimension
+in 2D accretion kernel lookup tables. The snow slope parameter lambda_s
+characterizes the snow particle size distribution.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_s--parameters">Parameters</h4>
+<p>lambda_s : float
+    Slope parameter of the snow particle size distribution (m⁻¹).
+    From the exponential distribution N(D) = N₀ exp(-λₛD).</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_s--returns">Returns</h4>
+<p>Tuple[int, float]
+    A tuple containing:
+    - floor(index): Integer floor index in the snow dimension
+    - offset: Fractional offset from the floor index (0 to 1)</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_s--notes">Notes</h4>
+<p>The index is computed as:
+index = ACCINTP1S * ln(λₛ) + ACCINTP2S</p>
+<p>The index is clamped to [1+1e-5, NACCLBDAS-1e-5] to ensure valid
+table lookup bounds.</p>
+<p>Used for rain-snow accretion processes.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_acc_s--source-reference">Source Reference</h4>
+<p>Translated from PHYEX/src/common/micro/interp_micro.func.h,
+lines 126-269</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/interp_micro.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_micro2d_acc_s</span><span class="p">(</span><span class="n">lambda_s</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute snow slope parameter index for accretion lookup tables.</span>
+
+<span class="sd">    This function calculates the table index for the snow (s) dimension</span>
+<span class="sd">    in 2D accretion kernel lookup tables. The snow slope parameter lambda_s</span>
+<span class="sd">    characterizes the snow particle size distribution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lambda_s : float</span>
+<span class="sd">        Slope parameter of the snow particle size distribution (m⁻¹).</span>
+<span class="sd">        From the exponential distribution N(D) = N₀ exp(-λₛD).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[int, float]</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - floor(index): Integer floor index in the snow dimension</span>
+<span class="sd">        - offset: Fractional offset from the floor index (0 to 1)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index is computed as:</span>
+<span class="sd">    index = ACCINTP1S * ln(λₛ) + ACCINTP2S</span>
+
+<span class="sd">    The index is clamped to [1+1e-5, NACCLBDAS-1e-5] to ensure valid</span>
+<span class="sd">    table lookup bounds.</span>
+
+<span class="sd">    Used for rain-snow accretion processes.</span>
+
+<span class="sd">    Source Reference</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    Translated from PHYEX/src/common/micro/interp_micro.func.h,</span>
+<span class="sd">    lines 126-269</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">ACCINTP1S</span><span class="p">,</span>
+        <span class="n">ACCINTP2S</span><span class="p">,</span>
+        <span class="n">NACCLBDAS</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">NACCLBDAS</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">ACCINTP1S</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">lambda_s</span><span class="p">)</span> <span class="o">+</span> <span class="n">ACCINTP2S</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.interp_micro.index_micro2d_dry_g" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">index_micro2d_dry_g</span><span class="p">(</span><span class="n">lambda_g</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute graupel slope parameter index for dry growth lookup tables.</p>
+<p>This function calculates the table index for the graupel (g) dimension
+in 2D dry growth kernel lookup tables. The graupel slope parameter lambda_g
+characterizes the graupel particle size distribution.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_g--parameters">Parameters</h4>
+<p>lambda_g : float
+    Slope parameter of the graupel particle size distribution (m⁻¹).
+    From the exponential distribution N(D) = N₀ exp(-λ_gD).</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_g--returns">Returns</h4>
+<p>Tuple[int, float]
+    A tuple containing:
+    - floor(index): Integer floor index in the graupel dimension
+    - offset: Fractional offset from the floor index (0 to 1)</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_g--notes">Notes</h4>
+<p>The index is computed as:
+index = DRYINTP1G * ln(λ_g) + DRYINTP2G</p>
+<p>The index is clamped to [1+1e-5, NDRYLBDAG-1e-5] to ensure valid
+table lookup bounds.</p>
+<p>Used for both snow-graupel and rain-graupel dry growth collection.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/interp_micro.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_micro2d_dry_g</span><span class="p">(</span><span class="n">lambda_g</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute graupel slope parameter index for dry growth lookup tables.</span>
+
+<span class="sd">    This function calculates the table index for the graupel (g) dimension</span>
+<span class="sd">    in 2D dry growth kernel lookup tables. The graupel slope parameter lambda_g</span>
+<span class="sd">    characterizes the graupel particle size distribution.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lambda_g : float</span>
+<span class="sd">        Slope parameter of the graupel particle size distribution (m⁻¹).</span>
+<span class="sd">        From the exponential distribution N(D) = N₀ exp(-λ_gD).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[int, float]</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - floor(index): Integer floor index in the graupel dimension</span>
+<span class="sd">        - offset: Fractional offset from the floor index (0 to 1)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index is computed as:</span>
+<span class="sd">    index = DRYINTP1G * ln(λ_g) + DRYINTP2G</span>
+
+<span class="sd">    The index is clamped to [1+1e-5, NDRYLBDAG-1e-5] to ensure valid</span>
+<span class="sd">    table lookup bounds.</span>
+
+<span class="sd">    Used for both snow-graupel and rain-graupel dry growth collection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">DRYINTP1G</span><span class="p">,</span>
+        <span class="n">DRYINTP2G</span><span class="p">,</span>
+        <span class="n">NDRYLBDAG</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Real index for interpolation</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">NDRYLBDAG</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">DRYINTP1G</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">lambda_g</span><span class="p">)</span> <span class="o">+</span> <span class="n">DRYINTP2G</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.interp_micro.index_micro2d_dry_r" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">index_micro2d_dry_r</span><span class="p">(</span><span class="n">lambda_r</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute rain slope parameter index for dry growth lookup tables.</p>
+<p>This function calculates the table index for the rain (r) dimension
+in 2D dry growth kernel lookup tables used in rain-graupel interactions.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_r--parameters">Parameters</h4>
+<p>lambda_r : float
+    Slope parameter of the rain particle size distribution (m⁻¹).
+    From the exponential distribution N(D) = N₀ exp(-λᵣD).</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_r--returns">Returns</h4>
+<p>Tuple[int, float]
+    A tuple containing:
+    - floor(index): Integer floor index in the rain dimension
+    - offset: Fractional offset from the floor index (0 to 1)</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_r--notes">Notes</h4>
+<p>The index is computed as:
+index = DRYINTP1R * ln(λᵣ) + DRYINTP2R</p>
+<p>The index is clamped to [1+1e-5, NDRYLBDAR-1e-5] to ensure valid
+table lookup bounds.</p>
+<p>Used for rain-graupel dry growth collection processes when rain
+droplets are collected by graupel in dry growth mode (temperature
+below freezing but insufficient liquid water for wet growth).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/interp_micro.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_micro2d_dry_r</span><span class="p">(</span><span class="n">lambda_r</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute rain slope parameter index for dry growth lookup tables.</span>
+
+<span class="sd">    This function calculates the table index for the rain (r) dimension</span>
+<span class="sd">    in 2D dry growth kernel lookup tables used in rain-graupel interactions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lambda_r : float</span>
+<span class="sd">        Slope parameter of the rain particle size distribution (m⁻¹).</span>
+<span class="sd">        From the exponential distribution N(D) = N₀ exp(-λᵣD).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[int, float]</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - floor(index): Integer floor index in the rain dimension</span>
+<span class="sd">        - offset: Fractional offset from the floor index (0 to 1)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index is computed as:</span>
+<span class="sd">    index = DRYINTP1R * ln(λᵣ) + DRYINTP2R</span>
+
+<span class="sd">    The index is clamped to [1+1e-5, NDRYLBDAR-1e-5] to ensure valid</span>
+<span class="sd">    table lookup bounds.</span>
+
+<span class="sd">    Used for rain-graupel dry growth collection processes when rain</span>
+<span class="sd">    droplets are collected by graupel in dry growth mode (temperature</span>
+<span class="sd">    below freezing but insufficient liquid water for wet growth).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">DRYINTP1R</span><span class="p">,</span>
+        <span class="n">DRYINTP2R</span><span class="p">,</span>
+        <span class="n">NDRYLBDAR</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Real index for interpolation</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">NDRYLBDAR</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">DRYINTP1R</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">lambda_r</span><span class="p">)</span> <span class="o">+</span> <span class="n">DRYINTP2R</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="ice3.functions.interp_micro.index_micro2d_dry_s" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">index_micro2d_dry_s</span><span class="p">(</span><span class="n">lambda_s</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Compute snow slope parameter index for dry growth lookup tables.</p>
+<p>This function calculates the table index for the snow (s) dimension
+in 2D dry growth kernel lookup tables used in snow-graupel interactions.</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_s--parameters">Parameters</h4>
+<p>lambda_s : float
+    Slope parameter of the snow particle size distribution (m⁻¹).
+    From the exponential distribution N(D) = N₀ exp(-λₛD).</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_s--returns">Returns</h4>
+<p>Tuple[int, float]
+    A tuple containing:
+    - floor(index): Integer floor index in the snow dimension
+    - offset: Fractional offset from the floor index (0 to 1)</p>
+<h4 id="ice3.functions.interp_micro.index_micro2d_dry_s--notes">Notes</h4>
+<p>The index is computed as:
+index = DRYINTP1S * ln(λₛ) + DRYINTP2S</p>
+<p>The index is clamped to [1+1e-5, NDRYLBDAS-1e-5] to ensure valid
+table lookup bounds.</p>
+<p>Used for snow-graupel dry growth collection processes.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/ice3/functions/interp_micro.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">index_micro2d_dry_s</span><span class="p">(</span><span class="n">lambda_s</span><span class="p">:</span> <span class="s2">&quot;float&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute snow slope parameter index for dry growth lookup tables.</span>
+
+<span class="sd">    This function calculates the table index for the snow (s) dimension</span>
+<span class="sd">    in 2D dry growth kernel lookup tables used in snow-graupel interactions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lambda_s : float</span>
+<span class="sd">        Slope parameter of the snow particle size distribution (m⁻¹).</span>
+<span class="sd">        From the exponential distribution N(D) = N₀ exp(-λₛD).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[int, float]</span>
+<span class="sd">        A tuple containing:</span>
+<span class="sd">        - floor(index): Integer floor index in the snow dimension</span>
+<span class="sd">        - offset: Fractional offset from the floor index (0 to 1)</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The index is computed as:</span>
+<span class="sd">    index = DRYINTP1S * ln(λₛ) + DRYINTP2S</span>
+
+<span class="sd">    The index is clamped to [1+1e-5, NDRYLBDAS-1e-5] to ensure valid</span>
+<span class="sd">    table lookup bounds.</span>
+
+<span class="sd">    Used for snow-graupel dry growth collection processes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">__externals__</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">DRYINTP1S</span><span class="p">,</span>
+        <span class="n">DRYINTP2S</span><span class="p">,</span>
+        <span class="n">NDRYLBDAS</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">NDRYLBDAS</span> <span class="o">-</span> <span class="mf">1e-5</span><span class="p">,</span> <span class="n">DRYINTP1S</span> <span class="o">*</span> <span class="n">log</span><span class="p">(</span><span class="n">lambda_s</span><span class="p">)</span> <span class="o">+</span> <span class="n">DRYINTP2S</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">),</span> <span class="n">index</span> <span class="o">-</span> <span class="n">floor</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../icecloud/" class="btn btn-neutral float-left" title="Icecloud"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../sign/" class="btn btn-neutral float-right" title="Sign">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../icecloud/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../sign/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
