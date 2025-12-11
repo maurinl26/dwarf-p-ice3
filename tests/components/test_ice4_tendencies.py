@@ -22,7 +22,7 @@ import pytest
 from numpy.testing import assert_allclose
 from gt4py.storage import zeros
 
-from ice3.components.ice4_tendencies import Ice4Tendencies
+from ice3.gt4py.ice4_tendencies import Ice4Tendencies
 from ice3.initialisation.state_ice4_tendencies import (
     allocate_state_ice4_tendencies,
     get_state_ice4_tendencies,
@@ -447,7 +447,7 @@ def test_ice4_tendencies_imports():
     print("="*75)
     
     # Component import
-    from ice3.components.ice4_tendencies import Ice4Tendencies
+    from ice3.gt4py.ice4_tendencies import Ice4Tendencies
     assert Ice4Tendencies is not None
     print("✓ Ice4Tendencies component imported")
     

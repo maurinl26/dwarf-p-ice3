@@ -7,7 +7,7 @@ from numpy.testing import assert_allclose
 import pytest
 from gt4py.storage import zeros
 
-from ice3.components.rain_ice import RainIce
+from ice3.gt4py.rain_ice import RainIce
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 from ice3.utils.env import DTYPES, BACKEND
@@ -195,7 +195,7 @@ def test_rain_ice_phyex_configuration():
 def test_rain_ice_imports():
     """Test that all necessary imports for RainIce work correctly"""
     # This is a basic smoke test to ensure the module can be imported
-    from ice3.components.rain_ice import RainIce
+    from ice3.gt4py.rain_ice import RainIce
     from ice3.phyex_common.ice_parameters import Sedim
     
     assert RainIce is not None

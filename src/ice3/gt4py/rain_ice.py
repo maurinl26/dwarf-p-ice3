@@ -12,7 +12,7 @@ from numpy.typing import NDArray
 import xarray as xr
 from gt4py.cartesian.gtscript import stencil, IJK, IJ
 
-from ..components.ice4_tendencies import Ice4Tendencies
+from .ice4_tendencies import Ice4Tendencies
 from ..phyex_common.ice_parameters import Sedim
 from ..phyex_common.phyex import Phyex
 from ..utils.env import DTYPES, BACKEND
