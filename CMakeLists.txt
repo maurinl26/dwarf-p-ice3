@@ -54,6 +54,7 @@ set(MICRO_MODD_SOURCES
     ${PHYEX_DIR}/micro/modd_param_icen.F90
     ${PHYEX_DIR}/micro/modd_nebn.F90
     ${PHYEX_DIR}/micro/modd_cloudparn.F90
+    ${PHYEX_DIR}/micro/modd_fields_address.F90
 )
 
 # ============================================================================
@@ -134,6 +135,23 @@ set(MICRO_MODE_SOURCES
     ${PHYEX_DIR}/micro/mode_read_xker_gweth.F90
     ${PHYEX_DIR}/micro/mode_read_xker_rweth.F90
     ${PHYEX_DIR}/micro/mode_ini_rain_ice.F90
+    ${PHYEX_DIR}/micro/mode_ice4_rainfr_vert.F90
+    ${PHYEX_DIR}/micro/mode_ice4_compute_pdf.F90
+    ${PHYEX_DIR}/micro/mode_ice4_sedimentation_stat.F90
+    ${PHYEX_DIR}/micro/mode_ice4_pack.F90
+    ${PHYEX_DIR}/micro/mode_ice4_correct_negativities.F90
+    ${PHYEX_DIR}/micro/mode_ice4_budgets.F90
+    ${PHYEX_DIR}/micro/mode_ice4_fast_rg.F90
+    ${PHYEX_DIR}/micro/mode_ice4_fast_rh.F90
+    ${PHYEX_DIR}/micro/mode_ice4_fast_ri.F90
+    ${PHYEX_DIR}/micro/mode_ice4_fast_ri_rs.F90
+    ${PHYEX_DIR}/micro/mode_ice4_fast_rs.F90
+    ${PHYEX_DIR}/micro/mode_ice4_rimltc.F90
+    ${PHYEX_DIR}/micro/mode_ice4_rrhong.F90
+    ${PHYEX_DIR}/micro/mode_ice4_slow.F90
+    ${PHYEX_DIR}/micro/mode_ice4_stepping.F90
+    ${PHYEX_DIR}/micro/mode_ice4_tendencies.F90
+    ${PHYEX_DIR}/micro/mode_ice4_warm.F90
     ${PHYEX_DIR}/turb/mode_ini_mfshall.F90
     ${PHYEX_DIR}/turb/mode_ini_turb.F90
 )
@@ -163,14 +181,16 @@ set(MODI_SOURCES
     ${PHYEX_DIR}/aux/modi_ini_phyex.F90
     ${PHYEX_DIR}/micro/modi_ice_adjust.F90
     ${PHYEX_DIR}/micro/modi_condensation.F90
+    ${PHYEX_DIR}/micro/modi_rain_ice.F90
 )
 
 # ============================================================================
-# MAIN MICROPHYSICS ROUTINES (ice_adjust and dependencies)
+# MAIN MICROPHYSICS ROUTINES (ice_adjust, rain_ice, and dependencies)
 # ============================================================================
 set(MAIN_SOURCES
     ${PHYEX_DIR}/micro/condensation.F90
     ${PHYEX_DIR}/micro/ice_adjust.F90
+    ${PHYEX_DIR}/micro/rain_ice.F90
 )
 
 # ============================================================================
