@@ -14,8 +14,11 @@ dependencies = [
 ]
 
 [build-system]
-build-backend = 'setuptools.build_meta'
-requires = ['setuptools>=65.5.0', 'wheel']
+build-backend = 'scikit_build_core.build'
+requires = [
+    'scikit-build-core>=0.10.0',
+    'cmake>=3.15',
+]
 
 [project.scripts]
 testprogs-data = "testprogs_data.main:app"
@@ -61,6 +64,35 @@ explicit = true
 
 [tool.uv.sources]
 dace = { git = "https://github.com/GridTools/dace.git", rev = "romanc/stree-to-sdfg" }
+
+[tool.scikit-build]
+# Minimum CMake version
+cmake.minimum-version = "3.15"
+
+# Build directory
+build-dir = "build/{wheel_tag}"
+
+# Install the compiled library to the package
+install.components = ["ice_adjust_phyex"]
+
+# Ensure Fortran sources are included
+sdist.include = [
+    "CMakeLists.txt",
+    "PHYEX-IAL_CY50T1/**/*.F90",
+    "PHYEX-IAL_CY50T1/**/*.f90",
+    "PHYEX-IAL_CY50T1/**/*.h",
+]
+
+# Configure CMake arguments
+cmake.args = [
+    "-DCMAKE_BUILD_TYPE=Release",
+]
+
+# Verbose output during build
+cmake.verbose = true
+
+# Install the library to the ice3 package directory
+wheel.install-dir = "ice3"
 
 [dependency-groups]
 dace = [

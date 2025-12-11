@@ -243,16 +243,30 @@ set_target_properties(ice_adjust_phyex PROPERTIES
     PREFIX "lib"
 )
 
-# Installation rules
+# Installation rules for scikit-build-core
 install(TARGETS ice_adjust_phyex
-    LIBRARY DESTINATION lib
-    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
+    ARCHIVE DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
+    RUNTIME DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
 )
 
 install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/
-    DESTINATION include/ice_adjust_phyex
+    DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3/include
     FILES_MATCHING PATTERN "*.mod"
 )
+
+# Also support traditional installation
+if(NOT SKBUILD)
+    install(TARGETS ice_adjust_phyex
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+    )
+    
+    install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/
+        DESTINATION include/ice_adjust_phyex
+        FILES_MATCHING PATTERN "*.mod"
+    )
+endif()
 
 # ============================================================================
 # OPTIONAL: Create a test executable
