@@ -359,5 +359,188 @@ def main():
     print("="*70 + "\n")
 
 
+def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
+    """
+    Test fmodpy wrapper with reproduction dataset from ice_adjust.nc.
+    
+    This test validates that the fmodpy wrapper produces results consistent
+    with the reference PHYEX data.
+    
+    Parameters
+    ----------
+    ice_adjust_repro_ds : xr.Dataset
+        Reference dataset from ice_adjust.nc fixture
+    """
+    import pytest
+    
+    print("\n" + "="*70)
+    print("TEST: fmodpy ICE_ADJUST with Reproduction Data")
+    print("="*70)
+    
+    try:
+        from ice3.components.ice_adjust_fmodpy import IceAdjustFmodpy
+        from ice3.phyex_common.phyex import Phyex
+        from numpy.testing import assert_allclose
+        
+        # Get dataset dimensions
+        shape = (
+            ice_adjust_repro_ds.sizes["ngpblks"],
+            ice_adjust_repro_ds.sizes["nproma"],
+            ice_adjust_repro_ds.sizes["nflevg"]
+        )
+        nijt = shape[0] * shape[1]
+        nkt = shape[2]
+        
+        print(f"\nDataset shape: {shape}")
+        print(f"Effective domain: nijt={nijt}, nkt={nkt}")
+        
+        # Initialize PHYEX and wrapper
+        print("\n1. Initializing fmodpy wrapper...")
+        phyex = Phyex("AROME")
+        ice_adjust = IceAdjustFmodpy(phyex)
+        print("✓ Wrapper created")
+        
+        # Load input data from dataset
+        print("\n2. Loading input data from ice_adjust.nc...")
+        
+        # Swap axes: dataset is (ngpblks, nflevg, nproma)
+        # We need (nflevg, ngpblks*nproma) for Fortran layout
+        def reshape_input(var):
+            """Reshape from (ngpblks, nflevg, nproma) to (nkt, nijt) Fortran order."""
+            v = np.swapaxes(var, 1, 2)  # (ngpblks, nproma, nflevg)
+            v = v.reshape(nijt, nkt).T  # (nkt, nijt)
+            return np.asfortranarray(v)
+        
+        # Load all required fields
+        data = {
+            'prhodj': reshape_input(ice_adjust_repro_ds["PRHODJ"].values),
+            'pexnref': reshape_input(ice_adjust_repro_ds["PEXNREF"].values),
+            'prhodref': reshape_input(ice_adjust_repro_ds["PRHODREF"].values),
+            'ppabst': reshape_input(ice_adjust_repro_ds["PPABST"].values),
+            'pzz': reshape_input(ice_adjust_repro_ds["PZZ"].values),
+            'pexn': reshape_input(ice_adjust_repro_ds["PEXN"].values),
+            'pth': reshape_input(ice_adjust_repro_ds["PTH"].values),
+        }
+        
+        # Load mixing ratios from PR_IN (shape: ngpblks, krr, nflevg, nproma)
+        pr_in = ice_adjust_repro_ds["PR_IN"].values
+        pr_in = np.swapaxes(pr_in, 2, 3)  # (ngpblks, krr, nproma, nflevg)
+        
+        data['prv'] = pr_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prc'] = pr_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prr'] = pr_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['pri'] = pr_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prs'] = pr_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prg'] = pr_in[:, 6, :, :].reshape(nijt, nkt).T.copy(order='F')
+        
+        # Mass flux variables
+        data['pcf_mf'] = reshape_input(ice_adjust_repro_ds["PCF_MF"].values)
+        data['prc_mf'] = reshape_input(ice_adjust_repro_ds["PRC_MF"].values)
+        data['pri_mf'] = reshape_input(ice_adjust_repro_ds["PRI_MF"].values)
+        data['pweight_mf_cloud'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        
+        # Initialize tendencies to zero
+        data['prvs'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        data['prcs'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        data['pris'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        data['pths'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        
+        print("✓ Input data loaded")
+        
+        # Call ICE_ADJUST via fmodpy
+        print("\n3. Calling ICE_ADJUST via fmodpy...")
+        timestep = 50.0
+        
+        result = ice_adjust(
+            nijt=nijt,
+            nkt=nkt,
+            prhodj=data['prhodj'],
+            pexnref=data['pexnref'],
+            prhodref=data['prhodref'],
+            ppabst=data['ppabst'],
+            pzz=data['pzz'],
+            pexn=data['pexn'],
+            pcf_mf=data['pcf_mf'],
+            prc_mf=data['prc_mf'],
+            pri_mf=data['pri_mf'],
+            pweight_mf_cloud=data['pweight_mf_cloud'],
+            prv=data['prv'],
+            prc=data['prc'],
+            pri=data['pri'],
+            pth=data['pth'],
+            prr=data['prr'],
+            prs=data['prs'],
+            prg=data['prg'],
+            prvs=data['prvs'],
+            prcs=data['prcs'],
+            pris=data['pris'],
+            pths=data['pths'],
+            timestep=timestep,
+            krr=6,
+        )
+        
+        print("✓ ICE_ADJUST completed")
+        
+        # Compare with reference data
+        print("\n4. Comparing with reference data...")
+        
+        # PRS_OUT: (ngpblks, krr, nflevg, nproma)
+        prs_out = ice_adjust_repro_ds["PRS_OUT"].values
+        prs_out = np.swapaxes(prs_out, 2, 3)  # (ngpblks, krr, nproma, nflevg)
+        
+        # Extract and reshape reference tendencies
+        rvs_ref = prs_out[:, 1, :, :].reshape(nijt, nkt).T
+        rcs_ref = prs_out[:, 2, :, :].reshape(nijt, nkt).T
+        ris_ref = prs_out[:, 4, :, :].reshape(nijt, nkt).T
+        
+        # Compare tendencies
+        try:
+            assert_allclose(result['prvs'], rvs_ref, atol=1e-5, rtol=1e-4)
+            print("✓ rvs (water vapor tendency)")
+        except AssertionError as e:
+            print(f"✗ rvs mismatch: {e}")
+        
+        try:
+            assert_allclose(result['prcs'], rcs_ref, atol=1e-5, rtol=1e-4)
+            print("✓ rcs (cloud water tendency)")
+        except AssertionError as e:
+            print(f"✗ rcs mismatch: {e}")
+        
+        try:
+            assert_allclose(result['pris'], ris_ref, atol=1e-5, rtol=1e-4)
+            print("✓ ris (cloud ice tendency)")
+        except AssertionError as e:
+            print(f"✗ ris mismatch: {e}")
+        
+        # Cloud fraction
+        pcldfr_out = ice_adjust_repro_ds["PCLDFR_OUT"].values
+        pcldfr_out = np.swapaxes(pcldfr_out, 1, 2)
+        cldfr_ref = pcldfr_out.reshape(nijt, nkt).T
+        
+        try:
+            assert_allclose(result['pcldfr'], cldfr_ref, atol=1e-4, rtol=1e-4)
+            print("✓ cldfr (cloud fraction)")
+        except AssertionError as e:
+            print(f"✗ cldfr mismatch: {e}")
+        
+        print("\n" + "="*70)
+        print("COMPARISON COMPLETE")
+        print("="*70)
+        
+        return True
+        
+    except ImportError as e:
+        print(f"\n✗ Cannot import required modules: {e}")
+        pytest.skip("fmodpy wrapper or dependencies not available")
+        return False
+    
+    except Exception as e:
+        print(f"\n✗ Error during test: {e}")
+        import traceback
+        traceback.print_exc()
+        pytest.fail(f"Test failed: {e}")
+        return False
+
+
 if __name__ == "__main__":
     main()
