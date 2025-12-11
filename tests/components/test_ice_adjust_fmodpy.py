@@ -9,9 +9,10 @@ parameters properly set up.
 import numpy as np
 import sys
 from pathlib import Path
+import pytest
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 
 def create_test_atmosphere(nijt=100, nkt=60):
@@ -230,135 +231,6 @@ def test_fmodpy_wrapper():
         traceback.print_exc()
         return False
 
-
-def show_wrapper_features():
-    """Display features of the fmodpy wrapper."""
-    print("\n" + "="*70)
-    print("fmodpy Wrapper Features")
-    print("="*70)
-    
-    features = [
-        ("Full Fortran Call", "Calls entire ICE_ADJUST subroutine, no shortcuts"),
-        ("All Parameters", "Handles all required and optional Fortran parameters"),
-        ("Derived Types", "Properly sets up PHYEX derived types (D, CST, NEBN, etc.)"),
-        ("Array Validation", "Validates shapes and Fortran-contiguity at C-level"),
-        ("In-place Updates", "Source arrays (prvs, prcs, pris, pths) modified in-place"),
-        ("Output Fields", "Returns all output fields (cloud fractions, diagnostics)"),
-        ("Budget Support", "Includes budget configuration (can be enabled)"),
-        ("Optional Parameters", "Handles optional arrays (psigs, pmfconv, etc.)"),
-        ("Multiple KRR", "Supports different numbers of hydrometeor species (2-7)"),
-        ("Error Handling", "Clear error messages for array issues"),
-    ]
-    
-    for feature, description in features:
-        print(f"\n  • {feature}")
-        print(f"    {description}")
-
-
-def show_usage_example():
-    """Show complete usage example."""
-    print("\n" + "="*70)
-    print("Complete Usage Example")
-    print("="*70)
-    
-    print("""
-from ice3.components.ice_adjust_fmodpy import IceAdjustFmodpy
-from ice3.phyex_common.phyex import Phyex
-import numpy as np
-
-# 1. Initialize
-phyex = Phyex("AROME")
-ice_adjust = IceAdjustFmodpy(phyex)
-
-# 2. Prepare data (ALL arrays must be Fortran-contiguous!)
-nijt, nkt = 100, 60
-
-prhodj = np.ones((nkt, nijt), dtype=np.float64, order='F')
-pexnref = np.ones((nkt, nijt), dtype=np.float64, order='F')
-# ... (prepare all required arrays)
-
-# 3. Call full Fortran ICE_ADJUST
-result = ice_adjust(
-    nijt=nijt, nkt=nkt,
-    prhodj=prhodj, pexnref=pexnref, prhodref=prhodref,
-    ppabst=ppabst, pzz=pzz, pexn=pexn,
-    pcf_mf=pcf_mf, prc_mf=prc_mf, pri_mf=pri_mf,
-    pweight_mf_cloud=pweight_mf_cloud,
-    prv=prv, prc=prc, pri=pri, pth=pth,
-    prr=prr, prs=prs, prg=prg,
-    prvs=prvs, prcs=prcs, pris=pris, pths=pths,
-    timestep=1.0,
-    krr=6,  # Number of hydrometeor species
-)
-
-# 4. Extract results
-cloud_fraction = result['pcldfr']
-ice_cloud_fraction = result['picldfr']
-water_cloud_fraction = result['pwcldfr']
-
-# Note: prvs, prcs, pris, pths are modified in-place
-updated_th_tendency = prvs  # Arrays were modified during call
-""")
-
-
-def main():
-    """Run complete demonstration."""
-    print("="*70)
-    print(" Complete fmodpy Binding for ICE_ADJUST - Full Demonstration")
-    print("="*70)
-    
-    print("\nThis example demonstrates a COMPLETE fmodpy binding that:")
-    print("  • Calls the ENTIRE Fortran ICE_ADJUST subroutine")
-    print("  • No shortcuts or simplifications")
-    print("  • All parameters properly handled")
-    print("  • Full PHYEX derived types support")
-    
-    # Show features
-    show_wrapper_features()
-    
-    # Show usage
-    show_usage_example()
-    
-    # Run test
-    print("\n" + "="*70)
-    print("Running Functional Test")
-    print("="*70)
-    
-    success = test_fmodpy_wrapper()
-    
-    # Summary
-    print("\n" + "="*70)
-    print("Summary")
-    print("="*70)
-    
-    if success:
-        print("\n✓ fmodpy wrapper is functional and complete")
-    else:
-        print("\n⚠️  fmodpy wrapper structure is complete but requires:")
-        print("     1. fmodpy to be properly installed")
-        print("     2. Fortran ICE_ADJUST to be compiled")
-        print("     3. proper module paths set up")
-    
-    print("\nKey Points:")
-    print("  1. This is a FULL binding - calls entire Fortran subroutine")
-    print("  2. No shortcuts - all parameters properly passed")
-    print("  3. Works with existing PHYEX infrastructure")
-    print("  4. Can be used as alternative to gt4py version")
-    print("  5. Useful for validation and performance comparison")
-    
-    print("\nFor comparison with gt4py:")
-    print("  • gt4py version: tests/components/test_ice_adjust.py")
-    print("  • fmodpy version: This example (full Fortran call)")
-    print("  • Both call same physics, different implementations")
-    
-    print("\nDocumentation:")
-    print("  • Module: src/ice3/components/ice_adjust_fmodpy.py")
-    print("  • PHYEX config: src/ice3/phyex_common/phyex.py")
-    print("  • Fortran source: PHYEX-IAL_CY50T1/micro/ice_adjust.F90")
-    
-    print("="*70 + "\n")
-
-
 def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
     """
     Test fmodpy wrapper with reproduction dataset from ice_adjust.nc.
@@ -371,14 +243,13 @@ def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
     ice_adjust_repro_ds : xr.Dataset
         Reference dataset from ice_adjust.nc fixture
     """
-    import pytest
     
     print("\n" + "="*70)
     print("TEST: fmodpy ICE_ADJUST with Reproduction Data")
     print("="*70)
     
     try:
-        from ice3.components.ice_adjust_fmodpy import IceAdjustFmodpy
+        from ice3.fortran.ice_adjust_fmodpy import IceAdjustFmodpy
         from ice3.phyex_common.phyex import Phyex
         from numpy.testing import assert_allclose
         
@@ -416,22 +287,22 @@ def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
             'prhodj': reshape_input(ice_adjust_repro_ds["PRHODJ"].values),
             'pexnref': reshape_input(ice_adjust_repro_ds["PEXNREF"].values),
             'prhodref': reshape_input(ice_adjust_repro_ds["PRHODREF"].values),
-            'ppabst': reshape_input(ice_adjust_repro_ds["PPABST"].values),
-            'pzz': reshape_input(ice_adjust_repro_ds["PZZ"].values),
-            'pexn': reshape_input(ice_adjust_repro_ds["PEXN"].values),
-            'pth': reshape_input(ice_adjust_repro_ds["PTH"].values),
+            'ppabst': reshape_input(ice_adjust_repro_ds["PPABSM"].values),
+            'pzz': reshape_input(ice_adjust_repro_ds["ZZZ"].values),
+            'pexn': reshape_input(ice_adjust_repro_ds["PEXNREF"].values),
+            'pth': reshape_input(ice_adjust_repro_ds["PTHT"].values),
         }
         
         # Load mixing ratios from PR_IN (shape: ngpblks, krr, nflevg, nproma)
-        pr_in = ice_adjust_repro_ds["PR_IN"].values
+        pr_in = ice_adjust_repro_ds["PRS"].values
         pr_in = np.swapaxes(pr_in, 2, 3)  # (ngpblks, krr, nproma, nflevg)
         
-        data['prv'] = pr_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prc'] = pr_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prr'] = pr_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['pri'] = pr_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prs'] = pr_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prg'] = pr_in[:, 6, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prv'] = pr_in[:, 0, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prc'] = pr_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prr'] = pr_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['pri'] = pr_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prs'] = pr_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prg'] = pr_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
         
         # Mass flux variables
         data['pcf_mf'] = reshape_input(ice_adjust_repro_ds["PCF_MF"].values)

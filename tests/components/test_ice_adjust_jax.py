@@ -5,7 +5,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from ice3.jax.components.ice_adjust import IceAdjustJAX
+from ice3.jax.ice_adjust import IceAdjustJAX
 from ice3.phyex_common.phyex import Phyex
 
 
@@ -518,7 +518,7 @@ def test_ice_adjust_jax_with_repro_data(ice_adjust_repro_ds):
     print("TEST: JAX ICE_ADJUST with Reproduction Data")
     print("="*70)
     
-    from ice3.jax.components.ice_adjust import IceAdjustJAX
+    from ice3.jax.ice_adjust import IceAdjustJAX
     from ice3.phyex_common.phyex import Phyex
     from numpy.testing import assert_allclose
     
@@ -547,22 +547,22 @@ def test_ice_adjust_jax_with_repro_data(ice_adjust_repro_ds):
         return jnp.asarray(np.swapaxes(var, 1, 2))
     
     # Load atmospheric state
-    pabs = reshape_for_jax(ice_adjust_repro_ds["PPABST"].values)
-    th = reshape_for_jax(ice_adjust_repro_ds["PTH"].values)
-    exn = reshape_for_jax(ice_adjust_repro_ds["PEXN"].values)
+    pabs = reshape_for_jax(ice_adjust_repro_ds["PPABSM"].values)
+    th = reshape_for_jax(ice_adjust_repro_ds["PTHT"].values)
+    exn = reshape_for_jax(ice_adjust_repro_ds["PEXNREF"].values)
     exn_ref = reshape_for_jax(ice_adjust_repro_ds["PEXNREF"].values)
     rho_dry_ref = reshape_for_jax(ice_adjust_repro_ds["PRHODREF"].values)
     
     # Load mixing ratios from PR_IN (shape: ngpblks, krr, nflevg, nproma)
-    pr_in = ice_adjust_repro_ds["PR_IN"].values
+    pr_in = ice_adjust_repro_ds["PRS"].values
     pr_in = np.swapaxes(pr_in, 2, 3)  # → (ngpblks, krr, nproma, nflevg)
     
-    rv = jnp.asarray(pr_in[:, 1, :, :])  # vapor
-    rc = jnp.asarray(pr_in[:, 2, :, :])  # cloud water
-    rr = jnp.asarray(pr_in[:, 3, :, :])  # rain
-    ri = jnp.asarray(pr_in[:, 4, :, :])  # ice
-    rs = jnp.asarray(pr_in[:, 5, :, :])  # snow
-    rg = jnp.asarray(pr_in[:, 6, :, :])  # graupel
+    rv = jnp.asarray(pr_in[:, 0, :, :])  # vapor
+    rc = jnp.asarray(pr_in[:, 1, :, :])  # cloud water
+    rr = jnp.asarray(pr_in[:, 2, :, :])  # rain
+    ri = jnp.asarray(pr_in[:, 3, :, :])  # ice
+    rs = jnp.asarray(pr_in[:, 4, :, :])  # snow
+    rg = jnp.asarray(pr_in[:, 5, :, :])  # graupel
     
     # Mass flux variables
     cf_mf = reshape_for_jax(ice_adjust_repro_ds["PCF_MF"].values)

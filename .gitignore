@@ -38,6 +38,10 @@ src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
 src/testprogs_data/main_ice_adjust
 src/drivers/build
+tests/functions/
+tests/repro/
+tests/stencils/
+tests/utils/
 
 # utilities
 *.log
@@ -46,7 +50,10 @@ src/drivers/build
 *.o
 *.cfg
 *.json
-
+tests/functions/
+        tests/repro/
+        tests/stencils/
+        tests/utils/
 .coverage
 
 mode_*/

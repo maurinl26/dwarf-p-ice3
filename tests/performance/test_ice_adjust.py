@@ -3,10 +3,10 @@
 import numpy as np
 import pytest
 
-from ice3.components.ice_adjust import IceAdjust
+from ice3.gt4py.ice_adjust import IceAdjust
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
-from ice3.initialisation.state_ice_adjust import get_state_ice_adjust
+from ice3.gt4py.initialisation.state_ice_adjust import get_state_ice_adjust
 
 
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])

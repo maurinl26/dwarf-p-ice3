@@ -11,7 +11,7 @@ import xarray as xr
 
 from ..drivers.core import write_performance_tracking, compare_fields
 from ..ice3.components.ice_adjust import IceAdjust
-from ..ice3.components.rain_ice import RainIce
+from ..ice3.gt4py.rain_ice import RainIce
 from ..ice3.initialisation.state_ice_adjust import get_state_ice_adjust
 from ..ice3.initialisation.state_rain_ice import get_state_rain_ice
 from ..ice3.phyex_common.phyex import Phyex
