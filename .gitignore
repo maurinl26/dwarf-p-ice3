@@ -65,6 +65,5 @@ PHYEX-IAL_CY50T1/ext
 PHYEX-IAL_CY50T1/micro
 PHYEX-IAL_CY50T1/turb
 
-# build
 build
 build_fortran
