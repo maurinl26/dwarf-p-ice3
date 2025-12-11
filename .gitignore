@@ -71,3 +71,6 @@ PHYEX-IAL_CY50T1/turb
 # build
 build
 build_fortran
+
+# examples
+examples
