@@ -52,12 +52,22 @@ cloud_fraction/
 sandbox/
 src/dwarf_ice3.egg-info/
 
+# requirements
 requirements.txt
 requirements_gpu.txt
 requirements_all.txt
 
-PHYEX-IAL_CY50T1
+# phyex
 IAL_CY50T1.tar.gz
 
+build
+build_fortran
+PHYEX-IAL_CY50T1/aux
+PHYEX-IAL_CY50T1/conv
+PHYEX-IAL_CY50T1/ext
+PHYEX-IAL_CY50T1/micro
+PHYEX-IAL_CY50T1/turb
+
+# build
 build
 build_fortran

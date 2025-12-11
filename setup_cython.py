@@ -37,6 +37,24 @@ extensions = [
         ],
         language="c",
     ),
+    Extension(
+        name="ice3.cython_bindings.ice_adjust_wrapper",
+        sources=["src/ice3/cython_bindings/ice_adjust_wrapper.pyx"],
+        include_dirs=[
+            np.get_include(),
+            str(build_fortran_dir),
+        ],
+        library_dirs=[str(build_fortran_dir)],
+        libraries=["ice_adjust_phyex"],  # Link against the Fortran library
+        extra_compile_args=[
+            "-O3",  # Optimization
+            "-fPIC",  # Position independent code
+        ],
+        extra_link_args=[
+            f"-Wl,-rpath,{build_fortran_dir}",  # Runtime library path
+        ],
+        language="c",
+    ),
 ]
 
 # Compiler directives for optimization
