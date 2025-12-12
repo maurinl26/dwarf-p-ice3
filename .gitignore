@@ -66,5 +66,11 @@ IAL_CY50T1.tar.gz
 build
 build_fortran
 
+# PHYEX
+PHYEX-IAL_CY50T1/micro
+PHYEX-IAL_CY50T1/aux
+PHYEX-IAL_CY50T1/conv 
+PHYEX-IAL_CY50T1/ext 
+
 # examples
 examples
