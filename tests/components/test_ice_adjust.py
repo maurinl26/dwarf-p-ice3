@@ -5,7 +5,7 @@ from numpy.testing import assert_allclose
 import pytest
 from gt4py.storage import zeros
 
-from ice3.components.ice_adjust import IceAdjust
+from ice3.gt4py.ice_adjust import IceAdjust
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 from ice3.utils.env import DTYPES, BACKEND

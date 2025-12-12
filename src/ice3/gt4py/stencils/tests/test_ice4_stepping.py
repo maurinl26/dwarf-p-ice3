@@ -81,7 +81,7 @@ def test_ice4_stepping_heat(dtypes, backend, externals, packed_dims, domain, ori
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_stepping import ice4_stepping_heat
+    from ...stencils.ice4_stepping import ice4_stepping_heat
 
     # Compilation des stencils
     ice4_stepping_heat_gt4py = stencil(
@@ -244,7 +244,7 @@ def test_state_update(dtypes, backend, externals, packed_dims, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_stepping import state_update
+    from ...stencils.ice4_stepping import state_update
 
     # Compilation des stencils
     state_update_gt4py = stencil(
@@ -419,7 +419,7 @@ def test_external_tendencies_update(dtypes, backend, externals, packed_dims, dom
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_stepping import external_tendencies_update
+    from ...stencils.ice4_stepping import external_tendencies_update
 
     # Compilation des stencils
     external_tendencies_update_gt4py = stencil(

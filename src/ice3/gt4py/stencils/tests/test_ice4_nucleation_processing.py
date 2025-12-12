@@ -63,7 +63,7 @@ def test_rain_ice_nucleation_pre_processing_with_micro(dtypes, backend, external
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_nucleation_processing import rain_ice_nucleation_pre_processing
+    from ...stencils.ice4_nucleation_processing import rain_ice_nucleation_pre_processing
 
     # Compilation du stencil GT4Py
     pre_proc_gt4py = stencil(
@@ -158,7 +158,7 @@ def test_rain_ice_nucleation_pre_processing_without_micro(dtypes, backend, exter
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_nucleation_processing import rain_ice_nucleation_pre_processing
+    from ...stencils.ice4_nucleation_processing import rain_ice_nucleation_pre_processing
 
     # Compilation du stencil GT4Py
     pre_proc_gt4py = stencil(
@@ -282,7 +282,7 @@ def test_rain_ice_nucleation_post_processing(dtypes, backend, externals, domain,
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_nucleation_processing import rain_ice_nucleation_post_processing
+    from ...stencils.ice4_nucleation_processing import rain_ice_nucleation_post_processing
 
     # Ajout de TSTEP aux externals
     externals_with_tstep = externals.copy()
@@ -381,7 +381,7 @@ def test_rain_ice_nucleation_post_processing_edge_cases(dtypes, backend, externa
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_nucleation_processing import rain_ice_nucleation_post_processing
+    from ...stencils.ice4_nucleation_processing import rain_ice_nucleation_post_processing
 
     # Ajout de TSTEP aux externals
     externals_with_tstep = externals.copy()

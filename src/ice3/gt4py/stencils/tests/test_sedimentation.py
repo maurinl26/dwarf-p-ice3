@@ -74,7 +74,7 @@ def test_sedimentation_stat_cloud(dtypes, backend, phyex, packed_dims, domain, o
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.sedimentation import sedimentation_stat
+    from ...stencils.sedimentation import sedimentation_stat
     
     # Get externals from phyex and add missing parameters
     externals = phyex.to_externals()

@@ -77,7 +77,7 @@ def test_ice4_nucleation_post_processing(
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_tendencies import ice4_nucleation_post_processing
+    from ...stencils.ice4_tendencies import ice4_nucleation_post_processing
 
     ice4_nucleation_post_processing_gt4py = stencil(
         backend,
@@ -218,7 +218,7 @@ def test_ice4_rrhong_post_processing(
         origin: Origine du domaine GT4Py
         backend: Backend GT4Py (debug, numpy, cpu, gpu)
     """
-    from ice3.stencils.ice4_tendencies import ice4_rrhong_post_processing
+    from ...stencils.ice4_tendencies import ice4_rrhong_post_processing
 
     ice4_rrhong_post_processing_gt4py = stencil(
         backend,
@@ -366,7 +366,7 @@ def test_ice4_rimltc_post_processing(
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_tendencies import ice4_rimltc_post_processing
+    from ...stencils.ice4_tendencies import ice4_rimltc_post_processing
 
     ice4_rimltc_post_processing_gt4py = stencil(
         backend,
@@ -520,7 +520,7 @@ def test_ice4_fast_rg_pre_processing(
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_tendencies import ice4_fast_rg_pre_post_processing
+    from ...stencils.ice4_tendencies import ice4_fast_rg_pre_post_processing
 
     ice4_fast_rg_pre_processing_gt4py = stencil(
         backend,
@@ -653,7 +653,7 @@ def test_ice4_increment_update(
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_tendencies import ice4_increment_update
+    from ...stencils.ice4_tendencies import ice4_increment_update
 
     ice4_increment_update_gt4py = stencil(
         backend,

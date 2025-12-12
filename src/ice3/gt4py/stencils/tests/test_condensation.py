@@ -82,7 +82,7 @@ def test_condensation(dtypes, externals, fortran_dims, backend, domain, origin):
     # Configuration des paramètres (configuration AROME par défaut)
     externals.update({"OCND2": False, "OUSERI": True})
 
-    from ice3.stencils.condensation import condensation
+    from ...stencils.condensation import condensation
 
     condensation_stencil = stencil(
         backend, 

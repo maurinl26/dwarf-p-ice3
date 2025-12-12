@@ -78,7 +78,7 @@ def test_ice4_compute_pdf_none(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_compute_pdf import ice4_compute_pdf
+    from ...stencils.ice4_compute_pdf import ice4_compute_pdf
 
     # Set SUBG_AUCV_RC to NONE (0) and SUBG_AUCV_RI to NONE (0)
     externals_pdf = externals.copy()
@@ -221,7 +221,7 @@ def test_ice4_compute_pdf_clfr(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_compute_pdf import ice4_compute_pdf
+    from ...stencils.ice4_compute_pdf import ice4_compute_pdf
 
     # Set SUBG_AUCV_RC to CLFR (1)
     externals_pdf = externals.copy()
@@ -342,7 +342,7 @@ def test_ice4_compute_pdf_adju(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_compute_pdf import ice4_compute_pdf
+    from ...stencils.ice4_compute_pdf import ice4_compute_pdf
 
     # Set SUBG_AUCV_RC to ADJU (2)
     externals_pdf = externals.copy()
@@ -474,7 +474,7 @@ def test_ice4_compute_pdf_sigma(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_compute_pdf import ice4_compute_pdf
+    from ...stencils.ice4_compute_pdf import ice4_compute_pdf
 
     # Set SUBG_AUCV_RC to PDF (3) and SUBG_PR_PDF to SIGM (0)
     externals_pdf = externals.copy()

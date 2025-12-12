@@ -14,7 +14,7 @@ from gt4py.cartesian.gtscript import (
     sqrt,
 )
 
-from ice3.functions.tiwmx import e_sat_i, e_sat_w
+from ..functions.tiwmx import e_sat_i, e_sat_w
 
 
 # "PHYEX/src/common/micro/condensation.F90"

@@ -130,7 +130,7 @@ def test_rain_contact_freezing(backend, dtypes, packed_dims, domain, origin, ext
     # =========================================================================
     # Appel de l'implémentation Python GT4Py
     # =========================================================================
-    from ice3.stencils.ice4_fast_rg import rain_contact_freezing
+    from ...stencils.ice4_fast_rg import rain_contact_freezing
 
     stencil_rain_contact_freezing = stencil(
         backend=backend,
@@ -320,7 +320,7 @@ def test_cloud_pristine_collection(backend, dtypes, packed_dims, domain, origin,
     # =========================================================================
     # Appel de l'implémentation Python GT4Py
     # =========================================================================
-    from ice3.stencils.ice4_fast_rg import cloud_pristine_collection_graupel
+    from ...stencils.ice4_fast_rg import cloud_pristine_collection_graupel
 
     stencil_cloud_pristine_collection = stencil(
         backend=backend,
@@ -526,7 +526,7 @@ def test_graupel_melting(backend, dtypes, packed_dims, domain, origin, externals
     # =========================================================================
     # Appel de l'implémentation Python GT4Py
     # =========================================================================
-    from ice3.stencils.ice4_fast_rg import graupel_melting
+    from ...stencils.ice4_fast_rg import graupel_melting
 
     stencil_graupel_melting = stencil(
         backend=backend,

@@ -95,7 +95,7 @@ def test_ice4_slow(dtypes, backend, externals, packed_dims, domain, origin, ldso
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_slow import ice4_slow
+    from ...stencils.ice4_slow import ice4_slow
 
     # Compilation du stencil GT4Py
     ice4_slow_gt4py = stencil(

@@ -62,7 +62,7 @@ def test_ice4_correct_negativities_positive_values(dtypes, backend, externals, d
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_correct_negativities import ice4_correct_negativities
+    from ...stencils.ice4_correct_negativities import ice4_correct_negativities
 
     # Compilation du stencil GT4Py
     correct_neg_gt4py = stencil(
@@ -170,7 +170,7 @@ def test_ice4_correct_negativities_with_negatives(dtypes, backend, externals, do
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_correct_negativities import ice4_correct_negativities
+    from ...stencils.ice4_correct_negativities import ice4_correct_negativities
 
     # Compilation du stencil GT4Py
     correct_neg_gt4py = stencil(
@@ -309,7 +309,7 @@ def test_ice4_correct_negativities_vapor_correction(dtypes, backend, externals, 
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_correct_negativities import ice4_correct_negativities
+    from ...stencils.ice4_correct_negativities import ice4_correct_negativities
 
     # Compilation du stencil GT4Py
     correct_neg_gt4py = stencil(
@@ -427,7 +427,7 @@ def test_ice4_correct_negativities_mass_conservation(dtypes, backend, externals,
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_correct_negativities import ice4_correct_negativities
+    from ...stencils.ice4_correct_negativities import ice4_correct_negativities
 
     # Compilation du stencil GT4Py
     correct_neg_gt4py = stencil(

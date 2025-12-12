@@ -96,12 +96,12 @@ class IceAdjustModular:
         )
 
         # Import et compilation des stencils
-        from ..stencils.cloud_fraction import (
+        from .stencils.cloud_fraction import (
             thermodynamic_fields,
             cloud_fraction_1,
             cloud_fraction_2,
         )
-        from ..stencils.condensation import condensation
+        from .stencils.condensation import condensation
 
         # Compilation des stencils
         self.thermodynamic_fields_stencil = compile_stencil(

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import __INLINED, PARALLEL, Field, computation, interval
-from ice3.functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
+from ..functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
 
 
 # from_file="PHYEX/src/common/micro/ice_adjust.F90",

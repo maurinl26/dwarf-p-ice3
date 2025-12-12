@@ -91,7 +91,7 @@ def test_cloud_droplet_riming_snow(
     # =========================================================================
     # TODO: Appel de l'implémentation Python/CuPy
     # =========================================================================
-    # from ice3.stencils.ice4_fast_rs import cloud_droplet_riming_snow
+    # from ...stencils.ice4_fast_rs import cloud_droplet_riming_snow
     #
     # Les processus de riming nécessitent:
     # - Interpolation bilinéaire de tables GAMINC_RIM1, GAMINC_RIM2, GAMINC_RIM4
@@ -191,7 +191,7 @@ def test_rain_accretion_snow(dtypes, packed_dims, domain, externals, ldsoft):
     # =========================================================================
     # TODO: Appel de l'implémentation Python/CuPy
     # =========================================================================
-    # from ice3.stencils.ice4_fast_rs import rain_accretion_snow
+    # from ...stencils.ice4_fast_rs import rain_accretion_snow
     #
     # Les processus d'accrétion nécessitent:
     # - Interpolation bilinéaire 2D de tables KER_RACCSS, KER_RACCS, KER_SACCRG
@@ -364,7 +364,7 @@ def test_compute_freezing_rate(
     # =========================================================================
     # Appel de l'implémentation Python/CuPy
     # =========================================================================
-    from ice3.stencils.ice4_fast_rs import compute_freezing_rate
+    from ...stencils.ice4_fast_rs import compute_freezing_rate
 
     stencil_compute_freezing_rate = stencil(
         backend=backend,
@@ -608,7 +608,7 @@ def test_conversion_melting_snow(
     # =========================================================================
     # Appel de l'implémentation Python GT4Py
     # =========================================================================
-    from ice3.stencils.ice4_fast_rs import conversion_melting_snow
+    from ...stencils.ice4_fast_rs import conversion_melting_snow
 
     stencil_conversion_melting_snow = stencil(
         backend=backend,

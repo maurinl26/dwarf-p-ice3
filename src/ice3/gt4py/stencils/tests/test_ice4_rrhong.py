@@ -78,7 +78,7 @@ def test_ice4_rrhong(dtypes, backend, externals, packed_dims, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_rrhong import ice4_rrhong
+    from ...stencils.ice4_rrhong import ice4_rrhong
 
     # Compilation du stencil GT4Py
     ice4_rrhong_gt4py = stencil(

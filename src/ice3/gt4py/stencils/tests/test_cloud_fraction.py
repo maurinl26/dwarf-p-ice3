@@ -59,7 +59,7 @@ def test_thermodynamic_fields_repro(dtypes, externals, fortran_dims, backend, do
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.cloud_fraction import thermodynamic_fields
+    from ...stencils.cloud_fraction import thermodynamic_fields
 
     thermo_stencil = stencil(
         backend,
@@ -230,7 +230,7 @@ def test_cloud_fraction_1(externals, fortran_dims, dtypes, backend, domain, orig
     """
     externals.update({"LSUBG_COND": True})
 
-    from ice3.stencils.cloud_fraction import cloud_fraction_1
+    from ...stencils.cloud_fraction import cloud_fraction_1
 
     cloud_fraction_1_stencil = stencil(
         backend,

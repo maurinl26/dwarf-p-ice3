@@ -2,11 +2,11 @@
 from __future__ import annotations
 
 from gt4py.cartesian.gtscript import PARALLEL, Field, computation, interval, function
-from ice3.functions.ice_adjust import (constant_pressure_heat_capacity,
+from ..functions.ice_adjust import (constant_pressure_heat_capacity,
                                        sublimation_latent_heat,
                                        vaporisation_latent_heat)
-from ice3.functions.sign import sign
-from ice3.functions.temperature import theta2temperature
+from ..functions.sign import sign
+from ..functions.temperature import theta2temperature
 
 
 # from_file="PHYEX/src/common/micro/mode_ice4_stepping.F90",

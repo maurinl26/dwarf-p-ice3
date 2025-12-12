@@ -13,7 +13,7 @@ from ctypes import c_size_t
 from gt4py.cartesian.gtscript import stencil, Field
 from gt4py.storage import from_array, zeros
 
-from ice3.functions.sign import sign
+from ...functions.sign import sign
 from ice3.utils.env import dp_dtypes, sp_dtypes
 
 import pytest

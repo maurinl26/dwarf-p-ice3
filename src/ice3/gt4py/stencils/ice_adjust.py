@@ -29,7 +29,6 @@ from gt4py.cartesian.gtscript import (
 
 from ..functions.ice_adjust import sublimation_latent_heat, vaporisation_latent_heat
 from ..functions.tiwmx import e_sat_i, e_sat_w
-from ..utils.env import DTYPES
 
 
 def ice_adjust(

@@ -80,7 +80,7 @@ def test_ice4_nucleation(dtypes, backend, externals, packed_dims, domain, origin
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_nucleation import ice4_nucleation
+    from ...stencils.ice4_nucleation import ice4_nucleation
 
     # Compilation du stencil GT4Py
     ice4_nucleation_gt4py = stencil(

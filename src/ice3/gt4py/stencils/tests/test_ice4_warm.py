@@ -81,7 +81,7 @@ def test_ice4_warm(dtypes, backend, externals, packed_dims, domain, origin, ldso
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_warm import ice4_warm
+    from ...stencils.ice4_warm import ice4_warm
 
     # Compilation du stencil GT4Py
     ice4_warm_gt4py = stencil(

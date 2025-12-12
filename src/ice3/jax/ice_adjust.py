@@ -15,8 +15,8 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
-from ...phyex_common.phyex import Phyex
-from ..stencils.ice_adjust import ice_adjust as ice_adjust_stencil
+from ..phyex_common.phyex import Phyex
+from .stencils.ice_adjust import ice_adjust as ice_adjust_stencil
 
 log = logging.getLogger(__name__)
 

@@ -74,7 +74,7 @@ def test_rain_ice_total_tendencies(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import rain_ice_total_tendencies
+    from ...stencils.rain_ice import rain_ice_total_tendencies
 
     # Add INV_TSTEP to externals
     externals_with_tstep = externals.copy()
@@ -233,7 +233,7 @@ def test_rain_ice_thermo(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import rain_ice_thermo
+    from ...stencils.rain_ice import rain_ice_thermo
 
     # Compilation du stencil GT4Py
     rain_ice_thermo_gt4py = stencil(
@@ -352,7 +352,7 @@ def test_rain_ice_mask(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import rain_ice_mask
+    from ...stencils.rain_ice import rain_ice_mask
 
     # Compilation du stencil GT4Py
     rain_ice_mask_gt4py = stencil(
@@ -453,7 +453,7 @@ def test_initial_values_saving(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import initial_values_saving
+    from ...stencils.rain_ice import initial_values_saving
 
     # Compilation du stencil GT4Py
     rain_ice_initial_gt4py = stencil(
@@ -565,7 +565,7 @@ def test_ice4_precipitation_fraction_sigma(dtypes, backend, externals, domain, o
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import ice4_precipitation_fraction_sigma
+    from ...stencils.rain_ice import ice4_precipitation_fraction_sigma
 
     # Compilation du stencil GT4Py
     sigma_gt4py = stencil(
@@ -646,7 +646,7 @@ def test_rain_fraction_sedimentation(dtypes, backend, externals, domain, origin)
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import rain_fraction_sedimentation
+    from ...stencils.rain_ice import rain_fraction_sedimentation
 
     # Add TSTEP to externals
     externals_with_tstep = externals.copy()
@@ -744,7 +744,7 @@ def test_ice4_rainfr_vert(dtypes, backend, externals, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import ice4_rainfr_vert
+    from ...stencils.rain_ice import ice4_rainfr_vert
 
     # Compilation du stencil GT4Py
     rainfr_vert_gt4py = stencil(
@@ -831,7 +831,7 @@ def test_fog_deposition(dtypes, backend, phyex, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.rain_ice import fog_deposition
+    from ...stencils.rain_ice import fog_deposition
 
     # Get externals and add VDEPOSC
     externals = phyex.to_externals()

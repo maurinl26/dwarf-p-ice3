@@ -73,7 +73,7 @@ def test_ice4_fast_ri(dtypes, backend, externals, packed_dims, domain, origin, l
         origin: Origine du domaine GT4Py
         ldsoft: Indicateur de mode soft (désactive le calcul pour tests)
     """
-    from ice3.stencils.ice4_fast_ri import ice4_fast_ri
+    from ...stencils.ice4_fast_ri import ice4_fast_ri
 
     # Compilation du stencil GT4Py
     ice4_fast_ri_gt4py = stencil(

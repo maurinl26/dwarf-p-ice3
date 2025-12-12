@@ -61,7 +61,7 @@ def test_ice4_rimltc(dtypes, backend, externals, packed_dims, domain, origin):
         domain: Taille du domaine de calcul
         origin: Origine du domaine GT4Py
     """
-    from ice3.stencils.ice4_rimltc import ice4_rimltc
+    from ...stencils.ice4_rimltc import ice4_rimltc
 
     ice4_rimltc_gt4py = stencil(
         backend,

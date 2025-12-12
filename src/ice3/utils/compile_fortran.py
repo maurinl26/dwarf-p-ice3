@@ -26,7 +26,7 @@ def compile_fortran_stencil(
     """
     #### Fortran subroutine
     root_directory = Path(__file__).parent.parent
-    stencils_directory = Path(root_directory, "stencils_fortran")
+    stencils_directory = Path(root_directory, "gt4py", "stencils", "fortran")
     script_path = Path(stencils_directory, fortran_script)
 
     logging.info(f"Fortran script path {script_path}")

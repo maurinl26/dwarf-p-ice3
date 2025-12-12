@@ -11,7 +11,7 @@ from ice3.gt4py.rain_ice import RainIce
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 from ice3.utils.env import DTYPES, BACKEND
-from ice3.initialisation.state_rain_ice import get_state_rain_ice
+from ice3.gt4py.initialisation.state_rain_ice import get_state_rain_ice
 
 @pytest.fixture(name="rain_ice_state")
 def rain_ice_state_fixture(domain):
