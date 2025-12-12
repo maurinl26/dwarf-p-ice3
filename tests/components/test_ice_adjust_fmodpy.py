@@ -279,7 +279,7 @@ def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
         def reshape_input(var):
             """Reshape from (ngpblks, nflevg, nproma) to (nkt, nijt) Fortran order."""
             v = np.swapaxes(var, 1, 2)  # (ngpblks, nproma, nflevg)
-            v = v.reshape(nijt, nkt).T  # (nkt, nijt)
+            v = v.reshape(nijt, nkt)  # (nijt, nkt)
             return np.asfortranarray(v)
         
         # Load all required fields
@@ -297,24 +297,24 @@ def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
         pr_in = ice_adjust_repro_ds["PRS"].values
         pr_in = np.swapaxes(pr_in, 2, 3)  # (ngpblks, krr, nproma, nflevg)
         
-        data['prv'] = pr_in[:, 0, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prc'] = pr_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prr'] = pr_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['pri'] = pr_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prs'] = pr_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prg'] = pr_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prv'] = pr_in[:, 0, :, :].reshape(nijt, nkt).copy(order='F')
+        data['prc'] = pr_in[:, 1, :, :].reshape(nijt, nkt).copy(order='F')
+        data['prr'] = pr_in[:, 2, :, :].reshape(nijt, nkt).copy(order='F')
+        data['pri'] = pr_in[:, 3, :, :].reshape(nijt, nkt).copy(order='F')
+        data['prs'] = pr_in[:, 4, :, :].reshape(nijt, nkt).copy(order='F')
+        data['prg'] = pr_in[:, 5, :, :].reshape(nijt, nkt).copy(order='F')
         
         # Mass flux variables
         data['pcf_mf'] = reshape_input(ice_adjust_repro_ds["PCF_MF"].values)
         data['prc_mf'] = reshape_input(ice_adjust_repro_ds["PRC_MF"].values)
         data['pri_mf'] = reshape_input(ice_adjust_repro_ds["PRI_MF"].values)
-        data['pweight_mf_cloud'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        data['pweight_mf_cloud'] = np.zeros((nijt, nkt), dtype=np.float64, order='F')
         
         # Initialize tendencies to zero
-        data['prvs'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
-        data['prcs'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
-        data['pris'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
-        data['pths'] = np.zeros((nkt, nijt), dtype=np.float64, order='F')
+        data['prvs'] = np.zeros((nijt, nkt), dtype=np.float64, order='F')
+        data['prcs'] = np.zeros((nijt, nkt), dtype=np.float64, order='F')
+        data['pris'] = np.zeros((nijt, nkt), dtype=np.float64, order='F')
+        data['pths'] = np.zeros((nijt, nkt), dtype=np.float64, order='F')
         
         print("✓ Input data loaded")
         
@@ -360,9 +360,9 @@ def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
         prs_out = np.swapaxes(prs_out, 2, 3)  # (ngpblks, krr, nproma, nflevg)
         
         # Extract and reshape reference tendencies
-        rvs_ref = prs_out[:, 1, :, :].reshape(nijt, nkt).T
-        rcs_ref = prs_out[:, 2, :, :].reshape(nijt, nkt).T
-        ris_ref = prs_out[:, 4, :, :].reshape(nijt, nkt).T
+        rvs_ref = prs_out[:, 1, :, :].reshape(nijt, nkt)
+        rcs_ref = prs_out[:, 2, :, :].reshape(nijt, nkt)
+        ris_ref = prs_out[:, 4, :, :].reshape(nijt, nkt)
         
         # Compare tendencies
         try:
@@ -386,7 +386,7 @@ def test_ice_adjust_fmodpy_with_repro_data(ice_adjust_repro_ds):
         # Cloud fraction
         pcldfr_out = ice_adjust_repro_ds["PCLDFR_OUT"].values
         pcldfr_out = np.swapaxes(pcldfr_out, 1, 2)
-        cldfr_ref = pcldfr_out.reshape(nijt, nkt).T
+        cldfr_ref = pcldfr_out.reshape(nijt, nkt)
         
         try:
             assert_allclose(result['pcldfr'], cldfr_ref, atol=1e-4, rtol=1e-4)

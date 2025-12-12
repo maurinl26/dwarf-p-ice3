@@ -7,6 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "gt4py>=1.0.7",
     "jax>=0.5.3",
+    "flax>=0.10.2",
     "numpy<2.0",
     "scipy>=1.15.3",
     "typer>=0.15.2",
@@ -47,13 +48,14 @@ doc = [
     "mkdocstrings-python>=1.19.0",
 ]
 
-[tools.pytest.ini_options]
+[tool.pytest.ini_options]
 pythonpath = "src"
 markers = [
     "debug: run on debug debug backend",
     "numpy: run on numpy backend",
     "cpu: run on dace:cpu backend",
-    "gpu: run on dace:gpu backend"
+    "gpu: run on dace:gpu backend",
+    "dace: run on dace:cpu backend",
 ]
 
 [[tool.uv.index]]
@@ -69,6 +71,15 @@ dace = { git = "https://github.com/GridTools/dace.git", rev = "romanc/stree-to-s
 # Minimum CMake version
 cmake.minimum-version = "3.15"
 
+# Configure CMake arguments
+cmake.args = [
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DCMAKE_Fortran_COMPILER=flang",
+]
+
+# Verbose output during build
+cmake.verbose = true
+
 # Build directory
 build-dir = "build/{wheel_tag}"
 
@@ -82,14 +93,6 @@ sdist.include = [
     "PHYEX-IAL_CY50T1/**/*.f90",
     "PHYEX-IAL_CY50T1/**/*.h",
 ]
-
-# Configure CMake arguments
-cmake.args = [
-    "-DCMAKE_BUILD_TYPE=Release",
-]
-
-# Verbose output during build
-cmake.verbose = true
 
 # Install the library to the ice3 package directory
 wheel.install-dir = "ice3"
