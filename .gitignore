@@ -69,14 +69,6 @@ requirements_all.txt
 # phyex
 IAL_CY50T1.tar.gz
 
-build
-build_fortran
-PHYEX-IAL_CY50T1/aux
-PHYEX-IAL_CY50T1/conv
-PHYEX-IAL_CY50T1/ext
-PHYEX-IAL_CY50T1/micro
-PHYEX-IAL_CY50T1/turb
-
 # build
 build
 build_fortran
