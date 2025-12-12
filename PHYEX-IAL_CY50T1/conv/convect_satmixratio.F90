@@ -1,3 +1,0 @@
-SUBROUTINE CONVECT_SATMIXRATIO
-        ! dead code, replaced by include file
-END SUBROUTINE CONVECT_SATMIXRATIO
