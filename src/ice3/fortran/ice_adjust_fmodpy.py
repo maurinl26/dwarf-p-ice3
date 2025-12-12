@@ -178,21 +178,6 @@ def _load_fortran_ice_adjust():
                         "Using hybrid approach: ctypes structures + f2py for complex types"
                     )
                     
-                    # Fall back to compile_fortran_stencil for full parameter handling
-                    from ice3.utils.compile_fortran import compile_fortran_stencil
-                    
-                    fortran_path = Path(__file__).parent.parent.parent.parent / "PHYEX-IAL_CY50T1" / "micro" / "ice_adjust.F90"
-                    
-                    ice_adjust_module = compile_fortran_stencil(
-                        fortran_script=str(fortran_path),
-                        fortran_module="ice_adjust",
-                        fortran_stencil="ice_adjust"
-                    )
-                    
-                    # Call via f2py-wrapped module
-                    # The structures we created are available if needed for direct ctypes calling
-                    result = ice_adjust_module.ice_adjust(**kwargs)
-                    
                     return result
             
             _ice_adjust_fortran = FortranICEADJUST(lib)
@@ -202,15 +187,6 @@ def _load_fortran_ice_adjust():
             # Fall back to compiling with fmodpy
             log.info("Attempting to use fmodpy compilation...")
             try:
-                from ice3.utils.compile_fortran import compile_fortran_stencil
-                
-                fortran_path = Path(__file__).parent.parent.parent.parent / "PHYEX-IAL_CY50T1" / "micro" / "ice_adjust.F90"
-                
-                _ice_adjust_fortran = compile_fortran_stencil(
-                    fortran_script=str(fortran_path),
-                    fortran_module="ice_adjust",
-                    fortran_stencil="ice_adjust"
-                )
                 
                 log.info("✓ ICE_ADJUST compiled with fmodpy")
                 

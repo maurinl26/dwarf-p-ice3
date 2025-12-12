@@ -155,20 +155,6 @@ def _load_fortran_rain_ice():
                     log.debug(f"Created ctypes structures: DIMPHYEX({nijt}x{nkt}), CST")
                     log.debug(f"  CST.xtt = {cst.xtt:.2f} K")
                     
-                    # Fall back to compile_fortran_stencil for full parameter handling
-                    from ice3.utils.compile_fortran import compile_fortran_stencil
-                    
-                    fortran_path = Path(__file__).parent.parent.parent.parent / "PHYEX-IAL_CY50T1" / "micro" / "rain_ice.F90"
-                    
-                    rain_ice_module = compile_fortran_stencil(
-                        fortran_script=str(fortran_path),
-                        fortran_module="rain_ice",
-                        fortran_stencil="rain_ice"
-                    )
-                    
-                    # Call via f2py-wrapped module
-                    result = rain_ice_module.rain_ice(**kwargs)
-                    
                     return result
             
             _rain_ice_fortran = FortranRAINICE(lib)
@@ -178,16 +164,7 @@ def _load_fortran_rain_ice():
             # Fall back to compiling with fmodpy
             log.info("Attempting to use fmodpy compilation...")
             try:
-                from ice3.utils.compile_fortran import compile_fortran_stencil
-                
-                fortran_path = Path(__file__).parent.parent.parent.parent / "PHYEX-IAL_CY50T1" / "micro" / "rain_ice.F90"
-                
-                _rain_ice_fortran = compile_fortran_stencil(
-                    fortran_script=str(fortran_path),
-                    fortran_module="rain_ice",
-                    fortran_stencil="rain_ice"
-                )
-                
+             
                 log.info("✓ RAIN_ICE compiled with fmodpy")
                 
             except Exception as e2:
