@@ -67,14 +67,15 @@ def test_rain_ice_fmodpy_with_repro_data(rain_ice_repro_ds):
         
         # Load all required fields for RAIN_ICE
         data = {
-            'pexn': reshape_input(rain_ice_repro_ds["PEXN"].values),
+            'pexn': reshape_input(rain_ice_repro_ds["PEXNREF"].values),
             'pdzz': reshape_input(rain_ice_repro_ds["PDZZ"].values),
             'prhodj': reshape_input(rain_ice_repro_ds["PRHODJ"].values),
             'prhodref': reshape_input(rain_ice_repro_ds["PRHODREF"].values),
             'pexnref': reshape_input(rain_ice_repro_ds["PEXNREF"].values),
-            'ppabst': reshape_input(rain_ice_repro_ds["PPABST"].values),
+            'ppabst': reshape_input(rain_ice_repro_ds["PPABSM"].values),
             'pcldfr': reshape_input(rain_ice_repro_ds["PCLDFR"].values),
             'ptht': reshape_input(rain_ice_repro_ds["PTHT"].values),
+            'pths': reshape_input(rain_ice_repro_ds["PTHS"].values)
         }
         
         # HLCLOUDS arrays
@@ -84,10 +85,10 @@ def test_rain_ice_fmodpy_with_repro_data(rain_ice_repro_ds):
         data['phli_hcf'] = reshape_input(rain_ice_repro_ds["PHLI_HCF"].values)
         
         # OCND2 arrays
-        data['picldfr'] = reshape_input(rain_ice_repro_ds["PICLDFR"].values)
-        data['pssio'] = reshape_input(rain_ice_repro_ds["PSSIO"].values)
-        data['pssiu'] = reshape_input(rain_ice_repro_ds["PSSIU"].values)
-        data['pifr'] = reshape_input(rain_ice_repro_ds["PIFR"].values)
+        # data['picldfr'] = reshape_input(rain_ice_repro_ds["PCLDFR"].values)
+        # data['pssio'] = reshape_input(rain_ice_repro_ds["PSSIO"].values)
+        # data['pssiu'] = reshape_input(rain_ice_repro_ds["PSSIU"].values)
+        # data['pifr'] = reshape_input(rain_ice_repro_ds["PIFR"].values)
         
         # Cloud ice number concentration
         data['pcit'] = reshape_input(rain_ice_repro_ds["PCIT"].values)
@@ -96,28 +97,27 @@ def test_rain_ice_fmodpy_with_repro_data(rain_ice_repro_ds):
         data['psigs'] = reshape_input(rain_ice_repro_ds["PSIGS"].values)
         
         # Load mixing ratios from PRT_IN (shape: ngpblks, krr, nflevg, nproma)
-        prt_in = rain_ice_repro_ds["PRT_IN"].values
+        prt_in = rain_ice_repro_ds["PRT"].values
         prt_in = np.swapaxes(prt_in, 2, 3)  # (ngpblks, krr, nproma, nflevg)
         
         # Extract hydrometeor mixing ratios at time t
-        data['prvt'] = prt_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prct'] = prt_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prrt'] = prt_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prit'] = prt_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prst'] = prt_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prgt'] = prt_in[:, 6, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prvt'] = prt_in[:, 0, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prct'] = prt_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prrt'] = prt_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prit'] = prt_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prst'] = prt_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prgt'] = prt_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
         
         # Initialize tendencies from PRS_IN
-        prs_in = rain_ice_repro_ds["PRS_IN"].values
+        prs_in = rain_ice_repro_ds["PRS"].values
         prs_in = np.swapaxes(prs_in, 2, 3)  # (ngpblks, krr+1, nproma, nflevg)
         
-        data['pths'] = prs_in[:, 0, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prvs'] = prs_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prcs'] = prs_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prrs'] = prs_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['pris'] = prs_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prss'] = prs_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
-        data['prgs'] = prs_in[:, 6, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prvs'] = prs_in[:, 0, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prcs'] = prs_in[:, 1, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prrs'] = prs_in[:, 2, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['pris'] = prs_in[:, 3, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prss'] = prs_in[:, 4, :, :].reshape(nijt, nkt).T.copy(order='F')
+        data['prgs'] = prs_in[:, 5, :, :].reshape(nijt, nkt).T.copy(order='F')
         
         print("✓ Input data loaded")
         
@@ -145,10 +145,10 @@ def test_rain_ice_fmodpy_with_repro_data(rain_ice_repro_ds):
             ppabst=data['ppabst'],
             pcit=data['pcit'],
             pcldfr=data['pcldfr'],
-            picldfr=data['picldfr'],
-            pssio=data['pssio'],
-            pssiu=data['pssiu'],
-            pifr=data['pifr'],
+            picldfr=None,
+            pssio=None,
+            pssiu=None,
+            pifr=None,
             phlc_hrc=data['phlc_hrc'],
             phlc_hcf=data['phlc_hcf'],
             phli_hri=data['phli_hri'],
