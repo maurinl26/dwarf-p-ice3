@@ -209,8 +209,8 @@ def constants_to_ctypes(cst) -> ctypes.Structure:
     cst_struct = CST_t()
     
     # Populate fields (using lowercase field names for Fortran)
-    cst_struct.xtt = cst.XTT
-    cst_struct.xp00 = cst.XP00
+    cst_struct.xtt = cst.TT
+    cst_struct.xp00 = cst.P00
     cst_struct.xrd = cst.RD
     cst_struct.xrv = cst.RV
     cst_struct.xcpd = cst.CPD
@@ -220,7 +220,7 @@ def constants_to_ctypes(cst) -> ctypes.Structure:
     cst_struct.xlvtt = cst.LVTT
     cst_struct.xlstt = cst.LSTT
     cst_struct.xlmtt = cst.LMTT
-    cst_struct.xg = cst.G
+    cst_struct.xg = cst.GRAVITY0
     cst_struct.xmd = cst.MD
     cst_struct.xmv = cst.MV
     cst_struct.xepsilo = cst.EPSILO
@@ -301,8 +301,23 @@ def neb_to_ctypes(nebn) -> ctypes.Structure:
     neb_struct = NEB_t()
     neb_struct.lsubg_cond = nebn.LSUBG_COND
     neb_struct.lsigmas = nebn.LSIGMAS
-    neb_struct.cfrac_ice_adjust = nebn.CFRAC_ICE_ADJUST.encode('utf-8')
-    neb_struct.ccondens = nebn.CCONDENS.encode('utf-8')
-    neb_struct.clambda3 = nebn.CLAMBDA3.encode('utf-8')
+    
+    # Convert FRAC_ICE_ADJUST (int) to string
+    # 0=T, 1=O, 2=N, 3=S
+    frac_map = {0: 'T', 1: 'O', 2: 'N', 3: 'S'}
+    frac_char = frac_map.get(nebn.FRAC_ICE_ADJUST, 'T')
+    neb_struct.cfrac_ice_adjust = frac_char.encode('utf-8')
+    
+    # Convert CONDENS (int) to string
+    # 0=CB02, 1=GAUS
+    cond_map = {0: 'CB02', 1: 'GAUS'}
+    cond_str = cond_map.get(nebn.CONDENS, 'CB02')
+    neb_struct.ccondens = cond_str.encode('utf-8')
+    
+    # Convert LAMBDA3 (int) to string
+    # 0=CB
+    lam_map = {0: 'CB'}
+    lam_str = lam_map.get(nebn.LAMBDA3, 'CB')
+    neb_struct.clambda3 = lam_str.encode('utf-8')
     
     return neb_struct

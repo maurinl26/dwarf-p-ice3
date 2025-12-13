@@ -9,7 +9,7 @@ from ice3.gt4py.ice_adjust import IceAdjust
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 from ice3.utils.env import DTYPES, BACKEND
-from ice3.initialisation.state_ice_adjust import get_state_ice_adjust
+from ice3.gt4py.initialisation.state_ice_adjust import get_state_ice_adjust
 
 
 @pytest.fixture(name="ice_adjust_state")
@@ -94,7 +94,7 @@ def test_ice_adjust_phyex_configuration():
 def test_ice_adjust_imports():
     """Test that all necessary imports for IceAdjust work correctly"""
     from ice3.components.ice_adjust import IceAdjust
-    from ice3.stencils.ice_adjust import ice_adjust
+    from ice3.gt4py.stencils.ice_adjust import ice_adjust
     
     assert IceAdjust is not None
     assert ice_adjust is not None
@@ -108,6 +108,7 @@ def test_ice_adjust_imports():
         pytest.param("numpy", marks=pytest.mark.numpy),
         pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
         pytest.param("gt:gpu", marks=pytest.mark.gpu),
+        pytest.param("dace:cpu", marks=pytest.mark.dace),
     ],
 )
 def test_ice_adjust(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):

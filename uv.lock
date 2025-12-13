@@ -649,7 +649,6 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "flax" },
-    { name = "gt4py" },
     { name = "jax", version = "0.5.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11' or python_full_version >= '3.13'" },
     { name = "jax", version = "0.7.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11' and python_full_version < '3.13'" },
     { name = "numpy" },
@@ -661,8 +660,16 @@ dependencies = [
 
 [package.optional-dependencies]
 dev = [
+    { name = "coverage" },
     { name = "fprettify" },
+    { name = "gt4py" },
     { name = "isort" },
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings" },
+    { name = "mkdocstrings-python" },
+    { name = "pytest" },
+    { name = "pytest-benchmark" },
     { name = "ruff" },
 ]
 doc = [
@@ -671,13 +678,18 @@ doc = [
     { name = "mkdocstrings" },
     { name = "mkdocstrings-python" },
 ]
+fortran = [
+    { name = "fmodpy" },
+]
 gpu = [
     { name = "cupy" },
     { name = "cupy-xarray" },
 ]
+gt4py = [
+    { name = "gt4py" },
+]
 test = [
     { name = "coverage" },
-    { name = "fmodpy" },
     { name = "pytest" },
     { name = "pytest-benchmark" },
 ]
@@ -701,10 +713,11 @@ requires-dist = [
     { name = "coverage", marker = "extra == 'test'", specifier = ">=7.12.0" },
     { name = "cupy", marker = "extra == 'gpu'", specifier = ">=13.5.0" },
     { name = "cupy-xarray", marker = "extra == 'gpu'", specifier = ">=0.1.4" },
+    { name = "dwarf-p-ice3", extras = ["gt4py", "test", "doc"], marker = "extra == 'dev'" },
     { name = "flax", specifier = ">=0.10.2" },
-    { name = "fmodpy", marker = "extra == 'test'", specifier = ">=1.7.4" },
+    { name = "fmodpy", marker = "extra == 'fortran'", specifier = ">=1.7.4" },
     { name = "fprettify", marker = "extra == 'dev'", specifier = ">=0.3.7" },
-    { name = "gt4py", specifier = ">=1.0.7" },
+    { name = "gt4py", marker = "extra == 'gt4py'", specifier = ">=1.0.7" },
     { name = "isort", marker = "extra == 'dev'", specifier = ">=6.0.1" },
     { name = "jax", specifier = ">=0.5.3" },
     { name = "mkdocs", marker = "extra == 'doc'", specifier = ">=1.6.1" },
@@ -719,7 +732,7 @@ requires-dist = [
     { name = "typer", specifier = ">=0.15.2" },
     { name = "xarray", extras = ["io"], specifier = ">=2025.4.0" },
 ]
-provides-extras = ["dev", "gpu", "test", "doc"]
+provides-extras = ["gt4py", "fortran", "gpu", "test", "doc", "dev"]
 
 [package.metadata.requires-dev]
 dace = [{ name = "dace", git = "https://github.com/GridTools/dace.git?rev=romanc%2Fstree-to-sdfg" }]

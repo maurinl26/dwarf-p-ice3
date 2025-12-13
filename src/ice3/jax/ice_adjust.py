@@ -14,11 +14,26 @@ from typing import Dict, Any, Tuple
 import jax
 import jax.numpy as jnp
 from jax import Array
+from flax.core import FrozenDict
 
 from ..phyex_common.phyex import Phyex
 from .stencils.ice_adjust import ice_adjust as ice_adjust_stencil
 
 log = logging.getLogger(__name__)
+
+
+def _make_hashable(obj):
+    """Recursively convert objects to hashable types for JAX static args."""
+    import numpy as np
+    
+    if isinstance(obj, (jnp.ndarray, np.ndarray)):
+        return tuple(obj.tolist())
+    elif isinstance(obj, dict):
+        return FrozenDict({k: _make_hashable(v) for k, v in obj.items()})
+    elif isinstance(obj, (list, tuple)):
+        return tuple(_make_hashable(item) for item in obj)
+    else:
+        return obj
 
 
 class IceAdjustJAX:
@@ -94,14 +109,19 @@ class IceAdjustJAX:
             phyex = Phyex("AROME")
         
         self.phyex = phyex
-        self.constants = phyex.to_externals()
+        constants_dict = phyex.to_externals()
         
         # Add OCND2 flag (AROME default)
-        self.constants["OCND2"] = False
+        constants_dict["OCND2"] = False
+        
+        # Convert to FrozenDict with all nested structures made hashable
+        # This allows the constants to be used as a static argument in JAX JIT
+        self.constants = _make_hashable(constants_dict)
         
         # Store the stencil function
+        # Mark constants as static so JAX JIT can handle non-array values
         if jit:
-            self.ice_adjust_fn = jax.jit(ice_adjust_stencil)
+            self.ice_adjust_fn = jax.jit(ice_adjust_stencil, static_argnames=['constants'])
             log.info("IceAdjustJAX initialized with JIT compilation enabled")
         else:
             self.ice_adjust_fn = ice_adjust_stencil
