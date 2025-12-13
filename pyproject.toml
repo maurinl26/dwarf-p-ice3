@@ -1,7 +1,7 @@
 [project]
 name = "dwarf-p-ice3"
 version = "0.1.0"
-description = "Add your description here"
+description = "Phyex physics packages in JAX"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -17,7 +17,8 @@ dependencies = [
 build-backend = 'scikit_build_core.build'
 requires = [
     'scikit-build-core>=0.10.0',
-    'cmake>=3.15',
+    'cython',
+    'numpy<2.0',
 ]
 
 [project.scripts]
@@ -73,17 +74,25 @@ explicit = true
 dace = { git = "https://github.com/GridTools/dace.git", rev = "romanc/stree-to-sdfg" }
 
 [tool.scikit-build]
-# Minimum CMake version
-cmake.minimum-version = "3.15"
+# CMake configuration (only used when building Fortran bindings)
+# To build with Fortran support: pip install -e ".[fortran]"
+cmake.version = ">=3.15"
+
+# Use Unix Makefiles generator instead of Ninja
+cmake.build-type = "Release"
 
 # Configure CMake arguments
 cmake.args = [
-    "-DCMAKE_BUILD_TYPE=Release",
-    "-DCMAKE_Fortran_COMPILER=flang",
+    "-DCMAKE_Fortran_COMPILER=gfortran",
+    "-G", "Unix Makefiles",
+    "-DCMAKE_MAKE_PROGRAM=/usr/bin/make",
 ]
 
 # Verbose output during build
-cmake.verbose = true
+build.verbose = true
+
+# Disable ninja - use make as fallback
+ninja.make-fallback = true
 
 # Build directory
 build-dir = "build/{wheel_tag}"
@@ -91,12 +100,13 @@ build-dir = "build/{wheel_tag}"
 # Install the compiled library to the package
 install.components = ["ice_adjust_phyex"]
 
-# Ensure Fortran sources are included
+# Ensure Fortran sources and Cython wrapper are included
 sdist.include = [
     "CMakeLists.txt",
     "PHYEX-IAL_CY50T1/**/*.F90",
     "PHYEX-IAL_CY50T1/**/*.f90",
     "PHYEX-IAL_CY50T1/**/*.h",
+    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper.pyx",
 ]
 
 # Install the library to the ice3 package directory
@@ -106,12 +116,10 @@ wheel.install-dir = "ice3"
 dace = [
     "dace",
 ]
-dev = [
-    "ruff>=0.11.11",
-]
+
 test = [
     "coverage-badge>=1.1.2",
-    "fmodpy>=1.7.4",
     "pytest-benchmark>=5.1.0",
     "pytest-cov>=7.0.0",
+    "fmodpy>=1.7.4",
 ]

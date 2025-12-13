@@ -12,13 +12,13 @@ from typing import Dict, Tuple
 from functools import partial
 
 # Import JAX stencils
-from ..stencils.ice4_nucleation import ice4_nucleation
-from ..stencils.ice4_rimltc import ice4_rimltc
-from ..stencils.ice4_rrhong import ice4_rrhong
-from ..stencils.ice4_warm import ice4_warm
-from ..stencils.ice4_fast_ri import ice4_fast_ri
-from ..stencils.ice4_compute_pdf import ice4_compute_pdf
-from ..stencils.ice4_correct_negativities import ice4_correct_negativities
+from .stencils.ice4_nucleation import ice4_nucleation
+from .stencils.ice4_rimltc import ice4_rimltc
+from .stencils.ice4_rrhong import ice4_rrhong
+from .stencils.ice4_warm import ice4_warm
+from .stencils.ice4_fast_ri import ice4_fast_ri
+from .stencils.ice4_compute_pdf import ice4_compute_pdf
+from .stencils.ice4_correct_negativities import ice4_correct_negativities
 
 
 class Ice4TendenciesJAX:

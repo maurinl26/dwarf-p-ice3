@@ -173,7 +173,7 @@ def test_ice_adjust(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):
     print(f"Domaine: {shape}")
 
     # Initialize state from dataset
-    state = get_state_ice_adjust(domain, backend=backend, dataset=ice_adjust_repro_ds)
+    state = get_state_ice_adjust(shape, backend=backend, dataset=ice_adjust_repro_ds)
     
     # Timestep
     timestep = 50.0  # seconds
@@ -238,10 +238,10 @@ def test_ice_adjust(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):
     prs_out = ice_adjust_repro_ds["PRS_OUT"].values
     prs_out = np.swapaxes(prs_out, axis1=2, axis2=3)
     
-    # krr indices: 0=h, 1=v, 2=c, 3=r, 4=i, 5=s, 6=g (but h is not used)
+    # krr indices for PRS_OUT: 0=v, 1=c, 2=r, 3=i, 4=s, 5=g
     assert_allclose(
         state["rvs"],
-        prs_out[:, 1, :, :],
+        prs_out[:, 0, :, :],
         atol=1e-5,
         rtol=1e-4,
         err_msg="[ECHEC] Ecart - Tendance de contenu en vapeur d'eau"
@@ -250,7 +250,7 @@ def test_ice_adjust(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):
     
     assert_allclose(
         state["rcs"],
-        prs_out[:, 2, :, :],
+        prs_out[:, 1, :, :],
         atol=1e-5,
         rtol=1e-4,
         err_msg="[ECHEC] Ecart - Tendance de contenu en goutelettes (cloud droplets)"
@@ -259,7 +259,7 @@ def test_ice_adjust(benchmark, backend, domain, dtypes, ice_adjust_repro_ds):
     
     assert_allclose(
         state["ris"],
-        prs_out[:, 4, :, :],
+        prs_out[:, 3, :, :],
         atol=1e-5,
         rtol=1e-4,
         err_msg="[ECHEC] Ecart - Tendance de contenu en glace pristine"

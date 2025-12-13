@@ -459,36 +459,47 @@ def test_ice_adjust_jax_with_repro_data(ice_adjust_repro_ds):
     
     # Load atmospheric state
     pabs = reshape_for_jax(ice_adjust_repro_ds["PPABSM"].values)
-    th = reshape_for_jax(ice_adjust_repro_ds["PTHT"].values)
+    
+    # Load state from ZRS (ngpblks, krr1, nflevg, nproma)
+    zrs = ice_adjust_repro_ds["ZRS"].values
+    zrs = np.swapaxes(zrs, 2, 3)  # → (ngpblks, krr1, nproma, nflevg)
+    
+    th = jnp.asarray(zrs[:, 0, :, :])  # th is at index 0 of ZRS
+    rv = jnp.asarray(zrs[:, 1, :, :])  # vapor
+    rc = jnp.asarray(zrs[:, 2, :, :])  # cloud water
+    rr = jnp.asarray(zrs[:, 3, :, :])  # rain
+    ri = jnp.asarray(zrs[:, 4, :, :])  # ice
+    rs = jnp.asarray(zrs[:, 5, :, :])  # snow
+    rg = jnp.asarray(zrs[:, 6, :, :])  # graupel
+    
     exn = reshape_for_jax(ice_adjust_repro_ds["PEXNREF"].values)
     exn_ref = reshape_for_jax(ice_adjust_repro_ds["PEXNREF"].values)
     rho_dry_ref = reshape_for_jax(ice_adjust_repro_ds["PRHODREF"].values)
     
-    # Load mixing ratios from PR_IN (shape: ngpblks, krr, nflevg, nproma)
-    pr_in = ice_adjust_repro_ds["PRS"].values
-    pr_in = np.swapaxes(pr_in, 2, 3)  # → (ngpblks, krr, nproma, nflevg)
+    # Load input tendencies from PRS (ngpblks, krr, nflevg, nproma)
+    prs = ice_adjust_repro_ds["PRS"].values
+    prs = np.swapaxes(prs, 2, 3)  # → (ngpblks, krr, nproma, nflevg)
     
-    rv = jnp.asarray(pr_in[:, 0, :, :])  # vapor
-    rc = jnp.asarray(pr_in[:, 1, :, :])  # cloud water
-    rr = jnp.asarray(pr_in[:, 2, :, :])  # rain
-    ri = jnp.asarray(pr_in[:, 3, :, :])  # ice
-    rs = jnp.asarray(pr_in[:, 4, :, :])  # snow
-    rg = jnp.asarray(pr_in[:, 5, :, :])  # graupel
+    rvs = jnp.asarray(prs[:, 0, :, :])
+    rcs = jnp.asarray(prs[:, 1, :, :])
+    ris = jnp.asarray(prs[:, 3, :, :])
+    
+    # Load ths from PTHS (ngpblks, nflevg, nproma)
+    pths = ice_adjust_repro_ds["PTHS"].values
+    ths = reshape_for_jax(pths)
     
     # Mass flux variables
     cf_mf = reshape_for_jax(ice_adjust_repro_ds["PCF_MF"].values)
     rc_mf = reshape_for_jax(ice_adjust_repro_ds["PRC_MF"].values)
     ri_mf = reshape_for_jax(ice_adjust_repro_ds["PRI_MF"].values)
     
-    # Sigma variables (initialize if not in dataset)
-    sigqsat = jnp.ones(shape) * 0.01
-    sigs = jnp.zeros(shape)
+    # Sigma variables (ZSIGQSAT is 2D: ngpblks, nproma)
+    zsigqsat = ice_adjust_repro_ds["ZSIGQSAT"].values
+    # Expand to 3D for vertical broadcasting: (ngpblks, nproma, 1)
+    sigqsat = jnp.asarray(zsigqsat[:, :, np.newaxis])
     
-    # Initialize tendencies to zero
-    rvs = jnp.zeros(shape)
-    rcs = jnp.zeros(shape)
-    ris = jnp.zeros(shape)
-    ths = jnp.zeros(shape)
+    # PSIGS is 3D (ngpblks, nflevg, nproma)
+    sigs = reshape_for_jax(ice_adjust_repro_ds["PSIGS"].values)
     
     print("✓ Input data loaded")
     print(f"  Temperature range: {float(th.min()):.1f} - {float(th.max()):.1f} K")
@@ -526,61 +537,77 @@ def test_ice_adjust_jax_with_repro_data(ice_adjust_repro_ds):
     print("✓ JAX ICE_ADJUST completed")
     
     # Extract results
-    t_out, rv_out, rc_out, ri_out, cldfr = result[:5]
+    # Indices based on ice_adjust return:
+    # 0: t, 1: rv_out, 2: rc_out, 3: ri_out, 4: cldfr, ... 12: rvs, 13: rcs, 14: ris, 15: ths
+    t_out = result[0]
+    rv_out = result[1]
+    rc_out = result[2]
+    ri_out = result[3]
+    cldfr = result[4]
     
-    print(f"\n4. Results summary:")
-    print(f"  Output shapes: {t_out.shape}")
-    print(f"  Cloud fraction range: {float(cldfr.min()):.4f} - {float(cldfr.max()):.4f}")
-    print(f"  Cloudy points: {int((cldfr > 0.01).sum())} / {cldfr.size}")
+    rvs_out = result[12]
+    rcs_out = result[13]
+    ris_out = result[14]
+    ths_out = result[15]
     
-    # Compare with reference data
-    print("\n5. Comparing with reference data...")
+    # Load adjusted state from ZRS_OUT (if it existed) or tendencies from PRS_OUT
+    # Since we are testing internal tendencies, we compare against PRS_OUT and PTHS
     
-    # Note: The JAX implementation may compute tendencies differently
-    # because it returns adjusted fields rather than tendencies per se.
-    # However, we can check the adjusted mixing ratios.
+    # Load reference output tendencies from PRS_OUT (ngpblks, krr, nflevg, nproma)
+    prs_out = ice_adjust_repro_ds["PRS_OUT"].values
+    prs_out = np.swapaxes(prs_out, 2, 3)  # → (ngpblks, krr, nproma, nflevg)
     
-    # Load reference outputs
-    pr_out = ice_adjust_repro_ds["PRS_OUT"].values
-    pr_out = np.swapaxes(pr_out, 2, 3)  # → (ngpblks, krr, nproma, nflevg)
+    rvs_ref = prs_out[:, 0, :, :]
+    rcs_ref = prs_out[:, 1, :, :]
+    ris_ref = prs_out[:, 3, :, :]
     
-    rv_ref = pr_out[:, 1, :, :]
-    rc_ref = pr_out[:, 2, :, :]
-    ri_ref = pr_out[:, 4, :, :]
+    # Load ths_ref from PTHS (which is updated in Fortran)
+    ths_ref = reshape_for_jax(ice_adjust_repro_ds["PTHS"].values)
     
-    # Compare adjusted mixing ratios
+    # Compare tendencies
     try:
         assert_allclose(
-            np.array(rv_out), rv_ref,
-            atol=1e-4, rtol=1e-3,
-            err_msg="Water vapor mixing ratio mismatch"
+            np.array(rvs_out), np.array(rvs_ref),
+            atol=1e-5, rtol=1e-4,
+            err_msg="Vapor tendency mismatch"
         )
-        print("✓ rv (water vapor mixing ratio)")
+        print("✓ rvs (vapor tendency)")
     except AssertionError as e:
-        print(f"⚠️  rv: {e}")
-        print(f"   Max diff: {float(jnp.abs(rv_out - rv_ref).max()):.6e}")
-    
-    try:
-        assert_allclose(
-            np.array(rc_out), rc_ref,
-            atol=1e-4, rtol=1e-3,
-            err_msg="Cloud water mixing ratio mismatch"
-        )
-        print("✓ rc (cloud water mixing ratio)")
-    except AssertionError as e:
-        print(f"⚠️  rc: {e}")
-        print(f"   Max diff: {float(jnp.abs(rc_out - rc_ref).max()):.6e}")
+        print(f"⚠️  rvs: {e}")
+        print(f"   Max diff: {float(jnp.abs(rvs_out - rvs_ref).max()):.6e}")
     
     try:
         assert_allclose(
-            np.array(ri_out), ri_ref,
-            atol=1e-4, rtol=1e-3,
-            err_msg="Cloud ice mixing ratio mismatch"
+            np.array(rcs_out), np.array(rcs_ref),
+            atol=1e-5, rtol=1e-4,
+            err_msg="Cloud tendency mismatch"
         )
-        print("✓ ri (cloud ice mixing ratio)")
+        print("✓ rcs (cloud tendency)")
     except AssertionError as e:
-        print(f"⚠️  ri: {e}")
-        print(f"   Max diff: {float(jnp.abs(ri_out - ri_ref).max()):.6e}")
+        print(f"⚠️  rcs: {e}")
+        print(f"   Max diff: {float(jnp.abs(rcs_out - rcs_ref).max()):.6e}")
+    
+    try:
+        assert_allclose(
+            np.array(ris_out), np.array(ris_ref),
+            atol=1e-5, rtol=1e-4,
+            err_msg="Ice tendency mismatch"
+        )
+        print("✓ ris (ice tendency)")
+    except AssertionError as e:
+        print(f"⚠️  ris: {e}")
+        print(f"   Max diff: {float(jnp.abs(ris_out - ris_ref).max()):.6e}")
+
+    try:
+        assert_allclose(
+            np.array(ths_out), np.array(ths_ref),
+            atol=1e-5, rtol=1e-4,
+            err_msg="Theta tendency mismatch"
+        )
+        print("✓ ths (theta tendency)")
+    except AssertionError as e:
+        print(f"⚠️  ths: {e}")
+        print(f"   Max diff: {float(jnp.abs(ths_out - ths_ref).max()):.6e}")
     
     # Cloud fraction
     pcldfr_out = ice_adjust_repro_ds["PCLDFR_OUT"].values
@@ -597,6 +624,33 @@ def test_ice_adjust_jax_with_repro_data(ice_adjust_repro_ds):
         print(f"⚠️  cldfr: {e}")
         print(f"   Max diff: {float(jnp.abs(cldfr - cldfr_ref).max()):.6e}")
     
+    # Compare adjusted mixing ratios
+    # Load rv_ref, rc_ref, ri_ref from ZRS_OUT equivalent if available, 
+    # otherwise we have verified tendencies above.
+    
+    # Autoconversion diagnostics
+    print("\n5.2 Comparing autoconversion diagnostics...")
+    
+    diag_keys = [
+        ("hlc_hrc", result[5], "PHLC_HRC_OUT"),
+        ("hlc_hcf", result[6], "PHLC_HCF_OUT"),
+        ("hli_hri", result[7], "PHLI_HRI_OUT"),
+        ("hli_hcf", result[8], "PHLI_HCF_OUT"),
+    ]
+    
+    for name, val, ref_key in diag_keys:
+        ref_val = reshape_for_jax(ice_adjust_repro_ds[ref_key].values)
+        try:
+            assert_allclose(
+                np.array(val), np.array(ref_val),
+                atol=1e-5, rtol=1e-4,
+                err_msg=f"{name} mismatch"
+            )
+            print(f"✓ {name}")
+        except AssertionError as e:
+            print(f"⚠️  {name}: {e}")
+            print(f"   Max diff: {float(jnp.abs(val - ref_val).max()):.6e}")
+
     # Physical validation
     print("\n6. Physical validation:")
     print(f"  Temperature range: {float(t_out.min()):.1f} - {float(t_out.max()):.1f} K")

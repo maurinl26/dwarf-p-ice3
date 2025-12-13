@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
 from math import gamma, log
 from numpy.typing import NDArray
 import logging
 import numpy as np
+import cython
 
 from ice3.phyex_common.constants import Constants
 from ice3.phyex_common.incomplete_gamma import generalized_incomplete_gamma
@@ -14,7 +14,7 @@ logging.getLogger()
 
 
 # from_file="PHYEX/src/common/aux/modd_rain_ice_paramn.F90"
-@dataclass
+@cython.cclass
 class RainIceParameters:
     """
     Microphysical rate constants for ICE3/ICE4 bulk schemes.
@@ -313,166 +313,343 @@ class RainIceParameters:
     parami: IceParameters
 
     # Parameters for microphysical sources and transformations
-    FSEDC_1: float = field(init=False)  # Constants for sedimentation fluxes of C
-    FSEDC_2: float = field(init=False)
-    FSEDR: float = field(init=False)  # Constants for sedimentation
-    EXSEDR: float = field(init=False)
-    FSEDI: float = field(init=False)
-    EXCSEDI: float = field(init=False)
-    EXRSEDI: float = field(init=False)
-    FSEDS: float = field(init=False)
-    EXSEDS: float = field(init=False)
-    FSEDG: float = field(init=False)
-    EXSEDG: float = field(init=False)
+    FSEDC_1: cython.double  # Constants for sedimentation fluxes of C
+    FSEDC_2: cython.double
+    FSEDR: cython.double  # Constants for sedimentation
+    EXSEDR: cython.double
+    FSEDI: cython.double
+    EXCSEDI: cython.double
+    EXRSEDI: cython.double
+    FSEDS: cython.double
+    EXSEDS: cython.double
+    FSEDG: cython.double
+    EXSEDG: cython.double
 
     # Constants for heterogeneous ice nucleation HEN
-    NU10: float = field(init=False)
-    ALPHA1: float = 4.5
-    BETA1: float = 0.6
-    NU20: float = field(init=False)
-    ALPHA2: float = 12.96
-    BETA2: float = 0.639
-    MNU0: float = 6.88e-13  # Mass of nucleated ice crystal
+    NU10: cython.double
+    ALPHA1: cython.double
+    BETA1: cython.double
+    NU20: cython.double
+    ALPHA2: cython.double
+    BETA2: cython.double
+    MNU0: cython.double  # Mass of nucleated ice crystal
 
     # Constants for homogeneous ice nucleation HON
-    ALPHA3: float = -3.075
-    BETA3: float = 81.00356
-    HON: float = field(init=False)
+    ALPHA3: cython.double
+    BETA3: cython.double
+    HON: cython.double
 
     # Constants for raindrop and evaporation EVA
-    SCFAC: float = field(init=False)
-    O0EVAR: float = field(init=False)
-    O1EVAR: float = field(init=False)
-    EX0EVAR: float = field(init=False)
-    EX1EVAR: float = field(init=False)
-    O0DEPI: float = field(init=False)  # deposition DEP on I
-    O2DEPI: float = field(init=False)
-    O0DEPS: float = field(init=False)  # on S
-    O1DEPS: float = field(init=False)
-    EX0DEPS: float = field(init=False)
-    EX1DEPS: float = field(init=False)
-    RDEPSRED: float = field(init=False)
-    O0DEPG: float = field(init=False)  # on G
-    O1DEPG: float = field(init=False)
-    EX0DEPG: float = field(init=False)
-    EX1DEPG: float = field(init=False)
-    RDEPGRED: float = field(init=False)
+    SCFAC: cython.double
+    O0EVAR: cython.double
+    O1EVAR: cython.double
+    EX0EVAR: cython.double
+    EX1EVAR: cython.double
+    O0DEPI: cython.double  # deposition DEP on I
+    O2DEPI: cython.double
+    O0DEPS: cython.double  # on S
+    O1DEPS: cython.double
+    EX0DEPS: cython.double
+    EX1DEPS: cython.double
+    RDEPSRED: cython.double
+    O0DEPG: cython.double  # on G
+    O1DEPG: cython.double
+    EX0DEPG: cython.double
+    EX1DEPG: cython.double
+    RDEPGRED: cython.double
 
     # Constants for pristine ice autoconversion : AUT
-    TIMAUTI: float = 1e-3  # Time constant at T=T_t
-    TEXAUTI: float = 0.015
-    CRIAUTI: float = field(init=False)
-    T0CRIAUTI: float = field(init=False)
-    ACRIAUTI: float = field(init=False)
-    BCRIAUTI: float = field(init=False)
+    TIMAUTI: cython.double  # Time constant at T=T_t
+    TEXAUTI: cython.double
+    CRIAUTI: cython.double
+    T0CRIAUTI: cython.double
+    ACRIAUTI: cython.double
+    BCRIAUTI: cython.double
 
     # Constants for snow aggregation : AGG
-    COLIS: float = 0.25  # Collection efficiency of I + S
-    COLEXIS: float = 0.05  # Temperature factor of the I+S collection efficiency
-    FIAGGS: float = field(init=False)
-    EXIAGGS: float = field(init=False)
+    COLIS: cython.double  # Collection efficiency of I + S
+    COLEXIS: cython.double  # Temperature factor of the I+S collection efficiency
+    FIAGGS: cython.double
+    EXIAGGS: cython.double
 
     # Constants for cloud droplet autoconversion AUT
-    TIMAUTC: float = 1e-3
-    CRIAUTC: float = field(init=False)
+    TIMAUTC: cython.double
+    CRIAUTC: cython.double
 
     # Constants for cloud droplets accretion on raindrops : ACC
-    FCACCR: float = field(init=False)
-    EXCACCR: float = field(init=False)
+    FCACCR: cython.double
+    EXCACCR: cython.double
 
     # Constants for the riming of the aggregates : RIM
-    DCSLIM: float = 0.007
-    COLCS: float = 1.0
-    EXCRIMSS: float = field(init=False)
-    CRIMSS: float = field(init=False)
-    EXCRIMSG: float = field(init=False)
-    CRIMSG: float = field(init=False)
+    DCSLIM: cython.double
+    COLCS: cython.double
+    EXCRIMSS: cython.double
+    CRIMSS: cython.double
+    EXCRIMSG: cython.double
+    CRIMSG: cython.double
 
-    EXCRIMSG: float = field(init=False)
-    CRIMSG: float = field(init=False)
-    EXSRIMCG: float = field(init=False)
-    EXSRIMCG2: float = field(init=False)
-    SRIMCG: float = field(init=False)
-    SRIMCG2: float = field(init=False)
-    SRIMCG3: float = field(init=False)
+    EXSRIMCG: cython.double
+    EXSRIMCG2: cython.double
+    SRIMCG: cython.double
+    SRIMCG2: cython.double
+    SRIMCG3: cython.double
 
-    GAMINC_BOUND_MIN: float = field(init=False)
-    GAMINC_BOUND_MAX: float = field(init=False)
+    GAMINC_BOUND_MIN: cython.double
+    GAMINC_BOUND_MAX: cython.double
 
-    RIMINTP1: float = field(init=False)
-    RIMINTP2: float = field(init=False)
+    RIMINTP1: cython.double
+    RIMINTP2: cython.double
 
-    NGAMINC: int = field(init=False)  # Number of tab. Lbda_s
+    NGAMINC: cython.int  # Number of tab. Lbda_s
 
-    GAMINC_RIM1: NDArray = field(init=False)
-    GAMINC_RIM2: NDArray = field(init=False)
-    GAMINC_RIM4: NDArray = field(init=False)
+    GAMINC_RIM1: object  # NDArray
+    GAMINC_RIM2: object  # NDArray
+    GAMINC_RIM4: object  # NDArray
 
     # Constants for the accretion
-    FRACCSS: float = field(init=False)
-    LBRACCS1: float = field(init=False)
-    LBRACCS2: float = field(init=False)
-    LBRACCS3: float = field(init=False)
-    FSACCRG: float = field(init=False)
-    LBSACCR1: float = field(init=False)
-    LBSACCR2: float = field(init=False)
-    LBSACCR3: float = field(init=False)
-    ACCLBDAS_MIN: float = field(default=5e1)
-    ACCLBDAS_MAX: float = field(default=5e5)
-    ACCLBDAR_MIN: float = field(default=1e3)
-    ACCLBDAR_MAX: float = field(default=1e7)
-    ACCINTP1S: float = field(init=False)
-    ACCINTP2S: float = field(init=False)
-    ACCINTP1R: float = field(init=False)
-    ACCINTP2R: float = field(init=False)
+    FRACCSS: cython.double
+    LBRACCS1: cython.double
+    LBRACCS2: cython.double
+    LBRACCS3: cython.double
+    FSACCRG: cython.double
+    LBSACCR1: cython.double
+    LBSACCR2: cython.double
+    LBSACCR3: cython.double
+    ACCLBDAS_MIN: cython.double
+    ACCLBDAS_MAX: cython.double
+    ACCLBDAR_MIN: cython.double
+    ACCLBDAR_MAX: cython.double
+    ACCINTP1S: cython.double
+    ACCINTP2S: cython.double
+    ACCINTP1R: cython.double
+    ACCINTP2R: cython.double
 
     # number of values in global tables (per axis)
-    NACCLBDAS: int = field(default=40)
-    NACCLBDAR: int = field(default=40)
+    NACCLBDAS: cython.int
+    NACCLBDAR: cython.int
 
     # 7.3 Constant for the conversion-melting rate
-    FSCVMG: float = field(default=2)
+    FSCVMG: cython.double
 
     # Constants for rain contact freezing
-    COLIR: float = field(default=1.0)
-    EXRCFRI: float = field(init=False)
-    RCFRI: float = field(init=False)
-    EXICFRR: float = field(init=False)
-    ICFRR: float = field(init=False)
+    COLIR: cython.double
+    EXRCFRI: cython.double
+    RCFRI: cython.double
+    EXICFRR: cython.double
+    ICFRR: cython.double
 
     # Constants for the dry growth of the graupel : DRY
-    FCDRYG: float = field(init=False)
-    COLIG: float = field(default=0.01)
-    COLEXIG: float = field(default=0.1)
-    FIDRYG: float = field(init=False)
-    FIDRYG2: float = field(init=False)
-    EXFIDRYG: float = field(init=False)
-    COLSG: float = field(default=0.01)
-    COLEXSG: float = field(default=0.1)
-    FSDRYG: float = field(init=False)
-    LBSDRYG1: float = field(init=False)
-    LBSDRYG2: float = field(init=False)
-    LBSDRYG3: float = field(init=False)
-    FRDRYG: float = field(init=False)
-    LBRDRYG1: float = field(init=False)
-    LBRDRYG2: float = field(init=False)
-    LBRDRYG3: float = field(init=False)
-    DRYLBDAR_MIN: float = field(default=1e3)
-    DRYLBDAR_MAX: float = field(default=1e7)
-    DRYLBDAS_MIN: float = field(default=2.5e1)
-    DRYLBDAS_MAX: float = field(default=2.5e9)
-    DRYLBDAG_MIN: float = field(default=1e3)
-    DRYLBDAG_MAX: float = field(default=1e7)
-    DRYINTP1R: float = field(init=False)
-    DRYINTP2R: float = field(init=False)
-    DRYINTP1S: float = field(init=False)
-    DRYINTP2S: float = field(init=False)
-    DRYINTP1G: float = field(init=False)
-    DRYINTP2G: float = field(init=False)
+    FCDRYG: cython.double
+    COLIG: cython.double
+    COLEXIG: cython.double
+    FIDRYG: cython.double
+    FIDRYG2: cython.double
+    EXFIDRYG: cython.double
+    COLSG: cython.double
+    COLEXSG: cython.double
+    FSDRYG: cython.double
+    LBSDRYG1: cython.double
+    LBSDRYG2: cython.double
+    LBSDRYG3: cython.double
+    FRDRYG: cython.double
+    LBRDRYG1: cython.double
+    LBRDRYG2: cython.double
+    LBRDRYG3: cython.double
+    DRYLBDAR_MIN: cython.double
+    DRYLBDAR_MAX: cython.double
+    DRYLBDAS_MIN: cython.double
+    DRYLBDAS_MAX: cython.double
+    DRYLBDAG_MIN: cython.double
+    DRYLBDAG_MAX: cython.double
+    DRYINTP1R: cython.double
+    DRYINTP2R: cython.double
+    DRYINTP1S: cython.double
+    DRYINTP2S: cython.double
+    DRYINTP1G: cython.double
+    DRYINTP2G: cython.double
 
-    NDRYLBDAR: int = field(default=40)
-    NDRYLBDAS: int = field(default=80)
-    NDRYLBDAG: int = field(default=40)
+    NDRYLBDAR: cython.int
+    NDRYLBDAS: cython.int
+    NDRYLBDAG: cython.int
+
+    # Kernel arrays
+    ker_saccrg: object  # NDArray
+    ker_raccs: object  # NDArray
+    ker_raccss: object  # NDArray
+    ker_rdryg: object  # NDArray
+    ker_sdryg: object  # NDArray
+
+    def __init__(self, cst: Constants, rid: RainIceDescriptors, parami: IceParameters):
+        """Initialize RainIceParameters with dependencies."""
+        self.cst = cst
+        self.rid = rid
+        self.parami = parami
+
+        # Initialize all float attributes that will be computed
+        self.FSEDC_1 = 0.0
+        self.FSEDC_2 = 0.0
+        self.FSEDR = 0.0
+        self.EXSEDR = 0.0
+        self.FSEDI = 0.0
+        self.EXCSEDI = 0.0
+        self.EXRSEDI = 0.0
+        self.FSEDS = 0.0
+        self.EXSEDS = 0.0
+        self.FSEDG = 0.0
+        self.EXSEDG = 0.0
+
+        # Heterogeneous ice nucleation
+        self.NU10 = 0.0
+        self.ALPHA1 = 4.5
+        self.BETA1 = 0.6
+        self.NU20 = 0.0
+        self.ALPHA2 = 12.96
+        self.BETA2 = 0.639
+        self.MNU0 = 6.88e-13
+
+        # Homogeneous ice nucleation
+        self.ALPHA3 = -3.075
+        self.BETA3 = 81.00356
+        self.HON = 0.0
+
+        # Raindrop and evaporation
+        self.SCFAC = 0.0
+        self.O0EVAR = 0.0
+        self.O1EVAR = 0.0
+        self.EX0EVAR = 0.0
+        self.EX1EVAR = 0.0
+        self.O0DEPI = 0.0
+        self.O2DEPI = 0.0
+        self.O0DEPS = 0.0
+        self.O1DEPS = 0.0
+        self.EX0DEPS = 0.0
+        self.EX1DEPS = 0.0
+        self.RDEPSRED = 0.0
+        self.O0DEPG = 0.0
+        self.O1DEPG = 0.0
+        self.EX0DEPG = 0.0
+        self.EX1DEPG = 0.0
+        self.RDEPGRED = 0.0
+
+        # Pristine ice autoconversion
+        self.TIMAUTI = 1e-3
+        self.TEXAUTI = 0.015
+        self.CRIAUTI = 0.0
+        self.T0CRIAUTI = 0.0
+        self.ACRIAUTI = 0.0
+        self.BCRIAUTI = 0.0
+
+        # Snow aggregation
+        self.COLIS = 0.25
+        self.COLEXIS = 0.05
+        self.FIAGGS = 0.0
+        self.EXIAGGS = 0.0
+
+        # Cloud droplet autoconversion
+        self.TIMAUTC = 1e-3
+        self.CRIAUTC = 0.0
+
+        # Cloud droplets accretion on raindrops
+        self.FCACCR = 0.0
+        self.EXCACCR = 0.0
+
+        # Riming of the aggregates
+        self.DCSLIM = 0.007
+        self.COLCS = 1.0
+        self.EXCRIMSS = 0.0
+        self.CRIMSS = 0.0
+        self.EXCRIMSG = 0.0
+        self.CRIMSG = 0.0
+        self.EXSRIMCG = 0.0
+        self.EXSRIMCG2 = 0.0
+        self.SRIMCG = 0.0
+        self.SRIMCG2 = 0.0
+        self.SRIMCG3 = 0.0
+
+        self.GAMINC_BOUND_MIN = 0.0
+        self.GAMINC_BOUND_MAX = 0.0
+        self.RIMINTP1 = 0.0
+        self.RIMINTP2 = 0.0
+        self.NGAMINC = 0
+
+        self.GAMINC_RIM1 = None
+        self.GAMINC_RIM2 = None
+        self.GAMINC_RIM4 = None
+
+        # Accretion
+        self.FRACCSS = 0.0
+        self.LBRACCS1 = 0.0
+        self.LBRACCS2 = 0.0
+        self.LBRACCS3 = 0.0
+        self.FSACCRG = 0.0
+        self.LBSACCR1 = 0.0
+        self.LBSACCR2 = 0.0
+        self.LBSACCR3 = 0.0
+        self.ACCLBDAS_MIN = 5e1
+        self.ACCLBDAS_MAX = 5e5
+        self.ACCLBDAR_MIN = 1e3
+        self.ACCLBDAR_MAX = 1e7
+        self.ACCINTP1S = 0.0
+        self.ACCINTP2S = 0.0
+        self.ACCINTP1R = 0.0
+        self.ACCINTP2R = 0.0
+
+        self.NACCLBDAS = 40
+        self.NACCLBDAR = 40
+
+        # Conversion-melting rate
+        self.FSCVMG = 2.0
+
+        # Rain contact freezing
+        self.COLIR = 1.0
+        self.EXRCFRI = 0.0
+        self.RCFRI = 0.0
+        self.EXICFRR = 0.0
+        self.ICFRR = 0.0
+
+        # Dry growth of the graupel
+        self.FCDRYG = 0.0
+        self.COLIG = 0.01
+        self.COLEXIG = 0.1
+        self.FIDRYG = 0.0
+        self.FIDRYG2 = 0.0
+        self.EXFIDRYG = 0.0
+        self.COLSG = 0.01
+        self.COLEXSG = 0.1
+        self.FSDRYG = 0.0
+        self.LBSDRYG1 = 0.0
+        self.LBSDRYG2 = 0.0
+        self.LBSDRYG3 = 0.0
+        self.FRDRYG = 0.0
+        self.LBRDRYG1 = 0.0
+        self.LBRDRYG2 = 0.0
+        self.LBRDRYG3 = 0.0
+        self.DRYLBDAR_MIN = 1e3
+        self.DRYLBDAR_MAX = 1e7
+        self.DRYLBDAS_MIN = 2.5e1
+        self.DRYLBDAS_MAX = 2.5e9
+        self.DRYLBDAG_MIN = 1e3
+        self.DRYLBDAG_MAX = 1e7
+        self.DRYINTP1R = 0.0
+        self.DRYINTP2R = 0.0
+        self.DRYINTP1S = 0.0
+        self.DRYINTP2S = 0.0
+        self.DRYINTP1G = 0.0
+        self.DRYINTP2G = 0.0
+
+        self.NDRYLBDAR = 40
+        self.NDRYLBDAS = 80
+        self.NDRYLBDAG = 40
+
+        # Kernel arrays - will be initialized in __post_init__
+        self.ker_saccrg = None
+        self.ker_raccs = None
+        self.ker_raccss = None
+        self.ker_rdryg = None
+        self.ker_sdryg = None
+
+        # Call post_init to compute all derived values
+        self.__post_init__()
 
     def __post_init__(self):
         # 4. CONSTANTS FOR THE SEDIMENTATION
@@ -646,7 +823,7 @@ class RainIceParameters:
 
         # 5.3 Constants for pristine ice autoconversion
         self.CRIAUTI = self.parami.CRIAUTI_NAM
-        if self.parami.LCRIAUTI:
+        if self.parami.LCRIAUTI == 1:
             self.T0CRIAUTI = self.parami.T0CRIAUTI_NAM
             tcrio = -40
             crio = 1.25e-6
@@ -1022,7 +1199,7 @@ class RainIceParameters:
             raise KeyError(f"{kernel} not found in GlobalTables")
 
 
-@dataclass
+@cython.cclass
 class CloudPar:
     """Declaration of the model-n dependant Microphysic constants
 
@@ -1034,5 +1211,10 @@ class CloudPar:
 
     """
 
-    nsplitr: int
-    nsplitg: int
+    nsplitr: cython.int
+    nsplitg: cython.int
+
+    def __init__(self, nsplitr: int, nsplitg: int):
+        """Initialize CloudPar with split numbers."""
+        self.nsplitr = nsplitr
+        self.nsplitg = nsplitg

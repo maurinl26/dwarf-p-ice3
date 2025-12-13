@@ -60,11 +60,10 @@ def ice4_rimltc(
     # All ice melts above freezing
     rimltc_mr = jnp.where(mask, rit, 0.0)
     
-    # Temperature feedback limitation
-    if lfeedbackt:
-        # Limit melting to prevent T from dropping below freezing
-        # Maximum ice that can melt: (θ - TT/π) / (Ls_fact - Lv_fact)
-        max_melt = jnp.maximum(0.0, (tht - TT / exn) / (lsfact - lvfact))
-        rimltc_mr = jnp.where(mask, jnp.minimum(rimltc_mr, max_melt), 0.0)
+    # Limit melting to prevent T from dropping below freezing
+    # Maximum ice that can melt: (θ - TT/π) / (Ls_fact - Lv_fact)
+    max_melt = jnp.maximum(0.0, (tht - TT / exn) / (lsfact - lvfact))
+    rimltc_mr = jnp.where(mask & lfeedbackt, jnp.minimum(rimltc_mr, max_melt), rimltc_mr)
+    rimltc_mr = jnp.where(mask, rimltc_mr, 0.0)
     
     return rimltc_mr

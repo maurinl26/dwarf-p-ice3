@@ -11,25 +11,53 @@ The functions handle the expansion of dimensions to match GT4Py's expected 3D st
 
 import numpy as np
 import xarray as xr
+try:
+    import cupy as cp
+except ImportError:
+    cp = None
 from numpy.typing import NDArray
+from typing import Union, Any
 
-def assign(lhs: NDArray, rhs: NDArray) -> None:
-    """Assign array data from source to destination.
-    
-    Provides a unified interface for array assignment that works across both CPU
-    (NumPy) and GPU (CuPy) arrays. This function performs an in-place copy of data
-    from the right-hand side (source) to the left-hand side (destination) using
-    slice assignment, which is compatible with both NumPy and CuPy.
+
+def assign(lhs: Any, rhs: Any) -> None:
+    """Assign array data from source to destination, handling NumPy/CuPy cross-assignments
+    and memoryview objects.
     
     Args:
-        lhs (NDArray): Left-hand side array (destination storage) - modified in place
-        rhs (NDArray): Right-hand side array (source data) - not modified
-    
-    Note:
-        The destination array (lhs) must be pre-allocated and have compatible shape
-        with the source array (rhs). Broadcasting rules apply.
+        lhs: Left-hand side (destination storage) - modified in place
+        rhs: Right-hand side (source data) - not modified
     """
-    lhs[:] = rhs
+    is_rhs_cp = cp is not None and isinstance(rhs, cp.ndarray)
+    is_lhs_cp = cp is not None and isinstance(lhs, cp.ndarray)
+
+    if is_lhs_cp:
+        if is_rhs_cp:
+            lhs[:] = rhs
+        else:
+            # lhs is cupy, rhs is numpy/memoryview
+            lhs.set(np.asarray(rhs))
+    else:
+        # lhs is numpy/memoryview
+        target = np.asarray(lhs)
+        if is_rhs_cp:
+            # rhs is cupy
+            target[:] = rhs.get()
+        else:
+            # both are numpy/memoryview
+            target[:] = np.asarray(rhs)
+
+def get_allocator(backend: str) -> Any:
+    """Return the appropriate allocator (numpy or cupy) for the given backend.
+    
+    Args:
+        backend (str): GT4Py backend name
+        
+    Returns:
+        module: numpy or cupy module
+    """
+    if "gpu" in backend and cp is not None:
+        return cp
+    return np
 
 def initialize_storage_2d(storage: NDArray, buffer: NDArray) -> None:
     """Initialize GT4Py storage from 2D buffer data by adding a singleton j-dimension.
@@ -67,25 +95,26 @@ def initialize_storage_3d(storage: NDArray, buffer: NDArray) -> None:
     assign(storage, buffer[:, np.newaxis, :])
 
 
-def initialize_field(field: xr.DataArray, buffer: NDArray) -> None:
-    """Initialize an xarray DataArray field with data from a buffer.
+def initialize_field(field: Union[xr.DataArray, NDArray, Any], buffer: NDArray) -> None:
+    """Initialize a field (DataArray or array) with data from a buffer.
     
     Automatically detects whether the field is 2D or 3D and calls the appropriate
     initialization function. This provides a convenient high-level interface for
     setting up field data from external sources (e.g., NetCDF files, initial conditions).
 
     Args:
-        field (xr.DataArray): xarray DataArray with GT4Py storage in its .data attribute,
-            must be either 2D or 3D
+        field (Union[xr.DataArray, NDArray, Any]): Field to initialize. Can be xarray DataArray,
+            numpy/cupy array, or GT4Py storage.
         buffer (NDArray): Source data array to copy into the field, shape should match
             the field dimensions
-
-    Raises:
-        ValueError: If the field is neither 2D nor 3D
     """
-    if field.ndim == 2:
-        initialize_storage_2d(field.data, buffer)
-    elif field.ndim == 3:
-        initialize_storage_3d(field.data, buffer)
+    data = getattr(field, "data", field)
+    
+    if data.shape == buffer.shape:
+        assign(data, buffer)
+    elif data.ndim == 3 and buffer.ndim == 2:
+        initialize_storage_3d(data, buffer)
+    elif data.ndim == 2 and buffer.ndim == 1:
+        initialize_storage_2d(data, buffer)
     else:
-        raise ValueError("The field to initialize must be either 2-d or 3-d.")
+         assign(data, buffer) # Try direct assignment, broadcasting might work

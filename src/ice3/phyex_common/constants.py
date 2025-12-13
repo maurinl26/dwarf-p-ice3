@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
-
 import sys
 import numpy as np
+import cython
 
 
 # from_file="PHYEX/src/common/aux/modd_cst.F90"
 ######## phyex/common/aux/modd_cst.F90 ###########
-@dataclass
+@cython.cclass
 class Constants:
     """
     Physical, thermodynamic, and astronomical constants for atmospheric modeling.
@@ -185,85 +184,77 @@ class Constants:
     """
 
     # 1. Fondamental constants
-    PI: float = field(default=2 * np.arcsin(1.0))
-    KARMAN: float = field(default=0.4)
-    LIGHTSPEED: float = field(default=299792458.0)
-    PLANCK: float = field(default=6.6260775e-34)
-    BOLTZ: float = field(default=1.380658e-23)
-    AVOGADRO: float = field(default=6.0221367e23)
+    PI: cython.double
+    KARMAN: cython.double
+    LIGHTSPEED: cython.double
+    PLANCK: cython.double
+    BOLTZ: cython.double
+    AVOGADRO: cython.double
 
     # 2. Astronomical constants
-    DAY: float = field(default=86400)  # day duration
-    SIYEA: float = field(init=False)  # sideral year duration
-    SIDAY: float = field(init=False)  # sideral day duration
-    NSDAY: int = field(default=24 * 3600)  # number of seconds in a day
-    OMEGA: float = field(init=False)  # earth rotation
+    DAY: cython.double  # day duration
+    SIYEA: cython.double  # sideral year duration
+    SIDAY: cython.double  # sideral day duration
+    NSDAY: cython.int  # number of seconds in a day
+    OMEGA: cython.double  # earth rotation
 
     # 3. Terrestrial geoide constants
-    RADIUS: float = field(default=6371229)  # earth radius
-    GRAVITY0: float = field(default=9.80665)  # gravity constant
+    RADIUS: cython.double  # earth radius
+    GRAVITY0: cython.double  # gravity constant
 
     # 4. Reference pressure
-    P00OCEAN: float = field(default=201e5)  # Ref pressure for ocean model
-    RHO0OCEAN: float = field(default=1024)  # Ref density for ocean model
-    TH00OCEAN: float = field(default=286.65)  # Ref value for pot temp in ocean model
-    SA00OCEAN: float = field(default=32.6)  # Ref value for salinity in ocean model
+    P00OCEAN: cython.double  # Ref pressure for ocean model
+    RHO0OCEAN: cython.double  # Ref density for ocean model
+    TH00OCEAN: cython.double  # Ref value for pot temp in ocean model
+    SA00OCEAN: cython.double  # Ref value for salinity in ocean model
 
-    P00: float = field(default=1e5)  # Reference pressure
-    TH00: float = field(default=300)  # Ref value for potential temperature
+    P00: cython.double  # Reference pressure
+    TH00: cython.double  # Ref value for potential temperature
 
     # 5. Radiation constants
-    STEFAN: float = field(init=False)  # Stefan-Boltzman constant
-    IO: float = field(default=1370)  # Solar constant
+    STEFAN: cython.double  # Stefan-Boltzman constant
+    IO: cython.double  # Solar constant
 
     # 6. Thermodynamic constants
-    MD: float = field(default=28.9644e-3)  # Molar mass of dry air
-    MV: float = field(default=18.0153e-3)  # Molar mass of water vapour
-    RD: float = field(init=False)  # Gas constant for dry air
-    RV: float = field(init=False)  # Gas constant for vapour
-    EPSILO: float = field(init=False)  # Mv / Md
-    CPD: float = field(init=False)  # Cpd (dry air)
-    CPV: float = field(init=False)  # Cpv (vapour)
-    RHOLW: float = field(default=1000)  # Volumic mass of liquid water
-    RHOLI: float = field(default=900)  # Volumic mass of ice
-    CL: float = field(default=4.218e3)  # Cl (liquid)
-    CI: float = field(default=2.106e3)  # Ci (ice)
-    TT: float = field(default=273.16)  # triple point temperature
-    LVTT: float = field(default=2.5008e6)  # vaporisation heat constant
-    LSTT: float = field(default=2.8345e6)  # sublimation heat constant
-    LMTT: float = field(init=False)  # melting heat constant
-    ESTT: float = field(
-        default=611.24
-    )  # Saturation vapor pressure at triple point temperature
+    MD: cython.double  # Molar mass of dry air
+    MV: cython.double  # Molar mass of water vapour
+    RD: cython.double  # Gas constant for dry air
+    RV: cython.double  # Gas constant for vapour
+    EPSILO: cython.double  # Mv / Md
+    CPD: cython.double  # Cpd (dry air)
+    CPV: cython.double  # Cpv (vapour)
+    RHOLW: cython.double  # Volumic mass of liquid water
+    RHOLI: cython.double  # Volumic mass of ice
+    CL: cython.double  # Cl (liquid)
+    CI: cython.double  # Ci (ice)
+    TT: cython.double  # triple point temperature
+    LVTT: cython.double  # vaporisation heat constant
+    LSTT: cython.double  # sublimation heat constant
+    LMTT: cython.double  # melting heat constant
+    ESTT: cython.double  # Saturation vapor pressure at triple point temperature
 
-    ALPW: float = field(init=False)  # Constants for saturation vapor pressure function
-    BETAW: float = field(init=False)
-    GAMW: float = field(init=False)
+    ALPW: cython.double  # Constants for saturation vapor pressure function
+    BETAW: cython.double
+    GAMW: cython.double
 
-    ALPI: float = field(
-        init=False
-    )  # Constants for saturation vapor pressure function over solid ice
-    BETAI: float = field(init=False)
-    GAMI: float = field(init=False)
+    ALPI: cython.double  # Constants for saturation vapor pressure function over solid ice
+    BETAI: cython.double
+    GAMI: cython.double
 
-    CONDI: float = field(default=2.2)  # Thermal conductivity of ice (W m-1 K-1)
-    ALPHAOC: float = field(
-        default=1.9e-4
-    )  # Thermal expansion coefficient for ocean (K-1)
-    BETAOC: float = field(default=7.7475)  # Haline contraction coeff for ocean (S-1)
-    ROC: float = 0.69  # coeff for SW penetration in ocean (Hoecker et al)
-    D1: float = 1.1  # coeff for SW penetration in ocean (Hoecker et al)
-    D2: float = 23.0  # coeff for SW penetration in ocean (Hoecker et al)
+    CONDI: cython.double  # Thermal conductivity of ice (W m-1 K-1)
+    ALPHAOC: cython.double  # Thermal expansion coefficient for ocean (K-1)
+    BETAOC: cython.double  # Haline contraction coeff for ocean (S-1)
+    ROC: cython.double  # coeff for SW penetration in ocean (Hoecker et al)
+    D1: cython.double  # coeff for SW penetration in ocean (Hoecker et al)
+    D2: cython.double  # coeff for SW penetration in ocean (Hoecker et al)
 
     # 7. Precomputed constants
-    RD_RV: float = field(init=False)  # Rd / Rv
-    RD_CPD: float = field(init=False)  # Rd / cpd
-    INVXP00: float = field(init=False)  # 1 / p00
+    RD_RV: cython.double  # Rd / Rv
+    RD_CPD: cython.double  # Rd / cpd
+    INVXP00: cython.double  # 1 / p00
 
     # 8. Machine precision
-    MNH_TINY: float = field(
-        default=sys.float_info.epsilon
-    )  # minimum real on this machine
+    MNH_TINY: cython.double  # minimum real on this machine
     # MNH_TINY_12: float = field(default=sys.float_info.) # sqrt(minimum real on this machine)
     # MNH_EPSILON: float # minimum space with 1.0
     # MNH_HUGE: float    # minimum real on this machine
@@ -272,6 +263,60 @@ class Constants:
     # RES_FLAT_CART: float   # default     flat&cart residual tolerance
     # RES_OTHER: float   # default not flat&cart residual tolerance
     # RES_PREP: float    # default     prep      residual tolerance
+
+    def __init__(self):
+        """Initialize all constants with their default values."""
+        # 1. Fundamental constants
+        self.PI = 2 * np.arcsin(1.0)
+        self.KARMAN = 0.4
+        self.LIGHTSPEED = 299792458.0
+        self.PLANCK = 6.6260775e-34
+        self.BOLTZ = 1.380658e-23
+        self.AVOGADRO = 6.0221367e23
+
+        # 2. Astronomical constants
+        self.DAY = 86400.0
+        self.NSDAY = 24 * 3600
+
+        # 3. Terrestrial geoide constants
+        self.RADIUS = 6371229.0
+        self.GRAVITY0 = 9.80665
+
+        # 4. Reference pressure
+        self.P00OCEAN = 201e5
+        self.RHO0OCEAN = 1024.0
+        self.TH00OCEAN = 286.65
+        self.SA00OCEAN = 32.6
+        self.P00 = 1e5
+        self.TH00 = 300.0
+
+        # 5. Radiation constants
+        self.IO = 1370.0
+
+        # 6. Thermodynamic constants
+        self.MD = 28.9644e-3
+        self.MV = 18.0153e-3
+        self.RHOLW = 1000.0
+        self.RHOLI = 900.0
+        self.CL = 4.218e3
+        self.CI = 2.106e3
+        self.TT = 273.16
+        self.LVTT = 2.5008e6
+        self.LSTT = 2.8345e6
+        self.ESTT = 611.24
+
+        self.CONDI = 2.2
+        self.ALPHAOC = 1.9e-4
+        self.BETAOC = 7.7475
+        self.ROC = 0.69
+        self.D1 = 1.1
+        self.D2 = 23.0
+
+        # 8. Machine precision
+        self.MNH_TINY = sys.float_info.epsilon
+
+        # Call post_init to compute derived values
+        self.__post_init__()
 
     def __post_init__(self):
         # 2. Astronomical constants

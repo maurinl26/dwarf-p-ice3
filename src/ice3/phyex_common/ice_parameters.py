@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Literal
 
 import numpy as np
+import cython
 
 # Stands for CSUBG_MF_PDF in modd_param_icen.F90
 # Default to NONE
@@ -66,7 +66,7 @@ class Sedim(Enum):
 
 
 # from_file="PHYEX/src/common/aux/modd_param_icen.F90"
-@dataclass
+@cython.cclass
 class IceParameters:
     """
     Configuration parameters for ICE3/ICE4 microphysics schemes.
@@ -330,102 +330,153 @@ class IceParameters:
     ... )
     """
 
-    HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
+    HPROGRAM: str  # "AROME", "MESO-NH", or "LMDZ"
 
-    LWARM: bool = field(default=True)  # Formation of rain by warm processes
-    LSEDIC: bool = field(default=True)  # Enable the droplets sedimentation
-    LDEPOSC: bool = field(
-        default=False
-    )  # Enable cloud droplets deposition on vegetation
+    LWARM: cython.int  # Formation of rain by warm processes
+    LSEDIC: cython.int  # Enable the droplets sedimentation
+    LDEPOSC: cython.int  # Enable cloud droplets deposition on vegetation
 
-    VDEPOSC: float = field(default=0.02)  # Droplet deposition velocity
+    VDEPOSC: cython.double  # Droplet deposition velocity
 
-    PRISTINE_ICE: Literal["PLAT", "COLU", "BURO"] = field(
-        default="PLAT"
-    )  # Pristine ice type PLAT, COLU, or BURO
-    SEDIM: int = field(default=Sedim.SPLI.value)  # Sedimentation calculation mode
+    PRISTINE_ICE: str  # Pristine ice type PLAT, COLU, or BURO
+    SEDIM: cython.int  # Sedimentation calculation mode
 
     # To use modified ice3/ice4 - to reduce time step dependency
-    LRED: bool = field(default=True)
-    LFEEDBACKT: bool = field(default=True)
-    LEVLIMIT: bool = field(default=True)
-    LNULLWETG: bool = field(default=True)
-    LWETGPOST: bool = field(default=True)
+    LRED: cython.int
+    LFEEDBACKT: cython.int
+    LEVLIMIT: cython.int
+    LNULLWETG: cython.int
+    LWETGPOST: cython.int
 
-    SNOW_RIMING: int = field(default=SnowRiming.M90.value)
+    SNOW_RIMING: cython.int
 
-    FRAC_M90: float = field(default=0.1)
-    NMAXITER_MICRO: int = field(default=5)
-    MRSTEP: float = field(default=5e-5)
+    FRAC_M90: cython.double
+    NMAXITER_MICRO: cython.int
+    MRSTEP: cython.double
 
-    LCONVHG: bool = field(default=False)
-    LCRFLIMIT: bool = field(default=True)
+    LCONVHG: cython.int
+    LCRFLIMIT: cython.int
 
-    TSTEP_TS: float = field(default=0)
+    TSTEP_TS: cython.double
 
-    SUBG_RC_RR_ACCR: int = field(
-        default=SubgRRRCAccr.NONE.value
-    )  # subgrid rc-rr accretion
-    SUBG_RR_EVAP: int = field(default=SubgRREvap.NONE.value)  # subgrid rr evaporation
-    SUBG_PR_PDF: int = field(
-        default=SubgPRPDF.SIGM.value
-    )  # pdf for subgrid precipitation
-    SUBG_AUCV_RC: int = field(
-        default=SubgAucvRc.NONE.value
-    )  # type of subgrid rc->rr autoconv. method
-    SUBG_AUCV_RI: int = field(
-        default=SubgAucvRi.NONE.value
-    )  # type of subgrid ri->rs autoconv. method
+    SUBG_RC_RR_ACCR: cython.int  # subgrid rc-rr accretion
+    SUBG_RR_EVAP: cython.int  # subgrid rr evaporation
+    SUBG_PR_PDF: cython.int  # pdf for subgrid precipitation
+    SUBG_AUCV_RC: cython.int  # type of subgrid rc->rr autoconv. method
+    SUBG_AUCV_RI: cython.int  # type of subgrid ri->rs autoconv. method
 
     # PDF to use for MF cloud autoconversions
-    SUBG_MF_PDF: int = field(default=SubGridMassFluxPDF.TRIANGLE.value)
+    SUBG_MF_PDF: cython.int
 
     # key for adjustment before rain_ice call
-    LADJ_BEFORE: bool = field(default=True)
+    LADJ_BEFORE: cython.int
 
     # key for adjustment after rain_ice call
-    LADJ_AFTER: bool = field(default=True)
+    LADJ_AFTER: cython.int
 
     # switch to perform sedimentation
     # before (.FALSE.)
     # or after (.TRUE.) microphysics
-    LSEDIM_AFTER: bool = field(default=False)
+    LSEDIM_AFTER: cython.int
 
     # Maximum CFL number allowed for SPLIT scheme
-    SPLIT_MAXCFL: float = field(default=0.8)
+    SPLIT_MAXCFL: cython.double
 
     # Snow parameterization from Wurtz (2021)
-    LSNOW_T: bool = field(default=False)
+    LSNOW_T: cython.int
 
-    LPACK_INTERP: bool = field(default=True)
-    LPACK_MICRO: bool = field(default=True)
-    LCRIAUTI: bool = field(default=True)
+    LPACK_INTERP: cython.int
+    LPACK_MICRO: cython.int
+    LCRIAUTI: cython.int
 
-    NPROMICRO: int = field(default=0)
+    NPROMICRO: cython.int
 
-    CRIAUTI_NAM: float = field(default=0.2e-4)
-    ACRIAUTI_NAM: float = field(default=0.06)
-    BRCRIAUTI_NAM: float = field(default=-3.5)
-    T0CRIAUTI_NAM: float = field(init=False)
-    CRIAUTC_NAM: float = field(default=0.5e-3)
-    RDEPSRED_NAM: float = field(default=1)
-    RDEPGRED_NAM: float = field(default=1)
-    LCOND2: bool = field(default=False)
+    CRIAUTI_NAM: cython.double
+    ACRIAUTI_NAM: cython.double
+    BRCRIAUTI_NAM: cython.double
+    T0CRIAUTI_NAM: cython.double
+    CRIAUTC_NAM: cython.double
+    RDEPSRED_NAM: cython.double
+    RDEPGRED_NAM: cython.double
+    LCOND2: cython.int
 
     # TODO : replace frmin_nam by a global table
-    FRMIN_NAM: np.ndarray = field(init=False)
+    FRMIN_NAM: object  # numpy array
+
+    def __init__(self, HPROGRAM: str):
+        """Initialize IceParameters with default values based on model program."""
+        self.HPROGRAM = HPROGRAM
+
+        # Boolean defaults (stored as int: 0=False, 1=True)
+        self.LWARM = 1
+        self.LSEDIC = 1
+        self.LDEPOSC = 0
+
+        self.VDEPOSC = 0.02
+
+        self.PRISTINE_ICE = "PLAT"
+        self.SEDIM = Sedim.SPLI.value
+
+        self.LRED = 1
+        self.LFEEDBACKT = 1
+        self.LEVLIMIT = 1
+        self.LNULLWETG = 1
+        self.LWETGPOST = 1
+
+        self.SNOW_RIMING = SnowRiming.M90.value
+
+        self.FRAC_M90 = 0.1
+        self.NMAXITER_MICRO = 5
+        self.MRSTEP = 5e-5
+
+        self.LCONVHG = 0
+        self.LCRFLIMIT = 1
+
+        self.TSTEP_TS = 0.0
+
+        self.SUBG_RC_RR_ACCR = SubgRRRCAccr.NONE.value
+        self.SUBG_RR_EVAP = SubgRREvap.NONE.value
+        self.SUBG_PR_PDF = SubgPRPDF.SIGM.value
+        self.SUBG_AUCV_RC = SubgAucvRc.NONE.value
+        self.SUBG_AUCV_RI = SubgAucvRi.NONE.value
+        self.SUBG_MF_PDF = SubGridMassFluxPDF.TRIANGLE.value
+
+        self.LADJ_BEFORE = 1
+        self.LADJ_AFTER = 1
+        self.LSEDIM_AFTER = 0
+
+        self.SPLIT_MAXCFL = 0.8
+
+        self.LSNOW_T = 0
+
+        self.LPACK_INTERP = 1
+        self.LPACK_MICRO = 1
+        self.LCRIAUTI = 1
+
+        self.NPROMICRO = 0
+
+        self.CRIAUTI_NAM = 0.2e-4
+        self.ACRIAUTI_NAM = 0.06
+        self.BRCRIAUTI_NAM = -3.5
+        self.CRIAUTC_NAM = 0.5e-3
+        self.RDEPSRED_NAM = 1.0
+        self.RDEPGRED_NAM = 1.0
+        self.LCOND2 = 0
+
+        # Call post_init to compute derived values and apply model-specific settings
+        self.__post_init__()
 
     def __post_init__(self):
         self.T0CRIAUTI_NAM = (np.log10(self.CRIAUTI_NAM) - self.BRCRIAUTI_NAM) / 0.06
         self.set_frmin_nam()
 
         if self.HPROGRAM == "AROME":
-            self.LCONVHG = True
-            self.LADJ_BEFORE = True
-            self.LADJ_AFTER = False
-            self.LRED = False
+            self.LCONVHG = 1
+            self.LADJ_BEFORE = 1
+            self.LADJ_AFTER = 0
+            self.LRED = 0
             self.SEDIM = Sedim.STAT.value
-            self.MRSTEP = 0
+            self.MRSTEP = 0.0
             self.SUBG_AUCV_RC = SubgAucvRc.PDF.value
 
         elif self.HPROGRAM == "LMDZ":
@@ -434,11 +485,11 @@ class IceParameters:
             self.NMAXITER_MICRO = 1
             self.CRIAUTC_NAM = 0.001
             self.CRIAUTI_NAM = 0.0002
-            self.T0CRIAUTI_NAM = -5
-            self.LRED = True
-            self.LCONVHG = True
-            self.LADJ_BEFORE = True
-            self.LADJ_AFTER = True
+            self.T0CRIAUTI_NAM = -5.0
+            self.LRED = 1
+            self.LCONVHG = 1
+            self.LADJ_BEFORE = 1
+            self.LADJ_AFTER = 1
 
     def set_frmin_nam(self):
         tmp_frmin_nam = np.empty(41)

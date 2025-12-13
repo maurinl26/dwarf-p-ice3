@@ -95,121 +95,83 @@ def ice4_warm(
     rcaccr = jnp.zeros_like(rhodref)
     rrevav = jnp.zeros_like(rhodref)
     
-    if not ldsoft:
-        # ====================
-        # 1. Autoconversion
-        # ====================
-        mask_auto = ldcompute & (hlc_hrc > C_RTMIN) & (hlc_hcf > 0.0)
-        rcautr = jnp.where(
-            mask_auto,
-            TIMAUTC * jnp.maximum(0.0, hlc_hrc - hlc_hcf * CRIAUTC / rhodref),
-            0.0
+    # ====================
+    # 1. Autoconversion (Only if not ldsoft)
+    # ====================
+    mask_auto = ldcompute & (hlc_hrc > C_RTMIN) & (hlc_hcf > 0.0) & (~ldsoft)
+    rcautr = jnp.where(
+        mask_auto,
+        TIMAUTC * jnp.maximum(0.0, hlc_hrc - hlc_hcf * CRIAUTC / rhodref),
+        0.0
+    )
+    
+    # ====================
+    # 2. Accretion (Only if not ldsoft)
+    # ====================
+    mask_accr = ldcompute & (rct > C_RTMIN) & (rrt > R_RTMIN) & (~ldsoft)
+    rcaccr = jnp.where(
+        mask_accr,
+        FCACCR * rct * jnp.power(lbdar, EXCACCR) * jnp.power(rhodref, -CEXVT),
+        0.0
+    )
+    
+    # ====================
+    # 3. Evaporation (Only if not ldsoft)
+    # ====================
+    # Saturation vapor pressure over water
+    esat_w_std = jnp.exp(ALPW - BETAW / t - GAMW * jnp.log(t))
+    
+    # Thermodynamic coefficient for std
+    av_std = (
+        jnp.square(LVTT + (CPV - CL) * (t - TT)) / (ka * RV * jnp.square(t))
+        + (RV * t) / (dv * esat_w_std)
+    )
+
+    # NONE - grid-mean evaporation
+    mask_evap_none = ldcompute & (rrt > R_RTMIN) & (rct <= C_RTMIN) & (~ldsoft)
+    usw_none = 1.0 - rvt * (pres - esat_w_std) / (EPSILO * esat_w_std)
+    rrevav_none = (jnp.maximum(0.0, usw_none) / (rhodref * av_std)) * (
+        O0EVAR * jnp.power(lbdar, EX0EVAR) + 
+        O1EVAR * cj * jnp.power(lbdar, EX1EVAR)
+    )
+
+    # Liquid water potential temperature
+    thlt_tmp = tht - LVTT * tht / CPD / t * rct
+    # Unsaturated temperature (common for CLFR and PRFR)
+    zw2 = thlt_tmp * t / tht
+    esat_w_zw2 = jnp.exp(ALPW - BETAW / zw2 - GAMW * jnp.log(zw2))
+    usw_zw2 = 1.0 - rvt * (pres - esat_w_zw2) / (EPSILO * esat_w_zw2)
+    av_zw2 = (
+        jnp.square(LVTT + (CPV - CL) * (zw2 - TT)) / (ka * RV * jnp.square(zw2))
+        + RV * zw2 / (dv * esat_w_zw2)
+    )
+
+    # CLFR - cloud fraction method
+    zw4_clfr = 1.0
+    mask_evap_clfr = ldcompute & (rrt > R_RTMIN) & (zw4_clfr > cf) & (~ldsoft)
+    rrevav_clfr = (jnp.maximum(0.0, usw_zw2) / (rhodref * av_zw2)) * (
+        O0EVAR * jnp.power(lbdar, EX0EVAR) + 
+        O1EVAR * cj * jnp.power(lbdar, EX1EVAR)
+    ) * (zw4_clfr - cf)
+
+    # PRFR - precipitation fraction method
+    zw4_prfr = rf
+    mask_evap_prfr = ldcompute & (rrt > R_RTMIN) & (zw4_prfr > cf) & (~ldsoft)
+    rrevav_prfr = (jnp.maximum(0.0, usw_zw2) / (rhodref * av_zw2)) * (
+        O0EVAR * jnp.power(lbdar_rf, EX0EVAR) + 
+        O1EVAR * cj * jnp.power(lbdar_rf, EX1EVAR)
+    ) * (zw4_prfr - cf)
+
+    # Final evaporation tendency based on subg_rr_evap
+    rrevav = jnp.where(
+        subg_rr_evap == 0,
+        jnp.where(mask_evap_none, rrevav_none, 0.0),
+        jnp.where(
+            subg_rr_evap == 1,
+            jnp.where(mask_evap_clfr, rrevav_clfr, 0.0),
+            jnp.where(mask_evap_prfr, rrevav_prfr, 0.0)
         )
-        
-        # ====================
-        # 2. Accretion
-        # ====================
-        mask_accr = ldcompute & (rct > C_RTMIN) & (rrt > R_RTMIN)
-        rcaccr = jnp.where(
-            mask_accr,
-            FCACCR * rct * jnp.power(lbdar, EXCACCR) * jnp.power(rhodref, -CEXVT),
-            0.0
-        )
-        
-        # ====================
-        # 3. Evaporation
-        # ====================
-        if subg_rr_evap == 0:  # NONE - grid-mean evaporation
-            mask_evap = ldcompute & (rrt > R_RTMIN) & (rct <= C_RTMIN)
-            
-            # Saturation vapor pressure over water
-            esat_w = jnp.exp(ALPW - BETAW / t - GAMW * jnp.log(t))
-            
-            # Undersaturation
-            usw = 1.0 - rvt * (pres - esat_w) / (EPSILO * esat_w)
-            
-            # Thermodynamic coefficient
-            av = (
-                jnp.square(LVTT + (CPV - CL) * (t - TT)) / (ka * RV * jnp.square(t))
-                + (RV * t) / (dv * esat_w)
-            )
-            
-            # Evaporation rate
-            rrevav = jnp.where(
-                mask_evap,
-                (jnp.maximum(0.0, usw) / (rhodref * av)) * (
-                    O0EVAR * jnp.power(lbdar, EX0EVAR) + 
-                    O1EVAR * cj * jnp.power(lbdar, EX1EVAR)
-                ),
-                0.0
-            )
-            
-        elif subg_rr_evap == 1:  # CLFR - cloud fraction method
-            zw4 = 1.0  # precipitation fraction
-            zw3 = lbdar
-            
-            mask_evap = ldcompute & (rrt > R_RTMIN) & (zw4 > cf)
-            
-            # Liquid water potential temperature
-            thlt_tmp = tht - LVTT * tht / CPD / t * rct
-            
-            # Unsaturated temperature
-            zw2 = thlt_tmp * t / tht
-            
-            # Saturation over water (with unsaturated temp)
-            esat_w = jnp.exp(ALPW - BETAW / zw2 - GAMW * jnp.log(zw2))
-            
-            # Undersaturation
-            usw = 1.0 - rvt * (pres - esat_w) / (EPSILO * esat_w)
-            
-            # Thermodynamic coefficient
-            av = (
-                jnp.square(LVTT + (CPV - CL) * (zw2 - TT)) / (ka * RV * jnp.square(zw2))
-                + RV * zw2 / (dv * esat_w)
-            )
-            
-            # Evaporation rate in clear sky fraction
-            rrevav = jnp.where(
-                mask_evap,
-                (jnp.maximum(0.0, usw) / (rhodref * av)) * (
-                    O0EVAR * jnp.power(zw3, EX0EVAR) + 
-                    O1EVAR * cj * jnp.power(zw3, EX1EVAR)
-                ) * (zw4 - cf),
-                0.0
-            )
-            
-        elif subg_rr_evap == 2:  # PRFR - precipitation fraction method
-            zw4 = rf  # precipitation fraction
-            zw3 = lbdar_rf
-            
-            mask_evap = ldcompute & (rrt > R_RTMIN) & (zw4 > cf)
-            
-            # Liquid water potential temperature
-            thlt_tmp = tht - LVTT * tht / CPD / t * rct
-            
-            # Unsaturated temperature
-            zw2 = thlt_tmp * t / tht
-            
-            # Saturation over water (with unsaturated temp)
-            esat_w = jnp.exp(ALPW - BETAW / zw2 - GAMW * jnp.log(zw2))
-            
-            # Undersaturation
-            usw = 1.0 - rvt * (pres - esat_w) / (EPSILO * esat_w)
-            
-            # Thermodynamic coefficient
-            av = (
-                jnp.square(LVTT + (CPV - CL) * (zw2 - TT)) / (ka * RV * jnp.square(zw2))
-                + RV * zw2 / (dv * esat_w)
-            )
-            
-            # Evaporation rate in rain shaft outside cloud
-            rrevav = jnp.where(
-                mask_evap,
-                (jnp.maximum(0.0, usw) / (rhodref * av)) * (
-                    O0EVAR * jnp.power(zw3, EX0EVAR) + 
-                    O1EVAR * cj * jnp.power(zw3, EX1EVAR)
-                ) * (zw4 - cf),
-                0.0
-            )
+    )
     
     return rcautr, rcaccr, rrevav
+

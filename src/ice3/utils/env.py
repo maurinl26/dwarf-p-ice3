@@ -57,7 +57,8 @@ ALL_BACKENDS = [
     "gt:cpu_kfirst",
     "gt:gpu",
     "dace:cpu",
-    "dace:gpu"
+    "dace:gpu",
+    "jax"
 ]
 
 

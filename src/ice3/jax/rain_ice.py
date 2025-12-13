@@ -13,8 +13,8 @@ from typing import Dict, Tuple
 from functools import partial
 
 from .ice4_tendencies import Ice4TendenciesJAX
-from ..stencils.sedimentation import sedimentation_stat
-from ..stencils.ice4_correct_negativities import ice4_correct_negativities
+from .stencils.sedimentation import sedimentation_stat
+from .stencils.ice4_correct_negativities import ice4_correct_negativities
 
 
 class RainIceJAX:
@@ -36,6 +36,16 @@ class RainIceJAX:
         Args:
             constants: Dictionary of physical constants
         """
+        # Map JAX-specific constant names if needed
+        if "LBC_1" in constants and "LBC_LAND" not in constants:
+            constants["LBC_LAND"] = constants["LBC_1"]
+        if "LBC_2" in constants and "LBC_SEA" not in constants:
+            constants["LBC_SEA"] = constants["LBC_2"]
+        if "FSEDC_1" in constants and "FSEDC_LAND" not in constants:
+            constants["FSEDC_LAND"] = constants["FSEDC_1"]
+        if "FSEDC_2" in constants and "FSEDC_SEA" not in constants:
+            constants["FSEDC_SEA"] = constants["FSEDC_2"]
+            
         self.constants = constants
         self.ice4_tendencies = Ice4TendenciesJAX(constants)
         
@@ -221,14 +231,24 @@ class RainIceJAX:
         diagnostics = {}
         
         if not lsedim_after:
+            ng, nproma = state["rhodref"].shape[0], state["rhodref"].shape[1]
+            # Ensure sea and town are expanded for 3D broadcasting
+            sea_3d = state.get("sea", jnp.zeros((ng, nproma, 1)))
+            if sea_3d.ndim == 2:
+                sea_3d = sea_3d[:, :, jnp.newaxis]
+            
+            town_3d = state.get("town", jnp.zeros((ng, nproma, 1)))
+            if town_3d.ndim == 2:
+                town_3d = town_3d[:, :, jnp.newaxis]
+
             (rcs_new, rrs_new, ris_new, rss_new, rgs_new,
              fpr_c, fpr_r, fpr_i, fpr_s, fpr_g,
              inprc, inprr, inpri, inprs, inprg) = sedimentation_stat(
                 state["rhodref"], state["dzz"], state["pres"],
                 state["th_t"], state["rcs"], state["rrs"],
                 state["ris"], state["rss"], state["rgs"],
-                state.get("sea", jnp.zeros(2)),
-                state.get("town", jnp.zeros(2)),
+                sea_3d,
+                town_3d,
                 self.constants
             )
             
@@ -257,39 +277,71 @@ class RainIceJAX:
         # =============================
         # 5. Time Stepping Loop
         # =============================
+        # =============================
+        # 5. Time Stepping Loop (using lax.while_loop)
+        # =============================
         t_elapsed = jnp.zeros_like(state["th_t"])
-        iteration = 0
         
-        # Simplified time stepping (no actual loop in JAX)
-        # In practice, use jax.lax.while_loop for dynamic iteration
-        
-        while iteration < max_iterations:
-            # Compute whether to continue
-            ldcompute = t_elapsed < dt
-            
-            if not ldcompute.any():
-                break
-            
-            # Compute time step
-            delta_t, _ = self.time_step_limiter(
-                state, {}, dt, t_elapsed
-            )
+        # Initial state for while loop
+        # We need a subset of state variables that change during the loop
+        loop_state_dict = {
+            "th_t": state["th_t"],
+            "rv_t": state["rv_t"],
+            "rc_t": state["rc_t"],
+            "rr_t": state["rr_t"],
+            "ri_t": state["ri_t"],
+            "rs_t": state["rs_t"],
+            "rg_t": state["rg_t"],
+            "ci_t": state["ci_t"],
+            "t_elapsed": t_elapsed,
+            "iteration": 0,
+            "ldsoft": float(ldsoft) # Convert to float for JAX array compatibility
+        }
+
+        # Define loop condition
+        def cond_fun(loop_state):
+            # Continue if any point hasn't reached dt and we are under max_iterations
+            return (jnp.any(loop_state["t_elapsed"] < dt) & 
+                    (loop_state["iteration"] < max_iterations))
+
+        # Define loop body
+        def body_fun(loop_state):
+            # Reconstruction of partial state for tendencies
+            current_state = state.copy()
+            for k in ["th_t", "rv_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "ci_t"]:
+                current_state[k] = loop_state[k]
             
             # Compute tendencies
-            tendencies, micro_diag = self.ice4_tendencies(
-                state,
-                ldsoft=ldsoft,
+            tendencies, _ = self.ice4_tendencies(
+                current_state,
+                ldsoft=loop_state["ldsoft"] > 0.5,
                 lfeedbackt=lfeedbackt,
             )
             
-            # Update state
-            state = self.update_state(state, tendencies, delta_t)
+            # Compute time step (simplified for now)
+            curr_delta_t, _ = self.time_step_limiter(
+                current_state, tendencies, dt, loop_state["t_elapsed"]
+            )
             
-            # Update elapsed time
-            t_elapsed = t_elapsed + delta_t
+            # Update state variables
+            new_loop_state = loop_state.copy()
+            for key in ["th_t", "rv_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]:
+                tnd_key = key.replace("_t", "_tnd")
+                if tnd_key in tendencies:
+                    new_loop_state[key] = loop_state[key] + tendencies[tnd_key] * curr_delta_t
             
-            iteration += 1
-            ldsoft = True  # Enable soft mode after first iteration
+            new_loop_state["t_elapsed"] = loop_state["t_elapsed"] + curr_delta_t
+            new_loop_state["iteration"] = loop_state["iteration"] + 1
+            new_loop_state["ldsoft"] = 1.0 # Enable soft mode after first iteration
+            
+            return new_loop_state
+
+        # Execute while loop
+        final_loop_state = jax.lax.while_loop(cond_fun, body_fun, loop_state_dict)
+        
+        # Update main state with final values
+        for k in ["th_t", "rv_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t", "ci_t"]:
+            state[k] = final_loop_state[k]
         
         # =============================
         # 6. Compute Total Tendencies
@@ -323,14 +375,23 @@ class RainIceJAX:
         # 8. Sedimentation (if after)
         # =============================
         if lsedim_after:
+            ng, nproma = state["rhodref"].shape[0], state["rhodref"].shape[1]
+            sea_3d = state.get("sea", jnp.zeros((ng, nproma, 1)))
+            if sea_3d.ndim == 2:
+                sea_3d = sea_3d[:, :, jnp.newaxis]
+            
+            town_3d = state.get("town", jnp.zeros((ng, nproma, 1)))
+            if town_3d.ndim == 2:
+                town_3d = town_3d[:, :, jnp.newaxis]
+
             (rcs_new, rrs_new, ris_new, rss_new, rgs_new,
              fpr_c, fpr_r, fpr_i, fpr_s, fpr_g,
              inprc, inprr, inpri, inprs, inprg) = sedimentation_stat(
                 state["rhodref"], state["dzz"], state["pres"],
                 state["th_t"], state["rcs"], state["rrs"],
                 state["ris"], state["rss"], state["rgs"],
-                state.get("sea", jnp.zeros(2)),
-                state.get("town", jnp.zeros(2)),
+                sea_3d,
+                town_3d,
                 self.constants
             )
             
