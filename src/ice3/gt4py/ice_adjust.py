@@ -37,7 +37,7 @@ class IceAdjust:
             dtypes=dtypes,
         )
 
-        from ..stencils.ice_adjust import ice_adjust
+        from .stencils.ice_adjust import ice_adjust
 
         self.ice_adjust = compile_stencil(
             name="ice_adjust",
