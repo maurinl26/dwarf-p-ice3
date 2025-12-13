@@ -255,36 +255,25 @@ class IceAdjustFmodpy:
             phlc_hrc = phlc_hcf = phli_hri = phli_hcf = None
             phlc_hrc_mf = phlc_hcf_mf = phli_hri_mf = phli_hcf_mf = None
         
-        # Prepare derived types
-        # Note: fmodpy handles these automatically from Fortran modules
-        d = self._prepare_dimphyex(nijt, nkt)
-        cst = self._prepare_cst()
-        icep = self._prepare_rain_ice_param()
-        nebn = self._prepare_neb()
-        turbn = self._prepare_turb()
-        parami = self._prepare_param_ice()
-        buconf = self._prepare_budget_conf()
+        # Prepare derived types as ctypes structures
+        # The _fortran_module is a FortranICEADJUST instance that needs ctypes structures
+        d_struct, cst_struct, icep_struct, nebn_struct, turbn_struct, parami_struct, buconf_struct = \
+            self._fortran_module._create_structures(self.phyex, nijt, nkt)
         
         # Budget arrays (simplified - empty for now)
-        tbudgets = []  # fmodpy will handle this
+        tbudgets = []
         kbudgets = 0
-        
         hbuname = "ADJU"  # Budget name
         
         try:
-            # Call Fortran ICE_ADJUST
+            # Call Fortran ICE_ADJUST using the ctypes wrapper
             log.debug(f"Calling Fortran ICE_ADJUST: nijt={nijt}, nkt={nkt}, dt={timestep}")
             
-            # This is where fmodpy would make the actual call
-            # The exact syntax depends on how fmodpy wraps the Fortran module
-            result = self._fortran_module.ice_adjust(
-                d=d,
-                cst=cst,
-                icep=icep,
-                nebn=nebn,
-                turbn=turbn,
-                parami=parami,
-                buconf=buconf,
+            # Call the ice_adjust method with all parameters
+            # Note: The FortranICEADJUST.ice_adjust method expects keyword arguments
+            self._fortran_module.ice_adjust(
+                nijt=nijt,
+                nkt=nkt,
                 krr=krr,
                 hbuname=hbuname,
                 ptstep=timestep,
@@ -337,6 +326,14 @@ class IceAdjustFmodpy:
                 phlc_hcf_mf=phlc_hcf_mf,
                 phli_hri_mf=phli_hri_mf,
                 phli_hcf_mf=phli_hcf_mf,
+                # Pass the ctypes structures
+                d=d_struct,
+                cst=cst_struct,
+                icep=icep_struct,
+                nebn=nebn_struct,
+                turbn=turbn_struct,
+                parami=parami_struct,
+                buconf=buconf_struct,
             )
             
             log.debug("✓ Fortran ICE_ADJUST call completed")
