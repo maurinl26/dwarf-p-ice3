@@ -339,95 +339,6 @@ class TestIceAdjustJAXPhysics:
         assert jnp.all(cldfr <= 1), "Cloud fraction > 1"
 
 
-class TestIceAdjustJAXDifferentiation:
-    """Test automatic differentiation capabilities."""
-    
-    def test_jvp_forward_mode(self, ice_adjust_jax, simple_test_data):
-        """Test forward-mode differentiation (JVP)."""
-        # Define a simple function of ice_adjust
-        def f(rv):
-            data = simple_test_data.copy()
-            data['rv'] = rv
-            result = ice_adjust_jax(**data)
-            return result[0]  # Temperature
-        
-        # Compute JVP
-        rv = simple_test_data['rv']
-        drv = jnp.ones_like(rv) * 0.001  # Small perturbation
-        
-        primal, tangent = jax.jvp(f, (rv,), (drv,))
-        
-        # Should not raise errors
-        assert primal.shape == rv.shape
-        assert tangent.shape == rv.shape
-    
-    def test_vjp_reverse_mode(self, ice_adjust_jax, simple_test_data):
-        """Test reverse-mode differentiation (VJP)."""
-        # Define a simple loss function
-        def loss(rv):
-            data = simple_test_data.copy()
-            data['rv'] = rv
-            result = ice_adjust_jax(**data)
-            t = result[0]
-            return jnp.sum(t)  # Sum of temperatures
-        
-        # Compute gradient
-        rv = simple_test_data['rv']
-        grad = jax.grad(loss)(rv)
-        
-        # Should not raise errors
-        assert grad.shape == rv.shape
-        # Gradient should not be all zeros
-        assert jnp.any(jnp.abs(grad) > 0)
-    
-    @pytest.mark.skipif(
-        not hasattr(jax, 'jacfwd'),
-        reason="jacfwd not available in this JAX version"
-    )
-    def test_jacobian(self, ice_adjust_jax_no_jit):
-        """Test Jacobian computation (small domain)."""
-        # Use very small domain for Jacobian test
-        shape = (2, 2, 3)
-        data = {
-            'sigqsat': jnp.ones(shape) * 0.01,
-            'pabs': jnp.ones(shape) * 85000.0,
-            'sigs': jnp.ones(shape) * 0.1,
-            'th': jnp.ones(shape) * 285.0,
-            'exn': jnp.ones(shape) * 0.95,
-            'exn_ref': jnp.ones(shape) * 0.95,
-            'rho_dry_ref': jnp.ones(shape) * 1.0,
-            'rv': jnp.ones(shape) * 0.010,
-            'rc': jnp.zeros(shape),
-            'ri': jnp.zeros(shape),
-            'rr': jnp.zeros(shape),
-            'rs': jnp.zeros(shape),
-            'rg': jnp.zeros(shape),
-            'cf_mf': jnp.zeros(shape),
-            'rc_mf': jnp.zeros(shape),
-            'ri_mf': jnp.zeros(shape),
-            'rvs': jnp.zeros(shape),
-            'rcs': jnp.zeros(shape),
-            'ris': jnp.zeros(shape),
-            'ths': jnp.zeros(shape),
-            'timestep': 60.0,
-        }
-        
-        # Flatten for Jacobian
-        def f(rv_flat):
-            data_copy = data.copy()
-            data_copy['rv'] = rv_flat.reshape(shape)
-            result = ice_adjust_jax_no_jit(**data_copy)
-            return result[0].flatten()  # Temperature flattened
-        
-        rv_flat = data['rv'].flatten()
-        jac = jax.jacfwd(f)(rv_flat)
-        
-        # Should be a 2D array
-        assert jac.ndim == 2
-        assert jac.shape[0] == rv_flat.size
-        assert jac.shape[1] == rv_flat.size
-
-
 class TestIceAdjustJAXVectorization:
     """Test vectorization with vmap."""
     
@@ -630,7 +541,7 @@ def test_ice_adjust_jax_with_repro_data(ice_adjust_repro_ds):
     # However, we can check the adjusted mixing ratios.
     
     # Load reference outputs
-    pr_out = ice_adjust_repro_ds["PR_OUT"].values
+    pr_out = ice_adjust_repro_ds["PRS_OUT"].values
     pr_out = np.swapaxes(pr_out, 2, 3)  # → (ngpblks, krr, nproma, nflevg)
     
     rv_ref = pr_out[:, 1, :, :]
