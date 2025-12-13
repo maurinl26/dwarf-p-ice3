@@ -18,6 +18,7 @@ build-backend = 'scikit_build_core.build'
 requires = [
     'scikit-build-core>=0.10.0',
     'cmake>=3.15',
+    'cython'
 ]
 
 [project.scripts]
