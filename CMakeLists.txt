@@ -10,6 +10,17 @@ set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -march=native")
 set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/modules)
 include_directories(${CMAKE_Fortran_MODULE_DIRECTORY})
 
+# macOS specific linker flags for Python extensions
+if(APPLE)
+    # Flang driver doesn't recognize macOS linker flags directly, pass them via -Wl,
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined,dynamic_lookup")
+    
+    # Override CMake defaults for shared library creation to use -shared (standard LLVM/Clang flag)
+    set(CMAKE_SHARED_LIBRARY_CREATE_Fortran_FLAGS "-shared -Wl,-headerpad_max_install_names")
+    # Use -Xlinker to ensure the path following -install_name is treated as a linker argument, not an input file
+    set(CMAKE_SHARED_LIBRARY_SONAME_Fortran_FLAG "-Xlinker -install_name -Xlinker")
+endif()
+
 # Define PHYEX source directory
 set(PHYEX_DIR ${CMAKE_SOURCE_DIR}/PHYEX-IAL_CY50T1)
 
@@ -24,6 +35,9 @@ set(STUB_SOURCES
     ${PHYEX_DIR}/stubs/ec_parkind.F90
     ${PHYEX_DIR}/stubs/yomhook.F90
     ${PHYEX_DIR}/stubs/yomlun.F90
+    ${PHYEX_DIR}/stubs/abor1.F90
+    ${PHYEX_DIR}/stubs/fmlook_ll.F90
+    ${PHYEX_DIR}/stubs/posnam.F90
 )
 
 # ============================================================================
