@@ -81,6 +81,15 @@ set(TURB_MODD_SOURCES
 )
 
 # ============================================================================
+# CONVECTION MODULES (modd_* from conv/)
+# ============================================================================
+set(CONV_MODD_SOURCES
+    ${PHYEX_DIR}/conv/modd_convpar.F90
+    ${PHYEX_DIR}/conv/modd_convpar_shal.F90
+    ${PHYEX_DIR}/conv/modd_convparext.F90
+)
+
+# ============================================================================
 # PHYEX AGGREGATION MODULE (depends on all other modules)
 # ============================================================================
 set(PHYEX_SOURCES
@@ -196,15 +205,17 @@ set(MODI_SOURCES
     ${PHYEX_DIR}/micro/modi_ice_adjust.F90
     ${PHYEX_DIR}/micro/modi_condensation.F90
     ${PHYEX_DIR}/micro/modi_rain_ice.F90
+    ${PHYEX_DIR}/conv/modi_shallow_convection.F90
 )
 
 # ============================================================================
-# MAIN MICROPHYSICS ROUTINES (ice_adjust, rain_ice, and dependencies)
+# MAIN MICROPHYSICS AND CONVECTION ROUTINES
 # ============================================================================
 set(MAIN_SOURCES
     ${PHYEX_DIR}/micro/condensation.F90
     ${PHYEX_DIR}/micro/ice_adjust.F90
     ${PHYEX_DIR}/micro/rain_ice.F90
+    ${PHYEX_DIR}/conv/shallow_convection.F90
 )
 
 # ============================================================================
@@ -224,9 +235,10 @@ set(ALL_SOURCES
     # Level 1: Basic modules without dependencies
     ${AUX_MODD_SOURCES}
     
-    # Level 2: Microphysics and turbulence data modules
+    # Level 2: Microphysics, turbulence, and convection data modules
     ${MICRO_MODD_SOURCES}
     ${TURB_MODD_SOURCES}
+    ${CONV_MODD_SOURCES}
     
     # Level 3: PHYEX aggregation module (depends on all modd_* modules)
     ${PHYEX_SOURCES}

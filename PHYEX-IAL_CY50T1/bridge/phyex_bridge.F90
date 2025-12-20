@@ -3,15 +3,19 @@ MODULE phyex_bridge
     ! Import the original routines and required modules
     USE MODI_ICE_ADJUST, ONLY : ICE_ADJUST
     USE MODI_RAIN_ICE, ONLY : RAIN_ICE
+    USE MODI_SHALLOW_CONVECTION, ONLY : SHALLOW_CONVECTION
     USE PARKIND1, ONLY : JPIM, JPRB
     USE MODD_DIMPHYEX, ONLY : DIMPHYEX_t
     USE MODD_CST, ONLY : CST_t, CST
-    USE MODD_RAIN_ICE_PARAM_n, ONLY : RAIN_ICE_PARAM_t, RAIN_ICE_PARAMN
-    USE MODD_RAIN_ICE_DESCR_n, ONLY : RAIN_ICE_DESCR_t, RAIN_ICE_DESCRN
+    USE MODD_RAIN_ICE_PARAM_n
+    USE MODD_RAIN_ICE_DESCR_n
+    USE MODD_PARAM_ICE_n
     USE MODD_NEB_n, ONLY : NEB_t
     USE MODD_TURB_n, ONLY : TURB_t
-    USE MODD_PARAM_ICE_n, ONLY : PARAM_ICE_t
     USE MODD_BUDGET, ONLY : TBUDGETCONF_t, TBUDGETDATA_PTR
+    USE MODD_CONVPAR, ONLY : CONVPAR_t
+    USE MODD_CONVPAR_SHAL, ONLY : CONVPAR_SHAL
+    USE MODD_NSV, ONLY : NSV_t
     USE MODE_INI_CST, ONLY : INI_CST
     USE MODE_INI_RAIN_ICE, ONLY : INI_RAIN_ICE
 
@@ -213,17 +217,25 @@ CONTAINS
         REAL(C_FLOAT), VALUE, INTENT(IN) :: dzmin
         INTEGER(C_INT), VALUE, INTENT(IN) :: krr
         CHARACTER(KIND=C_CHAR), DIMENSION(4), INTENT(IN) :: hcloud
-        
+
         CHARACTER(LEN=4) :: f_hcloud
         INTEGER :: i, ksplitr
-        
+        INTEGER, PARAMETER :: KMODEL = 1  ! Model number (default: 1)
+
         DO i = 1, 4
             f_hcloud(i:i) = hcloud(i)
         END DO
-        
+
+        ! Initialize physical constants
         CALL INI_CST()
-        ! Using model 1 by default
-        CALL INI_RAIN_ICE("AROME ", 1, timestep, dzmin, ksplitr, f_hcloud)
+
+        ! Set up module pointers for model 1
+        CALL PARAM_ICE_GOTO_MODEL(0, KMODEL)
+        CALL RAIN_ICE_PARAM_GOTO_MODEL(0, KMODEL)
+        CALL RAIN_ICE_DESCR_GOTO_MODEL(0, KMODEL)
+
+        ! Initialize RAIN_ICE microphysics scheme
+        CALL INI_RAIN_ICE("AROME ", KMODEL, timestep, dzmin, ksplitr, f_hcloud)
     END SUBROUTINE c_ini_rain_ice_wrap
 
     ! C-callable wrapper for RAIN_ICE
@@ -402,5 +414,148 @@ CONTAINS
         )
 
     END SUBROUTINE c_rain_ice_wrap
+
+    ! C-callable wrapper for SHALLOW_CONVECTION
+    SUBROUTINE c_shallow_convection_wrap(                                     &
+        nlon, nlev, timestep, kice, osettadj, ptadjs,                         &
+        ptr_ppabst, ptr_pzz, ptr_ptkecls, ptr_ptt, ptr_prvt, ptr_prct,       &
+        ptr_prit, ptr_pwt, ptr_ptten, ptr_prvten, ptr_prcten, ptr_priten,    &
+        ptr_kcltop, ptr_kclbas, ptr_pumf                                      &
+    ) BIND(C, name="c_shallow_convection")
+
+        ! C-compatible arguments
+        INTEGER(C_INT), VALUE, INTENT(IN) :: nlon, nlev
+        REAL(C_FLOAT), VALUE, INTENT(IN) :: timestep
+        INTEGER(C_INT), VALUE, INTENT(IN) :: kice
+        INTEGER(C_INT), VALUE, INTENT(IN) :: osettadj  ! C doesn't have logical, use int
+        REAL(C_FLOAT), VALUE, INTENT(IN) :: ptadjs
+
+        ! C pointers for input arrays
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_ppabst       ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_pzz          ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_ptkecls      ! 1D: (nlon)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_ptt          ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_prvt         ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_prct         ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_prit         ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_pwt          ! 2D: (nlon, nlev)
+
+        ! C pointers for input/output arrays
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_ptten        ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_prvten       ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_prcten       ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_priten       ! 2D: (nlon, nlev)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_kcltop       ! 1D: (nlon)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_kclbas       ! 1D: (nlon)
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_pumf         ! 2D: (nlon, nlev)
+
+        ! Fortran pointers to map C data
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_ppabst, f_pzz
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:) :: f_ptkecls
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_ptt, f_prvt, f_prct, f_prit, f_pwt
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_ptten, f_prvten, f_prcten, f_priten
+        INTEGER(KIND=C_INT), POINTER, DIMENSION(:) :: f_kcltop, f_kclbas
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_pumf
+
+        ! Local variables for PHYEX structures
+        TYPE(DIMPHYEX_t) :: D
+        TYPE(CONVPAR_SHAL) :: CVP_SHAL
+        TYPE(CONVPAR_t) :: CONVPAR
+        TYPE(NSV_t) :: NSV
+
+        ! Local variables
+        INTEGER :: KBDIA, KTDIA, KCH1
+        LOGICAL :: f_osettadj, OCH1CONV
+        REAL(KIND=C_FLOAT), ALLOCATABLE, DIMENSION(:,:,:) :: PCH1, PCH1TEN
+
+        ! Convert C pointers to Fortran arrays
+        CALL C_F_POINTER(ptr_ppabst, f_ppabst, [nlon, nlev])
+        CALL C_F_POINTER(ptr_pzz, f_pzz, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ptkecls, f_ptkecls, [nlon])
+        CALL C_F_POINTER(ptr_ptt, f_ptt, [nlon, nlev])
+        CALL C_F_POINTER(ptr_prvt, f_prvt, [nlon, nlev])
+        CALL C_F_POINTER(ptr_prct, f_prct, [nlon, nlev])
+        CALL C_F_POINTER(ptr_prit, f_prit, [nlon, nlev])
+        CALL C_F_POINTER(ptr_pwt, f_pwt, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ptten, f_ptten, [nlon, nlev])
+        CALL C_F_POINTER(ptr_prvten, f_prvten, [nlon, nlev])
+        CALL C_F_POINTER(ptr_prcten, f_prcten, [nlon, nlev])
+        CALL C_F_POINTER(ptr_priten, f_priten, [nlon, nlev])
+        CALL C_F_POINTER(ptr_kcltop, f_kcltop, [nlon])
+        CALL C_F_POINTER(ptr_kclbas, f_kclbas, [nlon])
+        CALL C_F_POINTER(ptr_pumf, f_pumf, [nlon, nlev])
+
+        ! Convert C int to Fortran logical
+        f_osettadj = (osettadj /= 0)
+
+        ! Initialize DIMPHYEX structure
+        D%NIT = nlon
+        D%NIB = 1
+        D%NIE = nlon
+        D%NJT = 1
+        D%NJB = 1
+        D%NJE = 1
+        D%NKT = nlev
+        D%NKL = 1
+        D%NKA = 1
+        D%NKU = nlev
+        D%NKB = 1
+        D%NKE = nlev
+        D%NKTB = 1
+        D%NKTE = nlev
+        D%NIBC = 1
+        D%NJBC = 1
+        D%NIEC = nlon
+        D%NJEC = 1
+        D%NIJT = nlon
+        D%NIJB = 1
+        D%NIJE = nlon
+        D%NKLES = nlev
+        D%NLESMASK = 0
+        D%NLES_TIMES = 0
+
+        ! Initialize physical constants
+        CALL INI_CST()
+
+        ! Set vertical computation bounds
+        KBDIA = 1
+        KTDIA = 1
+
+        ! Initialize NSV structure (no scalar variables for now)
+        NSV%NSV = 0
+
+        ! Initialize CONVPAR_SHAL structure (shallow convection parameters)
+        ! These are default AROME values for shallow convection
+        CVP_SHAL%XDTPERT = 1.0E-4_C_FLOAT        ! Temperature perturbation
+        CVP_SHAL%XNHGAM = 1.3333_C_FLOAT          ! Gamma exponent for buoyancy
+        CVP_SHAL%XTFRZ1 = 268.15_C_FLOAT          ! Begin of freezing interval
+        CVP_SHAL%XTFRZ2 = 248.15_C_FLOAT          ! End of freezing interval
+        CVP_SHAL%XSTABT = 0.90_C_FLOAT            ! Stability threshold
+        CVP_SHAL%XSTABC = 0.95_C_FLOAT            ! Cloud stability threshold
+
+        ! Initialize CONVPAR structure (general convection parameters)
+        CONVPAR%XCDEPTH = 0.0_C_FLOAT             ! Cloud depth for KE dissipation
+        CONVPAR%XENTR = 0.03_C_FLOAT              ! Entrainment constant
+
+        ! Disable tracer transport
+        OCH1CONV = .FALSE.
+        KCH1 = 0
+        ALLOCATE(PCH1(nlon, nlev, 0))
+        ALLOCATE(PCH1TEN(nlon, nlev, 0))
+
+        ! Call the actual SHALLOW_CONVECTION routine
+        CALL SHALLOW_CONVECTION(                                               &
+            CVP_SHAL, CST, D, NSV, CONVPAR, KBDIA, KTDIA,                      &
+            kice, f_osettadj, ptadjs, f_ppabst, f_pzz,                         &
+            f_ptkecls, f_ptt, f_prvt, f_prct, f_prit, f_pwt,                   &
+            f_ptten, f_prvten, f_prcten, f_priten,                             &
+            f_kcltop, f_kclbas, f_pumf, OCH1CONV, KCH1,                        &
+            PCH1, PCH1TEN                                                      &
+        )
+
+        ! Cleanup
+        DEALLOCATE(PCH1, PCH1TEN)
+
+    END SUBROUTINE c_shallow_convection_wrap
 
 END MODULE phyex_bridge
