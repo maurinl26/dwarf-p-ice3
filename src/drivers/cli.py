@@ -9,13 +9,13 @@ from typing import Tuple
 import typer
 import xarray as xr
 
-from ..drivers.core import write_performance_tracking, compare_fields
-from ..ice3.components.ice_adjust import IceAdjust
-from ..ice3.gt4py.rain_ice import RainIce
-from ..ice3.initialisation.state_ice_adjust import get_state_ice_adjust
-from ..ice3.initialisation.state_rain_ice import get_state_rain_ice
-from ..ice3.phyex_common.phyex import Phyex
-from ..ice3.utils.env import ROOT_PATH
+from ice3.jax.ice_adjust import IceAdjustJAX
+from ice3.gt4py.initialisation.state_ice_adjust import get_state_ice_adjust
+from ice3.phyex_common.phyex import Phyex
+from ice3.utils.env import ROOT_PATH
+from ice3.utils.env import ALL_BACKENDS
+
+from drivers.core import write_performance_tracking, compare_fields
 
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
@@ -27,10 +27,10 @@ app = typer.Typer()
 @app.command()
 def ice_adjust(
     domain: Tuple[int, int, int] = (10000, 1, 50),
-    dataset: Path = Path(ROOT_PATH, "data", "ice_adjust.nc"),
-    output_path: Path = Path(ROOT_PATH, "data", "ice_adjust_run.nc"),
-    tracking_file: Path = Path(ROOT_PATH, "ice_adjust_run.json"),
-    backend: str = "gt:cpu_ifirst",
+    dataset: Path = Path(ROOT_PATH.parent, "data", "ice_adjust.nc"),
+    output_path: Path = Path(ROOT_PATH.parent, "data", "ice_adjust_run.nc"),
+    tracking_file: Path = Path(ROOT_PATH.parent, "ice_adjust_run.json"),
+    backend: str = "jax",
     rebuild: bool = True,
     validate_args: bool = False,
 ):
@@ -45,23 +45,126 @@ def ice_adjust(
     phyex = Phyex("AROME")
 
     ######## Instanciation + compilation #####
-    log.info(f"Compilation for IceAdjust stencils")
-    start_time = time.time()
-    ice_adjust = IceAdjust()
-    elapsed_time = time.time() - start_time
-    log.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
+    if backend in ALL_BACKENDS:
+        from ice3.gt4py.ice_adjust import IceAdjust
 
-    ####### Create state for AroAdjust #######
+        log.info(f"Compilation for IceAdjust stencils")
+        start_time = time.time()
+        ice_adjust = IceAdjust()
+        elapsed_time = time.time() - start_time
+        log.info(f"Compilation duration for IceAdjust : {elapsed_time} s")
+
+    ####### Create state for IceAdjust #######
     log.info("Getting state for IceAdjust")
     # todo : reader to dataset
     ds = xr.load_dataset(dataset)
-    state = get_state_ice_adjust(domain, backend, ds)
+
+    # Use CPU backend for state initialization if JAX to avoid compatibility issues
+    state_backend = "gt:cpu_ifirst" if backend == "jax" else backend
+    state = get_state_ice_adjust(domain, state_backend, ds)
 
     # TODO: decorator for tracking
-    start = time.time()
-    tends, diags = ice_adjust(state, dt)
-    stop = time.time()
-    elapsed_time = stop - start
+    match backend:
+        case "jax":
+            log.info("Running with JAX backend")
+            ice_adjust_jax = IceAdjustJAX(phyex=phyex, jit=True)
+            
+            # Unpack state to JAX arguments
+                # Note: using .values or trusting implicit conversion
+            args = {
+                "sigqsat": state["sigqsat"],
+                "pabs": state["pabs"],
+                "sigs": state["sigs"],
+                "th": state["th"],
+                "exn": state["exn"],
+                "exn_ref": state["exnref"],
+                "rho_dry_ref": state["rhodref"],
+                "rv": state["rv"],
+                "rc": state["rc"],
+                "ri": state["ri"],
+                "rr": state["rr"],
+                "rs": state["rs"],
+                "rg": state["rg"],
+                "cf_mf": state["cf_mf"],
+                "rc_mf": state["rc_mf"],
+                "ri_mf": state["ri_mf"],
+                "rvs": state["rvs"],
+                "rcs": state["rcs"],
+                "ris": state["ris"],
+                "ths": state["ths"],
+                "timestep": dt.total_seconds(),
+            }
+
+            start = time.time()
+            results = ice_adjust_jax(**args)
+            # Block until ready for accurate timing
+            results[0].block_until_ready()
+            stop = time.time()
+            elapsed_time = stop - start
+            log.info(f"Execution duration for IceAdjust : {elapsed_time} s")
+            # Map results back to state
+            (
+            t_out, rv_out, rc_out, ri_out, cldfr_out, 
+            hlc_hrc_out, hlc_hcf_out, hli_hri_out, hli_hcf_out, 
+            cph_out, lv_out, ls_out, 
+            rvs_out, rcs_out, ris_out, ths_out
+            ) = results
+
+            # Update state variables
+            state["th"] = t_out # Using updated T/Th
+            state["rv"] = rv_out
+            state["rc"] = rc_out
+            state["ri"] = ri_out
+            state["cldfr"] = cldfr_out
+            state["hlc_hrc"] = hlc_hrc_out
+            state["hlc_hcf"] = hlc_hcf_out
+            state["hli_hri"] = hli_hri_out
+            state["hli_hcf"] = hli_hcf_out
+            state["rvs"] = rvs_out
+            state["rcs"] = rcs_out
+            state["ris"] = ris_out
+            state["ths"] = ths_out
+        
+            elapsed_time = stop - start
+
+        case "fortran":
+            from _phyex_wrapper import ice_adjust
+
+            ice_adjust(
+                timestep=dt.total_seconds(),
+                krr=krr,
+                sigqsat=state["sigqsat"],
+                pabs=state["pabs"],
+                sigs=state["sigs"],
+                th=state["th"],
+                exn=state["exn"],
+                exn_ref=state["exnref"],
+                rho_dry_ref=state["rhodref"],
+                rv=state["rv"],
+                rc=state["rc"],
+                ri=state["ri"],
+                rr=state["rr"],
+                rs=state["rs"],
+                rg=state["rg"],
+                cf_mf=state["cf_mf"],
+                rc_mf=state["rc_mf"],
+                ri_mf=state["ri_mf"],
+                rvs=state["rvs"],
+                rcs=state["rcs"],
+                ris=state["ris"],
+                ths=state["ths"],
+                cldfr=state["cldfr"],
+                icldfr=state["icldfr"],
+                wcldfr=state["wcldfr"]
+            )
+
+        case _:
+            log.info("Running with gt4py backend")
+            start = time.time()
+            ice_adjust(state, dt)
+            stop = time.time()
+            elapsed_time = stop - start
+
     log.info(f"Execution duration for IceAdjust : {elapsed_time} s")
 
     #################### Write dataset ######################
@@ -100,6 +203,7 @@ def rain_ice(
     ######## Instanciation + compilation #####
     log.info(f"Compilation for RainIce stencils")
     start = time.time()
+    from ice3.gt4py.rain_ice import RainIce
     rain_ice = RainIce()
     stop = time.time()
     elapsed_time = stop - start
@@ -108,6 +212,7 @@ def rain_ice(
     ####### Create state for AroAdjust #######
     log.info("Getting state for RainIce")
     ds = xr.load_dataset(dataset)
+    from ice3.gt4py.initialisation.state_rain_ice import get_state_rain_ice
     state = get_state_rain_ice(domain, ds)
 
     ###### Launching RainIce #################
