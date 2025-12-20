@@ -13,14 +13,15 @@ if build_dir.exists():
             break
 
 try:
-    from ice3._phyex_wrapper import rain_ice
+    from ice3._phyex_wrapper import rain_ice, init_rain_ice
 except ImportError:
     # Fallback to local import if building in-place
     sys.path.insert(0, str(Path(__file__).parent.parent.parent / "PHYEX-IAL_CY50T1/bridge"))
     try:
-        from _phyex_wrapper import rain_ice
+        from _phyex_wrapper import rain_ice, init_rain_ice
     except ImportError:
         rain_ice = None
+        init_rain_ice = None
 
 
 def test_rain_ice_cython_with_repro_data(rain_ice_repro_ds):
@@ -31,11 +32,18 @@ def test_rain_ice_cython_with_repro_data(rain_ice_repro_ds):
     print("TEST: Cython RAIN_ICE with Reproduction Data")
     print("="*70)
     
-    if rain_ice is None:
+    if rain_ice is None or init_rain_ice is None:
         pytest.skip("Cython rain_ice wrapper not available")
 
     try:
         from numpy.testing import assert_allclose
+
+        # Initialize RAIN_ICE Fortran structures
+        timestep = float(rain_ice_repro_ds.attrs.get("PTSTEP", 50.0))
+        dzmin = 60.0  # Minimum layer thickness in meters
+        krr = 6  # Number of moist variables
+        init_rain_ice(timestep, dzmin, krr, "ICE3")
+        print(f"✓ Initialized RAIN_ICE (timestep={timestep}s, dzmin={dzmin}m, krr={krr})")
         
         # Get dataset dimensions (ngpblks, nflevg, nproma)
         shape = (
@@ -129,10 +137,9 @@ def test_rain_ice_cython_with_repro_data(rain_ice_repro_ds):
         indep = np.zeros(nijt, dtype=np.float32, order='F')
         
         print("✓ Input data loaded")
-        
+
         # Call RAIN_ICE via Cython
         print("\n2. Calling RAIN_ICE via Cython...")
-        timestep = float(rain_ice_repro_ds.attrs.get("PTSTEP", 50.0))
         print(f"   Timestep: {timestep} s")
         
         rain_ice(
