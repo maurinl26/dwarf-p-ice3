@@ -98,82 +98,81 @@ def ice4_slow(
     ri_auts_tnd = jnp.zeros_like(rhodref)
     rv_depg_tnd = jnp.zeros_like(rhodref)
     
-    if not ldsoft:
-        # =============================
-        # 1. Homogeneous Nucleation (RCHONI)
-        # =============================
-        # Cloud droplets freeze at very cold temperatures (T < -35°C)
-        mask_honi = (t < TT - 35.0) & (rct > C_RTMIN) & ldcompute
-        
-        rc_honi_tnd = jnp.where(
-            mask_honi,
-            jnp.minimum(
-                1000.0,
-                HON * rhodref * rct * jnp.exp(ALPHA3 * (t - TT) - BETA3)
-            ),
-            0.0
-        )
-        
-        # =============================
-        # 2. Vapor Deposition on Snow (RVDEPS)
-        # =============================
-        # Water vapor deposits directly onto snow crystals
-        mask_deps = (rvt > V_RTMIN) & (rst > S_RTMIN) & ldcompute
-        
-        rv_deps_tnd = jnp.where(
-            mask_deps,
-            (ssi / (rhodref * ai)) * (
-                O0DEPS * jnp.power(lbdas, EX0DEPS) +
-                O1DEPS * cj * jnp.power(lbdas, EX1DEPS)
-            ),
-            0.0
-        )
-        
-        # =============================
-        # 3. Ice Aggregation to Snow (RIAGGS)
-        # =============================
-        # Ice crystals collide and stick to form snow
-        mask_aggs = (rit > I_RTMIN) & (rst > S_RTMIN) & ldcompute
-        
-        ri_aggs_tnd = jnp.where(
-            mask_aggs,
-            FIAGGS * jnp.exp(COLEXIS * (t - TT)) * rit * 
-            jnp.power(lbdas, EXIAGGS) * jnp.power(rhodref, -CEXVT),
-            0.0
-        )
-        
-        # =============================
-        # 4. Ice Autoconversion to Snow (RIAUTS)
-        # =============================
-        # Ice crystals grow large enough to become snow
-        mask_auts = (hli_hri > I_RTMIN) & ldcompute
-        
-        # Temperature-dependent threshold
-        criauti_tmp = jnp.minimum(
-            CRIAUTI,
-            jnp.power(10.0, ACRIAUTI * (t - TT) + BCRIAUTI)
-        )
-        
-        ri_auts_tnd = jnp.where(
-            mask_auts,
-            TIMAUTI * jnp.exp(TEXAUTI * (t - TT)) * 
-            jnp.maximum(0.0, hli_hri - criauti_tmp * hli_hcf),
-            0.0
-        )
-        
-        # =============================
-        # 5. Vapor Deposition on Graupel (RVDEPG)
-        # =============================
-        # Water vapor deposits onto graupel
-        mask_depg = (rvt > V_RTMIN) & (rgt > G_RTMIN) & ldcompute
-        
-        rv_depg_tnd = jnp.where(
-            mask_depg,
-            (ssi / (rhodref * ai)) * (
-                O0DEPG * jnp.power(lbdag, EX0DEPG) +
-                O1DEPG * cj * jnp.power(lbdag, EX1DEPG)
-            ),
-            0.0
-        )
+    # =============================
+    # 1. Homogeneous Nucleation (RCHONI)
+    # =============================
+    # Cloud droplets freeze at very cold temperatures (T < -35°C)
+    mask_honi = (t < TT - 35.0) & (rct > C_RTMIN) & ldcompute & (~ldsoft)
+    
+    rc_honi_tnd = jnp.where(
+        mask_honi,
+        jnp.minimum(
+            1000.0,
+            HON * rhodref * rct * jnp.exp(ALPHA3 * (t - TT) - BETA3)
+        ),
+        0.0
+    )
+    
+    # =============================
+    # 2. Vapor Deposition on Snow (RVDEPS)
+    # =============================
+    # Water vapor deposits directly onto snow crystals
+    mask_deps = (rvt > V_RTMIN) & (rst > S_RTMIN) & ldcompute & (~ldsoft)
+    
+    rv_deps_tnd = jnp.where(
+        mask_deps,
+        (ssi / (rhodref * ai)) * (
+            O0DEPS * jnp.power(lbdas, EX0DEPS) +
+            O1DEPS * cj * jnp.power(lbdas, EX1DEPS)
+        ),
+        0.0
+    )
+    
+    # =============================
+    # 3. Ice Aggregation to Snow (RIAGGS)
+    # =============================
+    # Ice crystals collide and stick to form snow
+    mask_aggs = (rit > I_RTMIN) & (rst > S_RTMIN) & ldcompute & (~ldsoft)
+    
+    ri_aggs_tnd = jnp.where(
+        mask_aggs,
+        FIAGGS * jnp.exp(COLEXIS * (t - TT)) * rit * 
+        jnp.power(lbdas, EXIAGGS) * jnp.power(rhodref, -CEXVT),
+        0.0
+    )
+    
+    # =============================
+    # 4. Ice Autoconversion to Snow (RIAUTS)
+    # =============================
+    # Ice crystals grow large enough to become snow
+    mask_auts = (hli_hri > I_RTMIN) & ldcompute & (~ldsoft)
+    
+    # Temperature-dependent threshold
+    criauti_tmp = jnp.minimum(
+        CRIAUTI,
+        jnp.power(10.0, ACRIAUTI * (t - TT) + BCRIAUTI)
+    )
+    
+    ri_auts_tnd = jnp.where(
+        mask_auts,
+        TIMAUTI * jnp.exp(TEXAUTI * (t - TT)) * 
+        jnp.maximum(0.0, hli_hri - criauti_tmp * hli_hcf),
+        0.0
+    )
+    
+    # =============================
+    # 5. Vapor Deposition on Graupel (RVDEPG)
+    # =============================
+    # Water vapor deposits onto graupel
+    mask_depg = (rvt > V_RTMIN) & (rgt > G_RTMIN) & ldcompute & (~ldsoft)
+    
+    rv_depg_tnd = jnp.where(
+        mask_depg,
+        (ssi / (rhodref * ai)) * (
+            O0DEPG * jnp.power(lbdag, EX0DEPG) +
+            O1DEPG * cj * jnp.power(lbdag, EX1DEPG)
+        ),
+        0.0
+    )
     
     return rc_honi_tnd, rv_deps_tnd, ri_aggs_tnd, ri_auts_tnd, rv_depg_tnd

@@ -21,8 +21,8 @@ import numpy as np
 import xarray as xr
 from gt4py.storage import zeros
 
-from ..utils.allocate_state import initialize_field
-from ..utils.env import DTYPES, BACKEND
+from ...utils.allocate_state import initialize_field
+from ...utils.env import DTYPES, BACKEND
 
 # Mapping between Python field names and Fortran variable names
 KEYS = {

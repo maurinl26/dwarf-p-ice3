@@ -6,13 +6,14 @@ MODULE phyex_bridge
     USE PARKIND1, ONLY : JPIM, JPRB
     USE MODD_DIMPHYEX, ONLY : DIMPHYEX_t
     USE MODD_CST, ONLY : CST_t, CST
-    USE MODD_RAIN_ICE_PARAM_n, ONLY : RAIN_ICE_PARAM_t
-    USE MODD_RAIN_ICE_DESCR_n, ONLY : RAIN_ICE_DESCR_t
+    USE MODD_RAIN_ICE_PARAM_n, ONLY : RAIN_ICE_PARAM_t, RAIN_ICE_PARAMN
+    USE MODD_RAIN_ICE_DESCR_n, ONLY : RAIN_ICE_DESCR_t, RAIN_ICE_DESCRN
     USE MODD_NEB_n, ONLY : NEB_t
     USE MODD_TURB_n, ONLY : TURB_t
     USE MODD_PARAM_ICE_n, ONLY : PARAM_ICE_t
     USE MODD_BUDGET, ONLY : TBUDGETCONF_t, TBUDGETDATA_PTR
     USE MODE_INI_CST, ONLY : INI_CST
+    USE MODE_INI_RAIN_ICE, ONLY : INI_RAIN_ICE
 
     IMPLICIT NONE
 
@@ -152,12 +153,6 @@ CONTAINS
         PARAMI%CSUBG_MF_PDF = 'NONE'  ! No mass flux PDF
         PARAMI%LOCND2 = .FALSE.       ! OCND2 option
         
-        ! Initialize TURBN (turbulence parameters)
-        ! Set minimal required fields
-        
-        ! Initialize ICEP (rain/ice parameters)
-        ! Set minimal required fields
-        
         ! Initialize budget configuration (disable budgets)
         BUCONF%LBUDGET_TH = .FALSE.
         BUCONF%LBUDGET_RV = .FALSE.
@@ -211,6 +206,25 @@ CONTAINS
         DEALLOCATE(PSSIO, PSSIU, PIFR, PSRCS)
 
     END SUBROUTINE c_ice_adjust_wrap
+
+    ! C-callable initialization for RAIN_ICE
+    SUBROUTINE c_ini_rain_ice_wrap(timestep, dzmin, krr, hcloud) BIND(C, name="c_ini_rain_ice")
+        REAL(C_FLOAT), VALUE, INTENT(IN) :: timestep
+        REAL(C_FLOAT), VALUE, INTENT(IN) :: dzmin
+        INTEGER(C_INT), VALUE, INTENT(IN) :: krr
+        CHARACTER(KIND=C_CHAR), DIMENSION(4), INTENT(IN) :: hcloud
+        
+        CHARACTER(LEN=4) :: f_hcloud
+        INTEGER :: i, ksplitr
+        
+        DO i = 1, 4
+            f_hcloud(i:i) = hcloud(i)
+        END DO
+        
+        CALL INI_CST()
+        ! Using model 1 by default
+        CALL INI_RAIN_ICE("AROME ", 1, timestep, dzmin, ksplitr, f_hcloud)
+    END SUBROUTINE c_ini_rain_ice_wrap
 
     ! C-callable wrapper for RAIN_ICE
     SUBROUTINE c_rain_ice_wrap(                                            &
@@ -269,15 +283,13 @@ CONTAINS
         REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_evap3d, f_rainfr
         REAL(KIND=C_FLOAT), POINTER, DIMENSION(:) :: f_inprc, f_inprr
         REAL(KIND=C_FLOAT), POINTER, DIMENSION(:) :: f_inprs, f_inprg, f_indep
-        
+
         ! Local variables for PHYEX structures
         TYPE(DIMPHYEX_t) :: D
-        TYPE(RAIN_ICE_PARAM_t) :: ICEP
-        TYPE(RAIN_ICE_DESCR_t) :: ICED
         TYPE(PARAM_ICE_t) :: PARAMI
         TYPE(TBUDGETCONF_t) :: BUCONF
         TYPE(TBUDGETDATA_PTR), DIMENSION(0) :: TBUDGETS
-        
+
         ! Convert C pointers to Fortran arrays
         CALL C_F_POINTER(ptr_exn, f_exn, [nlon, nlev])
         CALL C_F_POINTER(ptr_dzz, f_dzz, [nlon, nlev])
@@ -377,7 +389,7 @@ CONTAINS
         
         ! Call the actual RAIN_ICE routine
         CALL RAIN_ICE(                                                     &
-            D, CST, PARAMI, ICEP, ICED, BUCONF,                            &
+            D, CST, PARAMI, RAIN_ICE_PARAMN, RAIN_ICE_DESCRN, BUCONF,      &
             timestep, krr, f_exn,                                          &
             f_dzz, f_rhodj, f_rhodref, f_exnref, f_pabs, f_cit, f_cldfr,   &
             f_icldfr, f_ssio, f_ssiu, f_ifr,                               &

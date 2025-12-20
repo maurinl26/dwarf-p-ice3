@@ -9,6 +9,35 @@ import xarray as xr
 
 log = logging.getLogger(__name__)
 
+class NetCDFReader:
+    """Simple wrapper around xarray to read NetCDF fields."""
+    def __init__(self, path: Path):
+        self.path = path
+        self.ds = xr.open_dataset(path)
+    
+    def get_field(self, name: str) -> np.ndarray:
+        """Get values of a variable from the dataset with consistent dimensions."""
+        if name in self.ds:
+            var = self.ds[name]
+            # Standard output layout: (ngpblks, nproma, nflevg)
+            # Reference layout: (ngpblks, nflevg, nproma) or (ngpblks, krr, nflevg, nproma)
+            
+            target_dims_3d = ("ngpblks", "nproma", "nflevg")
+            target_dims_4d = ("ngpblks", "krr", "nproma", "nflevg")
+            target_dims_4d_alt = ("ngpblks", "krr1", "nproma", "nflevg")
+            
+            if var.ndim == 3:
+                if "nproma" in var.dims and "nflevg" in var.dims:
+                    return var.transpose("ngpblks", "nproma", "nflevg").values
+            elif var.ndim == 4:
+                if "krr" in var.dims:
+                    return var.transpose("ngpblks", "krr", "nproma", "nflevg").values
+                elif "krr1" in var.dims:
+                    return var.transpose("ngpblks", "krr1", "nproma", "nflevg").values
+                    
+            return var.values
+        raise KeyError(f"Variable {name} not found in {self.path}")
+
 def write_performance_tracking(
     exec_info: Dict[str, float], metrics: Dict[str, float], tracking_file: Path
 ):
@@ -20,8 +49,21 @@ def write_performance_tracking(
     """
 
     log.info(f"Extracting exec tracking to {tracking_file}")
+    
+    def convert_to_float(obj):
+        if isinstance(obj, dict):
+            return {k: convert_to_float(v) for k, v in obj.items()}
+        elif hasattr(obj, "item"): # handles numpy scalars
+            return obj.item()
+        elif isinstance(obj, list):
+            return [convert_to_float(v) for v in obj]
+        return obj
+
     with open(tracking_file, "w") as file:
-        json.dump({"performances": exec_info, "metrics": metrics}, file)
+        json.dump({
+            "performances": convert_to_float(exec_info), 
+            "metrics": convert_to_float(metrics)
+        }, file, indent=2)
 
 
 def write_dataset(state: xr.Dataset, output_path: Path):
@@ -60,7 +102,7 @@ def compare_fields(
         ("hlc_hcf", "PHLC_HCF_OUT"),
         ("hlc_hrc", "PHLC_HRC_OUT"),
         ("cldfr", "PCLDFR_OUT"),
-        ("ths", "PRS_OUT"),
+        ("ths", "PTHS"),  # PTHS is usually separate for ice_adjust
         ("rvs", "PRS_OUT"),
         ("rcs", "PRS_OUT"),
         ("ris", "PRS_OUT"),
@@ -93,14 +135,20 @@ def compare_fields(
             run_field = run_reader.get_field(run_name)
 
             if component == "ice_adjust":
-                # ths is in the tendencies
-                ref_field = ref_reader.get_field(ref_name)[
-                    :, :, tendencies.index(run_name)
-                ]
+                if run_name == "ths":
+                    ref_field = ref_reader.get_field(ref_name)
+                else:
+                    # species index for PRS_OUT in ice_adjust (size 6): v=0, c=1, r=2, i=3, s=4, g=5
+                    # tendencies list: ["ths", "rvs", "rcs", "rrs", "ris", "rss", "rgs"]
+                    # so rvs (index 1) -> PRS_OUT index 0
+                    ref_field = ref_reader.get_field(ref_name)[
+                        :, tendencies.index(run_name) - 1, :, :
+                    ]
             elif component == "rain_ice":
-                # ths is not in the tendencies
+                # rain_ice might have ths in PRS_OUT? check mapping.
+                # If ths is not in PRS_OUT, then index - 1 is correct for v, c, etc.
                 ref_field = ref_reader.get_field(ref_name)[
-                    :, :, tendencies.index(run_name) - 1
+                    :, tendencies.index(run_name) - 1, :, :
                 ]
         else:
             run_field = run_reader.get_field(run_name)

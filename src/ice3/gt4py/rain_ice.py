@@ -56,20 +56,20 @@ class RainIce:
             externals=externals
         )
 
-        from ..stencils.ice4_compute_pdf import ice4_compute_pdf
-        from ..stencils.ice4_correct_negativities import \
+        from .stencils.ice4_compute_pdf import ice4_compute_pdf
+        from .stencils.ice4_correct_negativities import \
             ice4_correct_negativities
-        from ..stencils.ice4_tendencies import ice4_total_tendencies_update
-        from ..stencils.precipitation_fraction_liquid_content import \
+        from .stencils.ice4_tendencies import ice4_total_tendencies_update
+        from .stencils.precipitation_fraction_liquid_content import \
             ice4_precipitation_fraction_liquid_content
-        from ..stencils.rain_ice import (fog_deposition,
+        from .stencils.rain_ice import (fog_deposition,
                                          ice4_precipitation_fraction_sigma,
                                          ice4_rainfr_vert,
                                          initial_values_saving, rain_ice_mask,
                                          rain_ice_thermo,
                                          rain_ice_total_tendencies,
                                          rain_fraction_sedimentation)
-        from ..stencils.sedimentation import (sedimentation_stat,
+        from .stencils.sedimentation import (sedimentation_stat,
                                               upwind_sedimentation)
 
         # List of stencils to compile
@@ -155,7 +155,7 @@ class RainIce:
         ######################### Stepping ##################################
         #####################################################################
         # Stencil collections
-        from ..stencils.ice4_stepping import (external_tendencies_update,
+        from .stencils.ice4_stepping import (external_tendencies_update,
                                               ice4_mixing_ratio_step_limiter,
                                               ice4_step_limiter,
                                               ice4_stepping_heat,

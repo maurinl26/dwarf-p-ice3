@@ -15,22 +15,22 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from functools import partial
-from typing import Literal, Tuple
+from typing import Any, Literal, Tuple
 
 import numpy as np
 import xarray as xr
+import logging
 from xarray.core.dataarray import DataArray
-from gt4py.storage import zeros
 
-from ..utils.allocate_state import initialize_field
-from ..utils.env import DTYPES, BACKEND
+from ...utils.allocate_state import initialize_field, get_allocator
+from ...utils.env import DTYPES, BACKEND
 
 KEYS = {
     "exnref": "PEXNREF",
     "dzz": "PDZZ",
     "rhodj": "PRHODJ",
     "rhodref": "PRHODREF",
-    "pabs_t": "PPABSM",
+    "pres": "PPABSM",
     "ci_t": "PCIT",
     "cldfr": "PCLDFR",
     "hlc_hrc": "PHLC_HRC",
@@ -38,10 +38,18 @@ KEYS = {
     "hli_hri": "PHLI_HRI",
     "hli_hcf": "PHLI_HCF",
     "th_t": "PTHT",
+    "rv_t": "PRT",
+    "rc_t": "PRT",
+    "rr_t": "PRT",
+    "ri_t": "PRT",
+    "rs_t": "PRT",
+    "rg_t": "PRT",
     "ths": "PTHS",
+    "rvs": "PRS",
     "rcs": "PRS",
     "rrs": "PRS",
     "ris": "PRS",
+    "rss": "PRS",
     "rgs": "PRS",
     "sigs": "PSIGS",
     "sea": "PSEA",
@@ -52,7 +60,13 @@ KEYS = {
     "inprg": "PINPRG_OUT",
     "fpr": "PFPR_OUT",
     "rainfr": "ZRAINFR_OUT",
+    "rainfr": "ZRAINFR_OUT",
     "indep": "ZINDEP_OUT",
+    "fpr_c": "PFPR_OUT",
+    "fpr_r": "PFPR_OUT",
+    "fpr_i": "PFPR_OUT",
+    "fpr_s": "PFPR_OUT",
+    "fpr_g": "PFPR_OUT",
 }
 
 KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
@@ -61,8 +75,8 @@ KRR_MAPPING = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
 def allocate_state_rain_ice(
     domain: Tuple[int, 3],
     backend: str = BACKEND,
-    dtypes: str = DTYPES
-) -> xr.Dataset:
+    dtypes: dict = DTYPES
+) -> dict[str, Any]:
     """Allocate GT4Py storage for all RAIN_ICE state variables and tendencies.
     
     Creates zero-initialized GT4Py storage fields for all atmospheric state variables
@@ -90,21 +104,19 @@ def allocate_state_rain_ice(
             - Surface types: sea, town (optional masks)
     """
 
-    def _allocate(
-        shape: Tuple[int, ...],
-        backend: str,
-        dtype: Literal["bool", "float", "int"],
-    ) -> xr.DataArray:
-        return zeros(
-            shape,
-            dtypes[dtype],
-            backend,
-            aligned_index=(0, 0, 0)
-        )
+    allocator = get_allocator(backend)
 
-    allocate_b_ij = partial[DataArray](_allocate, shape=domain[0:2], dtype="bool")
-    allocate_f = partial[DataArray](_allocate, shape=domain,  dtype="float")
-    allocate_h = partial[DataArray](_allocate, shape=(
+    def _allocate(
+        domain: Tuple[int, ...] = None,
+        dtype: Literal["bool", "float", "int"] = "float",
+        **kwargs
+    ) -> Any:
+        shape = domain or kwargs.get("shape") or kwargs.get("grid_id")
+        return allocator.zeros(shape, dtype=dtypes[dtype])
+
+    allocate_b_ij = partial[DataArray](_allocate, domain=domain[0:2], dtype="bool")
+    allocate_f = partial[DataArray](_allocate, domain=domain,  dtype="float")
+    allocate_h = partial[DataArray](_allocate, domain=(
         domain[0],
         domain[1],
         domain[2] + 1
@@ -120,7 +132,7 @@ def allocate_state_rain_ice(
         "t": allocate_f(),
         "rhodj": allocate_f(),
         "rhodref": allocate_f(),
-        "pabs_t": allocate_f(),
+        "pres": allocate_f(),
         "exnref": allocate_f(),
         "ci_t": allocate_f(),
         "cldfr": allocate_f(),
@@ -168,11 +180,11 @@ def allocate_state_rain_ice(
 
 
 def get_state_rain_ice(
-    domain: Tuple[int, 3],
-    ds: xr.Dataset,
-    *,
-    backend: str,
-) -> xr.Dataset:
+    domain: Tuple[int, int, int],
+    dataset: xr.Dataset = None,
+    backend: str = BACKEND,
+    dtypes: dict = DTYPES,
+) -> Dict[str, Any]:
     """Create and initialize a RAIN_ICE state from reference data.
     
     This is a convenience function that allocates all required storage fields and
@@ -182,21 +194,23 @@ def get_state_rain_ice(
 
     Args:
         domain (Tuple[int, int, int]): 3D domain shape as (ni, nj, nk)
-        ds (xr.Dataset): xarray Dataset containing reference data with Fortran
+        dataset (xr.Dataset): xarray Dataset containing reference data with Fortran
             naming conventions (e.g., PEXNREF, PRHODREF, PRS, etc.)
         backend (str): GT4Py backend name (e.g., "gt:cpu_ifirst", "gt:gpu")
+        dtypes (Dict[str, type]): Dictionary mapping type names to numpy dtypes
 
     Returns:
-        xr.Dataset: Dictionary of initialized GT4Py storage fields ready for use
+        Dict[str, Any]: Dictionary of initialized GT4Py storage fields ready for use
             in RAIN_ICE computations
     """
-    state = allocate_state_rain_ice(domain, backend)
-    initialize_state_rain_ice(state, ds)
+    state = allocate_state_rain_ice(domain, backend, dtypes)
+    if dataset is not None:
+        initialize_state_rain_ice(state, dataset)
     return state
 
 
 def initialize_state_rain_ice(
-    state: xr.Dataset,
+    state: Dict[str, Any],
     dataset: xr.Dataset,
 ) -> None:
     """Initialize RAIN_ICE state fields from a reference dataset.
@@ -208,30 +222,54 @@ def initialize_state_rain_ice(
     Special handling is provided for:
     - Mixing ratio arrays (PRS, ZRS) which require indexing into the hydrometeor dimension
       using KRR_MAPPING to extract the correct species
+    - Array axis swapping to match GT4Py's expected memory layout: (ngpblks, nproma, nflevg)
 
     Args:
-        state (xr.Dataset): Pre-allocated dictionary of GT4Py storage fields to populate
+        state (Dict[str, Any]): Pre-allocated dictionary of GT4Py storage fields to populate
         dataset (xr.Dataset): xarray Dataset containing source data with Fortran variable
-            names. Must contain arrays like PEXNREF, PRHODREF, PTHT, PRS (tendencies), etc.
+            names.
     
     Side Effects:
         Modifies state dictionary in-place by copying data from dataset into storage fields
-    
-    Note:
-        This function does not perform array transposition as the reference data is
-        already in the expected memory layout.
     """
     for name, FORTRAN_NAME in KEYS.items():
-        if FORTRAN_NAME is None:
+        if FORTRAN_NAME not in dataset:
+            logging.warning(f"Field {FORTRAN_NAME} for {name} missing from dataset")
             continue
             
-        match FORTRAN_NAME:
-            case "ZRS":
-                buffer = dataset[FORTRAN_NAME].values[:, :, KRR_MAPPING[name[-1]]]
-            case "PRS":
-                buffer = dataset[FORTRAN_NAME].values[:, :, KRR_MAPPING[name[-2]]]
-            case _:
-                buffer = dataset[FORTRAN_NAME].values
-
-        logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
-        initialize_field(state[name], buffer)
+        buffer = dataset[FORTRAN_NAME].values
+        
+        # Determine how to handle the dataset buffer based on its dimensionality
+        if buffer.ndim == 4:
+            # 4D fields (ngpblks, krr, nflevg, nproma)
+            # Map name to species index
+            idx = 0
+            if name.endswith("_t") or name.endswith("_mf") or name.startswith("fpr_"):
+                char = name[-3] if name.endswith("_t") else name[-1]
+                idx = KRR_MAPPING.get(char, 0)
+            elif name.endswith("s"): # Tendencies like rvs, rcs
+                char = name[-2]
+                idx = KRR_MAPPING.get(char, 0)
+            
+            # Slice and transpose: (ng, krr, nz, np) -> (ng, nz, np) -> (ng, np, nz)
+            buffer = buffer[:, idx, :, :]
+            buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+            
+        elif buffer.ndim == 3:
+            # 3D fields (ngpblks, nflevg, nproma)
+            # Swap to (ngpblks, nproma, nflevg)
+            buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+            
+        elif buffer.ndim == 2:
+            # 2D fields (ngpblks, nproma)
+            # Expand to (ngpblks, nproma, 1) for vertical broadcasting
+            buffer = buffer[:, :, np.newaxis]
+            
+        logging.info(f"Initialized {name} from {FORTRAN_NAME} (shape: {buffer.shape})")
+        
+        try:
+            initialize_field(state[name], buffer)
+        except Exception as e:
+            logging.error(f"Failed to initialize {name} form {FORTRAN_NAME}: {e}")
+            logging.error(f"  Destination shape: {state[name].shape}, Source shape: {buffer.shape}")
+            raise

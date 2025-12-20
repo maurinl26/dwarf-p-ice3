@@ -59,11 +59,10 @@ def ice4_rrhong(
     # All rain freezes below -35°C
     rrhong_mr = jnp.where(mask, rrt, 0.0)
     
-    # Temperature feedback limitation
-    if lfeedbackt:
-        # Limit freezing to prevent T from rising above -35°C
-        # Maximum rain that can freeze: ((TT-35)/π - θ) / (Ls_fact - Lv_fact)
-        max_freeze = jnp.maximum(0.0, ((TT - 35.0) / exn - tht) / (lsfact - lvfact))
-        rrhong_mr = jnp.where(mask, jnp.minimum(rrhong_mr, max_freeze), 0.0)
+    # Limit freezing to prevent T from rising above -35°C
+    # Maximum rain that can freeze: ((TT-35)/π - θ) / (Ls_fact - Lv_fact)
+    max_freeze = jnp.maximum(0.0, ((TT - 35.0) / exn - tht) / (lsfact - lvfact))
+    rrhong_mr = jnp.where(mask & lfeedbackt, jnp.minimum(rrhong_mr, max_freeze), rrhong_mr)
+    rrhong_mr = jnp.where(mask, rrhong_mr, 0.0)
     
     return rrhong_mr

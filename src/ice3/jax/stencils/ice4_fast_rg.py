@@ -68,30 +68,40 @@ def rain_contact_freezing(
     # Compute mask
     mask = (prit > I_RTMIN) & (prrt > R_RTMIN) & ldcompute
     
-    if not ldsoft:
-        # RICFRRG - pristine ice collection by rain → graupel
-        pricfrrg = jnp.where(
-            mask,
-            ICFRR * prit * jnp.power(plbdar, EXICFRR) * jnp.power(prhodref, -CEXVT),
-            0.0
-        )
-        
-        # RRCFRIG - rain freezing by contact with pristine ice
-        prrcfrig = jnp.where(
-            mask,
-            RCFRI * pcit * jnp.power(plbdar, EXRCFRI) * jnp.power(prhodref, -CEXVT - 1.0),
-            0.0
-        )
-        
-        if lcrflimit:
-            # Heat balance limitation
-            zzw_denominator = jnp.maximum(1.0e-20, LVTT * prrcfrig)
-            zzw_ratio = (pricfrrg * CI + prrcfrig * CL) * (TT - pt) / zzw_denominator
-            zzw_prop = jnp.clip(zzw_ratio, 0.0, 1.0)
-            
-            prrcfrig = jnp.where(mask, zzw_prop * prrcfrig, 0.0)
-            pricfrr = jnp.where(mask, (1.0 - zzw_prop) * pricfrrg, 0.0)
-            pricfrrg = jnp.where(mask, zzw_prop * pricfrrg, 0.0)
+    # RICFRRG - pristine ice collection by rain → graupel
+    pricfrrg_val = ICFRR * prit * jnp.power(plbdar, EXICFRR) * jnp.power(prhodref, -CEXVT)
+    
+    # RRCFRIG - rain freezing by contact with pristine ice
+    prrcfrig_val = RCFRI * pcit * jnp.power(plbdar, EXRCFRI) * jnp.power(prhodref, -CEXVT - 1.0)
+    
+    # Heat balance limitation
+    zzw_denominator = jnp.maximum(1.0e-20, LVTT * prrcfrig_val)
+    zzw_ratio = (pricfrrg_val * CI + prrcfrig_val * CL) * (TT - pt) / zzw_denominator
+    zzw_prop = jnp.clip(zzw_ratio, 0.0, 1.0)
+    
+    # Selection based on lcrflimit (using jnp.where for tracer compatibility)
+    prrcfrig_lim = prrcfrig_val * zzw_prop
+    pricfrr_lim = (1.0 - zzw_prop) * pricfrrg_val
+    pricfrrg_lim = pricfrrg_val * zzw_prop
+    
+    # Apply ldsoft and lcrflimit
+    mask_active = mask & (~ldsoft)
+    
+    pricfrrg = jnp.where(
+        mask_active,
+        jnp.where(lcrflimit, pricfrrg_lim, pricfrrg_val),
+        0.0
+    )
+    prrcfrig = jnp.where(
+        mask_active,
+        jnp.where(lcrflimit, prrcfrig_lim, prrcfrig_val),
+        0.0
+    )
+    pricfrr = jnp.where(
+        mask_active & lcrflimit,
+        pricfrr_lim,
+        0.0
+    )
     
     return pricfrrg, prrcfrig, pricfrr
 
@@ -137,33 +147,20 @@ def cloud_pristine_collection_graupel(
     DG = constants["DG"]
     CEXVT = constants["CEXVT"]
     
-    # Initialize outputs
-    rcdryg_tend = jnp.zeros_like(prhodref)
-    ridryg_tend = jnp.zeros_like(prhodref)
-    riwetg_tend = jnp.zeros_like(prhodref)
+    # Cloud droplet collection
+    mask_cloud = (prgt > G_RTMIN) & (prct > C_RTMIN) & ldcompute & (~ldsoft)
+    base_cloud = jnp.power(plbdag, CXG - DG - 2.0) * jnp.power(prhodref, -CEXVT)
+    rcdryg_tend = jnp.where(mask_cloud, FCDRYG * prct * base_cloud, 0.0)
     
-    if not ldsoft:
-        # Cloud droplet collection
-        mask_cloud = (prgt > G_RTMIN) & (prct > C_RTMIN) & ldcompute
-        base_cloud = jnp.power(plbdag, CXG - DG - 2.0) * jnp.power(prhodref, -CEXVT)
-        rcdryg_tend = jnp.where(mask_cloud, FCDRYG * prct * base_cloud, 0.0)
-        
-        # Pristine ice collection
-        mask_ice = (prgt > G_RTMIN) & (prit > I_RTMIN) & ldcompute
-        base_ice = jnp.power(plbdag, CXG - DG - 2.0) * jnp.power(prhodref, -CEXVT)
-        exp_term = jnp.exp(COLEXIG * (pt - TT))
-        
-        ridryg_tend = jnp.where(
-            mask_ice,
-            FIDRYG * exp_term * prit * base_ice,
-            0.0
-        )
-        
-        riwetg_tend = jnp.where(
-            mask_ice,
-            ridryg_tend / (COLIG * exp_term),
-            0.0
-        )
+    # Pristine ice collection
+    mask_ice = (prgt > G_RTMIN) & (prit > I_RTMIN) & ldcompute & (~ldsoft)
+    base_ice = jnp.power(plbdag, CXG - DG - 2.0) * jnp.power(prhodref, -CEXVT)
+    exp_term = jnp.exp(COLEXIG * (pt - TT))
+    
+    ridryg_tend_val = FIDRYG * exp_term * prit * base_ice
+    ridryg_tend = jnp.where(mask_ice, ridryg_tend_val, 0.0)
+    
+    riwetg_tend = jnp.where(mask_ice, ridryg_tend_val / (COLIG * exp_term), 0.0)
     
     return rcdryg_tend, ridryg_tend, riwetg_tend
 
@@ -226,36 +223,31 @@ def graupel_melting(
     EX0DEPG = constants["EX0DEPG"]
     EX1DEPG = constants["EX1DEPG"]
     
-    # Initialize output
-    prgmltr = jnp.zeros_like(prhodref)
-    
     # Compute mask
-    mask = (prgt > G_RTMIN) & (pt > TT) & ldcompute
+    mask = (prgt > G_RTMIN) & (pt > TT) & ldcompute & (~ldsoft)
     
-    if not ldsoft:
-        # Compute vapor pressure
-        prs_ev = prvt * ppres / (EPSILO + prvt)
-        
-        # Apply saturation limit if requested
-        if levlimit:
-            prs_ev_sat = jnp.exp(ALPW - BETAW / pt - GAMW * jnp.log(pt))
-            prs_ev = jnp.minimum(prs_ev, prs_ev_sat)
-        
-        # Compute melting rate
-        zzw_temp = pka * (TT - pt) + pdv * (
-            LVTT + (CPV - CL) * (pt - TT)
-        ) * (ESTT - prs_ev) / (RV * pt)
-        
-        prgmltr = jnp.maximum(
-            0.0,
-            (
-                -zzw_temp
-                * (O0DEPG * jnp.power(plbdag, EX0DEPG) + O1DEPG * pcj * jnp.power(plbdag, EX1DEPG))
-                - (rcdryg_tend + rrdryg_tend) * (prhodref * CL * (TT - pt))
-            )
-            / (prhodref * LMTT)
+    # Compute vapor pressure
+    prs_ev_std = prvt * ppres / (EPSILO + prvt)
+    prs_ev_sat = jnp.exp(ALPW - BETAW / pt - GAMW * jnp.log(pt))
+    prs_ev = jnp.where(levlimit, jnp.minimum(prs_ev_std, prs_ev_sat), prs_ev_std)
+    
+    # Compute melting rate
+    zzw_temp = pka * (TT - pt) + pdv * (
+        LVTT + (CPV - CL) * (pt - TT)
+    ) * (ESTT - prs_ev) / (RV * pt)
+    
+    prgmltr_val = jnp.maximum(
+        0.0,
+        (
+            -zzw_temp
+            * (O0DEPG * jnp.power(plbdag, EX0DEPG) + O1DEPG * pcj * jnp.power(plbdag, EX1DEPG))
+            - (rcdryg_tend + rrdryg_tend) * (prhodref * CL * (TT - pt))
         )
-        
-        prgmltr = jnp.where(mask, prgmltr, 0.0)
+        / (prhodref * LMTT)
+    )
+    
+    prgmltr = jnp.where(mask, prgmltr_val, 0.0)
+    
+    return prgmltr
     
     return prgmltr

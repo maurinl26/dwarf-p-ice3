@@ -15,7 +15,7 @@ from ..phyex_common.phyex import Phyex
 from ..phyex_common.xker_raccs import KER_RACCS, KER_RACCSS, KER_SACCRG
 from ..phyex_common.xker_rdryg import KER_RDRYG
 from ..phyex_common.xker_sdryg import KER_SDRYG
-from ..stencils.ice4_compute_pdf import ice4_compute_pdf
+from .stencils.ice4_compute_pdf import ice4_compute_pdf
 from ..utils.env import DTYPES, BACKEND
 from ..utils.storage import managed_temporaries
 
@@ -52,19 +52,19 @@ class Ice4Tendencies:
         self.gaminc_rim4 = phyex.rain_ice_param.GAMINC_RIM4
 
         # Tendencies
-        from ..stencils.ice4_nucleation import ice4_nucleation
-        from ..stencils.ice4_tendencies import (
+        from .stencils.ice4_nucleation import ice4_nucleation
+        from .stencils.ice4_tendencies import (
             ice4_nucleation_post_processing, ice4_rrhong_post_processing, ice4_rimltc_post_processing,
             ice4_slope_parameters, ice4_fast_rg_pre_post_processing, ice4_total_tendencies_update,
             ice4_increment_update, ice4_derived_fields
         )
-        from ..stencils.ice4_rrhong import ice4_rrhong
-        from ..stencils.ice4_rimltc import ice4_rimltc
-        from ..stencils.ice4_slow import ice4_slow
-        from ..stencils.ice4_warm import ice4_warm
-        from ..stencils.ice4_fast_rs import ice4_fast_rs
-        from ..stencils.ice4_fast_ri import ice4_fast_ri
-        from ..stencils.ice4_fast_rg import ice4_fast_rg
+        from .stencils.ice4_rrhong import ice4_rrhong
+        from .stencils.ice4_rimltc import ice4_rimltc
+        from .stencils.ice4_slow import ice4_slow
+        from .stencils.ice4_warm import ice4_warm
+        from .stencils.ice4_fast_rs import ice4_fast_rs
+        from .stencils.ice4_fast_ri import ice4_fast_ri
+        from .stencils.ice4_fast_rg import ice4_fast_rg
 
         self.ice4_nucleation = compile_stencil(
             name="ice4_nucleation",

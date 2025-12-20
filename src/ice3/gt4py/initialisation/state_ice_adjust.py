@@ -13,15 +13,13 @@ from __future__ import annotations
 import logging
 from datetime import datetime
 from functools import partial
-from typing import Literal, Tuple, Dict
+from typing import Literal, Tuple, Dict, Any
 from xarray.core.dataarray import DataArray
 
 
 import numpy as np
 import xarray as xr
-from gt4py.storage import zeros
-
-from ...utils.allocate_state import initialize_field
+from ...utils.allocate_state import initialize_field, get_allocator
 from ...utils.env import DTYPES, BACKEND
 
 KEYS = {
@@ -41,21 +39,20 @@ KEYS = {
     "rs": "ZRS",
     "rg": "ZRS",
     "cldfr": "PCLDFR_OUT",
-    "sigqsat": None,
+    "sigqsat": "ZSIGQSAT",
     "ifr": None,
     "hlc_hrc": "PHLC_HRC_OUT",
     "hlc_hcf": "PHLC_HCF_OUT",
     "hli_hri": "PHLI_HRI_OUT",
     "hli_hcf": "PHLI_HCF_OUT",
-    "sigrc": None,
-    "ths": "PRS",
+    "sigrc": "PSRCS",
+    "ths": "PTHS",
     "rcs": "PRS",
     "rrs": "PRS",
     "ris": "PRS",
     "rss": "PRS",
     "rvs": "PRS",
     "rgs": "PRS",
-    "ths": "PTHS",
 }
 
 KRR_MAPPING = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
@@ -102,7 +99,7 @@ def allocate_state_ice_adjust(
         domain: Tuple[int, ...],
         backend: str = BACKEND,
         dtypes: dict = DTYPES
-) -> xr.Dataset:
+) -> Dict[str, Any]:
     """Allocate GT4Py storage for all ICE_ADJUST state variables and tendencies.
     
     Creates zero-initialized GT4Py storage fields for all atmospheric state variables
@@ -126,15 +123,13 @@ def allocate_state_ice_adjust(
             - Subgrid parameters: hlc_hrc, hlc_hcf, hli_hri, hli_hcf, etc.
     """
 
+    allocator = get_allocator(backend)
+
     def _allocate(
         domain: Tuple[int, ...],
         dtype: Literal["bool", "float", "int"],
-    ) -> xr.DataArray:
-
-        # todo : replace allocate data array by zeros
-        return zeros(
-            domain, backend=backend, dtype=dtypes[dtype], aligned_index=(0,0,0)
-        )
+    ) -> Any:
+        return allocator.zeros(domain, dtype=dtypes[dtype])
 
     allocate_b_ij = partial[DataArray](_allocate, domain=domain[0:2], dtype="bool")
     allocate_f = partial[DataArray](_allocate, domain=domain, dtype="float")
@@ -164,8 +159,6 @@ def allocate_state_ice_adjust(
         "ri": allocate_f(),
         "rs": allocate_f(),
         "rg": allocate_f(),
-        "th_t": allocate_f(),
-        "sigqsat": allocate_f(),
         "cldfr": allocate_f(),
         "ifr": allocate_f(),
         "hlc_hrc": allocate_f(),
@@ -186,10 +179,10 @@ def allocate_state_ice_adjust(
 
 def get_state_ice_adjust(
     domain: Tuple[int, ...],
-    *,
-    backend: str,
-    dataset: xr.Dataset,    
-) -> xr.Dataset:
+    backend: str = BACKEND,
+    dataset: xr.Dataset = None,
+    dtypes: dict = DTYPES,
+) -> Dict[str, Any]:
     """Create and initialize an ICE_ADJUST state from reference data.
     
     This is a convenience function that allocates all required storage fields and
@@ -202,19 +195,21 @@ def get_state_ice_adjust(
         backend (str): GT4Py backend name (e.g., "gt:cpu_ifirst", "gt:gpu")
         dataset (xr.Dataset): xarray Dataset containing reference data with Fortran
             naming conventions (e.g., PEXNREF, PRHODREF, ZRS, PRS, etc.)
+        dtypes (Dict[str, type]): Dictionary mapping type names to numpy dtypes
 
     Returns:
-        xr.Dataset: Dictionary of initialized GT4Py storage fields ready for use
+        Dict[str, Any]: Dictionary of initialized GT4Py storage fields ready for use
             in ICE_ADJUST computations
     """
-    state = allocate_state_ice_adjust(domain, BACKEND, DTYPES)
-    initialize_state_ice_adjust(state, dataset)
+    state = allocate_state_ice_adjust(domain, backend, dtypes)
+    if dataset is not None:
+        initialize_state_ice_adjust(state, dataset)
 
     return state
 
 
 def initialize_state_ice_adjust(
-    state: xr.Dataset,
+    state: Dict[str, Any],
     dataset: xr.Dataset,
 ) -> None:
     """Initialize ICE_ADJUST state fields from a reference dataset.
@@ -226,35 +221,46 @@ def initialize_state_ice_adjust(
     
     Special handling is provided for:
     - Mixing ratio arrays (PRS, ZRS) which require indexing into the hydrometeor dimension
-    - Array axis swapping to match GT4Py's expected memory layout
+    - Array axis swapping to match GT4Py's expected memory layout: (ngpblks, nproma, nflevg)
 
     Args:
-        state (xr.Dataset): Pre-allocated dictionary of GT4Py storage fields to populate
+        state (Dict[str, Any]): Pre-allocated dictionary of GT4Py storage fields to populate
         dataset (xr.Dataset): xarray Dataset containing source data with Fortran variable
-            names. Must contain arrays like PEXNREF, PRHODREF, ZRS (mixing ratios),
-            PRS (tendencies), etc.
+            names.
     
     Side Effects:
         Modifies state dictionary in-place by copying data from dataset into storage fields
     """
 
     for name, FORTRAN_NAME in KEYS.items():
+        if FORTRAN_NAME is None:
+            continue
+            
         match FORTRAN_NAME:
             case "PRS":
-                buffer = dataset[FORTRAN_NAME].values[:,:,KRR_MAPPING[name[-2]]]
-                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
-                buffer = np.swapaxes(buffer, axis1=2, axis2=3)
+                # PRS shape is (ngpblks, krr, nflevg, nproma)
+                # krr indices for PRS: 0=v, 1=c, 2=r, 3=i, 4=s, 5=g
+                mapping_prs = {"v": 0, "c": 1, "r": 2, "i": 3, "s": 4, "g": 5}
+                buffer = dataset[FORTRAN_NAME].values[:, mapping_prs[name[1]], :, :]
+                # buffer shape after slice: (ngpblks, nflevg, nproma)
+                # Swap to (ngpblks, nproma, nflevg)
                 buffer = np.swapaxes(buffer, axis1=1, axis2=2)
             case "ZRS":
-                buffer = dataset[FORTRAN_NAME].values[:,:,KRR_MAPPING[name[-1]]]
-                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
-                buffer = np.swapaxes(buffer, axis1=2, axis2=3)
+                # ZRS shape is (ngpblks, krr, nflevg, nproma)
+                # krr indices for ZRS: 0=th, 1=v, 2=c, 3=r, 4=i, 5=s, 6=g
+                mapping_zrs = {"h": 0, "v": 1, "c": 2, "r": 3, "i": 4, "s": 5, "g": 6}
+                key_char = 'h' if name == "th" else name[1]
+                buffer = dataset[FORTRAN_NAME].values[:, mapping_zrs[key_char], :, :]
+                # Swap to (ngpblks, nproma, nflevg)
                 buffer = np.swapaxes(buffer, axis1=1, axis2=2)
             case _:
                 buffer = dataset[FORTRAN_NAME].values
-                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
-                buffer = np.swapaxes(buffer, axis1=2, axis2=3)
-                buffer = np.swapaxes(buffer, axis1=1, axis2=2)
+                # If 2D (ngpblks, nproma), expand to (ngpblks, nproma, 1) for vertical broadcasting
+                if buffer.ndim == 2:
+                    buffer = buffer[:, :, np.newaxis]
+                # If 3D (ngpblks, nflevg, nproma), swap to (ngpblks, nproma, nflevg)
+                elif buffer.ndim == 3:
+                    buffer = np.swapaxes(buffer, axis1=1, axis2=2)
    
         logging.info(f"name = {name}, buffer.shape = {buffer.shape}")
         initialize_field(state[name], buffer)

@@ -82,43 +82,39 @@ def compute_freezing_rate(
     freez2_tend = jnp.zeros_like(prhodref)
     
     # Compute mask
-    mask = (prst > S_RTMIN) & ldcompute
+    mask = (prst > S_RTMIN) & ldcompute & (~ldsoft)
     
-    if not ldsoft:
-        # Compute vapor pressure
-        prs_ev = prvt * ppres / (EPSILO + prvt)
-        
-        # Apply saturation limit if requested
-        if levlimit:
-            prs_ev_sat = jnp.exp(ALPI - BETAI / pt - GAMI * jnp.log(pt))
-            prs_ev = jnp.minimum(prs_ev, prs_ev_sat)
-        
-        # Compute first freezing term (vapor deposition)
-        zzw_temp = pka * (TT - pt) + (
-            pdv * (LVTT + (CPV - CL) * (pt - TT)) * (ESTT - prs_ev) / (RV * pt)
-        )
-        
-        freez1_tend = (
-            zzw_temp
-            * (O0DEPS * jnp.power(plbdas, EX0DEPS) + O1DEPS * pcj * jnp.power(plbdas, EX1DEPS))
-            / (prhodref * (LMTT - CL * (TT - pt)))
-        )
-        
-        # Compute second freezing term (heat capacity factor)
-        freez2_tend = (prhodref * (LMTT + (CI - CL) * (TT - pt))) / (
-            prhodref * (LMTT - CL * (TT - pt))
-        )
-        
-        # Compute total freezing rate
-        zfreez_rate = jnp.maximum(
-            0.0,
-            jnp.maximum(0.0, freez1_tend + freez2_tend * priaggs) - priaggs
-        )
-        
-        # Apply mask
-        freez1_tend = jnp.where(mask, freez1_tend, 0.0)
-        freez2_tend = jnp.where(mask, freez2_tend, 0.0)
-        zfreez_rate = jnp.where(mask, zfreez_rate, 0.0)
+    # Compute vapor pressure
+    prs_ev_std = prvt * ppres / (EPSILO + prvt)
+    prs_ev_sat = jnp.exp(ALPI - BETAI / pt - GAMI * jnp.log(pt))
+    prs_ev = jnp.where(levlimit, jnp.minimum(prs_ev_std, prs_ev_sat), prs_ev_std)
+    
+    # Compute first freezing term (vapor deposition)
+    zzw_temp = pka * (TT - pt) + (
+        pdv * (LVTT + (CPV - CL) * (pt - TT)) * (ESTT - prs_ev) / (RV * pt)
+    )
+    
+    freez1_tend_val = (
+        zzw_temp
+        * (O0DEPS * jnp.power(plbdas, EX0DEPS) + O1DEPS * pcj * jnp.power(plbdas, EX1DEPS))
+        / (prhodref * (LMTT - CL * (TT - pt)))
+    )
+    
+    # Compute second freezing term (heat capacity factor)
+    freez2_tend_val = (prhodref * (LMTT + (CI - CL) * (TT - pt))) / (
+        prhodref * (LMTT - CL * (TT - pt))
+    )
+    
+    # Compute total freezing rate
+    zfreez_rate_val = jnp.maximum(
+        0.0,
+        jnp.maximum(0.0, freez1_tend_val + freez2_tend_val * priaggs) - priaggs
+    )
+    
+    # Apply mask
+    freez1_tend = jnp.where(mask, freez1_tend_val, 0.0)
+    freez2_tend = jnp.where(mask, freez2_tend_val, 0.0)
+    zfreez_rate = jnp.where(mask, zfreez_rate_val, 0.0)
     
     return zfreez_rate, freez1_tend, freez2_tend
 
@@ -182,43 +178,36 @@ def conversion_melting_snow(
     EX1DEPS = constants["EX1DEPS"]
     FSCVMG = constants["FSCVMG"]
     
-    # Initialize outputs
-    prsmltg = jnp.zeros_like(prhodref)
-    prcmltsr = jnp.zeros_like(prhodref)
-    
     # Compute mask
-    mask = (prst > S_RTMIN) & (pt > TT) & ldcompute
+    mask = (prst > S_RTMIN) & (pt > TT) & ldcompute & (~ldsoft)
     
-    if not ldsoft:
-        # Compute vapor pressure
-        prs_ev = prvt * ppres / (EPSILO + prvt)
-        
-        # Apply saturation limit if requested
-        if levlimit:
-            prs_ev_sat = jnp.exp(ALPW - BETAW / pt - GAMW * jnp.log(pt))
-            prs_ev = jnp.minimum(prs_ev, prs_ev_sat)
-        
-        # Compute melting term
-        zzw_temp = pka * (TT - pt) + (
-            pdv * (LVTT + (CPV - CL) * (pt - TT)) * (ESTT - prs_ev) / (RV * pt)
+    # Compute vapor pressure
+    prs_ev_std = prvt * ppres / (EPSILO + prvt)
+    prs_ev_sat = jnp.exp(ALPW - BETAW / pt - GAMW * jnp.log(pt))
+    prs_ev = jnp.where(levlimit, jnp.minimum(prs_ev_std, prs_ev_sat), prs_ev_std)
+    
+    # Compute melting term
+    zzw_temp = pka * (TT - pt) + (
+        pdv * (LVTT + (CPV - CL) * (pt - TT)) * (ESTT - prs_ev) / (RV * pt)
+    )
+    
+    # Compute RSMLT
+    prsmltg_val = FSCVMG * jnp.maximum(
+        0.0,
+        (
+            -zzw_temp
+            * (O0DEPS * jnp.power(plbdas, EX0DEPS) + O1DEPS * pcj * jnp.power(plbdas, EX1DEPS))
+            - (rcrims_tend + rraccs_tend) * (prhodref * CL * (TT - pt))
         )
-        
-        # Compute RSMLT
-        prsmltg = FSCVMG * jnp.maximum(
-            0.0,
-            (
-                -zzw_temp
-                * (O0DEPS * jnp.power(plbdas, EX0DEPS) + O1DEPS * pcj * jnp.power(plbdas, EX1DEPS))
-                - (rcrims_tend + rraccs_tend) * (prhodref * CL * (TT - pt))
-            )
-            / (prhodref * LMTT)
-        )
-        
-        # Collection rate (both species liquid, no heat exchange)
-        prcmltsr = rcrims_tend
-        
-        # Apply mask
-        prsmltg = jnp.where(mask, prsmltg, 0.0)
-        prcmltsr = jnp.where(mask, prcmltsr, 0.0)
+        / (prhodref * LMTT)
+    )
+    
+    # Collection rate (both species liquid, no heat exchange)
+    prcmltsr_val = rcrims_tend
+    
+    # Apply mask
+    prsmltg = jnp.where(mask, prsmltg_val, 0.0)
+    prcmltsr = jnp.where(mask, prcmltsr_val, 0.0)
     
     return prsmltg, prcmltsr
+

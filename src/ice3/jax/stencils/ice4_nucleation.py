@@ -135,19 +135,16 @@ def ice4_nucleation(
     rvheni_mr = jnp.where(mask, jnp.minimum(rvt, rvheni_mr), 0.0)
     
     # Temperature feedback limitation
-    if lfeedbackt:
-        # Limit to prevent T > TT
-        w1 = jnp.where(
-            mask,
-            jnp.minimum(
-                rvheni_mr,
-                jnp.maximum(0.0, (TT / exn - tht)) / lsfact
-            ) / jnp.maximum(rvheni_mr, 1e-20),
-            1.0
-        )
-        
-        rvheni_mr = rvheni_mr * w1
-        zw_nucl = zw_nucl * w1
+    # Limit to prevent T > TT
+    w1_feed = jnp.minimum(
+        rvheni_mr,
+        jnp.maximum(0.0, (TT / exn - tht)) / lsfact
+    ) / jnp.maximum(rvheni_mr, 1e-20)
+    
+    w1 = jnp.where(lfeedbackt, w1_feed, 1.0)
+    
+    rvheni_mr = jnp.where(mask, rvheni_mr * w1, 0.0)
+    zw_nucl = zw_nucl * w1
     
     # Update ice crystal concentration
     cit_new = jnp.where(

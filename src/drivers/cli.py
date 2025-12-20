@@ -6,9 +6,11 @@ import time
 from pathlib import Path
 from typing import Tuple
 
+import numpy as np
 import typer
 import xarray as xr
 
+import jax.numpy as jnp
 from ice3.jax.ice_adjust import IceAdjustJAX
 from ice3.gt4py.initialisation.state_ice_adjust import get_state_ice_adjust
 from ice3.phyex_common.phyex import Phyex
@@ -24,7 +26,7 @@ log = logging.getLogger(__name__)
 app = typer.Typer()
 
 ######################## GT4Py drivers #######################
-@app.command()
+@app.command(name="ice-adjust")
 def ice_adjust(
     domain: Tuple[int, int, int] = (10000, 1, 50),
     dataset: Path = Path(ROOT_PATH.parent, "data", "ice_adjust.nc"),
@@ -45,7 +47,8 @@ def ice_adjust(
     phyex = Phyex("AROME")
 
     ######## Instanciation + compilation #####
-    if backend in ALL_BACKENDS:
+    ice_adjust = None
+    if backend in ALL_BACKENDS and backend != "jax":
         from ice3.gt4py.ice_adjust import IceAdjust
 
         log.info(f"Compilation for IceAdjust stencils")
@@ -56,11 +59,17 @@ def ice_adjust(
 
     ####### Create state for IceAdjust #######
     log.info("Getting state for IceAdjust")
-    # todo : reader to dataset
     ds = xr.load_dataset(dataset)
+    
+    # Infer domain from dataset if possible
+    if "ngpblks" in ds.sizes and "nproma" in ds.sizes and "nflevg" in ds.sizes:
+        inferred_domain = (ds.sizes["ngpblks"], ds.sizes["nproma"], ds.sizes["nflevg"])
+        if inferred_domain != domain:
+            log.info(f"Inferred domain {inferred_domain} from dataset, overriding user domain {domain}")
+            domain = inferred_domain
 
-    # Use CPU backend for state initialization if JAX to avoid compatibility issues
-    state_backend = "gt:cpu_ifirst" if backend == "jax" else backend
+    # Use numpy backend for state initialization if JAX to avoid compatibility issues
+    state_backend = "numpy" if backend == "jax" else backend
     state = get_state_ice_adjust(domain, state_backend, ds)
 
     # TODO: decorator for tracking
@@ -168,26 +177,40 @@ def ice_adjust(
     log.info(f"Execution duration for IceAdjust : {elapsed_time} s")
 
     #################### Write dataset ######################
-    xr.Dataset(state).to_netcdf(output_path)
+    log.info(f"Extracting state data to {output_path}")
+    data_vars = {}
+    for k, v in state.items():
+        if k == "time":
+            continue
+        if hasattr(v, "shape"):
+            if len(v.shape) == 3:
+                data_vars[k] = (["ngpblks", "nproma", "nflevg"], np.asarray(v))
+            elif len(v.shape) == 2:
+                data_vars[k] = (["ngpblks", "nproma"], np.asarray(v))
+            else:
+                data_vars[k] = (["dim_" + str(i) for i in range(len(v.shape))], np.asarray(v))
+        else:
+            data_vars[k] = v
+    xr.Dataset(data_vars).to_netcdf(output_path)
 
     ############### Compute differences per field ###########
     metrics = compare_fields(dataset, output_path, "ice_adjust")
 
     ####################### Tracking ########################
-    write_performance_tracking(metrics, tracking_file)
+    write_performance_tracking({"execution_time": elapsed_time}, metrics, tracking_file)
 
 
-@app.command()
+@app.command(name="rain-ice")
 def rain_ice(
     domain: Tuple[int, int, int] = (5000, 1, 15),
-    dataset: Path = Path(ROOT_PATH, "data", "rain_ice.nc"),
-    output_path: Path = Path(ROOT_PATH, "data", "rain_ice_run.nc"),
-    tracking_file: Path = Path(ROOT_PATH, "rain_ice_run.json"),
-    backend: str = "gt:cpu_ifirst",
+    dataset: Path = Path(ROOT_PATH.parent, "data", "rain_ice.nc"),
+    output_path: Path = Path(ROOT_PATH.parent, "data", "rain_ice_run.nc"),
+    tracking_file: Path = Path(ROOT_PATH.parent, "rain_ice_run.json"),
+    backend: str = "jax",
     rebuild: bool = True,
     validate_args: bool = False,
 ):
-    """Run aro_rain_ice component"""
+    """Run rain_ice component"""
 
     ################## Grid ##################
     log.info("Initializing grid ...")
@@ -201,34 +224,88 @@ def rain_ice(
     log.info(f"With backend {backend}")
 
     ######## Instanciation + compilation #####
-    log.info(f"Compilation for RainIce stencils")
-    start = time.time()
-    from ice3.gt4py.rain_ice import RainIce
-    rain_ice = RainIce()
-    stop = time.time()
-    elapsed_time = stop - start
-    log.info(f"Compilation duration for RainIce : {elapsed_time} s")
+    rain_ice = None
+    if backend != "jax":
+        log.info(f"Compilation for RainIce stencils")
+        start = time.time()
+        from ice3.gt4py.rain_ice import RainIce
+        rain_ice = RainIce()
+        stop = time.time()
+        elapsed_time = stop - start
+        log.info(f"Compilation duration for RainIce : {elapsed_time} s")
 
     ####### Create state for AroAdjust #######
     log.info("Getting state for RainIce")
     ds = xr.load_dataset(dataset)
+    
+    # Infer domain from dataset if possible
+    if "ngpblks" in ds.sizes and "nproma" in ds.sizes and "nflevg" in ds.sizes:
+        inferred_domain = (ds.sizes["ngpblks"], ds.sizes["nproma"], ds.sizes["nflevg"])
+        if inferred_domain != domain:
+            log.info(f"Inferred domain {inferred_domain} from dataset, overriding user domain {domain}")
+            domain = inferred_domain
+
     from ice3.gt4py.initialisation.state_rain_ice import get_state_rain_ice
-    state = get_state_rain_ice(domain, ds)
+    state_backend = "numpy" if backend == "jax" else backend
+    state = get_state_rain_ice(domain, ds, backend=state_backend)
 
     ###### Launching RainIce #################
-    log.info("Launching RainIce")
+    log.info(f"Launching RainIce with backend {backend}")
     start = time.time()
-    tends, diags = rain_ice(state, dt, domain)
-    stop = time.time()
+    if backend == "jax":
+        from ice3.jax.rain_ice import RainIceJAX
+        rain_ice_jax = RainIceJAX(constants=phyex.to_externals())
+        
+        # Prepare state for JAX
+        # state is from get_state_rain_ice, which returns storage
+        # We need to extract values, skipping non-numeric fields like 'time'
+        jax_state = {k: jnp.asarray(v) for k, v in state.items() if k != "time"}
+        
+        updated_state, diags = rain_ice_jax(jax_state, dt.total_seconds())
+        
+        # Sync back
+        for k, v in updated_state.items():
+            if k in state:
+                try:
+                    val_np = np.asarray(v)
+                    if val_np.shape == state[k].shape:
+                        state[k][...] = val_np
+                    else:
+                        # Try to squeeze if 1 is present
+                        squeezed = np.squeeze(val_np)
+                        if squeezed.shape == state[k].shape:
+                             state[k][...] = squeezed
+                        else:
+                             log.debug(f"Skipping sync back for {k}: incompatible shapes {val_np.shape} vs {state[k].shape}")
+                except Exception as e:
+                    log.debug(f"Error syncing back {k}: {e}")
+        stop = time.time()
+    else:
+        tends, diags = rain_ice(state, dt)
+        stop = time.time()
+    
     elapsed_time = stop - start
     log.info(f"Execution duration for RainIce : {elapsed_time} s")
 
     log.info(f"Extracting state data to {output_path}")
-    xr.Dataset(state).to_netcdf(output_path)
+    data_vars = {}
+    for k, v in state.items():
+        if k == "time":
+            continue
+        if hasattr(v, "shape"):
+            if len(v.shape) == 3:
+                data_vars[k] = (["ngpblks", "nproma", "nflevg"], np.asarray(v))
+            elif len(v.shape) == 2:
+                data_vars[k] = (["ngpblks", "nproma"], np.asarray(v))
+            else:
+                data_vars[k] = (["dim_" + str(i) for i in range(len(v.shape))], np.asarray(v))
+        else:
+            data_vars[k] = v
+    xr.Dataset(data_vars).to_netcdf(output_path)
 
     ################# Metrics and Performance tracking ############
     metrics = compare_fields(dataset, output_path, "rain_ice")
-    write_performance_tracking(metrics, tracking_file)
+    write_performance_tracking({"execution_time": elapsed_time}, metrics, tracking_file)
 
 
 if __name__ == "__main__":

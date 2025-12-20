@@ -60,36 +60,33 @@ def ice4_fast_ri(
     O2DEPI = constants["O2DEPI"]
     DI = constants["DI"]
     
-    # Initialize output
-    rc_beri_tnd = jnp.zeros_like(rhodref)
+    # Compute mask for Bergeron-Findeisen conditions
+    mask = (
+        (ssi > 0) & 
+        (rct > C_RTMIN) & 
+        (rit > I_RTMIN) & 
+        (cit > 1e-20) & 
+        ldcompute &
+        (~ldsoft)
+    )
     
-    if not ldsoft:
-        # Compute mask for Bergeron-Findeisen conditions
-        mask = (
-            (ssi > 0) & 
-            (rct > C_RTMIN) & 
-            (rit > I_RTMIN) & 
-            (cit > 1e-20) & 
-            ldcompute
+    # Compute ice crystal slope parameter lambda_i
+    lambda_i = jnp.minimum(
+        1e8, 
+        LBI * jnp.power(rhodref * rit / cit, LBEXI)
+    )
+    
+    # Compute deposition rate with ventilation correction
+    rc_beri_tnd_val = (
+        (ssi / (rhodref * ai))
+        * cit
+        * (
+            O0DEPI / lambda_i + 
+            O2DEPI * jnp.square(cj) / jnp.power(lambda_i, DI + 2.0)
         )
-        
-        # Compute ice crystal slope parameter lambda_i
-        lambda_i = jnp.minimum(
-            1e8, 
-            LBI * jnp.power(rhodref * rit / cit, LBEXI)
-        )
-        
-        # Compute deposition rate with ventilation correction
-        rc_beri_tnd = (
-            (ssi / (rhodref * ai))
-            * cit
-            * (
-                O0DEPI / lambda_i + 
-                O2DEPI * jnp.square(cj) / jnp.power(lambda_i, DI + 2.0)
-            )
-        )
-        
-        # Apply mask
-        rc_beri_tnd = jnp.where(mask, rc_beri_tnd, 0.0)
+    )
+    
+    # Initialize output and apply mask
+    rc_beri_tnd = jnp.where(mask, rc_beri_tnd_val, 0.0)
     
     return rc_beri_tnd

@@ -6,9 +6,11 @@ from functools import partial
 from itertools import repeat
 from typing import Tuple, Dict
 from numpy.typing import NDArray
-from gt4py.cartesian.gtscript import stencil
+from gt4py.cartesian.gtscript import stencil, IJK
 
 from ..phyex_common.phyex import Phyex
+from .initialisation.state_ice_adjust import get_state_ice_adjust
+from ..utils.allocate_state import assign
 from ..utils.env import DTYPES, BACKEND
 from ..utils.storage import managed_temporaries
 
@@ -27,6 +29,8 @@ class IceAdjust:
         dtypes: Dict = DTYPES,
         backend: str = BACKEND,
     ) -> None:
+        self.backend = backend
+        self.dtypes = dtypes
 
         externals = phyex.externals
         externals.update({"OCND2": False})
@@ -86,48 +90,61 @@ class IceAdjust:
                  ):
 
         with managed_temporaries(
-            *repeat((domain, "float"), 4)
+            [(IJK, "float")] * 7,
+            domain=domain,
+            backend=self.backend,
+            dtypes=self.dtypes
         ) as (
             t,
             lv,
             ls,
-            cph
+            cph,
+            rv_out,
+            rc_out,
+            ri_out
         ):
 
             self.ice_adjust(
                 sigqsat=sigqsat,
-                exn=exn,
-                exnref=exnref,
-                rhodref=rhodref,
                 pabs=pabs,
                 sigs=sigs,
+                th=th,
+                exn=exn,
+                exn_ref=exnref,
+                rho_dry_ref=rhodref,
+                t=t,
+                rv=rv,
+                ri=ri,
+                rc=rc,
+                rr=rr,
+                rs=rs,
+                rg=rg,
                 cf_mf=cf_mf,
                 rc_mf=rc_mf,
                 ri_mf=ri_mf,
-                th=th,
-                rv=rv,
-                rc=rc,
-                rr=rr,
-                ri=ri,
-                rs=rs,
-                rg=rg,
-                cldfr=cldfr,
-                hlc_hrc=hlc_hrc,
-                hlc_hcf=hlc_hcf,
+                rv_out=rv_out,
+                rc_out=rc_out,
+                ri_out=ri_out,
                 hli_hri=hli_hri,
                 hli_hcf=hli_hcf,
-                sigrc=sigrc,
+                hlc_hrc=hlc_hrc,
+                hlc_hcf=hlc_hcf,
                 ths=ths,
                 rvs=rvs,
                 rcs=rcs,
                 ris=ris,
+                cldfr=cldfr,
+                cph=cph,
                 lv=lv,
                 ls=ls,
-                cph=cph,
-                t=t,
                 dt=timestep,
                 origin=(0, 0, 0),
                 domain=domain,
                 validate_args=validate_args,
                 exec_info=exec_info,
             )
+
+            # Copy back adjusted values to the state
+            assign(rv, rv_out)
+            assign(rc, rc_out)
+            assign(ri, ri_out)

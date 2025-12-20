@@ -12,7 +12,14 @@ if os.path.exists(build_dir):
     sys.path.insert(0, build_dir)
 
 import numpy as np
-from _phyex_wrapper import ice_adjust
+try:
+    from ice3._phyex_wrapper import ice_adjust
+except ImportError:
+    # Fallback to local import if building in-place
+    try:
+        from _phyex_wrapper import ice_adjust
+    except ImportError:
+        ice_adjust = None
 
 def example_ice_adjust():
     """
