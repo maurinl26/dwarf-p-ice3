@@ -92,12 +92,13 @@ build-dir = "build/{wheel_tag}"
 # Install the compiled library to the package
 install.components = ["ice_adjust_phyex"]
 
-# Ensure Fortran sources are included
+# Ensure Fortran sources and Cython wrapper are included
 sdist.include = [
     "CMakeLists.txt",
     "PHYEX-IAL_CY50T1/**/*.F90",
     "PHYEX-IAL_CY50T1/**/*.f90",
     "PHYEX-IAL_CY50T1/**/*.h",
+    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper.pyx",
 ]
 
 # Install the library to the ice3 package directory

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(PHYEX_ICE_ADJUST Fortran)
+project(PHYEX_ICE_ADJUST C Fortran)
 
 # Set Fortran compiler flags
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O2 -fPIC -cpp")
@@ -208,6 +208,13 @@ set(MAIN_SOURCES
 )
 
 # ============================================================================
+# BRIDGE MODULE (C-callable wrapper for Python/Cython)
+# ============================================================================
+set(BRIDGE_SOURCES
+    ${PHYEX_DIR}/bridge/phyex_bridge.F90
+)
+
+# ============================================================================
 # COMBINE ALL SOURCES IN PROPER ORDER
 # ============================================================================
 set(ALL_SOURCES
@@ -241,6 +248,9 @@ set(ALL_SOURCES
     
     # Level 9: Main routines
     ${MAIN_SOURCES}
+    
+    # Level 10: Bridge module (depends on everything)
+    ${BRIDGE_SOURCES}
 )
 
 # ============================================================================
@@ -257,11 +267,59 @@ set_target_properties(ice_adjust_phyex PROPERTIES
     PREFIX "lib"
 )
 
+# ============================================================================
+# CYTHON EXTENSION MODULE
+# ============================================================================
+
+# Find Python and Cython
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module NumPy)
+
+# Cythonize the .pyx file to generate C code
+set(CYTHON_SOURCE ${PHYEX_DIR}/bridge/_phyex_wrapper.pyx)
+set(CYTHON_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/_phyex_wrapper.c)
+
+add_custom_command(
+    OUTPUT ${CYTHON_OUTPUT}
+    COMMAND ${Python_EXECUTABLE} -m cython
+        ${CYTHON_SOURCE}
+        -o ${CYTHON_OUTPUT}
+    DEPENDS ${CYTHON_SOURCE}
+    COMMENT "Cythonizing _phyex_wrapper.pyx to C"
+)
+
+# Create Python extension module from generated C code
+Python_add_library(_phyex_wrapper MODULE ${CYTHON_OUTPUT})
+
+# Explicitly set the language to C
+set_source_files_properties(${CYTHON_OUTPUT} PROPERTIES LANGUAGE C)
+
+# Link with the Fortran library
+target_link_libraries(_phyex_wrapper PRIVATE ice_adjust_phyex)
+
+# Include NumPy headers
+target_include_directories(_phyex_wrapper PRIVATE ${Python_NumPy_INCLUDE_DIRS})
+
+# Set output name (remove lib prefix for Python modules)
+set_target_properties(_phyex_wrapper PROPERTIES
+    PREFIX ""
+    OUTPUT_NAME "_phyex_wrapper"
+    LINKER_LANGUAGE C
+)
+
+# ============================================================================
+# INSTALLATION RULES
+# ============================================================================
+
 # Installation rules for scikit-build-core
 install(TARGETS ice_adjust_phyex
     LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
     ARCHIVE DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
     RUNTIME DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
+)
+
+# Install Cython extension module
+install(TARGETS _phyex_wrapper
+    LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
 )
 
 install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/
@@ -274,6 +332,10 @@ if(NOT SKBUILD)
     install(TARGETS ice_adjust_phyex
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
+    )
+    
+    install(TARGETS _phyex_wrapper
+        LIBRARY DESTINATION lib/python/ice3
     )
     
     install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}/
@@ -303,5 +365,7 @@ message(STATUS "Compiler Flags: ${CMAKE_Fortran_FLAGS}")
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "PHYEX Directory: ${PHYEX_DIR}")
 message(STATUS "Module Directory: ${CMAKE_Fortran_MODULE_DIRECTORY}")
+message(STATUS "Python: ${Python_EXECUTABLE}")
+message(STATUS "NumPy Include: ${Python_NumPy_INCLUDE_DIRS}")
 message(STATUS "Total source files: ${CMAKE_MATCH_COUNT}")
 message(STATUS "====================================")
