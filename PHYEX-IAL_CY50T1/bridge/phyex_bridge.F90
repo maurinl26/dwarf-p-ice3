@@ -1,11 +1,13 @@
 MODULE phyex_bridge
     USE ISO_C_BINDING
-    ! Import the original routine and required modules
+    ! Import the original routines and required modules
     USE MODI_ICE_ADJUST, ONLY : ICE_ADJUST
+    USE MODI_RAIN_ICE, ONLY : RAIN_ICE
     USE PARKIND1, ONLY : JPIM, JPRB
     USE MODD_DIMPHYEX, ONLY : DIMPHYEX_t
     USE MODD_CST, ONLY : CST_t, CST
     USE MODD_RAIN_ICE_PARAM_n, ONLY : RAIN_ICE_PARAM_t
+    USE MODD_RAIN_ICE_DESCR_n, ONLY : RAIN_ICE_DESCR_t
     USE MODD_NEB_n, ONLY : NEB_t
     USE MODD_TURB_n, ONLY : TURB_t
     USE MODD_PARAM_ICE_n, ONLY : PARAM_ICE_t
@@ -209,5 +211,184 @@ CONTAINS
         DEALLOCATE(PSSIO, PSSIU, PIFR, PSRCS)
 
     END SUBROUTINE c_ice_adjust_wrap
+
+    ! C-callable wrapper for RAIN_ICE
+    SUBROUTINE c_rain_ice_wrap(                                            &
+        nlon, nlev, krr, timestep,                                         &
+        ptr_exn, ptr_dzz, ptr_rhodj, ptr_rhodref, ptr_exnref, ptr_pabs,   &
+        ptr_cldfr, ptr_icldfr, ptr_ssio, ptr_ssiu, ptr_ifr,               &
+        ptr_tht, ptr_rvt, ptr_rct, ptr_rrt, ptr_rit, ptr_rst, ptr_rgt,    &
+        ptr_sigs,                                                          &
+        ptr_cit,                                                           &
+        ptr_hlc_hrc, ptr_hlc_hcf, ptr_hli_hri, ptr_hli_hcf,               &
+        ptr_ths, ptr_rvs, ptr_rcs, ptr_rrs, ptr_ris, ptr_rss, ptr_rgs,    &
+        ptr_evap3d, ptr_rainfr,                                            &
+        ptr_inprc, ptr_inprr, ptr_inprs, ptr_inprg, ptr_indep             &
+    ) BIND(C, name="c_rain_ice")
+    
+        ! C-compatible arguments (using C_FLOAT for single precision)
+        INTEGER(C_INT), VALUE, INTENT(IN) :: nlon, nlev, krr
+        REAL(C_FLOAT), VALUE, INTENT(IN) :: timestep
+        
+        ! C pointers for 2D input arrays
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_exn, ptr_dzz, ptr_rhodj
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_rhodref, ptr_exnref, ptr_pabs
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_cldfr, ptr_icldfr
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_ssio, ptr_ssiu, ptr_ifr
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_tht, ptr_rvt, ptr_rct
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_rrt, ptr_rit, ptr_rst, ptr_rgt
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_sigs
+        
+        ! C pointers for 2D input/output arrays
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_cit
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_hlc_hrc, ptr_hlc_hcf
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_hli_hri, ptr_hli_hcf
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_ths, ptr_rvs, ptr_rcs
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_rrs, ptr_ris, ptr_rss, ptr_rgs
+        
+        ! C pointers for 2D output arrays
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_evap3d, ptr_rainfr
+        
+        ! C pointers for 1D output arrays
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_inprc, ptr_inprr
+        TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_inprs, ptr_inprg, ptr_indep
+        
+        ! Fortran pointers to map C data (using C_FLOAT for single precision)
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_exn, f_dzz, f_rhodj
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_rhodref, f_exnref, f_pabs
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_cldfr, f_icldfr
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_ssio, f_ssiu, f_ifr
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_tht, f_rvt, f_rct
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_rrt, f_rit, f_rst, f_rgt
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_sigs
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_cit
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_hlc_hrc, f_hlc_hcf
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_hli_hri, f_hli_hcf
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_ths, f_rvs, f_rcs
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_rrs, f_ris, f_rss, f_rgs
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:,:) :: f_evap3d, f_rainfr
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:) :: f_inprc, f_inprr
+        REAL(KIND=C_FLOAT), POINTER, DIMENSION(:) :: f_inprs, f_inprg, f_indep
+        
+        ! Local variables for PHYEX structures
+        TYPE(DIMPHYEX_t) :: D
+        TYPE(RAIN_ICE_PARAM_t) :: ICEP
+        TYPE(RAIN_ICE_DESCR_t) :: ICED
+        TYPE(PARAM_ICE_t) :: PARAMI
+        TYPE(TBUDGETCONF_t) :: BUCONF
+        TYPE(TBUDGETDATA_PTR), DIMENSION(0) :: TBUDGETS
+        
+        ! Convert C pointers to Fortran arrays
+        CALL C_F_POINTER(ptr_exn, f_exn, [nlon, nlev])
+        CALL C_F_POINTER(ptr_dzz, f_dzz, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rhodj, f_rhodj, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rhodref, f_rhodref, [nlon, nlev])
+        CALL C_F_POINTER(ptr_exnref, f_exnref, [nlon, nlev])
+        CALL C_F_POINTER(ptr_pabs, f_pabs, [nlon, nlev])
+        CALL C_F_POINTER(ptr_cldfr, f_cldfr, [nlon, nlev])
+        CALL C_F_POINTER(ptr_icldfr, f_icldfr, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ssio, f_ssio, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ssiu, f_ssiu, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ifr, f_ifr, [nlon, nlev])
+        CALL C_F_POINTER(ptr_tht, f_tht, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rvt, f_rvt, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rct, f_rct, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rrt, f_rrt, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rit, f_rit, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rst, f_rst, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rgt, f_rgt, [nlon, nlev])
+        CALL C_F_POINTER(ptr_sigs, f_sigs, [nlon, nlev])
+        CALL C_F_POINTER(ptr_cit, f_cit, [nlon, nlev])
+        CALL C_F_POINTER(ptr_hlc_hrc, f_hlc_hrc, [nlon, nlev])
+        CALL C_F_POINTER(ptr_hlc_hcf, f_hlc_hcf, [nlon, nlev])
+        CALL C_F_POINTER(ptr_hli_hri, f_hli_hri, [nlon, nlev])
+        CALL C_F_POINTER(ptr_hli_hcf, f_hli_hcf, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ths, f_ths, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rvs, f_rvs, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rcs, f_rcs, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rrs, f_rrs, [nlon, nlev])
+        CALL C_F_POINTER(ptr_ris, f_ris, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rss, f_rss, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rgs, f_rgs, [nlon, nlev])
+        CALL C_F_POINTER(ptr_evap3d, f_evap3d, [nlon, nlev])
+        CALL C_F_POINTER(ptr_rainfr, f_rainfr, [nlon, nlev])
+        CALL C_F_POINTER(ptr_inprc, f_inprc, [nlon])
+        CALL C_F_POINTER(ptr_inprr, f_inprr, [nlon])
+        CALL C_F_POINTER(ptr_inprs, f_inprs, [nlon])
+        CALL C_F_POINTER(ptr_inprg, f_inprg, [nlon])
+        CALL C_F_POINTER(ptr_indep, f_indep, [nlon])
+        
+        ! Initialize DIMPHYEX structure
+        D%NIT = nlon
+        D%NIB = 1
+        D%NIE = nlon
+        D%NJT = 1
+        D%NJB = 1
+        D%NJE = 1
+        D%NKT = nlev
+        D%NKL = 1
+        D%NKA = 1
+        D%NKU = nlev
+        D%NKB = 1
+        D%NKE = nlev
+        D%NKTB = 1
+        D%NKTE = nlev
+        D%NIBC = 1
+        D%NJBC = 1
+        D%NIEC = nlon
+        D%NJEC = 1
+        D%NIJT = nlon
+        D%NIJB = 1
+        D%NIJE = nlon
+        D%NKLES = nlev
+        D%NLESMASK = 0
+        D%NLES_TIMES = 0
+        
+        ! Initialize physical constants (uses global CST module)
+        CALL INI_CST()
+        
+        ! Initialize PARAMI (microphysics parameters) - same as ICE_ADJUST
+        PARAMI%CSUBG_AUCV_RC = 'NONE'
+        PARAMI%CSUBG_AUCV_RI = 'NONE'
+        PARAMI%CSUBG_PR_PDF = 'SIGM'
+        PARAMI%CSUBG_RC_RR_ACCR = 'NONE'
+        PARAMI%CSUBG_RR_EVAP = 'NONE'
+        PARAMI%LOCND2 = .FALSE.
+        PARAMI%LSEDIM_AFTER = .FALSE.
+        PARAMI%LWARM = .TRUE.
+        PARAMI%LPACK_MICRO = .FALSE.
+        PARAMI%NPROMICRO = 0
+        PARAMI%LEXCLDROP = .FALSE.
+        
+        ! Initialize ICEP and ICED (will use default values)
+        ! These structures are complex and would need proper initialization
+        ! For now, we rely on Fortran's default initialization
+        
+        ! Initialize budget configuration (disabled)
+        BUCONF%LBU_ENABLE = .FALSE.
+        BUCONF%LBUDGET_TH = .FALSE.
+        BUCONF%LBUDGET_RV = .FALSE.
+        BUCONF%LBUDGET_RC = .FALSE.
+        BUCONF%LBUDGET_RI = .FALSE.
+        BUCONF%LBUDGET_RR = .FALSE.
+        BUCONF%LBUDGET_RS = .FALSE.
+        BUCONF%LBUDGET_RG = .FALSE.
+        BUCONF%LBUDGET_RH = .FALSE.
+        
+        ! Call the actual RAIN_ICE routine
+        CALL RAIN_ICE(                                                     &
+            D, CST, PARAMI, ICEP, ICED, BUCONF,                            &
+            timestep, krr, f_exn,                                          &
+            f_dzz, f_rhodj, f_rhodref, f_exnref, f_pabs, f_cit, f_cldfr,   &
+            f_icldfr, f_ssio, f_ssiu, f_ifr,                               &
+            f_hlc_hrc, f_hlc_hcf, f_hli_hri, f_hli_hcf,                    &
+            f_tht, f_rvt, f_rct, f_rrt, f_rit, f_rst,                      &
+            f_rgt, f_ths, f_rvs, f_rcs, f_rrs, f_ris, f_rss, f_rgs,        &
+            f_inprc, f_inprr, f_evap3d,                                    &
+            f_inprs, f_inprg, f_indep, f_rainfr, f_sigs,                   &
+            TBUDGETS, 0                                                    &
+        )
+
+    END SUBROUTINE c_rain_ice_wrap
 
 END MODULE phyex_bridge
