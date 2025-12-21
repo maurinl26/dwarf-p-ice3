@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
 from enum import Enum
+import cython
 
 class VerticalLevelOrder(Enum):
     """Specify order of index on vertical levels
@@ -13,7 +13,7 @@ class VerticalLevelOrder(Enum):
     GROUND_TO_SPACE = 1
 
 
-@dataclass
+@cython.cclass
 class PhyexDimensions:
     """Specify index boundaries for PHYEX domain
 
@@ -51,42 +51,89 @@ class PhyexDimensions:
     """
 
     # x dimension
-    NIT: int  # Array dim
+    NIT: cython.int  # Array dim
 
-    NIB: int = field(init=False)  # First index
-    NIE: int = field(init=False)  # Last index
+    NIB: cython.int  # First index
+    NIE: cython.int  # Last index
 
     # y dimension
-    NJT: int
-    NJB: int = field(init=False)
-    NJE: int = field(init=False)
+    NJT: cython.int
+    NJB: cython.int
+    NJE: cython.int
 
     # z dimension
     VERTICAL_LEVEL_ORDER: VerticalLevelOrder
 
     # TODO: remove nkl (FORTRAN implementation) to use VerticalLevelOrder
-    NKL: int  # Order of the vertical levels
+    NKL: cython.int  # Order of the vertical levels
     # 1 : Meso NH order (bottom to top)
     # -1 : AROME order (top to bottom)
 
-    NKT: int  # Array total dimension on z (nz)
-    NKLES: int  # Total physical k dimension
+    NKT: cython.int  # Array total dimension on z (nz)
+    NKLES: cython.int  # Total physical k dimension
 
-    NKA: int  # Near ground array index
-    NKU: int  # Uppest atmosphere array index
+    NKA: cython.int  # Near ground array index
+    NKU: cython.int  # Uppest atmosphere array index
 
-    NKB: int  # Near ground physical array index
-    NKE: int  # Uppest atmosphere physical array index
+    NKB: cython.int  # Near ground physical array index
+    NKE: cython.int  # Uppest atmosphere physical array index
 
-    NKTB: int  # smaller index for the physical domain
-    NKTE: int  # greater index for the physical domain
+    NKTB: cython.int  # smaller index for the physical domain
+    NKTE: cython.int  # greater index for the physical domain
 
-    NIBC: int
-    NJBC: int
-    NIEC: int
-    NIJT: int = field(init=False)  # horizontal packing
-    NIJB: int = field(init=False)  # first index for horizontal packing
-    NIJE: int = field(init=False)  # last index for horizontal packing
+    NIBC: cython.int
+    NJBC: cython.int
+    NIEC: cython.int
+    NIJT: cython.int  # horizontal packing
+    NIJB: cython.int  # first index for horizontal packing
+    NIJE: cython.int  # last index for horizontal packing
+
+    def __init__(
+        self,
+        NIT: int,
+        NJT: int,
+        VERTICAL_LEVEL_ORDER: VerticalLevelOrder,
+        NKL: int,
+        NKT: int,
+        NKLES: int,
+        NKA: int,
+        NKU: int,
+        NKB: int,
+        NKE: int,
+        NKTB: int,
+        NKTE: int,
+        NIBC: int,
+        NJBC: int,
+        NIEC: int,
+    ):
+        """Initialize PhyexDimensions with all required parameters."""
+        self.NIT = NIT
+        self.NJT = NJT
+        self.VERTICAL_LEVEL_ORDER = VERTICAL_LEVEL_ORDER
+        self.NKL = NKL
+        self.NKT = NKT
+        self.NKLES = NKLES
+        self.NKA = NKA
+        self.NKU = NKU
+        self.NKB = NKB
+        self.NKE = NKE
+        self.NKTB = NKTB
+        self.NKTE = NKTE
+        self.NIBC = NIBC
+        self.NJBC = NJBC
+        self.NIEC = NIEC
+
+        # Initialize computed fields
+        self.NIB = 0
+        self.NIE = 0
+        self.NJB = 0
+        self.NJE = 0
+        self.NIJT = 0
+        self.NIJB = 0
+        self.NIJE = 0
+
+        # Call post_init to compute derived values
+        self.__post_init__()
 
     def __post_init__(self):
         self.NIB, self.NIE = 0, self.NIT - 1  # python like indexing

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
 from enum import Enum
 from typing import Literal
+import cython
 
 class FracIceAdjust(Enum):
     """Enumeration for ice fraction adjustments modes
@@ -43,7 +43,7 @@ class Lambda3(Enum):
 
 
 # from_file="PHYEX/src/common/aux/modd_nebn.F90"
-@dataclass
+@cython.cclass
 class Neb:
     """
     Subgrid cloud fraction and statistical cloud scheme parameters.
@@ -223,27 +223,46 @@ class Neb:
     3
     """
 
-    HPROGRAM: Literal["AROME", "MESO-NH", "LMDZ"]
+    HPROGRAM: str  # "AROME", "MESO-NH", or "LMDZ"
 
-    TMINMIX: float = field(default=273.16)
-    TMAXMIX: float = field(default=253.16)
-    LHGT_QS: bool = field(default=False)
-    FRAC_ICE_ADJUST: int = field(default=FracIceAdjust.S.value)
-    FRAC_ICE_SHALLOW: int = field(default=FracIceShallow.S.value)
-    VSIGQSAT: float = field(default=0.02)
-    CONDENS: int = field(default=Condens.CB02.value)
-    LAMBDA3: int = field(default=Lambda3.CB.value)
-    LSTATNW: bool = field(default=False)
-    LSIGMAS: bool = field(default=True)
-    LSUBG_COND: bool = field(default=False)
+    TMINMIX: cython.double
+    TMAXMIX: cython.double
+    LHGT_QS: cython.int
+    FRAC_ICE_ADJUST: cython.int
+    FRAC_ICE_SHALLOW: cython.int
+    VSIGQSAT: cython.double
+    CONDENS: cython.int
+    LAMBDA3: cython.int
+    LSTATNW: cython.int
+    LSIGMAS: cython.int
+    LSUBG_COND: cython.int
+
+    def __init__(self, HPROGRAM: str):
+        """Initialize Neb with default values based on model program."""
+        self.HPROGRAM = HPROGRAM
+
+        self.TMINMIX = 273.16
+        self.TMAXMIX = 253.16
+        self.LHGT_QS = 0
+        self.FRAC_ICE_ADJUST = FracIceAdjust.S.value
+        self.FRAC_ICE_SHALLOW = FracIceShallow.S.value
+        self.VSIGQSAT = 0.02
+        self.CONDENS = Condens.CB02.value
+        self.LAMBDA3 = Lambda3.CB.value
+        self.LSTATNW = 0
+        self.LSIGMAS = 1
+        self.LSUBG_COND = 0
+
+        # Apply model-specific settings
+        self.__post_init__()
 
     def __post_init__(self):
         if self.HPROGRAM == "AROME":
             self.FRAC_ICE_ADJUST = FracIceAdjust.T.value
             self.FRAC_ICE_SHALLOW = FracIceShallow.T.value
             self.VSIGQSAT = 0.02
-            self.LSIGMAS = True
-            self.LSUBG_COND = True
+            self.LSIGMAS = 1
+            self.LSUBG_COND = 1
 
         elif self.HPROGRAM == "LMDZ":
-            self.LSUBG_COND = True
+            self.LSUBG_COND = 1
