@@ -16,29 +16,30 @@ ctypedef np.float32_t DTYPE_t
 cdef extern:
     void c_ini_rain_ice(float timestep, float dzmin, int krr, char *hcloud)
 
-    void c_shallow_convection(
-        int nlon,
-        int nlev,
-        float timestep,
-        int kice,
-        int osettadj,
-        float ptadjs,
-        float *ptr_ppabst,
-        float *ptr_pzz,
-        float *ptr_ptkecls,
-        float *ptr_ptt,
-        float *ptr_prvt,
-        float *ptr_prct,
-        float *ptr_prit,
-        float *ptr_pwt,
-        float *ptr_ptten,
-        float *ptr_prvten,
-        float *ptr_prcten,
-        float *ptr_priten,
-        int *ptr_kcltop,
-        int *ptr_kclbas,
-        float *ptr_pumf
-    )
+    # NOTE: shallow_convection wrapper is not ready - commented out
+    # void c_shallow_convection(
+    #     int nlon,
+    #     int nlev,
+    #     float timestep,
+    #     int kice,
+    #     int osettadj,
+    #     float ptadjs,
+    #     float *ptr_ppabst,
+    #     float *ptr_pzz,
+    #     float *ptr_ptkecls,
+    #     float *ptr_ptt,
+    #     float *ptr_prvt,
+    #     float *ptr_prct,
+    #     float *ptr_prit,
+    #     float *ptr_pwt,
+    #     float *ptr_ptten,
+    #     float *ptr_prvten,
+    #     float *ptr_prcten,
+    #     float *ptr_priten,
+    #     int *ptr_kcltop,
+    #     int *ptr_kclbas,
+    #     float *ptr_pumf
+    # )
 
     void c_ice_adjust(
         int nlon,
@@ -431,140 +432,141 @@ def init_rain_ice(float timestep, float dzmin, int krr, str hcloud="AROME"):
     # Arrays are modified in-place, no return needed
 
 
-# Python-Callable Wrapper for SHALLOW_CONVECTION
-def shallow_convection(
-    # Scalar parameters
-    float timestep,
-    int kice,
-    bint osettadj,
-    float ptadjs,
-    # 1D input arrays (Fortran-contiguous)
-    np.ndarray[DTYPE_t, ndim=1, mode="fortran"] ptkecls,
-    # 2D input arrays (Fortran-contiguous)
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] ppabst,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] pzz,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] ptt,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prvt,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prct,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prit,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] pwt,
-    # Input/output arrays
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] ptten,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prvten,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prcten,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] priten,
-    np.ndarray[np.int32_t, ndim=1, mode="fortran"] kcltop,
-    np.ndarray[np.int32_t, ndim=1, mode="fortran"] kclbas,
-    np.ndarray[DTYPE_t, ndim=2, mode="fortran"] pumf
-):
-    """
-    Call the PHYEX SHALLOW_CONVECTION routine.
-
-    Computes shallow convective tendencies for temperature, moisture, and clouds.
-
-    Parameters
-    ----------
-    timestep : float32
-        Time step (seconds)
-    kice : int
-        Flag for ice (1 = yes, 0 = no ice)
-    osettadj : bool
-        Logical to set convective adjustment time by user
-    ptadjs : float32
-        User defined adjustment time (seconds)
-
-    1D Input Arrays (float32, shape: nlon, Fortran-contiguous):
-    ptkecls : TKE in the cloud layer (m2/s2)
-
-    2D Input Arrays (float32, shape: nlon × nlev, Fortran-contiguous):
-    ppabst : grid scale pressure at time t (Pa)
-    pzz : height of model layer (m)
-    ptt : grid scale temperature at time t (K)
-    prvt : grid scale water vapor mixing ratio (kg/kg)
-    prct : grid scale cloud water mixing ratio (kg/kg)
-    prit : grid scale cloud ice mixing ratio (kg/kg)
-    pwt : grid scale vertical velocity (m/s)
-
-    2D Input/Output Arrays (float32, shape: nlon × nlev):
-    ptten : convective temperature tendency (K/s)
-    prvten : convective water vapor tendency (1/s)
-    prcten : convective cloud water tendency (1/s)
-    priten : convective cloud ice tendency (1/s)
-    pumf : updraft mass flux (kg/s m2)
-
-    1D Input/Output Arrays (int32, shape: nlon):
-    kcltop : cloud top level (0 if no convection)
-    kclbas : cloud base level (0 if no convection)
-
-    Notes
-    -----
-    - All arrays must be float32 (np.float32) for single precision
-    - All arrays must be Fortran-contiguous (order='F')
-    - Tendency and output arrays are modified in-place
-
-    Examples
-    --------
-    >>> import numpy as np
-    >>> from _phyex_wrapper import shallow_convection
-    >>>
-    >>> # Initialize arrays (Fortran order, single precision)
-    >>> nlon, nlev = 10, 20
-    >>> ptkecls = np.ones(nlon, dtype=np.float32, order='F') * 0.1
-    >>> ppabst = np.ones((nlon, nlev), dtype=np.float32, order='F') * 85000.0
-    >>> # ... initialize other arrays ...
-    >>>
-    >>> # Call shallow_convection
-    >>> shallow_convection(
-    ...     timestep=60.0, kice=1, osettadj=False, ptadjs=3600.0,
-    ...     ptkecls=ptkecls, ppabst=ppabst, pzz=pzz,
-    ...     ptt=ptt, prvt=prvt, prct=prct, prit=prit, pwt=pwt,
-    ...     ptten=ptten, prvten=prvten, prcten=prcten, priten=priten,
-    ...     kcltop=kcltop, kclbas=kclbas, pumf=pumf
-    ... )
-    """
-
-    # Get dimensions
-    cdef int nlon = ppabst.shape[0]
-    cdef int nlev = ppabst.shape[1]
-
-    # Convert boolean to int for C
-    cdef int c_osettadj = 1 if osettadj else 0
-
-    # Validate 1D array shapes
-    if ptkecls.shape[0] != nlon:
-        raise ValueError("ptkecls shape mismatch: expected ({},), got ({},)".format(
-            nlon, ptkecls.shape[0]))
-
-    if kcltop.shape[0] != nlon:
-        raise ValueError("kcltop shape mismatch: expected ({},), got ({},)".format(
-            nlon, kcltop.shape[0]))
-
-    if kclbas.shape[0] != nlon:
-        raise ValueError("kclbas shape mismatch: expected ({},), got ({},)".format(
-            nlon, kclbas.shape[0]))
-
-    # Validate 2D array shapes
-    cdef list arrays_2d = [
-        ('ppabst', ppabst), ('pzz', pzz), ('ptt', ptt),
-        ('prvt', prvt), ('prct', prct), ('prit', prit), ('pwt', pwt),
-        ('ptten', ptten), ('prvten', prvten), ('prcten', prcten), ('priten', priten),
-        ('pumf', pumf)
-    ]
-
-    for name, arr in arrays_2d:
-        if arr.shape[0] != nlon or arr.shape[1] != nlev:
-            raise ValueError(
-                "{} shape mismatch: expected ({}, {}), got ({}, {})".format(
-                    name, nlon, nlev, arr.shape[0], arr.shape[1])
-            )
-
-    # Call the Fortran function through C bridge
-    c_shallow_convection(
-        nlon, nlev, timestep, kice, c_osettadj, ptadjs,
-        &ppabst[0, 0], &pzz[0, 0], &ptkecls[0],
-        &ptt[0, 0], &prvt[0, 0], &prct[0, 0], &prit[0, 0], &pwt[0, 0],
-        &ptten[0, 0], &prvten[0, 0], &prcten[0, 0], &priten[0, 0],
-        &kcltop[0], &kclbas[0], &pumf[0, 0]
-    )
-
-    # Arrays are modified in-place, no return needed
+# NOTE: shallow_convection wrapper is not ready - commented out
+# # Python-Callable Wrapper for SHALLOW_CONVECTION
+# def shallow_convection(
+#     # Scalar parameters
+#     float timestep,
+#     int kice,
+#     bint osettadj,
+#     float ptadjs,
+#     # 1D input arrays (Fortran-contiguous)
+#     np.ndarray[DTYPE_t, ndim=1, mode="fortran"] ptkecls,
+#     # 2D input arrays (Fortran-contiguous)
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] ppabst,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] pzz,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] ptt,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prvt,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prct,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prit,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] pwt,
+#     # Input/output arrays
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] ptten,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prvten,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] prcten,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] priten,
+#     np.ndarray[np.int32_t, ndim=1, mode="fortran"] kcltop,
+#     np.ndarray[np.int32_t, ndim=1, mode="fortran"] kclbas,
+#     np.ndarray[DTYPE_t, ndim=2, mode="fortran"] pumf
+# ):
+#     """
+#     Call the PHYEX SHALLOW_CONVECTION routine.
+#
+#     Computes shallow convective tendencies for temperature, moisture, and clouds.
+#
+#     Parameters
+#     ----------
+#     timestep : float32
+#         Time step (seconds)
+#     kice : int
+#         Flag for ice (1 = yes, 0 = no ice)
+#     osettadj : bool
+#         Logical to set convective adjustment time by user
+#     ptadjs : float32
+#         User defined adjustment time (seconds)
+#
+#     1D Input Arrays (float32, shape: nlon, Fortran-contiguous):
+#     ptkecls : TKE in the cloud layer (m2/s2)
+#
+#     2D Input Arrays (float32, shape: nlon × nlev, Fortran-contiguous):
+#     ppabst : grid scale pressure at time t (Pa)
+#     pzz : height of model layer (m)
+#     ptt : grid scale temperature at time t (K)
+#     prvt : grid scale water vapor mixing ratio (kg/kg)
+#     prct : grid scale cloud water mixing ratio (kg/kg)
+#     prit : grid scale cloud ice mixing ratio (kg/kg)
+#     pwt : grid scale vertical velocity (m/s)
+#
+#     2D Input/Output Arrays (float32, shape: nlon × nlev):
+#     ptten : convective temperature tendency (K/s)
+#     prvten : convective water vapor tendency (1/s)
+#     prcten : convective cloud water tendency (1/s)
+#     priten : convective cloud ice tendency (1/s)
+#     pumf : updraft mass flux (kg/s m2)
+#
+#     1D Input/Output Arrays (int32, shape: nlon):
+#     kcltop : cloud top level (0 if no convection)
+#     kclbas : cloud base level (0 if no convection)
+#
+#     Notes
+#     -----
+#     - All arrays must be float32 (np.float32) for single precision
+#     - All arrays must be Fortran-contiguous (order='F')
+#     - Tendency and output arrays are modified in-place
+#
+#     Examples
+#     --------
+#     >>> import numpy as np
+#     >>> from _phyex_wrapper import shallow_convection
+#     >>>
+#     >>> # Initialize arrays (Fortran order, single precision)
+#     >>> nlon, nlev = 10, 20
+#     >>> ptkecls = np.ones(nlon, dtype=np.float32, order='F') * 0.1
+#     >>> ppabst = np.ones((nlon, nlev), dtype=np.float32, order='F') * 85000.0
+#     >>> # ... initialize other arrays ...
+#     >>>
+#     >>> # Call shallow_convection
+#     >>> shallow_convection(
+#     ...     timestep=60.0, kice=1, osettadj=False, ptadjs=3600.0,
+#     ...     ptkecls=ptkecls, ppabst=ppabst, pzz=pzz,
+#     ...     ptt=ptt, prvt=prvt, prct=prct, prit=prit, pwt=pwt,
+#     ...     ptten=ptten, prvten=prvten, prcten=prcten, priten=priten,
+#     ...     kcltop=kcltop, kclbas=kclbas, pumf=pumf
+#     ... )
+#     """
+#
+#     # Get dimensions
+#     cdef int nlon = ppabst.shape[0]
+#     cdef int nlev = ppabst.shape[1]
+#
+#     # Convert boolean to int for C
+#     cdef int c_osettadj = 1 if osettadj else 0
+#
+#     # Validate 1D array shapes
+#     if ptkecls.shape[0] != nlon:
+#         raise ValueError("ptkecls shape mismatch: expected ({},), got ({},)".format(
+#             nlon, ptkecls.shape[0]))
+#
+#     if kcltop.shape[0] != nlon:
+#         raise ValueError("kcltop shape mismatch: expected ({},), got ({},)".format(
+#             nlon, kcltop.shape[0]))
+#
+#     if kclbas.shape[0] != nlon:
+#         raise ValueError("kclbas shape mismatch: expected ({},), got ({},)".format(
+#             nlon, kclbas.shape[0]))
+#
+#     # Validate 2D array shapes
+#     cdef list arrays_2d = [
+#         ('ppabst', ppabst), ('pzz', pzz), ('ptt', ptt),
+#         ('prvt', prvt), ('prct', prct), ('prit', prit), ('pwt', pwt),
+#         ('ptten', ptten), ('prvten', prvten), ('prcten', prcten), ('priten', priten),
+#         ('pumf', pumf)
+#     ]
+#
+#     for name, arr in arrays_2d:
+#         if arr.shape[0] != nlon or arr.shape[1] != nlev:
+#             raise ValueError(
+#                 "{} shape mismatch: expected ({}, {}), got ({}, {})".format(
+#                     name, nlon, nlev, arr.shape[0], arr.shape[1])
+#             )
+#
+#     # Call the Fortran function through C bridge
+#     c_shallow_convection(
+#         nlon, nlev, timestep, kice, c_osettadj, ptadjs,
+#         &ppabst[0, 0], &pzz[0, 0], &ptkecls[0],
+#         &ptt[0, 0], &prvt[0, 0], &prct[0, 0], &prit[0, 0], &pwt[0, 0],
+#         &ptten[0, 0], &prvten[0, 0], &prcten[0, 0], &priten[0, 0],
+#         &kcltop[0], &kclbas[0], &pumf[0, 0]
+#     )
+#
+#     # Arrays are modified in-place, no return needed

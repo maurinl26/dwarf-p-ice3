@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
+
+# Set gfortran as the default Fortran compiler
+if(NOT DEFINED CMAKE_Fortran_COMPILER)
+    set(CMAKE_Fortran_COMPILER "gfortran")
+endif()
+
 project(PHYEX_ICE_ADJUST C Fortran)
 
 # ============================================================================
@@ -352,33 +358,34 @@ find_package(Python REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 # ============================================================================
 # PHYEX STRUCTURES MODULE (Cython cclasses for parameter structures)
 # ============================================================================
-set(PHYEX_STRUCTURES_SOURCE ${CMAKE_SOURCE_DIR}/src/ice3/phyex_structures.pyx)
-set(PHYEX_STRUCTURES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/phyex_structures.c)
+# NOTE: phyex_structures.pyx is not present in the project, commented out
+# set(PHYEX_STRUCTURES_SOURCE ${CMAKE_SOURCE_DIR}/src/ice3/phyex_structures.pyx)
+# set(PHYEX_STRUCTURES_OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/phyex_structures.c)
 
-add_custom_command(
-    OUTPUT ${PHYEX_STRUCTURES_OUTPUT}
-    COMMAND ${Python_EXECUTABLE} -m cython
-        ${PHYEX_STRUCTURES_SOURCE}
-        -o ${PHYEX_STRUCTURES_OUTPUT}
-    DEPENDS ${PHYEX_STRUCTURES_SOURCE}
-    COMMENT "Cythonizing phyex_structures.pyx to C"
-)
+# add_custom_command(
+#     OUTPUT ${PHYEX_STRUCTURES_OUTPUT}
+#     COMMAND ${Python_EXECUTABLE} -m cython
+#         ${PHYEX_STRUCTURES_SOURCE}
+#         -o ${PHYEX_STRUCTURES_OUTPUT}
+#     DEPENDS ${PHYEX_STRUCTURES_SOURCE}
+#     COMMENT "Cythonizing phyex_structures.pyx to C"
+# )
 
-# Create Python extension module for phyex structures
-Python_add_library(phyex_structures MODULE ${PHYEX_STRUCTURES_OUTPUT})
+# # Create Python extension module for phyex structures
+# Python_add_library(phyex_structures MODULE ${PHYEX_STRUCTURES_OUTPUT})
 
-# Explicitly set the language to C
-set_source_files_properties(${PHYEX_STRUCTURES_OUTPUT} PROPERTIES LANGUAGE C)
+# # Explicitly set the language to C
+# set_source_files_properties(${PHYEX_STRUCTURES_OUTPUT} PROPERTIES LANGUAGE C)
 
-# Include NumPy headers
-target_include_directories(phyex_structures PRIVATE ${Python_NumPy_INCLUDE_DIRS})
+# # Include NumPy headers
+# target_include_directories(phyex_structures PRIVATE ${Python_NumPy_INCLUDE_DIRS})
 
-# Set output name (remove lib prefix for Python modules)
-set_target_properties(phyex_structures PROPERTIES
-    PREFIX ""
-    OUTPUT_NAME "phyex_structures"
-    LINKER_LANGUAGE C
-)
+# # Set output name (remove lib prefix for Python modules)
+# set_target_properties(phyex_structures PROPERTIES
+#     PREFIX ""
+#     OUTPUT_NAME "phyex_structures"
+#     LINKER_LANGUAGE C
+# )
 
 # CPU Cython wrapper (always built)
 set(CYTHON_SOURCE ${PHYEX_DIR}/bridge/_phyex_wrapper.pyx)
@@ -474,10 +481,10 @@ install(TARGETS ice_adjust_phyex
     RUNTIME DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
 )
 
-# Install phyex_structures module
-install(TARGETS phyex_structures
-    LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
-)
+# Install phyex_structures module (commented out - module not built)
+# install(TARGETS phyex_structures
+#     LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
+# )
 
 # Install CPU Cython extension module
 install(TARGETS _phyex_wrapper
@@ -503,9 +510,9 @@ if(NOT SKBUILD)
         ARCHIVE DESTINATION lib
     )
 
-    install(TARGETS phyex_structures
-        LIBRARY DESTINATION lib/python/ice3
-    )
+    # install(TARGETS phyex_structures
+    #     LIBRARY DESTINATION lib/python/ice3
+    # )
 
     install(TARGETS _phyex_wrapper
         LIBRARY DESTINATION lib/python/ice3
