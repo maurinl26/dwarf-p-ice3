@@ -293,6 +293,15 @@ IF (LHOOK) CALL DR_HOOK('RAIN_ICE', 0, ZHOOK_HANDLE)
 !*       1.     GENERALITIES
 !               ------------
 !
+!$acc data present( PEXN, PDZZ, PRHODJ, PRHODREF, PEXNREF, PPABST, &
+!$acc              PCIT, PCLDFR, PICLDFR, PSSIO, PSSIU, PIFR, &
+!$acc              PHLC_HRC, PHLC_HCF, PHLI_HRI, PHLI_HCF, &
+!$acc              PTHT, PRVT, PRCT, PRRT, PRIT, PRST, PRGT, &
+!$acc              PTHS, PRVS, PRCS, PRRS, PRIS, PRSS, PRGS, &
+!$acc              PINPRC, PINPRR, PEVAP3D, PINPRS, PINPRG, PINDEP, &
+!$acc              PRAINFR, PSIGS, PSEA, PTOWN, PCONC3D, &
+!$acc              PRHT, PRHS, PINPRH, PFPR )
+!
 IKTB=D%NKTB
 IKTE=D%NKTE
 IKB=D%NKB
@@ -308,15 +317,20 @@ ZINV_TSTEP=1./PTSTEP
 LLSEA_AND_TOWN=PRESENT(PSEA).AND.PRESENT(PTOWN)
 LLCONC=PRESENT(PCONC3D)
 !
+!$acc data create( ZT, ZZ_RVHENI, ZZ_LVFACT, ZZ_LSFACT, &
+!$acc              ZSIGMA_RC, ZHLC_LCF, ZHLC_LRC, ZHLI_LCF, ZHLI_LRI, &
+!$acc              ZWR, LLMICRO, ZW3D, ZZZZ, ZCONC3D, ZCONC_TMP, LLW3D, ZRSMIN )
+!
 ! LSFACT and LVFACT without exner, and LLMICRO
 ! LLMICRO is a mask with a True value on points where microphysics is active
+!$acc kernels
 DO JRR=1, KRR
   ZRSMIN(JRR) = ZICEDRTMIN(JRR) * ZINV_TSTEP
 END DO
 LLMICRO(:,:)=.FALSE.
+!$acc end kernels
 
-
-
+!$acc parallel loop collapse(2)
 DO JK = IKTB,IKTE
   DO JIJ = IIJB,IIJE
     !LSFACT and LVFACT
@@ -366,9 +380,11 @@ DO JK = IKTB,IKTE
     ENDIF
   ENDDO
 ENDDO
+!$acc end parallel loop
 !        1.1    Compute cloud liquid number concentration
 !               -----------------------------------------
 ! Model level height
+!$acc parallel loop
 DO JIJ=IIJB,IIJE
   ZZSUM = 0.
   DO JK=IKTE,IKTB, -1
@@ -376,27 +392,35 @@ DO JIJ=IIJB,IIJE
     ZZZZ(JIJ,JK) = ZZSUM - PDZZ(JIJ,JK)*0.5
   ENDDO
 ENDDO
+!$acc end parallel loop
 
+!$acc kernels
 ZCONC3D(:,:) = ICED%XCONC_LAND
+!$acc end kernels
 IF( LLCONC .AND. PARAMI%LEXCLDROP) THEN
+!$acc parallel loop collapse(2)
   DO JK=IKTB,IKTE
     DO JIJ=IIJB,IIJE
       ZCONC3D(JIJ,JK)=PCONC3D(JIJ,JK)
     ENDDO
   ENDDO
+!$acc end parallel loop
 ELSE
   IF (PARAMI%LEXCLDROP) THEN
    CALL PRINT_MSG(NVERB_FATAL, 'GEN', 'RAIN_ICE', 'WITH LEXCLDROP=TRUE CLOUD DROPLET FIELDS MUST BE PRESENT IN RAIN_ICE')
   END IF
   IF(LLSEA_AND_TOWN .AND. ICEP%XFRMIN(26)<0.001) THEN
+!$acc parallel loop collapse(2)
     DO JK=IKTB,IKTE
       DO JIJ=IIJB,IIJE
         ZCONC_TMP(JIJ) = PSEA(JIJ)*ICED%XCONC_SEA+(1.-PSEA(JIJ))*ICED%XCONC_LAND
         ZCONC3D(JIJ,JK)= (1.-PTOWN(JIJ))*ZCONC_TMP(JIJ) +PTOWN(JIJ)*ICED%XCONC_URBAN
       ENDDO
     ENDDO
+!$acc end parallel loop
   ENDIF
   IF(ICEP%XFRMIN(26)>0.001)THEN
+!$acc parallel loop collapse(2)
     DO JK=IKTB,IKTE
       DO JIJ=IIJB,IIJE
         ZCONC3D(JIJ,JK) = ICEP%XFRMIN(26)*PPABST(JIJ,JK)/CST%XP00
@@ -408,6 +432,7 @@ ELSE
         ENDIF
       ENDDO
     ENDDO
+!$acc end parallel loop
   ENDIF
 ENDIF
 !
@@ -438,6 +463,7 @@ ENDIF
 !               ---------------------
 !
 
+!$acc parallel loop collapse(2)
 DO JK = IKTB,IKTE
 DO JIJ=1, D%NIJT
     !Copy of T variables to keep untouched the prognostic variables
@@ -461,6 +487,7 @@ DO JIJ=1, D%NIJT
     PRAINFR(JIJ, JK)=0.
 END DO
 ENDDO
+!$acc end parallel loop
 
 !
 !
@@ -470,8 +497,11 @@ ENDDO
 !The nucleation must be called everywhere
 !This call is for points outside of the LLMICR mask, another call is coded in ice4_tendencies
 
+!$acc kernels
 LLW3D(:,:)=.FALSE.
+!$acc end kernels
 
+!$acc parallel loop collapse(2)
 DO JK=IKTB,IKTE
   DO JIJ=IIJB,IIJE
     IF (.NOT. LLMICRO(JIJ, JK)) THEN
@@ -483,10 +513,11 @@ DO JK=IKTB,IKTE
     ENDIF
   ENDDO
 ENDDO
+!$acc end parallel loop
 
 
 
-
+!$acc parallel loop collapse(2)
 DO JK=IKTB,IKTE
   DO JIJ=IIJB,IIJE
     CALL ICE4_NUCLEATION(CST, PARAMI, ICEP, ICED, LLW3D(JIJ, JK), &
@@ -496,15 +527,17 @@ DO JK=IKTB,IKTE
                          PCIT(JIJ, JK), ZZ_RVHENI(JIJ, JK))
   ENDDO
 ENDDO
+!$acc end parallel loop
 
 
 
-
+!$acc parallel loop collapse(2)
 DO JK = IKTB, IKTE
   DO JIJ=IIJB, IIJE
     ZZ_RVHENI(JIJ,JK) = MIN(PRVS(JIJ,JK), ZZ_RVHENI(JIJ,JK)/PTSTEP)
   ENDDO
 ENDDO
+!$acc end parallel loop
 
 !
 !
@@ -521,13 +554,16 @@ ENDDO
 !is called here but it's still called from within ice4_tendencies.
 IF (PARAMI%CSUBG_RC_RR_ACCR=='PRFR' .OR. PARAMI%CSUBG_RR_EVAP=='PRFR') THEN
   IF (PARAMI%CSUBG_AUCV_RC=='PDF ' .AND. PARAMI%CSUBG_PR_PDF=='SIGM') THEN
-    DO JK = IKTB, IKTE                                                                                                                  
+!$acc parallel loop collapse(2)
+    DO JK = IKTB, IKTE
       DO JIJ=IIJB, IIJE
         ZSIGMA_RC(JIJ, JK)=PSIGS(JIJ, JK)**2
       ENDDO
     ENDDO
+!$acc end parallel loop
   ENDIF
   IF (PARAMI%CSUBG_AUCV_RC=='ADJU' .OR. PARAMI%CSUBG_AUCV_RI=='ADJU') THEN
+!$acc parallel loop collapse(2)
     DO JK = IKTB, IKTE                                                                                                                
       DO JIJ=IIJB, IIJE
         ZHLC_LRC(JIJ, JK) = ZWR(JIJ, JK, IRC) - PHLC_HRC(JIJ, JK)
@@ -544,6 +580,7 @@ IF (PARAMI%CSUBG_RC_RR_ACCR=='PRFR' .OR. PARAMI%CSUBG_RR_EVAP=='PRFR') THEN
         ENDIF
       ENDDO
     ENDDO
+!$acc end parallel loop
   ENDIF
   !We cannot use ZWR(:,IKTB:IKTE,IRC) which is not contiguous
   CALL ICE4_COMPUTE_PDF(CST, ICEP, ICED, IIJT*(IKTE-IKTB+1), PARAMI%CSUBG_AUCV_RC, PARAMI%CSUBG_AUCV_RI, PARAMI%CSUBG_PR_PDF,&
@@ -866,6 +903,9 @@ CALL ICE4_PACK(D, CST, PARAMI, ICEP, ICED, BUCONF,                   &
 !
 !IF (LHOOK) CALL DR_HOOK('RAIN_ICE', 1, ZHOOK_HANDLE)
 !!
+!$acc end data
+!$acc end data
+!
 CONTAINS
 INCLUDE "ice4_nucleation.func.h"
 END SUBROUTINE RAIN_ICE

@@ -207,6 +207,17 @@ LOGICAL :: LLSIGMA_RC, LL_AUCV_ADJU
 !-------------------------------------------------------------------------------
 IF (LHOOK) CALL DR_HOOK('ICE4_PACK', 0, ZHOOK_HANDLE)
 !
+!$acc data present( PEXN, PRHODJ, PRHODREF, PEXNREF, PPABST, PCIT, PCLDFR, &
+!$acc              PHLC_HRC, PHLC_HCF, PHLI_HRI, PHLI_HCF, &
+!$acc              PTHS, PRVS, PRCS, PRRS, PRIS, PRSS, PRGS, &
+!$acc              PEVAP3D, PRAINFR, PSIGS, PRVHENI, PLVFACT, PLSFACT, &
+!$acc              PICLDFR, PZZZ, PCONC3D, PSSIO, PSSIU, PIFR, PWR, PRHS ) &
+!$acc      create( ZVART, ZEXTPK, ZCIT, ZCF, ZRHODREF, ZPRES, ZEXN, &
+!$acc              ZICLDFR, ZZZZ, ZCONC3D, ZSSIO, ZSSIU, ZIFR, &
+!$acc              ZSIGMA_RC, ZHLC_HCF, ZHLC_HRC, ZHLI_HCF, ZHLI_HRI, &
+!$acc              ZRAINFR, LLMICRO, I1, I2, I1TOT, I2TOT, &
+!$acc              ZBU_SUM, ZBU_PACK, ZRREVAV, ZLATHAM_IAGGS )
+!
 !*       1.     GENERALITIES
 !               ------------
 !
@@ -375,7 +386,7 @@ IF(PARAMI%LPACK_MICRO) THEN
       !               ---------
       !
 
-
+!$acc parallel loop
       DO JL=1, IMICRO
         PCIT  (I1(JL),I2(JL))=ZCIT   (JL)
         IF(PARAMI%LWARM) THEN
@@ -392,6 +403,7 @@ IF(PARAMI%LPACK_MICRO) THEN
         ENDIF
         PRAINFR(I1(JL),I2(JL))=ZRAINFR(JL)
       ENDDO
+!$acc end parallel loop
 
       IF(BUCONF%LBU_ENABLE .OR. OSAVE_MICRO) THEN
 
@@ -514,6 +526,9 @@ IF(BUCONF%LBU_ENABLE) THEN
                     PRVHENI, ZBU_PACK, &
                     TBUDGETS, KBUDGETS)
 ENDIF
+!
+!$acc end data
+!
 IF (LHOOK) CALL DR_HOOK('ICE4_PACK', 1, ZHOOK_HANDLE)
 END SUBROUTINE ICE4_PACK
 END MODULE MODE_ICE4_PACK

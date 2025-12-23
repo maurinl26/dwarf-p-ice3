@@ -1,11 +1,15 @@
 !     ######spl
-    SUBROUTINE SHALLOW_CONVECTION(CVP_SHAL, CST, D, NSV, CONVPAR, KBDIA, KTDIA, &
+    SUBROUTINE SHALLOW_CONVECTION_PART1&
+                                 (CVPEXT, CVP_SHAL, CST, D, NSV, CONVPAR, KBDIA, KTDIA, &
                                   KICE, OSETTADJ, PTADJS, PPABST, PZZ, &
                                   PTKECLS, PTT, PRVT, PRCT, PRIT, PWT, &
                                   PTTEN, PRVTEN, PRCTEN, PRITEN,       &
                                   KCLTOP, KCLBAS, PUMF, OCH1CONV, KCH1,&
-                                  PCH1, PCH1TEN)
-    USE YOMHOOK , ONLY : LHOOK, DR_HOOK, JPHOOK
+                                  PCH1, PCH1TEN, PTHT, PSTHV, PSTHES,  &
+                                  KSDPL, KSPBL, KSLCL, PSTHLCL, PSTLCL,&
+                                  PSRVLCL, PSWLCL, PSZLCL, PSTHVELCL, OTRIG1)
+    USE PARKIND1, ONLY : JPRB
+    USE YOMHOOK , ONLY : LHOOK, JPHOOK, DR_HOOK
 !   ###############################################################################
 !
 !!**** Monitor routine to compute all convective tendencies by calls
@@ -98,9 +102,6 @@ USE MODD_CONVPAR, ONLY: CONVPAR_T
 USE MODD_CONVPAR_SHAL, ONLY: CONVPAR_SHAL
 USE MODD_DIMPHYEX, ONLY: DIMPHYEX_T
 USE MODD_NSV, ONLY: NSV_T
-USE MODI_SHALLOW_CONVECTION_PART1
-USE MODI_SHALLOW_CONVECTION_PART2
-USE MODI_SHALLOW_CONVECTION_PART2_SELECT
 !
 !
 IMPLICIT NONE
@@ -108,6 +109,7 @@ IMPLICIT NONE
 !*       0.1   Declarations of dummy arguments :
 !
 !
+TYPE(CONVPAREXT)   ,INTENT(IN)     :: CVPEXT
 TYPE(CONVPAR_SHAL) ,INTENT(IN)     :: CVP_SHAL
 TYPE(CST_T)        ,INTENT(IN)     :: CST
 TYPE(DIMPHYEX_T)   ,INTENT(IN)     :: D
@@ -144,96 +146,125 @@ INTEGER            ,INTENT(INOUT)  :: KCLBAS(D%NIT) ! cloud base level
                                                    ! they are given a value of
                                                    ! 0 if no convection
 REAL               ,INTENT(INOUT)  :: PUMF(D%NIT,D%NKT)   ! updraft mass flux (kg/s m2)
-!
 LOGICAL            ,INTENT(IN)     :: OCH1CONV ! include tracer transport
 INTEGER            ,INTENT(IN)     :: KCH1     ! number of species
 REAL               ,INTENT(IN)     :: PCH1(D%NIT,D%NKT,KCH1)! grid scale chemical species
 REAL               ,INTENT(INOUT)  :: PCH1TEN(D%NIT,D%NKT,KCH1)! species conv. tendency (1/s)
+REAL               ,INTENT(OUT)    :: PTHT(D%NIT,D%NKT) 
+REAL               ,INTENT(OUT)    :: PSTHV(D%NIT,D%NKT) 
+REAL               ,INTENT(OUT)    :: PSTHES(D%NIT,D%NKT)  ! grid scale theta, theta_v
+INTEGER            ,INTENT(OUT)    :: KSDPL(D%NIT)   ! index for parcel departure level
+INTEGER            ,INTENT(OUT)    :: KSPBL(D%NIT)   ! index for source layer top
+INTEGER            ,INTENT(OUT)    :: KSLCL(D%NIT)   ! index for lifting condensation level
+REAL               ,INTENT(OUT)    :: PSTHLCL(D%NIT) ! updraft theta at LCL/L
+REAL               ,INTENT(OUT)    :: PSTLCL(D%NIT)  ! updraft temp. at LCL
+REAL               ,INTENT(OUT)    :: PSRVLCL(D%NIT) ! updraft rv at LCL
+REAL               ,INTENT(OUT)    :: PSWLCL(D%NIT)  ! updraft w at LCL
+REAL               ,INTENT(OUT)    :: PSZLCL(D%NIT)  ! LCL height
+REAL               ,INTENT(OUT)    :: PSTHVELCL(D%NIT)! envir. theta_v at LCL
+LOGICAL            ,INTENT(OUT)    :: OTRIG1(D%NIT)  ! logical mask for convection
 !
 !
 !*       0.2   Declarations of local fixed memory variables :
 !
+INTEGER  :: IKB, IKE                ! vertical loop bounds
+INTEGER  :: JI                      ! horizontal loop index
+INTEGER  :: JK                      ! vertical loop index
 INTEGER  :: ICONV
+REAL     :: ZEPS, ZEPSA             ! R_d / R_v, R_v / R_d
 REAL     :: ZRDOCP                  ! R_d/C_p
 !
-REAL         :: ZTHT(D%NIT,D%NKT), ZSTHV(D%NIT,D%NKT), ZSTHES(D%NIT,D%NKT)  ! grid scale theta, theta_v
-!
-!
-!*       0.2   Declarations of local allocatable  variables :
-!
-INTEGER  :: ISDPL(D%NIT)   ! index for parcel departure level
-INTEGER  :: ISPBL(D%NIT)   ! index for source layer top
-INTEGER  :: ISLCL(D%NIT)   ! index for lifting condensation level
-REAL     :: ZSTHLCL(D%NIT) ! updraft theta at LCL/L
-REAL     :: ZSTLCL(D%NIT)  ! updraft temp. at LCL
-REAL     :: ZSRVLCL(D%NIT) ! updraft rv at LCL
-REAL     :: ZSWLCL(D%NIT)  ! updraft w at LCL
-REAL     :: ZSZLCL(D%NIT)  ! LCL height
-REAL     :: ZSTHVELCL(D%NIT)! envir. theta_v at LCL
-!
-LOGICAL    :: GTRIG1(D%NIT)  ! logical mask for convection
-!
-TYPE(CONVPAREXT) :: CVPEXT
-!
-!-------------------------------------------------------------------------------
-!
-!
-!*       0.3    Compute loop bounds
-!               -------------------
+REAL                        :: ZES     ! saturation vapor mixng ratio
 !
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
-IF (LHOOK) CALL DR_HOOK('SHALLOW_CONVECTION',0,ZHOOK_HANDLE)
+#include "convect_trigger_shal.h"
 
-CVPEXT%JCVEXB = MAX( 0, KBDIA - 1 )
-CVPEXT%JCVEXT = MAX( 0, KTDIA - 1)
+IF (LHOOK) CALL DR_HOOK('SHALLOW_CONVECTION_PART1',0,ZHOOK_HANDLE)
 
+IKB = 1 + CVPEXT%JCVEXB
+IKE = D%NKT - CVPEXT%JCVEXT
+!
+!*       0.7    Reset convective tendencies to zero if convective
+!               counter becomes negative
+!               -------------------------------------------------
+!
+!$acc kernels
+PTTEN(:,:)  = 0.
+PRVTEN(:,:) = 0.
+PRCTEN(:,:) = 0.
+PRITEN(:,:) = 0.
+PUMF(:,:)   = 0.
+KCLTOP(:)  = 0
+KCLBAS(:)  = 0
+
+IF ( OCH1CONV ) THEN
+  PCH1TEN(:,:,:) = 0.
+END IF
+!$acc end kernels
+!
+!
+!*       1.     Initialize  local variables
+!               ----------------------------
+!
+ZEPS   = CST%XRD / CST%XRV
+ZEPSA  = CST%XRV / CST%XRD
 ZRDOCP = CST%XRD / CST%XCPD
+!
+!-------------------------------------------------------------------------------
+!
+!*       1.1    Set up grid scale theta, theta_v, theta_es
+!               ------------------------------------------
+!
+!$acc kernels
+PTHT(:,:) = 300.
+PSTHV(:,:)= 300.
+PSTHES(:,:)= 400.
+!$acc end kernels
 
-!$acc data present( PPABST, PZZ, PTKECLS, PTT, PRVT, PRCT, PRIT, PWT, &
-!$acc               PTTEN, PRVTEN, PRCTEN, PRITEN, KCLTOP, KCLBAS, PUMF, &
-!$acc               PCH1, PCH1TEN ) &
-!$acc      create( ZTHT, ZSTHV, ZSTHES, ISDPL, ISPBL, ISLCL, &
-!$acc              ZSTHLCL, ZSTLCL, ZSRVLCL, ZSWLCL, ZSZLCL, ZSTHVELCL, GTRIG1 )
+!$acc parallel loop collapse(2)
+DO JK = IKB, IKE
+DO JI = D%NIB, D%NIE
+  IF ( PPABST(JI,JK) > 40.E2 ) THEN
+    PTHT(JI,JK)  = PTT(JI,JK) * ( CST%XP00 / PPABST(JI,JK) ) ** ZRDOCP
+    PSTHV(JI,JK) = PTHT(JI,JK) * ( 1. + ZEPSA * PRVT(JI,JK) ) /              &
+                   ( 1. + PRVT(JI,JK) + PRCT(JI,JK) + PRIT(JI,JK) )
+!
+        ! use conservative Bolton (1980) formula for theta_e
+        ! it is used to compute CAPE for undilute parcel ascent
+        ! For economical reasons we do not use routine CONVECT_SATMIXRATIO here
+!
+    ZES = EXP( CST%XALPW - CST%XBETAW / PTT(JI,JK) - CST%XGAMW * LOG( PTT(JI,JK) ) )
+    ZES = MIN( 1., ZEPS * ZES / ( PPABST(JI,JK) - ZES ) )
+    PSTHES(JI,JK) = PTT(JI,JK) * ( PTHT(JI,JK) / PTT(JI,JK) ) **             &
+              ( 1. - 0.28 * ZES ) * EXP( ( 3374.6525 / PTT(JI,JK) - 2.5403 ) &
+                                        * ZES * ( 1. + 0.81 * ZES ) )
+  END IF
+END DO
+END DO
+!$acc end parallel loop
+!
+!-------------------------------------------------------------------------------
+!
+!*       2.     Test for convective columns and determine properties at the LCL
+!               --------------------------------------------------------------
+!
+!*       2.3    Test for convective columns and determine properties at the LCL
+!               --------------------------------------------------------------
+!
+!$acc kernels
+KSLCL(:) = MAX( IKB, 2 )   ! initialize DPL PBL and LCL
+KSDPL(:) = IKB
+KSPBL(:) = IKB
+!$acc end kernels
+!
+CALL CONVECT_TRIGGER_SHAL(CVP_SHAL, CVPEXT, CST, D, PPABST, PTHT,      &
+                          PSTHV, PSTHES, PRVT, PWT, PZZ, PTKECLS,      &
+                          PSTHLCL, PSTLCL, PSRVLCL, PSWLCL, PSZLCL,    &
+                          PSTHVELCL, KSLCL, KSDPL, KSPBL, OTRIG1)
 
-CALL SHALLOW_CONVECTION_PART1&
-   (CVPEXT, CVP_SHAL, CST, D, NSV, CONVPAR, KBDIA, KTDIA, &
-    KICE, OSETTADJ, PTADJS, PPABST, PZZ, &
-    PTKECLS, PTT, PRVT, PRCT, PRIT, PWT, &
-    PTTEN, PRVTEN, PRCTEN, PRITEN,       &
-    KCLTOP, KCLBAS, PUMF, OCH1CONV, KCH1,&
-    PCH1, PCH1TEN, ZTHT, ZSTHV, ZSTHES,  &
-    ISDPL, ISPBL, ISLCL, ZSTHLCL, ZSTLCL,&
-    ZSRVLCL, ZSWLCL, ZSZLCL, ZSTHVELCL, GTRIG1)
+IF (LHOOK) CALL DR_HOOK('SHALLOW_CONVECTION_PART1',1,ZHOOK_HANDLE)
 
-ICONV = COUNT(GTRIG1(D%NIB:D%NIE))
+END SUBROUTINE
 
-IF(ICONV==0)THEN
-  ! Do nothing if there are no selected columns
-ELSE IF (ICONV < D%NIT*9/10) THEN
-  CALL SHALLOW_CONVECTION_PART2_SELECT &
-                             & (CVP_SHAL, CVPEXT, CST, D, NSV, CONVPAR, KICE, &
-                                OSETTADJ, PTADJS, PPABST, PZZ, PTT,  &
-                                PRVT, PRCT, PRIT, OCH1CONV, KCH1,    &
-                                PCH1, ZRDOCP, ZTHT, ZSTHV, ZSTHES,   &
-                                ISDPL, ISPBL, ISLCL, ZSTHLCL, ZSTLCL,&
-                                ZSRVLCL, ZSWLCL, ZSZLCL, ZSTHVELCL,  &
-                                GTRIG1, PUMF, PTTEN, PRVTEN, PRCTEN, &
-                                PRITEN, KCLTOP, KCLBAS, PCH1TEN, ICONV)
-ELSE
-  CALL SHALLOW_CONVECTION_PART2 &
-                             & (CVP_SHAL, CVPEXT, CST, D, NSV, CONVPAR, KICE, &
-                                OSETTADJ, PTADJS, PPABST, PZZ, PTT,  &
-                                PRVT, PRCT, PRIT, OCH1CONV, KCH1,    &
-                                PCH1, ZRDOCP, ZTHT, ZSTHV, ZSTHES,   &
-                                ISDPL, ISPBL, ISLCL, ZSTHLCL, ZSTLCL,&
-                                ZSRVLCL, ZSWLCL, ZSZLCL, ZSTHVELCL,  &
-                                GTRIG1, PUMF, PTTEN, PRVTEN, PRCTEN, &
-                                PRITEN, KCLTOP, KCLBAS, PCH1TEN)
-ENDIF
-
-!$acc end data
-
-IF (LHOOK) CALL DR_HOOK('SHALLOW_CONVECTION',1,ZHOOK_HANDLE)
-END SUBROUTINE SHALLOW_CONVECTION
 

@@ -165,6 +165,15 @@ LOGICAL :: LL_ANY_ITER
 !-------------------------------------------------------------------------------
 IF (LHOOK) CALL DR_HOOK('ICE4_STEPPING', 0, ZHOOK_HANDLE)
 !
+!$acc data present( PEXN, PRHODREF, K1, K2, PPRES, PCF, PICLDFR, PZZZ, PCONC3D, &
+!$acc              PSSIO, PSSIU, PIFR, PSIGMA_RC, PCIT, PVART, &
+!$acc              PHLC_HCF, PHLC_HRC, PHLI_HCF, PHLI_HRI, PRAINFR, &
+!$acc              PEXTPK, PBU_SUM, PRREVAV, PLATHAM_IAGGS, LDMICRO ) &
+!$acc      create( ZLVFACT, ZLSFACT, ZZT, ZTIME, LLCOMPUTE, IITER, &
+!$acc              ZHLC_HCF, ZHLC_LCF, ZHLC_HRC, ZHLC_LRC, &
+!$acc              ZHLI_HCF, ZHLI_LCF, ZHLI_HRI, ZHLI_LRI, &
+!$acc              ZA, ZB, ZTIME_THRESHOLD, ZTIME_LASTCALL, ZSUM2 )
+!
 !*       1.     GENERALITIES
 !               ------------
 !
@@ -522,10 +531,14 @@ IF(LDEXT_TEND) THEN
 
 ENDIF
 
+!$acc parallel loop
 DO JL=1, KMICRO
   PRREVAV(JL)=ZBU_INST(JL, IRREVAV)
 ENDDO
+!$acc end parallel loop
 
+!
+!$acc end data
 !
 IF (LHOOK) CALL DR_HOOK('ICE4_STEPPING', 1, ZHOOK_HANDLE)
 END SUBROUTINE ICE4_STEPPING
