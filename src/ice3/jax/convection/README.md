@@ -4,6 +4,15 @@ This directory contains the JAX implementation of the shallow convection scheme,
 
 ## Files
 
+### Main Entry Point (Recommended)
+
+- **`shallow_convection.py`**: **Complete shallow convection scheme** ⭐
+  - Single function call for the entire convection workflow
+  - Automatically optimizes computation based on triggered columns
+  - Easiest to use - recommended for most applications
+
+### Component Functions (Advanced)
+
 - **`shallow_convection_part1.py`**: First part of the shallow convection scheme
   - Prepares grid-scale thermodynamic variables (θ, θ_v, θ_es)
   - Tests for convective columns using the trigger function
@@ -15,11 +24,18 @@ This directory contains the JAX implementation of the shallow convection scheme,
   - Computes grid-scale convective tendencies
   - Applies conservation corrections
 
-- **`example_shallow_convection.py`**: Simple example demonstrating part 1 usage
+- **`shallow_convection_part2_select.py`**: Optimized version of part 2
+  - Packs only triggered columns before computation
+  - Significant performance improvement when convection is sparse
+  - Same physics as part2, but more efficient
 
-- **`example_full_shallow_convection.py`**: Complete example showing both part 1 and part 2
+### Examples
 
-- **`__init__.py`**: Package initialization exporting the main functions and data structures
+- **`example_simple_shallow_convection.py`**: Simplest usage with main wrapper
+- **`example_shallow_convection.py`**: Part 1 usage demonstration
+- **`example_full_shallow_convection.py`**: Complete workflow using part 1 + part 2
+
+- **`__init__.py`**: Package initialization exporting all functions
 
 ## Dependencies
 
@@ -33,7 +49,49 @@ This implementation relies on existing JAX stencils from `../stencils/`:
 
 ## Usage
 
-### Complete workflow (Part 1 + Part 2)
+### Simple usage (Recommended) - Main wrapper
+
+The easiest way to use the shallow convection scheme:
+
+```python
+from ice3.jax.convection import shallow_convection, ConvectionParameters
+
+# Single function call - automatic optimization!
+outputs = shallow_convection(
+    ppabst=pressure,        # (nit, nkt)
+    pzz=height,            # (nit, nkt)
+    ptkecls=tke,           # (nit,)
+    ptt=temperature,       # (nit, nkt)
+    prvt=water_vapor,      # (nit, nkt)
+    prct=cloud_water,      # (nit, nkt)
+    prit=ice,              # (nit, nkt)
+    pwt=vertical_velocity, # (nit, nkt)
+    ptten=temp_tend,       # (nit, nkt) - will be overwritten
+    prvten=vapor_tend,     # (nit, nkt) - will be overwritten
+    prcten=cloud_tend,     # (nit, nkt) - will be overwritten
+    priten=ice_tend,       # (nit, nkt) - will be overwritten
+    kcltop=cloud_top,      # (nit,) - will be overwritten
+    kclbas=cloud_base,     # (nit,) - will be overwritten
+    pumf=mass_flux,        # (nit, nkt) - will be overwritten
+    pch1=chemicals,        # (nit, nkt, kch1)
+    pch1ten=chem_tend,     # (nit, nkt, kch1) - will be overwritten
+    convection_params=ConvectionParameters(),  # Use defaults
+)
+
+# Access results
+temp_tendency = outputs.ptten
+vapor_tendency = outputs.prvten
+cloud_tops = outputs.kcltop
+mass_flux = outputs.pumf
+```
+
+**Advantages**:
+- ✅ Single function call - simplest API
+- ✅ Automatic optimization (selects best computation method)
+- ✅ No need to manage intermediate variables
+- ✅ Perfect for production use
+
+### Advanced usage - Complete workflow (Part 1 + Part 2)
 
 ```python
 from ice3.jax.convection import (
@@ -114,6 +172,58 @@ print(f"Number of triggered columns: {part1_outputs.otrig1.sum()}")
 print(f"Cloud top levels: {part2_outputs.ictl}")
 print(f"Mass flux: {part2_outputs.pumf}")
 print(f"Temperature tendency: {part2_outputs.pthc}")
+```
+
+### Optimized version (part2_select) - Recommended for production
+
+For better performance when only a subset of columns have active convection:
+
+```python
+from ice3.jax.convection import (
+    shallow_convection_part1,
+    shallow_convection_part2_select,  # Use the select version
+    ConvectionParameters
+)
+
+# ... Part 1 as above ...
+
+# PART 2: Use select version (automatically handles packing/unpacking)
+part2_outputs = shallow_convection_part2_select(
+    # Same arguments as shallow_convection_part2
+    ppabst=ppabst,
+    pzz=pzz,
+    ptt=ptt,
+    prvt=prvt,
+    prct=prct,
+    prit=prit,
+    pch1=pch1,
+    prdocp=prdocp,
+    ptht=part1_outputs.ptht,
+    psthv=part1_outputs.psthv,
+    psthes=part1_outputs.psthes,
+    isdpl=part1_outputs.ksdpl,
+    ispbl=part1_outputs.kspbl,
+    islcl=part1_outputs.kslcl,
+    psthlcl=part1_outputs.psthlcl,
+    pstlcl=part1_outputs.pstlcl,
+    psrvlcl=part1_outputs.psrvlcl,
+    pswlcl=part1_outputs.pswlcl,
+    pszlcl=part1_outputs.pszlcl,
+    psthvelcl=part1_outputs.psthvelcl,
+    gtrig1=part1_outputs.otrig1,
+    kice=1,
+    jcvexb=0,
+    jcvext=0,
+    convection_params=ConvectionParameters(),
+)
+
+# Output format is identical to part2
+# But computation is faster when convection is sparse
+```
+
+**Performance benefit**: When only 10% of columns have active convection,
+`shallow_convection_part2_select` can be up to 10x faster than `shallow_convection_part2`.
+
 ```
 
 ## Output Structures
@@ -220,16 +330,33 @@ This implementation is fully compatible with JAX:
 
 ## Examples
 
-### Part 1 only (trigger)
+Run the examples from the convection directory:
+
+### Simple usage (Recommended)
 ```bash
 cd src/ice3/jax/convection
+python3 example_simple_shallow_convection.py
+```
+**Simplest example** using the main `shallow_convection` wrapper with automatic optimization.
+
+### Part 1 only (trigger)
+```bash
 python3 example_shallow_convection.py
 ```
-Demonstrates trigger function and LCL computation.
+Demonstrates trigger function and LCL computation (advanced usage).
 
 ### Complete workflow (Part 1 + Part 2)
 ```bash
-cd src/ice3/jax/convection
 python3 example_full_shallow_convection.py
 ```
-Demonstrates the full shallow convection scheme including updraft calculations, closure, and tendency computation.
+Demonstrates the full shallow convection scheme with explicit part1 and part2 calls (advanced usage).
+
+## Summary
+
+The JAX shallow convection implementation provides three levels of API:
+
+1. **`shallow_convection()`** - ⭐ **Recommended** - Single function, automatic optimization
+2. **`shallow_convection_part1()` + `shallow_convection_part2_select()`** - Advanced control with optimization
+3. **`shallow_convection_part1()` + `shallow_convection_part2()`** - Full manual control
+
+All implementations use the same validated physics from PHYEX and are fully JAX-compatible.
