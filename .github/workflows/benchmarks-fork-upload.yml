@@ -1,0 +1,84 @@
+name: Benchmark Fork PR Upload
+
+# This workflow handles uploading benchmark results from fork PRs
+# It runs after the main CI workflow completes, with access to secrets
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  upload_fork_benchmarks:
+    name: Upload Fork PR Benchmarks
+    if: |
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download PR Context
+        uses: actions/cache/restore@v4
+        with:
+          path: pr_number.txt
+          key: pr-context-${{ github.event.workflow_run.head_sha }}
+          restore-keys: |
+            pr-context-
+
+      - name: Get PR Number
+        id: pr
+        run: |
+          if [ -f pr_number.txt ]; then
+            echo "number=$(cat pr_number.txt)" >> $GITHUB_OUTPUT
+            echo "Found PR number: $(cat pr_number.txt)"
+          else
+            echo "No PR context found - skipping"
+            exit 0
+          fi
+
+      - name: Download Benchmark Results
+        uses: actions/cache/restore@v4
+        with:
+          path: benchmark_results.json
+          key: benchmark-results-${{ github.event.workflow_run.head_sha }}
+          restore-keys: |
+            benchmark-results-
+
+      - name: Check Benchmark Results
+        id: check
+        run: |
+          if [ -f benchmark_results.json ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Found benchmark results"
+            head -20 benchmark_results.json
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "No benchmark results found - skipping"
+          fi
+
+      - name: Track Fork PR Benchmarks
+        if: steps.check.outputs.exists == 'true'
+        uses: bencherdev/bencher@main
+        with:
+          bencher-api-token: ${{ secrets.BENCHER_API_TOKEN }}
+          bencher-command: run
+          bencher-adapter: python_pytest
+          bencher-testbed: ubuntu-latest
+          bencher-file: benchmark_results.json
+          bencher-err: false  # Don't fail on fork PRs
+          github-actions: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 📊 Fork PR Benchmark Upload" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check.outputs.exists }}" = "true" ]; then
+            echo "✅ Successfully uploaded benchmark results from fork PR" >> $GITHUB_STEP_SUMMARY
+            echo "- Workflow Run: ${{ github.event.workflow_run.html_url }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Head SHA: ${{ github.event.workflow_run.head_sha }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No benchmark results to upload" >> $GITHUB_STEP_SUMMARY
+          fi

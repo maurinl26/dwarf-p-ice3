@@ -34,7 +34,7 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # ==========================================
-# CIBLES FINALES (Les 4 variants)
+# CIBLES FINALES (Les 6 variants)
 # ==========================================
 
 # --- VARIANT A : JAX / CPU ---

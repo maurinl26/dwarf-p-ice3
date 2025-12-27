@@ -16,6 +16,11 @@ permissions:
   pull-requests: write
   security-events: write
 
+env:
+  BENCHER_PROJECT: dwarf-p-ice3
+  BENCHER_ADAPTER: python_pytest
+  BENCHER_TESTBED: ubuntu-latest
+
 jobs:
   validate:
     name: Validate PR
@@ -87,8 +92,86 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: false
 
-    # - name: GPU performance tests
-    #   run: uv run pytest tests/components -m gpu
+  benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    # Run benchmarks after tests pass (Python 3.12 only for efficiency)
+    needs: test
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: uv sync --extra test
+
+    - name: Run Benchmarks
+      run: |
+        uv run pytest tests/performance \
+          -k cpu \
+          --benchmark-only \
+          --benchmark-json=benchmark_results.json \
+          --benchmark-warmup=on \
+          --benchmark-disable-gc
+
+    # Track benchmarks on base branches (dev, main)
+    # Note: Set BENCHER_API_TOKEN secret to enable benchmark tracking
+    - name: Track Base Branch Benchmarks
+      if: github.event_name == 'push'
+      uses: bencherdev/bencher@main
+      continue-on-error: true
+      with:
+        bencher-api-token: ${{ secrets.BENCHER_API_TOKEN }}
+        bencher-command: run
+        bencher-adapter: ${{ env.BENCHER_ADAPTER }}
+        bencher-testbed: ${{ env.BENCHER_TESTBED }}
+        bencher-threshold-branch: dev
+        bencher-thresholds-reset: true
+        bencher-file: benchmark_results.json
+        bencher-err: true
+
+    # Track PR benchmarks (same repo PRs)
+    # Note: Set BENCHER_API_TOKEN secret to enable benchmark tracking
+    - name: Track PR Benchmarks
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+      uses: bencherdev/bencher@main
+      continue-on-error: true
+      with:
+        bencher-api-token: ${{ secrets.BENCHER_API_TOKEN }}
+        bencher-command: run
+        bencher-adapter: ${{ env.BENCHER_ADAPTER }}
+        bencher-testbed: ${{ env.BENCHER_TESTBED }}
+        bencher-branch: ${{ github.head_ref }}
+        bencher-start-point: ${{ github.base_ref }}
+        bencher-start-point-clone-thresholds: true
+        bencher-thresholds-reset: true
+        bencher-file: benchmark_results.json
+        bencher-err: true
+        github-actions: ${{ secrets.GITHUB_TOKEN }}
+
+    # For fork PRs - save results for upload workflow
+    - name: Save Benchmark Results (Fork PRs)
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      uses: actions/cache/save@v4
+      with:
+        path: benchmark_results.json
+        key: benchmark-results-${{ github.event.pull_request.head.sha }}
+
+    - name: Save PR Context (Fork PRs)
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      run: echo "${{ github.event.number }}" > pr_number.txt
+
+    - name: Cache PR Number (Fork PRs)
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      uses: actions/cache/save@v4
+      with:
+        path: pr_number.txt
+        key: pr-context-${{ github.event.pull_request.head.sha }}
 
   lint:
     name: Code Quality
@@ -212,7 +295,7 @@ jobs:
   summary:
     name: CI Summary
     runs-on: ubuntu-latest
-    needs: [test, lint]
+    needs: [test, benchmark, lint]
     if: always()
 
     steps:
@@ -227,6 +310,8 @@ jobs:
         elif [ "${{ needs.lint.result }}" = "failure" ]; then
           echo "❌ Linting failed" >> $GITHUB_STEP_SUMMARY
           exit 1
+        elif [ "${{ needs.benchmark.result }}" = "failure" ]; then
+          echo "⚠️ Benchmarks failed (non-blocking)" >> $GITHUB_STEP_SUMMARY
         else
           echo "✅ All checks passed" >> $GITHUB_STEP_SUMMARY
         fi
