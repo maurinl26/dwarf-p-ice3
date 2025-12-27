@@ -4,6 +4,30 @@ version = "0.1.0"
 description = "Phyex physics packages in JAX"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Laurent Maurin", email = "maurinl26@users.noreply.github.com" }
+]
+keywords = ["physics", "atmospheric-science", "jax", "numerical-simulation", "meteorology"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Fortran",
+]
+
+[project.urls]
+Homepage = "https://github.com/maurinl26/dwarf-p-ice3"
+Documentation = "https://maurinl26.github.io/dwarf-p-ice3/"
+Repository = "https://github.com/maurinl26/dwarf-p-ice3"
+Issues = "https://github.com/maurinl26/dwarf-p-ice3/issues"
+
 dependencies = [
     "jax>=0.5.3",
     "flax>=0.10.2",
@@ -64,8 +88,10 @@ markers = [
     "dace: run on dace:cpu backend",
 ]
 
+# Publishing to production PyPI (default)
+# For test publishing, use: uv publish --index ice3-test
 [[tool.uv.index]]
-name = "ice3"
+name = "ice3-test"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true

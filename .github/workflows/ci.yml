@@ -1,71 +1,232 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-name: ci
+name: CI
 
 on:
   push:
     branches:
       - dev
+      - reorg
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
 
 permissions:
   contents: write
+  pull-requests: write
+  security-events: write
+
 jobs:
-  build:
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Check PR title follows conventional commits
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          build
+          ci
+          chore
+        requireScope: false
+        subjectPattern: ^(?![A-Z]).+$
+        subjectPatternError: |
+          The subject "{subject}" found in the pull request title "{title}"
+          didn't match the configured pattern. Please ensure that the subject
+          doesn't start with an uppercase character.
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     env:
       UV_PYTHON: ${{ matrix.python-version }}
+
     steps:
     - uses: actions/checkout@v5
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-          python-version: ${{ matrix.python-version }}
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: uv sync --extra test
-      
-    - name: Unit reproducibility test
-      run: uv run pytest tests/repro -k "debug or numpy" --maxfail=50
-      
-    - name: Component reproducibility tests
-      run: uv run pytest tests/components -k "debug or numpy"
 
-    - name: CPU performance tests
-      run: uv run pytest tests/performance -k cpu
-      
-    #- name: GPU performance tests
-    # run: uv run pytest pytest tests/components -m gpu
-    
-  deploy:
+    - name: Run tests with coverage
+      run: |
+        uv run pytest tests/repro -k "debug or numpy" --maxfail=50 --cov --cov-report=xml
+        uv run pytest tests/components -k "debug or numpy" --cov --cov-append --cov-report=xml
+        uv run pytest tests/performance -k cpu --cov --cov-append --cov-report=xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.12' && github.event_name == 'pull_request'
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    # - name: GPU performance tests
+    #   run: uv run pytest tests/components -m gpu
+
+  lint:
+    name: Code Quality
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+    - uses: actions/checkout@v5
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.12"
 
-      - uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: pip install mkdocs
-      - run: pip install mkdocs-material
-      - run: pip install mkdocstrings
-      - run: pip install mkdocstrings-python
+    - name: Install dependencies
+      run: uv sync --extra dev
 
+    - name: Run ruff check
+      run: uv run ruff check . --output-format=github
 
-      - run: export PYTHONPATH=$PYTHONPATH:/home/runner/work/dwarf-p-ice3/dwarf-p-ice3/src && mkdocs gh-deploy --force
+    - name: Run ruff format check
+      run: uv run ruff format --check .
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  size-check:
+    name: Check Package Size
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: "3.12"
+
+    - name: Build package
+      run: uv build
+
+    - name: Check package size
+      run: |
+        wheel_size=$(ls -lh dist/*.whl | awk '{print $5}')
+        sdist_size=$(ls -lh dist/*.tar.gz | awk '{print $5}')
+        echo "📦 Wheel size: $wheel_size"
+        echo "📦 Source dist size: $sdist_size"
+
+        # Warn if wheel is larger than 50MB
+        wheel_bytes=$(stat -f%z dist/*.whl 2>/dev/null || stat -c%s dist/*.whl)
+        if [ $wheel_bytes -gt 52428800 ]; then
+          echo "⚠️ Warning: Wheel size exceeds 50MB"
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: package-distributions-pr
+        path: dist/
+        retention-days: 7
+
+  docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Configure Git Credentials
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.12"
+
+    - name: Set up cache
+      run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+
+    - uses: actions/cache@v4
+      with:
+        key: mkdocs-material-${{ env.cache_id }}
+        path: .cache
+        restore-keys: |
+          mkdocs-material-
+
+    - name: Install documentation dependencies
+      run: uv sync --extra doc
+
+    - name: Deploy documentation
+      run: uv run mkdocs gh-deploy --force
+
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    if: always()
+
+    steps:
+    - name: Check results
+      run: |
+        echo "## 📊 CI Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [ "${{ needs.test.result }}" = "failure" ]; then
+          echo "❌ Tests failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        elif [ "${{ needs.lint.result }}" = "failure" ]; then
+          echo "❌ Linting failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        else
+          echo "✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+        fi
