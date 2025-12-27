@@ -87,8 +87,21 @@ Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.i
          singularity pull docker://ghcr.io/maurinl26/dwarf-p-ice3
      ```
 
+### Development Container (Devcontainer)
+
+For local development with a consistent, isolated environment, we provide VS Code devcontainer configurations:
+
+- **CPU-only development**: Lightweight Python environment for general development
+- **GPU-enabled development**: Full CUDA support for GPU testing (requires NVIDIA GPU + nvidia-docker)
+
+To get started:
+1. Install [VS Code](https://code.visualstudio.com/) and [Docker](https://docs.docker.com/get-docker/)
+2. Install the [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+3. Open the project and press `F1` → **Remote-Containers: Reopen in Container**
+
+See [.devcontainer/README.md](.devcontainer/README.md) for detailed setup instructions.
+
 ### Nice-to-have
-- Setup .devcontainer to develop ice3 inside an isolated virtual env with access to gpus
 - Setup singularity image to run on an HPC cluster
 
 ## Data generation for reproductibility
