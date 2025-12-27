@@ -15,6 +15,11 @@ def rain_ice_ds_fixture():
     ds = xr.open_dataset("./data/rain_ice.nc", engine="netcdf4")
     return ds
 
+@pytest.fixture(name="shallow_convection_repro_ds", scope="module")
+def shallow_convection_ds_fixture():
+    ds = xr.open_dataset("./data/shallow.nc", engine="netcdf4")
+    return ds
+
 @pytest.fixture(name="sp_dtypes", scope="module")
 def sp_dtypes_fixture():
     return {

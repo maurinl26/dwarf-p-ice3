@@ -22,12 +22,6 @@ classifiers = [
     "Programming Language :: Fortran",
 ]
 
-[project.urls]
-Homepage = "https://github.com/maurinl26/dwarf-p-ice3"
-Documentation = "https://maurinl26.github.io/dwarf-p-ice3/"
-Repository = "https://github.com/maurinl26/dwarf-p-ice3"
-Issues = "https://github.com/maurinl26/dwarf-p-ice3/issues"
-
 dependencies = [
     "jax>=0.5.3",
     "flax>=0.10.2",
@@ -45,17 +39,17 @@ requires = [
     'numpy<2.0',
 ]
 
+[project.urls]
+Homepage = "https://github.com/maurinl26/dwarf-p-ice3"
+Documentation = "https://maurinl26.github.io/dwarf-p-ice3/"
+Repository = "https://github.com/maurinl26/dwarf-p-ice3"
+Issues = "https://github.com/maurinl26/dwarf-p-ice3/issues"
+
 [project.scripts]
 testprogs-data = "testprogs_data.main:app"
 standalone-model = "drivers.cli:app"
 
 [project.optional-dependencies]
-gt4py = [
-    "gt4py>=1.0.7",
-]
-fortran = [
-    "fmodpy>=1.7.4",
-]
 gpu = [
     "cupy>=13.5.0",
     "cupy-xarray>=0.1.4",
@@ -140,10 +134,6 @@ sdist.include = [
 wheel.install-dir = "ice3"
 
 [dependency-groups]
-dace = [
-    "dace",
-]
-
 test = [
     "coverage-badge>=1.1.2",
     "pytest-benchmark>=5.1.0",
