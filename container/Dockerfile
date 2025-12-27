@@ -25,6 +25,15 @@ COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 
 # ==========================================
+# 3. BASE ROCm (AMD Radeon/Instinct)
+# ==========================================
+FROM rocm/dev-ubuntu-22.04:5.7 AS base-rocm
+RUN apt-get update && apt-get install -y python3-pip libgomp1 && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# ==========================================
 # CIBLES FINALES (Les 4 variants)
 # ==========================================
 
@@ -56,6 +65,23 @@ FROM base-gpu-acc AS cython-gpu
 COPY . .
 ENV BUILD_TARGET=gpu-acc
 # Le compilateur 'nvc' est utilisé automatiquement grâce à l'image nvhpc + setup.py
+RUN python3 setup.py build_ext --inplace
+CMD ["python3", "main.py"]
+
+# --- VARIANT E : JAX / ROCm (AMD GPU) ---
+FROM base-rocm AS jax-rocm
+# Installation de JAX pour ROCm
+RUN pip3 install --no-cache-dir "jax[rocm]" -f https://storage.googleapis.com/jax-releases/jax_rocm_releases.html
+COPY . .
+ENV JAX_PLATFORM_NAME=rocm
+CMD ["python3", "main.py"]
+
+# --- VARIANT F : CYTHON / ROCm (via OpenMP/OpenACC AMD) ---
+FROM base-rocm AS cython-rocm
+COPY . .
+ENV BUILD_TARGET=cpu 
+# Note : Pour un vrai support GPU AMD via Cython, on compile souvent 
+# pour OpenMP offload (targetting amdgpu).
 RUN python3 setup.py build_ext --inplace
 CMD ["python3", "main.py"]
 
