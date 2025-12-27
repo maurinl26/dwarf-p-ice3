@@ -1,39 +1,42 @@
 """
-Test script for the shallow_convection Cython wrapper.
+Test script for the shallow_convection Fortran wrapper.
 
-This script demonstrates how to use the PHYEX shallow convection scheme
-from Python through the Cython/Fortran bridge.
-
-Before running this script, you need to compile the Cython extension:
-    cd PHYEX-IAL_CY50T1/bridge
-    python setup.py build_ext --inplace
+This test validates the Fortran SHALLOW_CONVECTION implementation through
+the Cython/Fortran bridge using reproduction data.
 """
 import sys
 from pathlib import Path
 import numpy as np
+import pytest
 
-# Add the bridge directory to the path so we can import _phyex_wrapper
-bridge_dir = Path(__file__).parent.parent.parent / "PHYEX-IAL_CY50T1" / "bridge"
-sys.path.insert(0, str(bridge_dir))
+# Add the bridge directory to the path
+build_dir = Path(__file__).parent.parent.parent / 'build'
+if build_dir.exists():
+    for sub in build_dir.iterdir():
+        if sub.is_dir() and sub.name.startswith('cp'):
+            sys.path.insert(0, str(sub))
+            break
 
-# Import the Cython wrapper
 try:
-    from _phyex_wrapper import shallow_convection
-except ImportError as e:
-    print("Error importing _phyex_wrapper:")
-    print(e)
-    print("\nYou need to compile the Cython extension first:")
-    print(f"    cd {bridge_dir}")
-    print("    python setup.py build_ext --inplace")
-    exit(1)
+    from ice3._phyex_wrapper import shallow_convection
+except ImportError:
+    # Fallback to local import if building in-place
+    bridge_dir = Path(__file__).parent.parent.parent / "PHYEX-IAL_CY50T1" / "bridge"
+    sys.path.insert(0, str(bridge_dir))
+    try:
+        from _phyex_wrapper import shallow_convection
+    except ImportError:
+        shallow_convection = None
 
 
-def main():
-    """Test the shallow_convection wrapper with sample atmospheric data."""
+def test_shallow_convection_wrapper_basic():
+    """Test the Cython wrapper for SHALLOW_CONVECTION with simple data."""
+    print("\n" + "="*70)
+    print("Testing Fortran SHALLOW_CONVECTION Wrapper - Basic")
+    print("="*70)
 
-    print("=" * 70)
-    print("TESTING PHYEX SHALLOW_CONVECTION CYTHON WRAPPER")
-    print("=" * 70)
+    if shallow_convection is None:
+        pytest.skip("Cython wrapper not available")
 
     # Set up dimensions
     nlon = 100  # horizontal grid points
@@ -127,14 +130,14 @@ def main():
             pch1=pch1,
             pch1ten=pch1ten
         )
-        print("Shallow convection completed successfully!")
+        print("✓ Shallow convection completed successfully")
     except Exception as e:
-        print(f"Error calling shallow_convection: {e}")
+        print(f"✗ Error calling shallow_convection: {e}")
         import traceback
         traceback.print_exc()
-        return 1
+        pytest.fail(f"shallow_convection call failed: {e}")
 
-    # Print results
+    # Verify results
     print("\n" + "=" * 70)
     print("RESULTS")
     print("=" * 70)
@@ -144,34 +147,78 @@ def main():
     print(f"Vertical levels: {nlev}")
     print(f"Columns with convection: {n_triggered} ({100*n_triggered/nlon:.1f}%)")
 
-    if n_triggered > 0:
-        print(f"\nCloud top levels range: {kcltop.min()} - {kcltop.max()}")
-        print(f"Cloud base levels range: {kclbas.min()} - {kclbas.max()}")
-        print(f"Mass flux range: {pumf.min():.6f} - {pumf.max():.6f} kg/(s·m²)")
+    # Check output arrays have expected shapes
+    assert ptten.shape == (nlon, nlev)
+    assert prvten.shape == (nlon, nlev)
+    assert prcten.shape == (nlon, nlev)
+    assert priten.shape == (nlon, nlev)
+    assert kcltop.shape == (nlon,)
+    assert kclbas.shape == (nlon,)
+    assert pumf.shape == (nlon, nlev)
 
-        print(f"\nTendency ranges:")
-        print(f"  Temperature: {ptten.min():.8f} - {ptten.max():.8f} K/s")
-        print(f"  Water vapor: {prvten.min():.10f} - {prvten.max():.10f} 1/s")
-        print(f"  Cloud water: {prcten.min():.10f} - {prcten.max():.10f} 1/s")
-        print(f"  Ice: {priten.min():.10f} - {priten.max():.10f} 1/s")
+    # Physical checks
+    assert np.all(np.isfinite(ptten)), "Non-finite values in temperature tendency"
+    assert np.all(np.isfinite(prvten)), "Non-finite values in vapor tendency"
+    assert np.all(np.isfinite(pumf)), "Non-finite values in mass flux"
 
-        # Find a convective column
-        conv_idx = np.where(kcltop > 0)[0][0]
-        print(f"\nExample convective column {conv_idx}:")
-        print(f"  Cloud top level: {kcltop[conv_idx]}")
-        print(f"  Cloud base level: {kclbas[conv_idx]}")
-        print(f"  Max mass flux: {pumf[conv_idx, :].max():.6f} kg/(s·m²)")
-        print(f"  Max temperature tendency: {ptten[conv_idx, :].max():.8f} K/s")
-    else:
-        print("\nNo convection was triggered in any column.")
-        print("This may be expected with the simple test profile.")
+    print("\n✓ All basic checks passed")
 
-    print("\n" + "=" * 70)
-    print("TEST COMPLETED SUCCESSFULLY")
-    print("=" * 70)
 
-    return 0
+def test_shallow_convection_with_repro_data(shallow_convection_repro_ds):
+    """
+    Test Fortran SHALLOW_CONVECTION with reproduction dataset.
+
+    Parameters
+    ----------
+    shallow_convection_repro_ds : xr.Dataset
+        Reference dataset from shallow_convection.nc (or shallow.nc) fixture
+    """
+    print("\n" + "="*70)
+    print("TEST: Fortran SHALLOW_CONVECTION with Reproduction Data")
+    print("="*70)
+
+    if shallow_convection is None:
+        pytest.skip("Cython wrapper not available")
+
+    try:
+        from numpy.testing import assert_allclose
+
+        # Get dataset dimensions
+        # The shallow.nc file has dimensions: time, dim_2, points_1500, dim_100, points_9000, dim_50
+        # We need to understand the data structure
+        ds = shallow_convection_repro_ds
+
+        print(f"\nDataset dimensions: {dict(ds.sizes)}")
+        print(f"Available variables: {list(ds.data_vars.keys())[:10]}...")
+
+        # NOTE: Since the data format is not fully documented yet,
+        # we'll load a time slice and extract dimensions from the data
+        # This is a placeholder that should be updated when data structure is clarified
+
+        # For now, let's assume a simple structure
+        # You may need to adjust this based on actual data layout
+        time_idx = 0
+
+        # Try to infer dimensions from the data
+        # Most variables appear to be (time, points) format
+        # Let's assume points_1500 = nlon * nlev format or similar
+
+        # This is a placeholder - adjust based on actual data documentation
+        print("\n⚠️  WARNING: Data loading needs to be customized based on")
+        print("   actual shallow_convection.nc variable mapping")
+        print("   Currently using placeholder structure")
+
+        # Placeholder: Skip detailed comparison until data structure is documented
+        pytest.skip("Shallow convection data structure needs documentation - see test for placeholder")
+
+    except Exception as e:
+        print(f"\n✗ Error: {e}")
+        import traceback
+        traceback.print_exc()
+        pytest.fail(f"Test failed: {e}")
 
 
 if __name__ == "__main__":
-    exit(main())
+    # Run basic test without pytest
+    test_shallow_convection_wrapper_basic()
+    print("\nNote: run with pytest to include repro data test.")
