@@ -1,71 +1,317 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-name: ci
+name: CI
 
 on:
   push:
     branches:
       - dev
+      - reorg
+      - main
+  pull_request:
+    branches:
+      - dev
+      - main
 
 permissions:
   contents: write
+  pull-requests: write
+  security-events: write
+
+env:
+  BENCHER_PROJECT: dwarf-p-ice3
+  BENCHER_ADAPTER: python_pytest
+  BENCHER_TESTBED: ubuntu-latest
+
 jobs:
-  build:
+  validate:
+    name: Validate PR
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Check PR title follows conventional commits
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          build
+          ci
+          chore
+        requireScope: false
+        subjectPattern: ^(?![A-Z]).+$
+        subjectPatternError: |
+          The subject "{subject}" found in the pull request title "{title}"
+          didn't match the configured pattern. Please ensure that the subject
+          doesn't start with an uppercase character.
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.12"]
+        python-version: ["3.10", "3.11", "3.12"]
     env:
       UV_PYTHON: ${{ matrix.python-version }}
+
     steps:
     - uses: actions/checkout@v5
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-          enable-cache: true
-          cache-dependency-glob: "uv.lock"
-          python-version: ${{ matrix.python-version }}
+        enable-cache: true
+        cache-dependency-glob: "uv.lock"
+        python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
       run: uv sync --extra test
-      
-    - name: Unit reproducibility test
-      run: uv run pytest tests/repro -k "debug or numpy" --maxfail=50
-      
-    - name: Component reproducibility tests
-      run: uv run pytest tests/components -k "debug or numpy"
 
-    - name: CPU performance tests
-      run: uv run pytest tests/performance -k cpu
-      
-    #- name: GPU performance tests
-    # run: uv run pytest pytest tests/components -m gpu
-    
-  deploy:
+    - name: Run tests with coverage
+      run: |
+        uv run pytest tests/repro -k "debug or numpy" --maxfail=50 --cov --cov-report=xml
+        uv run pytest tests/components -k "debug or numpy" --cov --cov-append --cov-report=xml
+        uv run pytest tests/performance -k cpu --cov --cov-append --cov-report=xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: matrix.python-version == '3.12' && github.event_name == 'pull_request'
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  benchmark:
+    name: Performance Benchmarks
     runs-on: ubuntu-latest
+    # Run benchmarks after tests pass (Python 3.12 only for efficiency)
+    needs: test
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Configure Git Credentials
-        run: |
-          git config user.name github-actions[bot]
-          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-      - uses: actions/setup-python@v5
-        with:
-          python-version: 3.x
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+    - uses: actions/checkout@v5
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.12"
 
-      - uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-      - run: pip install mkdocs
-      - run: pip install mkdocs-material
-      - run: pip install mkdocstrings
-      - run: pip install mkdocstrings-python
+    - name: Install dependencies
+      run: uv sync --extra test
 
+    - name: Run Benchmarks
+      run: |
+        uv run pytest tests/performance \
+          -k cpu \
+          --benchmark-only \
+          --benchmark-json=benchmark_results.json \
+          --benchmark-warmup=on \
+          --benchmark-disable-gc
 
-      - run: export PYTHONPATH=$PYTHONPATH:/home/runner/work/dwarf-p-ice3/dwarf-p-ice3/src && mkdocs gh-deploy --force
+    # Track benchmarks on base branches (dev, main)
+    # Note: Set BENCHER_API_TOKEN secret to enable benchmark tracking
+    - name: Track Base Branch Benchmarks
+      if: github.event_name == 'push'
+      uses: bencherdev/bencher@main
+      continue-on-error: true
+      with:
+        bencher-api-token: ${{ secrets.BENCHER_API_TOKEN }}
+        bencher-command: run
+        bencher-adapter: ${{ env.BENCHER_ADAPTER }}
+        bencher-testbed: ${{ env.BENCHER_TESTBED }}
+        bencher-threshold-branch: dev
+        bencher-thresholds-reset: true
+        bencher-file: benchmark_results.json
+        bencher-err: true
+
+    # Track PR benchmarks (same repo PRs)
+    # Note: Set BENCHER_API_TOKEN secret to enable benchmark tracking
+    - name: Track PR Benchmarks
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+      uses: bencherdev/bencher@main
+      continue-on-error: true
+      with:
+        bencher-api-token: ${{ secrets.BENCHER_API_TOKEN }}
+        bencher-command: run
+        bencher-adapter: ${{ env.BENCHER_ADAPTER }}
+        bencher-testbed: ${{ env.BENCHER_TESTBED }}
+        bencher-branch: ${{ github.head_ref }}
+        bencher-start-point: ${{ github.base_ref }}
+        bencher-start-point-clone-thresholds: true
+        bencher-thresholds-reset: true
+        bencher-file: benchmark_results.json
+        bencher-err: true
+        github-actions: ${{ secrets.GITHUB_TOKEN }}
+
+    # For fork PRs - save results for upload workflow
+    - name: Save Benchmark Results (Fork PRs)
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      uses: actions/cache/save@v4
+      with:
+        path: benchmark_results.json
+        key: benchmark-results-${{ github.event.pull_request.head.sha }}
+
+    - name: Save PR Context (Fork PRs)
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      run: echo "${{ github.event.number }}" > pr_number.txt
+
+    - name: Cache PR Number (Fork PRs)
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+      uses: actions/cache/save@v4
+      with:
+        path: pr_number.txt
+        key: pr-context-${{ github.event.pull_request.head.sha }}
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: uv sync --extra dev
+
+    - name: Run ruff check
+      run: uv run ruff check . --output-format=github
+
+    - name: Run ruff format check
+      run: uv run ruff format --check .
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  size-check:
+    name: Check Package Size
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: "3.12"
+
+    - name: Build package
+      run: uv build
+
+    - name: Check package size
+      run: |
+        wheel_size=$(ls -lh dist/*.whl | awk '{print $5}')
+        sdist_size=$(ls -lh dist/*.tar.gz | awk '{print $5}')
+        echo "📦 Wheel size: $wheel_size"
+        echo "📦 Source dist size: $sdist_size"
+
+        # Warn if wheel is larger than 50MB
+        wheel_bytes=$(stat -f%z dist/*.whl 2>/dev/null || stat -c%s dist/*.whl)
+        if [ $wheel_bytes -gt 52428800 ]; then
+          echo "⚠️ Warning: Wheel size exceeds 50MB"
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: package-distributions-pr
+        path: dist/
+        retention-days: 7
+
+  docs:
+    name: Deploy Documentation
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/dev'
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Configure Git Credentials
+      run: |
+        git config user.name github-actions[bot]
+        git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        python-version: "3.12"
+
+    - name: Set up cache
+      run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+
+    - uses: actions/cache@v4
+      with:
+        key: mkdocs-material-${{ env.cache_id }}
+        path: .cache
+        restore-keys: |
+          mkdocs-material-
+
+    - name: Install documentation dependencies
+      run: uv sync --extra doc
+
+    - name: Deploy documentation
+      run: uv run mkdocs gh-deploy --force
+
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [test, benchmark, lint]
+    if: always()
+
+    steps:
+    - name: Check results
+      run: |
+        echo "## 📊 CI Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+
+        if [ "${{ needs.test.result }}" = "failure" ]; then
+          echo "❌ Tests failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        elif [ "${{ needs.lint.result }}" = "failure" ]; then
+          echo "❌ Linting failed" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        elif [ "${{ needs.benchmark.result }}" = "failure" ]; then
+          echo "⚠️ Benchmarks failed (non-blocking)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+        fi

@@ -1,0 +1,253 @@
+name: Container Builds
+
+on:
+  push:
+    branches: ["reorg", "dev", "main"]
+    tags: ['v*.*.*']
+  pull_request:
+    branches: ["dev"]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    name: Build ${{ matrix.tag }}
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # JAX variants (from docker-publish.yml)
+          - target: jax-cpu
+            tag: jax-cpu
+            platforms: linux/amd64
+            convert_singularity: true
+          - target: jax-gpu
+            tag: jax-gpu
+            platforms: linux/amd64
+            convert_singularity: true
+          - target: jax-rocm
+            tag: jax-rocm
+            platforms: linux/amd64
+            convert_singularity: true
+
+          # Cython variants (from docker-publish.yml)
+          - target: cython-cpu
+            tag: cy-cpu
+            platforms: linux/amd64
+            convert_singularity: true
+          - target: cython-gpu
+            tag: cy-gpu
+            platforms: linux/amd64
+            convert_singularity: true
+          - target: cython-rocm
+            tag: cy-rocm
+            platforms: linux/amd64
+            convert_singularity: true
+
+          # HPC-specific variants (from hpc-build.yml)
+          - target: target-jax
+            tag: hpc-jax
+            platforms: linux/amd64
+            convert_singularity: true
+          - target: target-acc
+            tag: hpc-acc
+            platforms: linux/amd64
+            convert_singularity: true
+
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          flavor: |
+            suffix=-${{ matrix.tag }},onlatest=true
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=dwarf-p-ice3-${{ matrix.tag }}
+            org.opencontainers.image.description=PHYEX Physics Package - ${{ matrix.tag }} variant
+
+      - name: Build and Push Docker Image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          target: ${{ matrix.target }}
+          platforms: ${{ matrix.platforms }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ matrix.tag }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.tag }}
+          provenance: false  # Disable provenance for compatibility
+
+      - name: Generate artifact attestation
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+      - name: Build Singularity SIF
+        if: github.event_name != 'pull_request' && matrix.convert_singularity
+        run: |
+          mkdir -p sif_out
+
+          echo "Converting ${{ matrix.tag }} to Singularity..."
+          singularity build --force \
+            sif_out/dwarf_${{ matrix.tag }}.sif \
+            docker-daemon://${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.tag }}-${{ github.ref_name }}
+
+          # Show SIF info
+          singularity inspect sif_out/dwarf_${{ matrix.tag }}.sif
+          ls -lh sif_out/dwarf_${{ matrix.tag }}.sif
+
+      - name: Upload Singularity artifact
+        if: github.event_name != 'pull_request' && matrix.convert_singularity
+        uses: actions/upload-artifact@v4
+        with:
+          name: singularity-${{ matrix.tag }}
+          path: sif_out/dwarf_${{ matrix.tag }}.sif
+          retention-days: 30
+          compression-level: 0  # SIF files are already compressed
+
+      - name: Output Summary
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "## 🐳 Docker Image Built" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target:** \`${{ matrix.target }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** \`${{ matrix.tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** \`${{ steps.push.outputs.digest }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Pull command:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ matrix.tag }}-${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Download all Singularity artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: singularity-artifacts
+          pattern: singularity-*
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: singularity-artifacts/*.sif
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+          body: |
+            ## 🚀 Container Images Release
+
+            This release includes Docker images and Singularity (.sif) files for all variants.
+
+            ### Docker Images (GHCR)
+
+            **JAX Variants:**
+            - `ghcr.io/${{ github.repository }}:jax-cpu-${{ github.ref_name }}`
+            - `ghcr.io/${{ github.repository }}:jax-gpu-${{ github.ref_name }}`
+            - `ghcr.io/${{ github.repository }}:jax-rocm-${{ github.ref_name }}`
+
+            **Cython Variants:**
+            - `ghcr.io/${{ github.repository }}:cy-cpu-${{ github.ref_name }}`
+            - `ghcr.io/${{ github.repository }}:cy-gpu-${{ github.ref_name }}`
+            - `ghcr.io/${{ github.repository }}:cy-rocm-${{ github.ref_name }}`
+
+            **HPC Variants:**
+            - `ghcr.io/${{ github.repository }}:hpc-jax-${{ github.ref_name }}`
+            - `ghcr.io/${{ github.repository }}:hpc-acc-${{ github.ref_name }}`
+
+            ### Singularity Images
+            Download the `.sif` files from the assets below for HPC environments.
+
+            ### Usage
+
+            **Docker:**
+            ```bash
+            # Pull an image
+            docker pull ghcr.io/${{ github.repository }}:jax-gpu-${{ github.ref_name }}
+
+            # Run interactively
+            docker run -it ghcr.io/${{ github.repository }}:jax-gpu-${{ github.ref_name }}
+            ```
+
+            **Singularity:**
+            ```bash
+            # Pull from registry
+            singularity pull dwarf_jax-gpu.sif oras://ghcr.io/${{ github.repository }}:jax-gpu-${{ github.ref_name }}
+
+            # Or download .sif from release assets and run directly
+            singularity run dwarf_jax-gpu.sif
+            ```
+
+  summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: always()
+
+    steps:
+      - name: Check build results
+        run: |
+          echo "## 📊 Container Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.build-and-push.result }}" = "success" ]; then
+            echo "✅ All 8 container variants built successfully" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Built variants:**" >> $GITHUB_STEP_SUMMARY
+            echo "- JAX: cpu, gpu, rocm" >> $GITHUB_STEP_SUMMARY
+            echo "- Cython: cpu, gpu, rocm" >> $GITHUB_STEP_SUMMARY
+            echo "- HPC: jax, acc" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build-and-push.result }}" = "failure" ]; then
+            echo "❌ Some container builds failed" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "⚠️ Build status: ${{ needs.build-and-push.result }}" >> $GITHUB_STEP_SUMMARY
+          fi

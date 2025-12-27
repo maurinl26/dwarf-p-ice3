@@ -1,0 +1,101 @@
+{
+  "name": "dwarf-p-ice3",
+
+  // Build configuration - uses stages from container/Dockerfile
+  "build": {
+    "dockerfile": "../container/Dockerfile",
+    "context": "..",
+    "target": "dev-cpu",  // Change to "dev-gpu" for GPU development
+    "args": {
+      "USERNAME": "vscode",
+      "USER_UID": "1000",
+      "USER_GID": "1000"
+    }
+  },
+
+  // VS Code customizations
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/app/.venv/bin/python",
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": [
+          "tests",
+          "-v"
+        ],
+        "python.testing.unittestEnabled": false,
+        "python.linting.enabled": true,
+        "python.linting.ruffEnabled": true,
+        "python.formatting.provider": "none",
+        "[python]": {
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          },
+          "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        "files.exclude": {
+          "**/__pycache__": true,
+          "**/*.pyc": true,
+          "**/.pytest_cache": true,
+          "**/.gt_cache": true,
+          "**/build": true
+        },
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-python.debugpy",
+        "littlefoxteam.vscode-python-test-adapter",
+        "hbenl.vscode-test-explorer",
+        "eamodio.gitlens",
+        "yzhang.markdown-all-in-one",
+        "redhat.vscode-yaml",
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools"
+      ]
+    }
+  },
+
+  // Mount data and cache directories for better performance
+  "mounts": [
+    "source=${localWorkspaceFolder}/data,target=/app/data,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/.gt_cache,target=/app/.gt_cache,type=bind,consistency=cached"
+  ],
+
+  // Run setup script after container creation
+  "postCreateCommand": "bash .devcontainer/scripts/post-create.sh",
+
+  // Use non-root user
+  "remoteUser": "vscode",
+
+  // Uncomment these lines if using GPU (also change target to "dev-gpu" above)
+  // "runArgs": [
+  //   "--gpus=all",
+  //   "--runtime=nvidia"
+  // ],
+  // "containerEnv": {
+  //   "NVIDIA_VISIBLE_DEVICES": "all",
+  //   "NVIDIA_DRIVER_CAPABILITIES": "compute,utility"
+  // },
+
+  // Dev container features
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "version": "latest"
+    }
+    // Uncomment for GPU support (also change target to "dev-gpu" above)
+    // "ghcr.io/devcontainers/features/nvidia-cuda:1": {
+    //   "installCudnn": true
+    // }
+  }
+}

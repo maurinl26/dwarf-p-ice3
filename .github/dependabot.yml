@@ -1,0 +1,50 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+
+  # Python dependencies via uv
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "python"
+    groups:
+      # Group JAX ecosystem updates together
+      jax:
+        patterns:
+          - "jax*"
+          - "flax*"
+      # Group development dependencies
+      dev-dependencies:
+        patterns:
+          - "pytest*"
+          - "ruff"
+          - "coverage*"
+          - "mkdocs*"
+      # Group scientific computing libraries
+      scientific:
+        patterns:
+          - "numpy"
+          - "scipy"
+          - "xarray"
+
+  # Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
