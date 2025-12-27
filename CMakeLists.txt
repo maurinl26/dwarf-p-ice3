@@ -246,6 +246,25 @@ set(MICRO_FUNC_SOURCES
 )
 
 # ============================================================================
+# CONVECTION SUBROUTINES
+# ============================================================================
+set(CONV_SOURCES
+    ${PHYEX_DIR}/conv/convect_satmixratio.F90
+    ${PHYEX_DIR}/conv/convect_condens.F90
+    ${PHYEX_DIR}/conv/convect_mixing_funct.F90
+    ${PHYEX_DIR}/conv/convect_trigger_shal.F90
+    ${PHYEX_DIR}/conv/convect_updraft_shal.F90
+    ${PHYEX_DIR}/conv/convect_closure_thrvlcl.F90
+    ${PHYEX_DIR}/conv/convect_closure_adjust_shal.F90
+    ${PHYEX_DIR}/conv/convect_closure_shal.F90
+    ${PHYEX_DIR}/conv/convect_chem_transport.F90
+    ${PHYEX_DIR}/conv/shallow_convection_part1.F90
+    ${PHYEX_DIR}/conv/shallow_convection_part2.F90
+    ${PHYEX_DIR}/conv/shallow_convection_part2_select.F90
+    ${PHYEX_DIR}/conv/shallow_convection.F90
+)
+
+# ============================================================================
 # MODI INTERFACES
 # ============================================================================
 set(MODI_SOURCES
@@ -262,7 +281,10 @@ set(MODI_SOURCES
     ${PHYEX_DIR}/micro/modi_ice_adjust.F90
     ${PHYEX_DIR}/micro/modi_condensation.F90
     ${PHYEX_DIR}/micro/modi_rain_ice.F90
-    # ${PHYEX_DIR}/conv/modi_shallow_convection.F90  # Disabled - missing part* modules
+    ${PHYEX_DIR}/conv/modi_shallow_convection_part1.F90
+    ${PHYEX_DIR}/conv/modi_shallow_convection_part2.F90
+    ${PHYEX_DIR}/conv/modi_shallow_convection_part2_select.F90
+    ${PHYEX_DIR}/conv/modi_shallow_convection.F90
 )
 
 # ============================================================================
@@ -272,7 +294,6 @@ set(MAIN_SOURCES
     ${PHYEX_DIR}/micro/condensation.F90
     ${PHYEX_DIR}/micro/ice_adjust.F90
     ${PHYEX_DIR}/micro/rain_ice.F90
-    # ${PHYEX_DIR}/conv/shallow_convection.F90  # Disabled - missing part* modules
 )
 
 # ============================================================================
@@ -326,6 +347,9 @@ set(ALL_SOURCES
 
     # Level 9b: OpenACC GPU-accelerated main routines (if enabled)
     ${MAIN_SOURCES_ACC}
+
+    # Level 9c: Convection subroutines (shallow_convection and dependencies)
+    ${CONV_SOURCES}
 
     # Level 10: Bridge module (depends on everything)
     ${BRIDGE_SOURCES}

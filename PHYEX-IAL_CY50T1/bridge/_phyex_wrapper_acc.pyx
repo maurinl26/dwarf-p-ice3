@@ -1,10 +1,10 @@
 # distutils: language = c
 # cython: language_level = 3
 """
-Cython wrapper for PHYEX ICE_ADJUST GPU-accelerated routine.
+Cython wrapper for PHYEX GPU-accelerated routines (ICE_ADJUST and RAIN_ICE).
 
-This module provides a Python/JAX/CuPy interface to the Fortran ICE_ADJUST_ACC
-subroutine through a C bridge defined in phyex_bridge_acc.F90.
+This module provides a Python/JAX/CuPy interface to the Fortran OpenACC routines
+through a C bridge defined in phyex_bridge_acc.F90.
 
 GPU Acceleration:
 - Requires NVIDIA GPU with OpenACC support
@@ -12,20 +12,26 @@ GPU Acceleration:
 - Compatible with JAX via DLPack protocol
 - Falls back to NumPy/CPU if GPU unavailable
 
+Available Classes:
+- IceAdjustGPU: GPU wrapper for ICE_ADJUST (cloud adjustment)
+- RainIceGPU: GPU wrapper for RAIN_ICE (microphysics)
+
 Example usage:
     import cupy as cp
-    from ice3.fortran_gpu import IceAdjustGPU
+    from ice3.fortran_gpu import IceAdjustGPU, RainIceGPU
 
-    # Create instance
+    # Create instances
     ice_adjust_gpu = IceAdjustGPU()
+    rain_ice_gpu = RainIceGPU()
 
     # Allocate arrays on GPU
     th = cp.random.uniform(250, 300, (1000, 60), dtype=cp.float32)
     rv = cp.random.uniform(0.001, 0.015, (1000, 60), dtype=cp.float32)
     # ... other arrays
 
-    # Run GPU kernel
+    # Run GPU kernels
     ice_adjust_gpu(th, rv, rc, ri, ...)
+    rain_ice_gpu(exn, dzz, rhodj, ...)
 
     # Results are updated in-place on GPU
 """
@@ -78,6 +84,61 @@ cdef extern:
         float *ptr_cldfr,
         float *ptr_icldfr,
         float *ptr_wcldfr
+    ) nogil
+
+    void c_rain_ice_acc(
+        int nlon,
+        int nlev,
+        int krr,
+        float timestep,
+        # GPU device pointers (passed from CuPy)
+        float *ptr_exn,
+        float *ptr_dzz,
+        float *ptr_rhodj,
+        float *ptr_rhodref,
+        float *ptr_exnref,
+        float *ptr_pabs,
+        float *ptr_cit,
+        float *ptr_cldfr,
+        float *ptr_icldfr,
+        float *ptr_ssio,
+        float *ptr_ssiu,
+        float *ptr_ifr,
+        float *ptr_hlc_hrc,
+        float *ptr_hlc_hcf,
+        float *ptr_hli_hri,
+        float *ptr_hli_hcf,
+        float *ptr_tht,
+        float *ptr_rvt,
+        float *ptr_rct,
+        float *ptr_rrt,
+        float *ptr_rit,
+        float *ptr_rst,
+        float *ptr_rgt,
+        # Tendencies (input/output on GPU)
+        float *ptr_ths,
+        float *ptr_rvs,
+        float *ptr_rcs,
+        float *ptr_rrs,
+        float *ptr_ris,
+        float *ptr_rss,
+        float *ptr_rgs,
+        # Output on GPU
+        float *ptr_inprc,
+        float *ptr_inprr,
+        float *ptr_evap3d,
+        float *ptr_inprs,
+        float *ptr_inprg,
+        float *ptr_indep,
+        float *ptr_rainfr,
+        float *ptr_sigs,
+        float *ptr_sea,
+        float *ptr_town,
+        float *ptr_conc3d,
+        float *ptr_rht,
+        float *ptr_rhs,
+        float *ptr_inprh,
+        float *ptr_fpr
     ) nogil
 
 
@@ -422,3 +483,253 @@ def ice_adjust_jax_gpu(th, rv, rc, ri, rr, rs, rg, **kwargs):
     return (cupy_to_jax(cldfr_cp),
             cupy_to_jax(icldfr_cp),
             cupy_to_jax(wcldfr_cp))
+
+
+class RainIceGPU:
+    """
+    GPU-accelerated RAIN_ICE wrapper using OpenACC and CuPy.
+
+    This class provides a high-level interface to the Fortran OpenACC
+    implementation of RAIN_ICE (microphysics scheme), handling GPU memory
+    management and data transfer automatically.
+
+    Attributes:
+        has_gpu (bool): Whether GPU acceleration is available
+        default_krr (int): Default number of hydrometeor species (6 for ICE3)
+        default_timestep (float): Default timestep in seconds
+
+    Methods:
+        __call__: Execute rain_ice on GPU arrays
+        from_numpy: Convert NumPy arrays to GPU and execute
+    """
+
+    def __init__(self, krr=6, timestep=1.0):
+        """
+        Initialize GPU RAIN_ICE wrapper.
+
+        Parameters:
+            krr (int): Number of hydrometeor species (default: 6 for ICE3)
+            timestep (float): Model timestep in seconds (default: 1.0)
+        """
+        self.krr = krr
+        self.timestep = timestep
+        self.has_gpu = HAS_CUPY
+
+        if not self.has_gpu:
+            raise RuntimeError(
+                "CuPy is required for GPU acceleration. "
+                "Install with: pip install cupy-cuda12x"
+            )
+
+    def __call__(self,
+                 exn, dzz, rhodj, rhodref, exnref, pabs,  # 2D state variables
+                 cit, cldfr, icldfr, ssio, ssiu, ifr,  # 2D cloud variables
+                 hlc_hrc, hlc_hcf, hli_hri, hli_hcf,  # 2D enthalpy variables
+                 tht, rvt, rct, rrt, rit, rst, rgt,  # 2D hydrometeor variables
+                 ths, rvs, rcs, rrs, ris, rss, rgs,  # 2D tendencies (IN/OUT)
+                 inprc, inprr, evap3d, inprs, inprg, indep,  # 2D outputs
+                 rainfr, sigs, sea, town, conc3d,  # 2D additional outputs
+                 rht, rhs, inprh, fpr):  # 2D/3D hail outputs
+        """
+        Execute RAIN_ICE on GPU arrays (CuPy).
+
+        All arrays must be CuPy arrays on GPU with dtype=float32.
+        Arrays are modified IN-PLACE on the GPU.
+
+        Parameters:
+            exn: (nlon, nlev) - Exner function
+            dzz: (nlon, nlev) - Layer thickness [m]
+            rhodj: (nlon, nlev) - Dry air density * Jacobian [kg/m³]
+            rhodref: (nlon, nlev) - Reference dry air density [kg/m³]
+            exnref: (nlon, nlev) - Reference Exner function
+            pabs: (nlon, nlev) - Absolute pressure [Pa]
+            cit: (nlon, nlev) - Ice crystal concentration [#/kg]
+            cldfr: (nlon, nlev) - Total cloud fraction
+            icldfr: (nlon, nlev) - Ice cloud fraction
+            ssio: (nlon, nlev) - Super-saturation over ice (OUT)
+            ssiu: (nlon, nlev) - Sub-saturation over ice (OUT)
+            ifr: (nlon, nlev) - Ice fraction
+            hlc_hrc, hlc_hcf: (nlon, nlev) - Liquid enthalpy variables
+            hli_hri, hli_hcf: (nlon, nlev) - Ice enthalpy variables
+            tht: (nlon, nlev) - Potential temperature [K]
+            rvt: (nlon, nlev) - Water vapor mixing ratio [kg/kg]
+            rct: (nlon, nlev) - Cloud water mixing ratio [kg/kg]
+            rrt: (nlon, nlev) - Rain mixing ratio [kg/kg]
+            rit: (nlon, nlev) - Cloud ice mixing ratio [kg/kg]
+            rst: (nlon, nlev) - Snow mixing ratio [kg/kg]
+            rgt: (nlon, nlev) - Graupel mixing ratio [kg/kg]
+            ths, rvs, rcs, rrs, ris, rss, rgs: (nlon, nlev) - Tendencies (IN/OUT)
+            inprc: (nlon, nlev) - Cloud water precipitation rate (OUT)
+            inprr: (nlon, nlev) - Rain precipitation rate (OUT)
+            evap3d: (nlon, nlev) - 3D evaporation field (OUT)
+            inprs: (nlon, nlev) - Snow precipitation rate (OUT)
+            inprg: (nlon, nlev) - Graupel precipitation rate (OUT)
+            indep: (nlon, nlev) - Deposition rate (OUT)
+            rainfr: (nlon, nlev) - Rain fraction (OUT)
+            sigs: (nlon, nlev) - Sigma_s turbulence parameter
+            sea: (nlon, nlev) - Sea mask
+            town: (nlon, nlev) - Town fraction
+            conc3d: (nlon, nlev) - 3D droplet concentration (OUT)
+            rht: (nlon, nlev) - Hail mixing ratio [kg/kg]
+            rhs: (nlon, nlev) - Hail tendency (IN/OUT)
+            inprh: (nlon, nlev) - Hail precipitation rate (OUT)
+            fpr: (nlon, nlev, krr) - Precipitation flux profile (OUT)
+
+        Returns:
+            None (arrays modified in-place)
+
+        Raises:
+            ValueError: If array shapes are inconsistent or not on GPU
+            TypeError: If arrays are not CuPy arrays
+        """
+        # Validate inputs
+        if not HAS_CUPY:
+            raise RuntimeError("CuPy not available")
+
+        # Check all 2D arrays are CuPy arrays
+        arrays_2d = [exn, dzz, rhodj, rhodref, exnref, pabs,
+                     cit, cldfr, icldfr, ssio, ssiu, ifr,
+                     hlc_hrc, hlc_hcf, hli_hri, hli_hcf,
+                     tht, rvt, rct, rrt, rit, rst, rgt,
+                     ths, rvs, rcs, rrs, ris, rss, rgs,
+                     inprc, inprr, evap3d, inprs, inprg, indep,
+                     rainfr, sigs, sea, town, conc3d,
+                     rht, rhs, inprh]
+
+        for arr in arrays_2d:
+            if not isinstance(arr, cp.ndarray):
+                raise TypeError(f"Expected CuPy array, got {type(arr)}")
+            if arr.dtype != np.float32:
+                raise ValueError(f"Expected float32 dtype, got {arr.dtype}")
+
+        # Check 3D array
+        if not isinstance(fpr, cp.ndarray):
+            raise TypeError(f"Expected CuPy array for fpr, got {type(fpr)}")
+        if fpr.dtype != np.float32:
+            raise ValueError(f"Expected float32 dtype for fpr, got {fpr.dtype}")
+
+        # Get dimensions
+        nlon, nlev = exn.shape
+
+        # Validate all 2D arrays have same shape
+        for arr in arrays_2d:
+            if arr.shape != (nlon, nlev):
+                raise ValueError(f"Array shape {arr.shape} != ({nlon}, {nlev})")
+
+        # Validate 3D array shape
+        if fpr.shape != (nlon, nlev, self.krr):
+            raise ValueError(f"fpr shape {fpr.shape} != ({nlon}, {nlev}, {self.krr})")
+
+        # Ensure arrays are contiguous in memory (required for GPU kernels)
+        arrays_2d_contig = [cp.ascontiguousarray(arr) for arr in arrays_2d]
+        fpr_contig = cp.ascontiguousarray(fpr)
+
+        # Extract GPU device pointers for 2D arrays
+        cdef long ptr_exn_val = arrays_2d_contig[0].data.ptr
+        cdef long ptr_dzz_val = arrays_2d_contig[1].data.ptr
+        cdef long ptr_rhodj_val = arrays_2d_contig[2].data.ptr
+        cdef long ptr_rhodref_val = arrays_2d_contig[3].data.ptr
+        cdef long ptr_exnref_val = arrays_2d_contig[4].data.ptr
+        cdef long ptr_pabs_val = arrays_2d_contig[5].data.ptr
+        cdef long ptr_cit_val = arrays_2d_contig[6].data.ptr
+        cdef long ptr_cldfr_val = arrays_2d_contig[7].data.ptr
+        cdef long ptr_icldfr_val = arrays_2d_contig[8].data.ptr
+        cdef long ptr_ssio_val = arrays_2d_contig[9].data.ptr
+        cdef long ptr_ssiu_val = arrays_2d_contig[10].data.ptr
+        cdef long ptr_ifr_val = arrays_2d_contig[11].data.ptr
+        cdef long ptr_hlc_hrc_val = arrays_2d_contig[12].data.ptr
+        cdef long ptr_hlc_hcf_val = arrays_2d_contig[13].data.ptr
+        cdef long ptr_hli_hri_val = arrays_2d_contig[14].data.ptr
+        cdef long ptr_hli_hcf_val = arrays_2d_contig[15].data.ptr
+        cdef long ptr_tht_val = arrays_2d_contig[16].data.ptr
+        cdef long ptr_rvt_val = arrays_2d_contig[17].data.ptr
+        cdef long ptr_rct_val = arrays_2d_contig[18].data.ptr
+        cdef long ptr_rrt_val = arrays_2d_contig[19].data.ptr
+        cdef long ptr_rit_val = arrays_2d_contig[20].data.ptr
+        cdef long ptr_rst_val = arrays_2d_contig[21].data.ptr
+        cdef long ptr_rgt_val = arrays_2d_contig[22].data.ptr
+        cdef long ptr_ths_val = arrays_2d_contig[23].data.ptr
+        cdef long ptr_rvs_val = arrays_2d_contig[24].data.ptr
+        cdef long ptr_rcs_val = arrays_2d_contig[25].data.ptr
+        cdef long ptr_rrs_val = arrays_2d_contig[26].data.ptr
+        cdef long ptr_ris_val = arrays_2d_contig[27].data.ptr
+        cdef long ptr_rss_val = arrays_2d_contig[28].data.ptr
+        cdef long ptr_rgs_val = arrays_2d_contig[29].data.ptr
+        cdef long ptr_inprc_val = arrays_2d_contig[30].data.ptr
+        cdef long ptr_inprr_val = arrays_2d_contig[31].data.ptr
+        cdef long ptr_evap3d_val = arrays_2d_contig[32].data.ptr
+        cdef long ptr_inprs_val = arrays_2d_contig[33].data.ptr
+        cdef long ptr_inprg_val = arrays_2d_contig[34].data.ptr
+        cdef long ptr_indep_val = arrays_2d_contig[35].data.ptr
+        cdef long ptr_rainfr_val = arrays_2d_contig[36].data.ptr
+        cdef long ptr_sigs_val = arrays_2d_contig[37].data.ptr
+        cdef long ptr_sea_val = arrays_2d_contig[38].data.ptr
+        cdef long ptr_town_val = arrays_2d_contig[39].data.ptr
+        cdef long ptr_conc3d_val = arrays_2d_contig[40].data.ptr
+        cdef long ptr_rht_val = arrays_2d_contig[41].data.ptr
+        cdef long ptr_rhs_val = arrays_2d_contig[42].data.ptr
+        cdef long ptr_inprh_val = arrays_2d_contig[43].data.ptr
+        cdef long ptr_fpr_val = fpr_contig.data.ptr
+
+        # Call Fortran GPU kernel
+        with nogil:
+            c_rain_ice_acc(
+                <int>nlon,
+                <int>nlev,
+                <int>self.krr,
+                <float>self.timestep,
+                <float*>ptr_exn_val,
+                <float*>ptr_dzz_val,
+                <float*>ptr_rhodj_val,
+                <float*>ptr_rhodref_val,
+                <float*>ptr_exnref_val,
+                <float*>ptr_pabs_val,
+                <float*>ptr_cit_val,
+                <float*>ptr_cldfr_val,
+                <float*>ptr_icldfr_val,
+                <float*>ptr_ssio_val,
+                <float*>ptr_ssiu_val,
+                <float*>ptr_ifr_val,
+                <float*>ptr_hlc_hrc_val,
+                <float*>ptr_hlc_hcf_val,
+                <float*>ptr_hli_hri_val,
+                <float*>ptr_hli_hcf_val,
+                <float*>ptr_tht_val,
+                <float*>ptr_rvt_val,
+                <float*>ptr_rct_val,
+                <float*>ptr_rrt_val,
+                <float*>ptr_rit_val,
+                <float*>ptr_rst_val,
+                <float*>ptr_rgt_val,
+                <float*>ptr_ths_val,
+                <float*>ptr_rvs_val,
+                <float*>ptr_rcs_val,
+                <float*>ptr_rrs_val,
+                <float*>ptr_ris_val,
+                <float*>ptr_rss_val,
+                <float*>ptr_rgs_val,
+                <float*>ptr_inprc_val,
+                <float*>ptr_inprr_val,
+                <float*>ptr_evap3d_val,
+                <float*>ptr_inprs_val,
+                <float*>ptr_inprg_val,
+                <float*>ptr_indep_val,
+                <float*>ptr_rainfr_val,
+                <float*>ptr_sigs_val,
+                <float*>ptr_sea_val,
+                <float*>ptr_town_val,
+                <float*>ptr_conc3d_val,
+                <float*>ptr_rht_val,
+                <float*>ptr_rhs_val,
+                <float*>ptr_inprh_val,
+                <float*>ptr_fpr_val
+            )
+
+        # Results are updated in-place on GPU
+        # Copy back to original arrays if they weren't contiguous
+        for i, arr_orig in enumerate(arrays_2d):
+            if arr_orig.data.ptr != arrays_2d_contig[i].data.ptr:
+                arr_orig[:] = arrays_2d_contig[i]
+
+        if fpr.data.ptr != fpr_contig.data.ptr:
+            fpr[:] = fpr_contig

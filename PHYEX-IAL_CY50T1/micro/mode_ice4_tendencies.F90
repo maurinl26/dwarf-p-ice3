@@ -135,42 +135,63 @@ REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 IF (LHOOK) CALL DR_HOOK('ICE4_TENDENCIES', 0, ZHOOK_HANDLE)
 
+!$acc data present( PEXN, PRHODREF, PLVFACT, PLSFACT, K1, K2, &
+!$acc              PPRES, PCF, PSIGMA_RC, PCIT, PT, PICLDFR, PZZZ, PCONC, &
+!$acc              PSSIO, PSSIU, PIFR, PVART, PLATHAM_IAGGS, PBU_INST, &
+!$acc              PRS_TEND, PRG_TEND, PRH_TEND, PSSI, PA, PB, &
+!$acc              PHLC_HCF, PHLC_LCF, PHLC_HRC, PHLC_LRC, &
+!$acc              PHLI_HCF, PHLI_LCF, PHLI_HRI, PHLI_LRI, PRAINFR, LDCOMPUTE ) &
+!$acc      create( ZT, ZVART, ZLSFACT, ZLVFACT, ZUSW, ZZW, ZZX, ZZY, &
+!$acc              ZRHODREF, ZAI, ZCJ, ZLBDAR, ZLBDAR_RF, ZLBDAS, ZLBDAG, &
+!$acc              ZRCS, ZRCT, ZRRS, ZRRT, ZRIS, ZRIT, ZRSS, ZRST, ZRGS, ZRGT, &
+!$acc              LLWETG, ZFREEZ_RATE )
+
 LLTAB = .TRUE.
 LLCOL = .TRUE.
 
 !
 
+!$acc kernels
 ZT(:)=PT(:)
+!$acc end kernels
+!$acc parallel loop
 DO JV=0,KRR
   ZVART(:,JV)=PVART(:,JV)
   PA(:,JV)=0.
   PB(:,JV)=0.
 ENDDO
+!$acc end parallel loop
 
 !
 IF(ODSOFT) THEN
 
+!$acc kernels
   PBU_INST(:, IRVHENI_MR)=0.
   PBU_INST(:, IRRHONG_MR)=0.
   PBU_INST(:, IRIMLTC_MR)=0.
   PBU_INST(:, IRSRIMCG_MR)=0.
+!$acc end kernels
 
 ELSE
   !
   !*       2.     COMPUTES THE SLOW COLD PROCESS SOURCES
   !               --------------------------------------
+!$acc parallel loop
   DO JL=1, KSIZE
     CALL ICE4_NUCLEATION(CST, PARAMI, ICEP, ICED, LDCOMPUTE(JL), &
                      ZVART(JL,ITH), PPRES(JL), PRHODREF(JL), PEXN(JL), PLSFACT(JL), ZT(JL), &
                      ZVART(JL,IRV), PICLDFR(JL), PZZZ(JL), &
                      PCIT(JL), PBU_INST(JL, IRVHENI_MR))
   ENDDO
+!$acc end parallel loop
+!$acc parallel loop
   DO JL=1, KSIZE
     ZVART(JL,ITH)=ZVART(JL,ITH) + PBU_INST(JL, IRVHENI_MR)*PLSFACT(JL)
     ZT(JL) = ZVART(JL,ITH) * PEXN(JL)
     ZVART(JL,IRV)=ZVART(JL,IRV) - PBU_INST(JL, IRVHENI_MR)
     ZVART(JL,IRI)=ZVART(JL,IRI) + PBU_INST(JL, IRVHENI_MR)
   ENDDO
+!$acc end parallel loop
 
   !
   !*       3.3     compute the spontaneous freezing source: RRHONG
@@ -182,12 +203,14 @@ ELSE
                   &PBU_INST(:, IRRHONG_MR))
 
 
+!$acc parallel loop
   DO JL=1, KSIZE
     ZVART(JL,ITH) = ZVART(JL,ITH) + PBU_INST(JL, IRRHONG_MR)*(PLSFACT(JL)-PLVFACT(JL)) ! f(L_f*(RRHONG))
     ZT(JL) = ZVART(JL,ITH) * PEXN(JL)
     ZVART(JL,IRR) = ZVART(JL,IRR) - PBU_INST(JL, IRRHONG_MR)
     ZVART(JL,IRG) = ZVART(JL,IRG) + PBU_INST(JL, IRRHONG_MR)
   ENDDO
+!$acc end parallel loop
 
   !
   !*       7.1    cloud ice melting
@@ -199,12 +222,14 @@ ELSE
                   &PBU_INST(:, IRIMLTC_MR))
 
 
+!$acc parallel loop
   DO JL=1, KSIZE
     ZVART(JL,ITH) = ZVART(JL,ITH) - PBU_INST(JL, IRIMLTC_MR)*(PLSFACT(JL)-PLVFACT(JL)) ! f(L_f*(-RIMLTC))
     ZT(JL) = ZVART(JL,ITH) * PEXN(JL)
     ZVART(JL,IRC) = ZVART(JL,IRC) + PBU_INST(JL, IRIMLTC_MR)
     ZVART(JL,IRI) = ZVART(JL,IRI) - PBU_INST(JL, IRIMLTC_MR)
   ENDDO
+!$acc end parallel loop
 
   !
   !        5.1.6  riming-conversion of the large sized aggregates into graupel (old parametrisation)
@@ -691,6 +716,8 @@ DO JL=1, KSIZE
   ENDIF
 ENDDO
 
+!
+!$acc end data
 !
 IF (LHOOK) CALL DR_HOOK('ICE4_TENDENCIES', 1, ZHOOK_HANDLE)
 !

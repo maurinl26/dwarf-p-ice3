@@ -98,7 +98,7 @@ ninja.make-fallback = true
 build-dir = "build/{wheel_tag}"
 
 # Install the compiled library to the package
-install.components = ["ice_adjust_phyex"]
+install.components = ["ice_adjust_phyex", "_phyex_wrapper", "_phyex_wrapper_acc"]
 
 # Ensure Fortran sources and Cython wrapper are included
 sdist.include = [
@@ -107,6 +107,7 @@ sdist.include = [
     "PHYEX-IAL_CY50T1/**/*.f90",
     "PHYEX-IAL_CY50T1/**/*.h",
     "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper.pyx",
+    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper_acc.pyx",
 ]
 
 # Install the library to the ice3 package directory
