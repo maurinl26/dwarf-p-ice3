@@ -38,8 +38,8 @@ cdef extern:
         float *ptr_prvten,
         float *ptr_prcten,
         float *ptr_priten,
-        int *ptr_kcltop,
-        int *ptr_kclbas,
+        np.int32_t *ptr_kcltop,
+        np.int32_t *ptr_kclbas,
         float *ptr_pumf,
         float *ptr_pch1,
         float *ptr_pch1ten

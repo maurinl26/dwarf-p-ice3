@@ -481,6 +481,7 @@ CONTAINS
         TYPE(DIMPHYEX_t) :: D
         TYPE(NSV_t) :: NSV
         TYPE(CONVPAR_t) :: CONVPAR
+        TYPE(CONVPAR_SHAL) :: CVP_SHAL
         LOGICAL :: LOSETTADJ, LOCH1CONV
 
         ! Convert C integers to Fortran logicals
@@ -557,28 +558,53 @@ CONTAINS
         NSV%NSV_CHEMBEG = 0
         NSV%NSV_CHEMEND = 0
 
-        ! Initialize convection parameters with defaults
-        CONVPAR%XDTPERT = 1.0_C_FLOAT      ! Perturbation duration
-        CONVPAR%XDTPERT_MAX = 1800.0_C_FLOAT ! Max perturbation duration
-        CONVPAR%XDTPERT_MIN = 900.0_C_FLOAT  ! Min perturbation duration
-        CONVPAR%XDTCONV = 300.0_C_FLOAT    ! Convective time step
-        CONVPAR%XSTABT = 1200.0_C_FLOAT    ! Stabilization time
-        CONVPAR%XSTABC = 900.0_C_FLOAT     ! Stabilization constant
+        ! Initialize CONVPAR structure (deep convection parameters)
         CONVPAR%XA25 = 625.0E6_C_FLOAT     ! Reference grid area (25km)^2
         CONVPAR%XCRAD = 1500.0_C_FLOAT     ! Cloud radius (m)
-        CONVPAR%XCDEPTH = 3000.0_C_FLOAT   ! Cloud depth for organization
+        CONVPAR%XCDEPTH = 3000.0_C_FLOAT   ! Minimum necessary cloud depth
         CONVPAR%XENTR = 0.03_C_FLOAT       ! Entrainment constant
         CONVPAR%XZLCL = 3500.0_C_FLOAT     ! Max LCL height
-        CONVPAR%XZPBL = 60.0_C_FLOAT       ! Minimum PBL height
-        CONVPAR%XWTRIG = 0.6_C_FLOAT       ! Trigger vertical velocity
-        CONVPAR%XNHGAM = 0.33_C_FLOAT      ! Gaussian distribution width
+        CONVPAR%XZPBL = 6000.0_C_FLOAT     ! Minimum PBL height
+        CONVPAR%XWTRIG = 6.0_C_FLOAT       ! Trigger vertical velocity
+        CONVPAR%XNHGAM = 1.3333_C_FLOAT    ! Non-hydrostatic pressure factor
+        CONVPAR%XTFRZ1 = 268.16_C_FLOAT    ! Freezing interval begin
+        CONVPAR%XTFRZ2 = 248.16_C_FLOAT    ! Freezing interval end
+        CONVPAR%XRHDBC = 0.9_C_FLOAT       ! Relative humidity below cloud
+        CONVPAR%XRCONV = 0.015_C_FLOAT     ! Precipitation conversion constant
+        CONVPAR%XSTABT = 0.75_C_FLOAT      ! Stability in fractional time integration
+        CONVPAR%XSTABC = 0.95_C_FLOAT      ! Stability in CAPE adjustment
+        CONVPAR%XUSRDPTH = 16500.0_C_FLOAT ! Pressure thickness for updraft moisture
+        CONVPAR%XMELDPTH = 10000.0_C_FLOAT ! Layer for precipitation melt
+        CONVPAR%XUVDP = 0.7_C_FLOAT        ! Pressure perturbation in momentum transport
+
+        ! Initialize CVP_SHAL structure (shallow convection parameters)
+        CVP_SHAL%XA25 = 625.0E6_C_FLOAT       ! Reference grid area
+        CVP_SHAL%XCRAD = 1500.0_C_FLOAT       ! Cloud radius
+        CVP_SHAL%XCTIME_SHAL = 10800.0_C_FLOAT ! Convective adjustment time
+        CVP_SHAL%XCDEPTH = 2500.0_C_FLOAT     ! Minimum cloud depth
+        CVP_SHAL%XCDEPTH_D = 3000.0_C_FLOAT   ! Maximum cloud thickness
+        CVP_SHAL%XDTPERT = 1.0_C_FLOAT        ! Temperature perturbation at LCL
+        CVP_SHAL%XATPERT = 0.0_C_FLOAT        ! Parameter for temp perturbation
+        CVP_SHAL%XBTPERT = 0.0_C_FLOAT        ! Parameter for temp perturbation
+        CVP_SHAL%XENTR = 0.03_C_FLOAT         ! Entrainment constant
+        CVP_SHAL%XZLCL = 3500.0_C_FLOAT       ! Max LCL height
+        CVP_SHAL%XZPBL = 6000.0_C_FLOAT       ! Minimum PBL height
+        CVP_SHAL%XWTRIG = 6.0_C_FLOAT         ! Trigger vertical velocity
+        CVP_SHAL%XNHGAM = 1.3333_C_FLOAT      ! Non-hydrostatic pressure factor
+        CVP_SHAL%XTFRZ1 = 268.16_C_FLOAT      ! Freezing interval begin
+        CVP_SHAL%XTFRZ2 = 248.16_C_FLOAT      ! Freezing interval end
+        CVP_SHAL%XSTABT = 0.75_C_FLOAT        ! Stability factor
+        CVP_SHAL%XSTABC = 0.95_C_FLOAT        ! Stability in CAPE adjustment
+        CVP_SHAL%XAW = 1.0_C_FLOAT            ! WLCL parameter A
+        CVP_SHAL%XBW = 0.0_C_FLOAT            ! WLCL parameter B
+        CVP_SHAL%LLSMOOTH = .TRUE.            ! Smoothing flag
 
         ! Initialize physical constants
         CALL INI_CST()
 
         ! Call the actual SHALLOW_CONVECTION routine
         CALL SHALLOW_CONVECTION(                                               &
-            CONVPAR_SHAL, CST, D, NSV, CONVPAR, kbdia, ktdia,                  &
+            CVP_SHAL, CST, D, NSV, CONVPAR, kbdia, ktdia,                      &
             kice, LOSETTADJ, ptadjs, f_ppabst, f_pzz,                          &
             f_ptkecls, f_ptt, f_prvt, f_prct, f_prit, f_pwt,                   &
             f_ptten, f_prvten, f_prcten, f_priten,                             &
