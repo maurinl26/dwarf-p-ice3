@@ -130,33 +130,45 @@ REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 #include "convect_closure_shal.h"
 
 IF (LHOOK) CALL DR_HOOK('SHALLOW_CONVECTION_PART2',0,ZHOOK_HANDLE)
+
+!$acc kernels
 ZDPRES = 0.0
 ZTHL  = 0.0
 ZRW   = 0.0
+!$acc end kernels
+
 IKB = 1 + CVPEXT%JCVEXB
 IKE = D%NKT - CVPEXT%JCVEXT
 
+!$acc parallel loop
 DO JK = IKE + 1, D%NKT
   PUMF (:,JK)    = 0.
   PTHC (:,JK)    = 0.
-  PRVC (:,JK)    = 0.  
-  PRCC (:,JK)    = 0.  
+  PRVC (:,JK)    = 0.
+  PRCC (:,JK)    = 0.
   PRIC (:,JK)    = 0.
   PPCH1TEN (:,JK,:) = 0.
 ENDDO
+!$acc end parallel loop
 
 !
 !*           3.2    Compute pressure difference
 !                   ---------------------------------------------------
 !
+!$acc kernels
 ZDPRES(:,IKB) = 0.
+!$acc end kernels
+
+!$acc parallel loop
 DO JK = IKB + 1, IKE
   ZDPRES(:,JK)  = PPABST(:,JK-1) - PPABST(:,JK)
 END DO
+!$acc end parallel loop
 !
 !*           3.3   Compute environm. enthalpy and total water = r_v + r_i + r_c
 !                  ----------------------------------------------------------
 !
+!$acc parallel loop
 DO JK = IKB, IKE, 1
   ZRW(:,JK)  = MAX(0., PRVT(:,JK)) + MAX(0., PRCT(:,JK)) + MAX(0., PRIT(:,JK))
   ZCPH(:)    = CST%XCPD + CST%XCPV * ZRW(:,JK)
@@ -165,6 +177,7 @@ DO JK = IKB, IKE, 1
   ZTHL(:,JK) = ZCPH(:) * PTT(:,JK) + ( 1. + ZRW(:,JK) ) * CST%XG * PZZ(:,JK) &
                - ZLV(:) * MAX(0., PRCT(:,JK)) - ZLS(:) * MAX(0., PRIT(:,JK))
 END DO
+!$acc end parallel loop
 !
 !-------------------------------------------------------------------------------
 !
@@ -183,14 +196,22 @@ CALL CONVECT_UPDRAFT_SHAL(CVP_SHAL, CVPEXT, CST, D, CONVPAR, KICE, PPABST,      
                           ZUTHV, ZURW, ZURC, ZURI, ZCAPE, ICTL, IETL,  &
                           GTRIG1)
 
+!$acc kernels
 ZDMF(:,:) = 0.
 ZDER(:,:) = 0.
 ZDDR(:,:) = 0.
 ILFS(:)   = IKB
+!$acc end kernels
+
+!$acc parallel loop
 DO JK = IKB, IKE
   ZLMASS(:,JK)  = CVP_SHAL%XA25 * ZDPRES(:,JK) / CST%XG  ! mass of model layer
 END DO
+!$acc end parallel loop
+
+!$acc kernels
 ZLMASS(:,IKB) = ZLMASS(:,IKB+1)
+!$acc end kernels
 !
 !-------------------------------------------------------------------------------
 !
@@ -225,6 +246,7 @@ ZLMASS(:,IKB) = ZLMASS(:,IKB+1)
           ! in order to save memory, the tendencies are temporarily stored
           ! in the tables for the adjusted grid-scale values
 !
+!$acc parallel loop collapse(2)
 DO JK = IKB, IKE
   DO JI = D%NIB,D%NIE
    PTHC(JI,JK) = ( PTHC(JI,JK) - PTHT(JI,JK) ) / ZTIMEC(JI)             &
@@ -236,6 +258,7 @@ DO JK = IKB, IKE
    PRIC(JI,JK) = ( PRIC(JI,JK) - MAX(0., PRIT(JI,JK)) ) / ZTIMEC(JI)
    ENDDO
 END DO
+!$acc end parallel loop
 !
 !
 !*           8.2    Apply conservation correction
@@ -269,12 +292,17 @@ ENDIF
           ! Compute vertical integrals - Fluxes
 !
 JKM = IKE
+
+!$acc kernels
 ZWORK2(:) = 0.
 ZWORK2B(:) = 0.
+!$acc end kernels
+
+!$acc parallel loop collapse(2)
 DO JK = IKB+1, JKM
-  JKP = JK + 1
   DO JI = D%NIB,D%NIE
     IF ( JK <= ICTL(JI) ) THEN
+    JKP = JK + 1
     ZW1 =  PRVC(JI,JK) + PRCC(JI,JK) + PRIC(JI,JK)
     ZWORK2(JI) = ZWORK2(JI) +  ZW1 *          & ! moisture
                                 .5 * (PPABST(JI,JK-1) - PPABST(JI,JKP)) / CST%XG
@@ -286,6 +314,7 @@ DO JK = IKB+1, JKM
     END IF
   END DO
 END DO
+!$acc end parallel loop
 !
           ! Budget error (integral must be zero)
 !
@@ -301,6 +330,7 @@ END DO
 !
           ! Apply uniform correction
 !
+!$acc parallel loop collapse(2)
 DO JK = JKM, IKB+1, -1
 DO JI = D%NIB,D%NIE
   IF ( ICTL(JI) > IKB+1 .AND. JK <= ICTL(JI) ) THEN
@@ -309,11 +339,13 @@ DO JI = D%NIB,D%NIE
   END IF
 END DO
 END DO
+!$acc end parallel loop
 !
 !*           8.7    Compute convective tendencies for Tracers
 !                   ------------------------------------------
 !
 IF ( OCH1CONV ) THEN
+  !$acc parallel loop collapse(2)
   DO JK = IKB, IKE
   DO JI = D%NIB,D%NIE
     IF(GTRIG1(JI))THEN
@@ -321,6 +353,7 @@ IF ( OCH1CONV ) THEN
     ENDIF
   END DO
   END DO
+  !$acc end parallel loop
   CALL CONVECT_CHEM_TRANSPORT(CVPEXT, D, NSV, KCH1, ZCH1, ZCH1C, ISDPL,&
                               ISPBL, ISLCL, ICTL, ILFS, ILFS, PUMF,    &
                               ZUER, ZUDR, ZDMF, ZDER, ZDDR, ZTIMEC,    &
@@ -363,6 +396,7 @@ IF ( OCH1CONV ) THEN
   END DO
 END IF
 
+!$acc parallel loop collapse(2)
 DO JK = IKB, IKE
   DO JI=D%NIB, D%NIE
     IF (ICTL(JI) <= IKB+1) THEN
@@ -372,11 +406,15 @@ DO JK = IKB, IKE
     ENDIF
   ENDDO
 END DO
+!$acc end parallel loop
 
+!$acc parallel loop
 DO JI=D%NIB, D%NIE
   IMINCTL(JI) = MIN(ISLCL(JI), ICTL(JI))
 ENDDO
+!$acc end parallel loop
 
+!$acc parallel loop collapse(2)
 DO JK = IKB, IKE
 DO JI = D%NIB,D%NIE
   IF(.NOT. GTRIG1(JI))THEN
@@ -387,21 +425,27 @@ DO JI = D%NIB,D%NIE
   ENDIF
 ENDDO
 ENDDO
+!$acc end parallel loop
+
+!$acc parallel loop
 DO JI = D%NIB,D%NIE
   IF(.NOT. GTRIG1(JI))THEN
     ICTL(JI) = 0.
     IMINCTL(JI) = 0.
   ENDIF
 ENDDO
+!$acc end parallel loop
 
-! Apparently, this level is left undefined 
+! Apparently, this level is left undefined
 
-PUMF (:,D%NKT) = 0.    
-PTHC (:,D%NKT) = 0.    
-PRVC (:,D%NKT) = 0.    
-PRCC (:,D%NKT) = 0.    
-PRIC (:,D%NKT) = 0.    
+!$acc kernels
+PUMF (:,D%NKT) = 0.
+PTHC (:,D%NKT) = 0.
+PRVC (:,D%NKT) = 0.
+PRCC (:,D%NKT) = 0.
+PRIC (:,D%NKT) = 0.
 PPCH1TEN (:,D%NKT,:) = 0.
+!$acc end kernels
 
 IF (LHOOK) CALL DR_HOOK('SHALLOW_CONVECTION_PART2',1,ZHOOK_HANDLE)
 END SUBROUTINE SHALLOW_CONVECTION_PART2

@@ -189,6 +189,7 @@ IKE = D%NKT - CVPEXT%JCVEXT
 !               counter becomes negative
 !               -------------------------------------------------
 !
+!$acc kernels
 PTTEN(:,:)  = 0.
 PRVTEN(:,:) = 0.
 PRCTEN(:,:) = 0.
@@ -200,6 +201,7 @@ KCLBAS(:)  = 0
 IF ( OCH1CONV ) THEN
   PCH1TEN(:,:,:) = 0.
 END IF
+!$acc end kernels
 !
 !
 !*       1.     Initialize  local variables
@@ -214,9 +216,13 @@ ZRDOCP = CST%XRD / CST%XCPD
 !*       1.1    Set up grid scale theta, theta_v, theta_es
 !               ------------------------------------------
 !
+!$acc kernels
 PTHT(:,:) = 300.
 PSTHV(:,:)= 300.
 PSTHES(:,:)= 400.
+!$acc end kernels
+
+!$acc parallel loop collapse(2)
 DO JK = IKB, IKE
 DO JI = D%NIB, D%NIE
   IF ( PPABST(JI,JK) > 40.E2 ) THEN
@@ -236,6 +242,7 @@ DO JI = D%NIB, D%NIE
   END IF
 END DO
 END DO
+!$acc end parallel loop
 !
 !-------------------------------------------------------------------------------
 !
@@ -245,9 +252,11 @@ END DO
 !*       2.3    Test for convective columns and determine properties at the LCL
 !               --------------------------------------------------------------
 !
+!$acc kernels
 KSLCL(:) = MAX( IKB, 2 )   ! initialize DPL PBL and LCL
 KSDPL(:) = IKB
 KSPBL(:) = IKB
+!$acc end kernels
 !
 CALL CONVECT_TRIGGER_SHAL(CVP_SHAL, CVPEXT, CST, D, PPABST, PTHT,      &
                           PSTHV, PSTHES, PRVT, PWT, PZZ, PTKECLS,      &

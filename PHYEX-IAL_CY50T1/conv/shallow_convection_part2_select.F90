@@ -97,6 +97,7 @@ D_%NIT = KIT_
 
 JI_ = 0
 
+!$acc parallel loop
 DO JI = D%NIB, D%NIE
 
     IF (GTRIG1 (JI)) THEN
@@ -105,7 +106,9 @@ DO JI = D%NIB, D%NIE
     ENDIF
 
 ENDDO
+!$acc end parallel loop
 
+!$acc parallel loop
 DO JI_ = 1, KIT_
     GTRIG1_(JI_) = GTRIG1(ISORT(JI_))
     ISDPL_(JI_) = ISDPL(ISORT(JI_))
@@ -128,6 +131,7 @@ DO JI_ = 1, KIT_
     PTT_(JI_,:) = PTT(ISORT(JI_),:)
     PZZ_(JI_,:) = PZZ(ISORT(JI_),:)
 ENDDO
+!$acc end parallel loop
 
 CALL SHALLOW_CONVECTION_PART2 (CVP_SHAL, CVPEXT, CST, D_, NSV, CONVPAR, KICE, OSETTADJ, PTADJS&
 &, PPABST_, PZZ_, PTT_, PRVT_, PRCT_, PRIT_, OCH1CONV, KCH1, PCH1_, PRDOCP, PTHT_, PSTHV_&
@@ -135,6 +139,7 @@ CALL SHALLOW_CONVECTION_PART2 (CVP_SHAL, CVPEXT, CST, D_, NSV, CONVPAR, KICE, OS
 &, GTRIG1_, PUMF_, PTHC_, PRVC_, PRCC_, PRIC_, ICTL_, IMINCTL_, PPCH1TEN_)
 
 
+!$acc parallel loop
 DO JI_ = 1, KIT_
     ICTL(ISORT(JI_)) = ICTL_(JI_)
     IMINCTL(ISORT(JI_)) = IMINCTL_(JI_)
@@ -145,6 +150,7 @@ DO JI_ = 1, KIT_
     PTHC(ISORT(JI_),:) = PTHC_(JI_,:)
     PUMF(ISORT(JI_),:) = PUMF_(JI_,:)
 ENDDO
+!$acc end parallel loop
 
 
 ENDSUBROUTINE SHALLOW_CONVECTION_PART2_SELECT
