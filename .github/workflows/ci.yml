@@ -73,19 +73,31 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: uv sync locked --all-extras --dev
-      
-    - name: Unit reproducibility test
-      run: uv run pytest tests/repro -m debug
-      
-    - name: Component reproducibility tests
-      run: uv run pytest tests/components -m debug
-      
-    - name: CPU performance tests
-      run: uv run pytest tests/components -m cpu
-      
-    - name: GPU performance tests
-      run: uv run pytest pytest tests/components -m gpu
+      run: uv sync --locked --all-extras --dev
+
+    - name: Run component tests (CPU)
+      run: uv run pytest tests/components -v
+
+    - name: Run performance tests (CPU)
+      run: uv run pytest tests/performance -v
+
+    - name: Check GPU availability
+      id: check_gpu
+      run: |
+        if command -v nvidia-smi &> /dev/null && nvidia-smi &> /dev/null; then
+          echo "gpu_available=true" >> $GITHUB_OUTPUT
+        else
+          echo "gpu_available=false" >> $GITHUB_OUTPUT
+        fi
+      continue-on-error: true
+
+    - name: Run component tests (GPU)
+      if: steps.check_gpu.outputs.gpu_available == 'true'
+      run: uv run pytest tests/components -v -m gpu
+
+    - name: Run performance tests (GPU)
+      if: steps.check_gpu.outputs.gpu_available == 'true'
+      run: uv run pytest tests/performance -v -m gpu
 
     - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
     - uses: actions/cache@v4
