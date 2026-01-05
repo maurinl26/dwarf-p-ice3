@@ -74,6 +74,16 @@ nav:
     - testprogs_data:
       - testprogs_data/main.md
       - testprogs_data/utils.md
+    - agent:
+      - agent/ICE4_TENDENCIES_STATUS.md
+      - agent/RAIN_ICE_TRANSITION_PLAN.md
+      - agent/README_ice_adjust_modular.md
+      - agent/TRANSLATION_SUMMARY.md
+      - agent/README_cloud_fraction.md
+      - agent/README_condensation.md
+      - agent/test_ice4_fast_rg_FIXES.md
+      - agent/test_ice4_fast_rs_FIXES.md
+      - agent/test_sigrc_computation_FIXES.md
 
 
 theme:

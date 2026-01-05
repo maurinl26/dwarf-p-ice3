@@ -1,0 +1,107 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Tests (Debug/Numpy)",
+      "type": "shell",
+      "command": "uv run pytest tests/repro -k 'debug or numpy' -v",
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Run Tests (CPU)",
+      "type": "shell",
+      "command": "uv run pytest tests/repro -m cpu -v",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Run Tests (GPU)",
+      "type": "shell",
+      "command": "uv run pytest tests/repro -m gpu -v",
+      "problemMatcher": [],
+      "group": "test",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Build Fortran Extensions",
+      "type": "shell",
+      "command": "python setup.py build_ext --inplace",
+      "problemMatcher": [],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Run Standalone Model (Ice Adjust - CPU)",
+      "type": "shell",
+      "command": "uv run standalone-model ice-adjust-split gt:cpu_kfirst ./data/ice_adjust/reference.nc ./data/ice_adjust/run.nc track_ice_adjust.json --no-rebuild",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      }
+    },
+    {
+      "label": "Serve Documentation",
+      "type": "shell",
+      "command": "mkdocs serve",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Format Code (Ruff)",
+      "type": "shell",
+      "command": "ruff format src/ tests/",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Lint Code (Ruff)",
+      "type": "shell",
+      "command": "ruff check src/ tests/",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean Build Artifacts",
+      "type": "shell",
+      "command": "rm -rf build/ dist/ *.egg-info .gt_cache/ .pytest_cache/ **/__pycache__/",
+      "problemMatcher": [],
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}

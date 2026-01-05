@@ -14,7 +14,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_allclose
 
-from ice3.components.ice_adjust_modular import IceAdjustModular
+from ice3.gt4py.ice_adjust_modular import IceAdjustModular
 from ice3.phyex_common.phyex import Phyex
 from ice3.utils.env import sp_dtypes, dp_dtypes
 
@@ -26,6 +26,7 @@ from ice3.utils.env import sp_dtypes, dp_dtypes
         pytest.param("numpy", marks=pytest.mark.numpy),
         pytest.param("gt:cpu_ifirst", marks=pytest.mark.cpu),
         pytest.param("gt:gpu", marks=pytest.mark.gpu),
+        pytest.param("dace:cpu", marks=pytest.mark.dace),
     ],
 )
 @pytest.mark.parametrize("dtypes", [sp_dtypes, dp_dtypes])

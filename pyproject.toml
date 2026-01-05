@@ -1,12 +1,30 @@
 [project]
 name = "dwarf-p-ice3"
 version = "0.1.0"
-description = "Add your description here"
+description = "Phyex physics packages in JAX"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Laurent Maurin", email = "maurinl26@users.noreply.github.com" }
+]
+keywords = ["physics", "atmospheric-science", "jax", "numerical-simulation", "meteorology"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Fortran",
+]
+
 dependencies = [
-    "dace>=1.0.2",
-    "gt4py>=1.0.7",
+    "jax>=0.5.3",
+    "flax>=0.10.2",
     "numpy<2.0",
     "scipy>=1.15.3",
     "typer>=0.15.2",
@@ -14,26 +32,30 @@ dependencies = [
 ]
 
 [build-system]
-build-backend = 'setuptools.build_meta'
-requires = ['setuptools>=65.5.0', 'wheel']
+build-backend = 'scikit_build_core.build'
+requires = [
+    'scikit-build-core>=0.10.0',
+    'cython',
+    'numpy<2.0',
+]
+
+[project.urls]
+Homepage = "https://github.com/maurinl26/dwarf-p-ice3"
+Documentation = "https://maurinl26.github.io/dwarf-p-ice3/"
+Repository = "https://github.com/maurinl26/dwarf-p-ice3"
+Issues = "https://github.com/maurinl26/dwarf-p-ice3/issues"
 
 [project.scripts]
 testprogs-data = "testprogs_data.main:app"
 standalone-model = "drivers.cli:app"
 
 [project.optional-dependencies]
-dev = [
-    "fprettify>=0.3.7",
-    "isort>=6.0.1",
-    "ruff>=0.11.11",
-]
 gpu = [
-    "cupy==14.0.0a1",
+    "cupy>=13.5.0",
     "cupy-xarray>=0.1.4",
 ]
 test = [
     "pytest>=8.3.5",
-    "fmodpy>=1.7.4",
     "pytest-benchmark>=5.1.0",
     "coverage>=7.12.0",
 ]
@@ -43,23 +65,78 @@ doc = [
     "mkdocstrings>=0.30.1",
     "mkdocstrings-python>=1.19.0",
 ]
+dev = [
+    "dwarf-p-ice3[gt4py,test,doc]",
+    "fprettify>=0.3.7",
+    "isort>=6.0.1",
+    "ruff>=0.11.11",
+]
 
-[tools.pytest.ini_options]
+[tool.pytest.ini_options]
+pythonpath = "src"
 markers = [
     "debug: run on debug debug backend",
     "numpy: run on numpy backend",
     "cpu: run on dace:cpu backend",
-    "gpu: run on dace:gpu backend"
+    "gpu: run on dace:gpu backend",
+    "dace: run on dace:cpu backend",
 ]
 
+# Publishing to production PyPI (default)
+# For test publishing, use: uv publish --index ice3-test
 [[tool.uv.index]]
-name = "ice3"
+name = "ice3-test"
 url = "https://test.pypi.org/simple/"
 publish-url = "https://test.pypi.org/legacy/"
 explicit = true
 
+[tool.uv.sources]
+dace = { git = "https://github.com/GridTools/dace.git", rev = "romanc/stree-to-sdfg" }
+
+[tool.scikit-build]
+# CMake configuration (only used when building Fortran bindings)
+# To build with Fortran support: pip install -e ".[fortran]"
+cmake.version = ">=3.15"
+
+# Use Unix Makefiles generator instead of Ninja
+cmake.build-type = "Release"
+
+# Configure CMake arguments
+cmake.args = [
+    "-DCMAKE_Fortran_COMPILER=gfortran",
+    "-G", "Unix Makefiles",
+    "-DCMAKE_MAKE_PROGRAM=/usr/bin/make",
+]
+
+# Verbose output during build
+build.verbose = true
+
+# Disable ninja - use make as fallback
+ninja.make-fallback = true
+
+# Build directory
+build-dir = "build/{wheel_tag}"
+
+# Install the compiled library to the package
+install.components = ["ice_adjust_phyex", "_phyex_wrapper", "_phyex_wrapper_acc"]
+
+# Ensure Fortran sources and Cython wrapper are included
+sdist.include = [
+    "CMakeLists.txt",
+    "PHYEX-IAL_CY50T1/**/*.F90",
+    "PHYEX-IAL_CY50T1/**/*.f90",
+    "PHYEX-IAL_CY50T1/**/*.h",
+    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper.pyx",
+    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper_acc.pyx",
+]
+
+# Install the library to the ice3 package directory
+wheel.install-dir = "ice3"
+
 [dependency-groups]
 test = [
     "coverage-badge>=1.1.2",
+    "pytest-benchmark>=5.1.0",
     "pytest-cov>=7.0.0",
+    "fmodpy>=1.7.4",
 ]

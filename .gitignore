@@ -3,11 +3,6 @@
 .idea
 namelists
 
-src/testprogs_data/fortran/build
-src/testprogs_data/fortran/.fcm-make
-src/testprogs_data/main_ice_adjust
-src/drivers/build
-
 dwarf-p-ice3
 dwarf_p_ice3.egg-info
 
@@ -16,34 +11,49 @@ dwarf_p_ice3.egg-info
 .gt_cache/
 .gt4py_cache/
 .pytest_cache/
-src/ice3/__pycache__/
-src/PHYEX/
-test/
-test_OLD/
 */__pycache__/*
 .idea/
+_dacegraphs/
 
 *.pyc
+venv*
+.venv*
+
+# custom paths
+src/ice3/cython_bindings
 src/ice3/drivers/tests.py
 src/ice3/stencils/ice4*
 src/drivers/cffi_driver
 src/ice3/stencils_fortran/ref
-venv*
-
+src/ice3/__pycache__/
+src/PHYEX/
+test/
+test_OLD/
 src/testprogs_data/fortran/
 src/dwarf_ice3_gt4py.egg-info/
 output/
 dist/
-.venv*
 scripts
+src/testprogs_data/fortran/build
+src/testprogs_data/fortran/.fcm-make
+src/testprogs_data/main_ice_adjust
+src/drivers/build
+tests/functions/
+tests/repro/
+tests/stencils/
+tests/utils/
 
+# utilities
 *.log
 *.sh
 *.mod
 *.o
 *.cfg
 *.json
-
+tests/functions/
+        tests/repro/
+        tests/stencils/
+        tests/utils/
 .coverage
 
 mode_*/
@@ -51,9 +61,27 @@ cloud_fraction/
 sandbox/
 src/dwarf_ice3.egg-info/
 
+# requirements
 requirements.txt
 requirements_gpu.txt
 requirements_all.txt
 
+# phyex
+IAL_CY50T1.tar.gz
 
-PHYEX-IAL_CY50T1
+# build
+build
+build_fortran
+
+# PHYEX
+PHYEX-IAL_CY50T1/micro
+PHYEX-IAL_CY50T1/aux
+PHYEX-IAL_CY50T1/conv 
+PHYEX-IAL_CY50T1/ext 
+
+# examples
+examples
+
+# generated NetCDF files
+data/shallow_output.nc
+*_output.nc

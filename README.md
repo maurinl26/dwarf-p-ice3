@@ -1,12 +1,13 @@
 ![ice3-logo](night-cloud-snow.png)
 
 ![coverage-badge](coverage.svg)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 # ICE3 microphysics on gt4py.
 
 dwarf-p-ice3 is a porting of ice3 microphysics with Python and GT4Py dsl. 
 Original source code can be retrieved on [PHYEX](https://github.com/UMR-CNRM/PHYEX)
-repository or updated as a submodule in this project -via _install.sh_ script.
+repository.
 
 The official version for reproducibility is CY50T1.
 
@@ -47,28 +48,61 @@ Run GPU :
     track_ice_adjust.json
 ```
 
+Working with containers :
+
+Tutorial on working with containers and virtual environments is found [here](https://github.com/Lumi-supercomputer/Getting_Started_with_AI_workshop/blob/ai-20251009/07_Extending_containers_with_virtual_environments_for_faster_testing/examples/extending_containers_with_venv.md)
+
+The base singularity container for Lumi is : 
+
+```bash
+    /appl/local/containers/sif-images/lumi-mpi4py-rocm-6.2.0-python-3.12-mpi4py-3.1.6.sif
+```
+
+
 #### Warning
 
-It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config _pyproject.toml_) 
+It works well with cupy 14.0 and the last versions of gt4py.cartesian (see config [pyproject.toml](pyproject.toml)).
 
 ### Atos ECMWF
 
-### Leonardo
+Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.int/display/UDOC/HPC2020%3A+GPU+usage+for+AI+and+Machine+Learning)
 
 ## Working with Containers
 
 [container](./container) is defined to run dwarf-p-ice3 inside a container with nvidia runtime and python dependencies.
 
-### Build 
+- Build :
+
 ```bash
     sudo docker build -t ice3 ./dwarf-p-ice3/container
 ```
 
-### WIP
-- Push / Pull from registry
-- Setup .devcontainer to develop ice3 inside an isolated virtual env with access to gpus
+- Retrieve from ghcr.io :
+  1. With docker :
+    ```bash
+        docker pull ghcr.io/maurinl26/dwarf-p-ice3
+    ```
+  2. With singularity :
+     ```
+         singularity pull docker://ghcr.io/maurinl26/dwarf-p-ice3
+     ```
+
+### Development Container (Devcontainer)
+
+For local development with a consistent, isolated environment, we provide VS Code devcontainer configurations:
+
+- **CPU-only development**: Lightweight Python environment for general development
+- **GPU-enabled development**: Full CUDA support for GPU testing (requires NVIDIA GPU + nvidia-docker)
+
+To get started:
+1. Install [VS Code](https://code.visualstudio.com/) and [Docker](https://docs.docker.com/get-docker/)
+2. Install the [Remote - Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+3. Open the project and press `F1` → **Remote-Containers: Reopen in Container**
+
+See [.devcontainer/README.md](.devcontainer/README.md) for detailed setup instructions.
+
+### Nice-to-have
 - Setup singularity image to run on an HPC cluster
-- (Nice to have) install dependencies with spack
 
 ## Data generation for reproductibility
 
@@ -96,7 +130,6 @@ Load PHYEX testprogs dataset :
   cd ..
 ```
 
-
 Decode files to netcdf :
 
 ```bash
@@ -106,13 +139,27 @@ Decode files to netcdf :
    ./src/testprogs_data/ice_adjust.yaml 
 ```
 
+## Fortran reference source code 
+
+Fortran reference source code is [PHYEX-IAL_CY50T1](https://github.com/UMR-CNRM/PHYEX/releases/tag/IAL_CY50T1) release.
+
+It can be downloaded :
+
+```bash
+    wget --no-check-certificate https://github.com/UMR-CNRM/PHYEX/archive/refs/tags/IAL_CY50T1.tar.gz \
+      -O IAL_CY50T1.tar.gz
+    tar xf IAL_CY50T1.tar.gz
+    rm -f IAL_CY50T1.tar.gz
+```
+
 ## Microphysical Adjustments (Ice Adjust)
 
-There are three components available for microphysical adjustments, under _/src/ice3_gt4py/components_ directory:
+There are 2 components available for microphysical adjustments, under [/src/ice3/components](./src/ice3/components) directory:
 
 - IceAdjust (ice_adjust.py) : performs condensation and adjustements following supersaturation, and is the mirror of PHYEX's ice_adjust.F90,
-- AroAdjust (aro_adjust.py) : combines both stencil collections to reproduce aro_adjust.F90.
-- To launch ice_adjust (with cli):
+- IceAdjustModular (ice_adjust_modular.py) : ice_adjust written with 4 stencils.
+  
+To launch ice_adjust (with cli):
 
 ```bash
   uv run standalone-model ice-adjust-split \
@@ -122,29 +169,14 @@ There are three components available for microphysical adjustments, under _/src/
   track_ice_adjust.json --no-rebuild 
 ```
 
-## (WIP) Integration with PHYEX
-  
-- Option 1:
-  - intégration par Serialbox dans IAL_de330 sous ecbuild
-  - édition de lien vers Serialbox à faire
+## Microphysical Processes (Rain Ice)
 
-- Option 2:
-  - intégration des fonctions DaCe (C++)
+There are 2 components available for rain_ice (one-moment microphysical processes computation), under [/src/ice3/components](./src/ice3/components) directory:
 
-## (WIP) Integration with PMAP-L
+- RainIce (rain_ice.py) : rain_ice component,
+- Ice4Tendencies (ice4_tendencies.py) : the microphysical species computation of RainIce (equivalent to ice4_tendencies.F90).
 
-- Option 1:
-  - Intégration Python (nécessite peut-être de la réécriture de composants).
-
-## Rain Ice
-
-There are three components available for rain_ice (one-moment microphysical processes computation), under _/src/ice3_gt4py/components_ directory:
-
-- RainIce (rain_ice.py) : calls stencils involved in RainIce computation,
-- AroRainIce (aro_rain_ice.py) : calls RainIce common computation plus non-negative filters for model coupling,
-- Ice4Tendencies (ice4_tendencies.py) : responsible for processes computation,
-- Ice4Stepping (ice4_stepping.py) : responsible for orchestration of processes computations (handling soft and heavy cycles plus accumulating tendencies).
-- To launch rain_ice (with cli):
+To launch rain_ice (with cli):
 
 ```bash
     uv run standalone-model ice-adjust-split \
@@ -154,13 +186,13 @@ There are three components available for rain_ice (one-moment microphysical proc
     track_ice_adjust.json --no-rebuild 
 ```
 
-## Unit tests
+## Unit tests for compilation and numerical reproducibility
 
 Unit tests for reproductibility are using pytest. Numpy, CPU and GPU backends can be activated :
 
-- Numpy :
+- Numpy or debug :
   ```bash
-  uv run pytest tests/repro -m debug 
+  uv run pytest tests/repro -k "debug or numpy"
   ```
 - CPU :
   ```bash
@@ -171,16 +203,26 @@ Unit tests for reproductibility are using pytest. Numpy, CPU and GPU backends ca
   uv run pytest tests/repro -m gpu
   ```
 
-Fortran and GT4Py stencils can be tested side-by-side with test components (_stencil_fortran_ directory).
+Fortran and GT4Py stencils can be tested side-by-side with test components ([stencil_fortran](stencil_fortran) directory).
 
 Fortran routines are issued from CY49T0 version of the code and reworked to eliminate
 derivate types from routines. Then both stencils are ran with random numpy arrays
 as an input.
 
-- conftest.py : 
-  - tous les utilitaires pour
-  - les tests : grille, domain, origine de test et config gt4py
-  - compile_fortran_stencil(fichier, module, subroutine)
+- conftest.py rassemble toutes les fixtures (utilitaires) pour :
+    - les tests : grille, domain, origine de test et config gt4py
+    - compile_fortran_stencil(fichier, module, subroutine)
+ 
+## Component tests
+
+Component tests [./tests/components](./tests/components) assess reproducibility using pytest, and checking differences with netcdf references [./data](./data).
+
+## Additional tests
+
+- _gtscript.function_ tests under [./tests/functions](./tests/functions),
+- _gtscript.stencil_ tests under [./tests/stencils](./tests/stencils),
+- utilities tests under [./tests/utils](./tests/utils).
+
 
 ## Continuous benchmarking
 
@@ -189,61 +231,112 @@ Components under (components)[tests/components] are monitored with continuous be
 ```bash
   bencher run --adapter json \
   --file result.json \
-  --token eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhcGlfa2V5IiwiZXhwIjo2MDUzMDYzNjUzLCJpYXQiOjE3NTgwOTYzNTgsImlzcyI6ImJlbmNoZXIuZGV2Iiwic3ViIjoibWF1cmluLmxvaWMuYWNAZ21haWwuY29tIiwib3JnIjpudWxsLCJzdGF0ZSI6bnVsbH0.WakXPCmj4Rj0wup8FqhO1h66brXEwktNd4J7VggOano \
+  --token your_bencher_token \
   "uv run pytest tests/components/test_ice_adjust.py -m debug"
-```
-
-
-## Python Wrapper
-
-```bash
-  uv run standalone-model ice-adjust-fortran\
-  ../phyex/lib/libice-adjust.so \
-  ./data/ice_adjust/reference.nc \
-  ./data/ice_adjust/run.nc \
-  track_ice_adjust.json
 ```
 
 ## Structure du projet 
 
-- src 
-  - drivers : Command Line Interface'
-  - ice3_gt4py :
-    - stencils : stencils gt4py et dace
-    - functions : fonctions gt4py
-    - initialisation : initialisation des champs (arrays)
-    - phyex_common : équivalents des modd en python : les modd ont été recodés en dataclasses
-    - stencils_fortran : équivalent fortran des stencisl gt4py (modules + 1 subroutine = 1 stencil gt4py)
-    - utils : utilitaires pour la config et l'allocation des champs
-  - testprogs_data :
-    - main : Command Line Interface pour le décodage des testprogs phyex
-    - .yaml : config de décodage des fichiers
+- [src](./src) :
+  - [drivers](./src/drivers) : Command Line Interface'
+  - [ice3](./src/ice3/) :
+    - [stencils](./src/ice3/stencils) : stencils gt4py et dace,
+    - [functions](./src/ice3/functions) : fonctions gt4py,
+    - [initialisation](./src/ice3/initialisation) : initialisation des champs (arrays),
+    - [phyex_common](./src/ice3/phyex_common) : équivalents des types dérivés fortran, recodés commme dataclasses,
+    - [stencils_fortran](./src/ice3/stencils_fortran) : équivalent fortran des stencisl gt4py (modules + 1 subroutine = 1 stencil gt4py),
+    - [utils](./src/ice3/utils) : utilitaires pour la config et l'allocation des champs.
+- [tests](./tests) : tests de reproductibilité et de performance.
 
 ## Work in Progress
 
-- branche ice_adjust_review :
-  - tous les stencils ont été testés unitairement (y compris l'interpolation en DaCe). 
-  - l'interpolation (sigrc_computation_dace) doit, être intégrée au composant ice_adjust_split
-    -> Couplage stencil dace + stencil gt4py à investiguer
-  - il y a un bug, les stencils cloud_fraction_1 et cloud_fraction_2 renvoient des valeurs nulles
-    -> Les variables inout doivent être découpées en in / out
-
+### (WIP) Integration with PHYEX
   
-- branche rain_ice_review :
-  - tous les stencils des tendances (Ice4Tendencies) ont été testés
-  - les stencils dace ice4_fast_rs (2 stencils gt4py + 2 stencils DaCe) et ice4_fast_rg doivent être intégrés au composant
-  - les appels des stencils de Ice4Tendencies doivent être mis à jour (débuggage)
-  - les tests unitaires sur le stepping ne sont pas nécessaire -> il est préférable de tester le composant dans un cas 
-simple (1 boucle ldsoft)
-  - les tests unitaires des rain_fr et sedimentation sont à réaliser
+- directives Serialbox / Netcdf pour les standalone rain_ice / ice_adjust,
+- intégration des composants DaCe (C++) -> voir [DaCe-Fortran-utilities](https://github.com/maurinl26/DaCe-Fortran-utilities)
 
+### (WIP) Integration with PMAP-L
 
-- branches expérimentales :
-  - dace-interpolation : intégration des interpolations DaCe dans le stencil
-  - dace-orchestration : orchestration DaCe des composants pour livraison en standalone et l'intégration à pmapl :
-un composant DaCe fournit sa librairie partagée à la compilation,
-  - fortran-plugin : branche pour évaluer les branchements des composants DaCe (code complet)
-dans fortran
+- intégration ice_adjust,
+- intégration rain_ice
 
+### (WIP) Lookup Tables
+
+Les lookup tables ne sont pas implémentées en gt4py (indexation dynamique), et restent à implémenter.
+
+- diagnostic sigma rc : [mode_sigrc_computation.F90](./src/ice3/stencils_fortran/mode_sigrc_computation.F90),
+
+```fortran
+DO JK = NKTB, NKTE
+  DO JIJ = NIJB, NIJE
+    
+    INQ1(JIJ,JK) = FLOOR(MIN(100.0, MAX(-100.0, 2.0 * ZQ1(JIJ,JK))))
+    INQ2 = MIN(MAX(-22, INQ1(JIJ,JK)), 10)
+    
+    ZINC = 2.0 * ZQ1(JIJ,JK) - REAL(INQ2)
+    PSIGRC(JIJ,JK) = MIN(1.0, (1.0 - ZINC) * SRC_1D(INQ2 + 23) + &
+                                     ZINC * SRC_1D(INQ2 + 24))
+    
+  END DO
+END DO
+```
+Le stencil est implémenté en cupy.
+A faire : vérifier l'intégration du stencil cupy.
+
+- processus rapides de formation du graupel, référence [mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90):
+      - collection de neige sur graupel,
+      - accrétion de pluie sur graupel.
+  
+- processus rapides de formation de neige, référence [mode_ice4_fast_rs.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rs.F90) :
+      - givrage des gouttelettes,
+      - accrétion de pluie sur la neige.
+
+1. INTERP_MICRO_2D
+
+```fortran
+  KLEN=0
+  DO JL=1, KSIZE
+    IF (LDMASK(JL)) THEN
+      KLEN=KLEN+1
+
+      ! Indexes computation
+      ZINDEX1 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P11 * LOG(PIN1(JL)) + P12))
+      IINDEX1 = INT(ZINDEX1)
+      ZINDEX1 = ZINDEX1 - REAL(IINDEX1)
+  
+      ZINDEX2 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P21 * LOG(PIN2(JL)) + P22))
+      IINDEX2 = INT(ZINDEX2)
+      ZINDEX2 = ZINDEX2 - REAL(IINDEX2)
+  
+      ! Interpolations
+      POUT1(JL) = ( PLT1(IINDEX1+1,IINDEX2+1)* ZINDEX2         &
+                   -PLT1(IINDEX1+1,IINDEX2  )*(ZINDEX2 - 1.0)) *  ZINDEX1 &
+                 -( PLT1(IINDEX1  ,IINDEX2+1)* ZINDEX2         &
+                   -PLT1(IINDEX1  ,IINDEX2  )*(ZINDEX2 - 1.0)) * (ZINDEX1 - 1.0)
+    ENDDO
+```
+ 
+2. INTERP_MICRO_1D
+   
+```fortran
+  DO JL=1, KSIZE
+    IF (LDMASK(JL)) THEN
+      KLEN=KLEN+1
+
+      ! Index computation
+      ZINDEX = MAX(1.00001, MIN(REAL(KNUM)-0.00001, P1 * LOG(PIN(JL)) + P2))
+      IINDEX = INT(ZINDEX)
+      ZINDEX = ZINDEX - REAL(IINDEX)
+
+      ! Interpolations
+      POUT1(JL) = PLT1(IINDEX+1) *  ZINDEX       &
+                 -PLT1(IINDEX  ) * (ZINDEX - 1.0)
+   ENDDO
+```
+  
+
+Detailed issue : 
+
+GT4Py (cartesian) does not manage the interpolation on relative index "SRC_1D(INQ1 + 24)".
 
 

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, field
 from math import gamma, sqrt
 import numpy as np
+import cython
 
 from ice3.phyex_common.constants import Constants
 from ice3.phyex_common.ice_parameters import IceParameters
 
 
 # from_file="PHYEX/src/common/aux/modd_rain_ice_descrn.F90"
-@dataclass
+@cython.cclass
 class RainIceDescriptors:
     """
     Hydrometeor physical properties and size distribution parameters.
@@ -315,26 +315,26 @@ class RainIceDescriptors:
     cst: Constants
     parami: IceParameters
 
-    CEXVT: float = 0.4  # Air density fall speed correction
+    CEXVT: cython.double  # Air density fall speed correction
 
-    RTMIN: np.ndarray = field(default_factory=lambda: np.zeros(41))
+    RTMIN: object  # numpy array
     # Min values allowed for mixing ratios
 
     # Cloud droplet charact.
-    AC: float = field(default=524)
-    BC: float = field(default=3.0)
-    CC: float = field(default=842)
-    DC: float = field(default=2)
+    AC: cython.double
+    BC: cython.double
+    CC: cython.double
+    DC: cython.double
 
     # Rain drop charact
-    AR: float = field(default=524)
-    BR: float = field(default=3.0)
-    CR: float = field(default=842)
-    DR: float = field(default=0.8)
-    CCR: float = field(default=8e-6)
-    F0R: float = field(default=1.0)
-    F1R: float = field(default=0.26)
-    C1R: float = field(default=0.5)
+    AR: cython.double
+    BR: cython.double
+    CR: cython.double
+    DR: cython.double
+    CCR: cython.double
+    F0R: cython.double
+    F1R: cython.double
+    C1R: cython.double
 
     # ar, br -> mass - diameter power law
     # cr, dr -> terminal speed velocity - diameter powerlaw
@@ -342,117 +342,232 @@ class RainIceDescriptors:
     # C1 ?
 
     # Cloud ice charact
-    AI: float = field(init=False)
-    BI: float = field(init=False)
-    C_I: float = field(init=False)
-    DI: float = field(init=False)
-    F0I: float = field(default=1.00)
-    F2I: float = field(default=0.14)
-    C1I: float = field(init=False)
+    AI: cython.double
+    BI: cython.double
+    C_I: cython.double
+    DI: cython.double
+    F0I: cython.double
+    F2I: cython.double
+    C1I: cython.double
 
     # Snow/agg charact.
-    A_S: float = field(default=0.02)
-    BS: float = field(default=1.9)
-    CS: float = field(default=5.1)
-    DS: float = field(default=0.27)
-    CCS: float = field(default=5.0)  # not lsnow
-    CXS: float = field(default=1.0)
-    F0S: float = field(default=0.86)
-    F1S: float = field(default=0.28)
-    C1S: float = field(init=False)
+    A_S: cython.double
+    BS: cython.double
+    CS: cython.double
+    DS: cython.double
+    CCS: cython.double
+    CXS: cython.double
+    F0S: cython.double
+    F1S: cython.double
+    C1S: cython.double
 
     # Graupel charact.
-    AG: float = field(default=19.6)
-    BG: float = field(default=2.8)
-    CG: float = field(default=124)
-    DG: float = field(default=0.66)
-    CCG: float = field(default=5e5)
-    CXG: float = field(default=-0.5)
-    F0G: float = field(default=0.86)
-    F1G: float = field(default=0.28)
-    C1G: float = field(default=1 / 2)
+    AG: cython.double
+    BG: cython.double
+    CG: cython.double
+    DG: cython.double
+    CCG: cython.double
+    CXG: cython.double
+    F0G: cython.double
+    F1G: cython.double
+    C1G: cython.double
 
     # Cloud droplet distribution parameters
 
     # Over land
-    ALPHAC: float = (
-        1.0  # Gamma law of the Cloud droplet (here volume-like distribution)
-    )
-    NUC: float = 3.0  # Gamma law with little dispersion
+    ALPHAC: cython.double  # Gamma law of the Cloud droplet (here volume-like distribution)
+    NUC: cython.double  # Gamma law with little dispersion
 
     # Over sea
-    ALPHAC2: float = 1.0
-    NUC2: float = 1.0
+    ALPHAC2: cython.double
+    NUC2: cython.double
 
-    LBEXC: float = field(init=False)
-    LBC_1: float = field(init=False)
-    LBC_2: float = field(init=False)
+    LBEXC: cython.double
+    LBC_1: cython.double
+    LBC_2: cython.double
 
     # Rain drop distribution parameters
-    ALPHAR: float = (
-        3.0  # Gamma law of the Cloud droplet (here volume-like distribution)
-    )
-    NUR: float = 1.0  # Gamma law with little dispersion
-    LBEXR: float = field(init=False)
-    LBR: float = field(init=False)
+    ALPHAR: cython.double  # Gamma law of the Cloud droplet (here volume-like distribution)
+    NUR: cython.double  # Gamma law with little dispersion
+    LBEXR: cython.double
+    LBR: cython.double
 
     # Cloud ice distribution parameters
-    ALPHAI: float = 1.0  # Exponential law
-    NUI: float = 1.0  # Exponential law
-    LBEXI: float = field(init=False)
-    LBI: float = field(init=False)
+    ALPHAI: cython.double  # Exponential law
+    NUI: cython.double  # Exponential law
+    LBEXI: cython.double
+    LBI: cython.double
 
     # Snow/agg. distribution parameters
-    ALPHAS: float = field(default=1.0)
-    NUS: float = field(default=1.0)
-    LBEXS: float = field(init=False)
-    LBS: float = field(init=False)
-    NS: float = field(init=False)
+    ALPHAS: cython.double
+    NUS: cython.double
+    LBEXS: cython.double
+    LBS: cython.double
+    NS: cython.double
 
     # Graupel distribution parameters
-    ALPHAG: float = 1.0
-    NUG: float = 1.0
-    LBEXG: float = field(init=False)
-    LBG: float = field(init=False)
+    ALPHAG: cython.double
+    NUG: cython.double
+    LBEXG: cython.double
+    LBG: cython.double
 
-    FVELOS: float = field(default=0.097)  # factor for snow fall speed after Thompson
-    TRANS_MP_GAMMAS: float = field(
-        default=1
-    )  # coefficient to convert lambda for gamma functions
-    LBDAR_MAX: float = field(
-        default=1e5
-    )  # Max values allowed for the shape parameters (rain,snow,graupeln)
-    LBDAS_MAX: float = field(default=1e5)
-    LBDAG_MAX: float = field(default=1e5)
-    LBDAS_MIN: float = field(default=1e-10)
+    FVELOS: cython.double  # factor for snow fall speed after Thompson
+    TRANS_MP_GAMMAS: cython.double  # coefficient to convert lambda for gamma functions
+    LBDAR_MAX: cython.double  # Max values allowed for the shape parameters (rain,snow,graupeln)
+    LBDAS_MAX: cython.double
+    LBDAG_MAX: cython.double
+    LBDAS_MIN: cython.double
 
-    V_RTMIN: float = field(default=1e-20)
-    C_RTMIN: float = field(default=1e-20)
-    R_RTMIN: float = field(default=1e-20)
-    I_RTMIN: float = field(default=1e-20)
-    S_RTMIN: float = field(default=1e-15)
-    G_RTMIN: float = field(default=1e-15)
+    V_RTMIN: cython.double
+    C_RTMIN: cython.double
+    R_RTMIN: cython.double
+    I_RTMIN: cython.double
+    S_RTMIN: cython.double
+    G_RTMIN: cython.double
 
-    CONC_SEA: float = 1e8  # Diagnostic concentration of droplets over sea
-    CONC_LAND: float = 3e8  # Diagnostic concentration of droplets over land
-    CONC_URBAN: float = 5e8  # Diagnostic concentration of droplets over urban area
+    CONC_SEA: cython.double  # Diagnostic concentration of droplets over sea
+    CONC_LAND: cython.double  # Diagnostic concentration of droplets over land
+    CONC_URBAN: cython.double  # Diagnostic concentration of droplets over urban area
 
     # Statistical sedimentation
-    GAC: float = field(init=False)
-    GC: float = field(init=False)
-    GAC2: float = field(init=False)
-    GC2: float = field(init=False)
+    GAC: cython.double
+    GC: cython.double
+    GAC2: cython.double
+    GC2: cython.double
 
-    RAYDEF0: float = field(init=False)
+    RAYDEF0: cython.double
+
+    def __init__(self, cst: Constants, parami: IceParameters):
+        """Initialize RainIceDescriptors with default values based on constants and parameters."""
+        self.cst = cst
+        self.parami = parami
+
+        self.CEXVT = 0.4
+
+        self.RTMIN = np.zeros(41)
+
+        # Cloud droplet charact.
+        self.AC = 524.0
+        self.BC = 3.0
+        self.CC = 842.0
+        self.DC = 2.0
+
+        # Rain drop charact
+        self.AR = 524.0
+        self.BR = 3.0
+        self.CR = 842.0
+        self.DR = 0.8
+        self.CCR = 8e-6
+        self.F0R = 1.0
+        self.F1R = 0.26
+        self.C1R = 0.5
+
+        # Cloud ice charact - will be set in __post_init__
+        self.AI = 0.0
+        self.BI = 0.0
+        self.C_I = 0.0
+        self.DI = 0.0
+        self.F0I = 1.00
+        self.F2I = 0.14
+        self.C1I = 0.0
+
+        # Snow/agg charact.
+        self.A_S = 0.02
+        self.BS = 1.9
+        self.CS = 5.1
+        self.DS = 0.27
+        self.CCS = 5.0
+        self.CXS = 1.0
+        self.F0S = 0.86
+        self.F1S = 0.28
+        self.C1S = 0.0
+
+        # Graupel charact.
+        self.AG = 19.6
+        self.BG = 2.8
+        self.CG = 124.0
+        self.DG = 0.66
+        self.CCG = 5e5
+        self.CXG = -0.5
+        self.F0G = 0.86
+        self.F1G = 0.28
+        self.C1G = 1.0 / 2.0
+
+        # Cloud droplet distribution parameters
+        self.ALPHAC = 1.0
+        self.NUC = 3.0
+
+        # Over sea
+        self.ALPHAC2 = 1.0
+        self.NUC2 = 1.0
+
+        # Will be computed in __post_init__
+        self.LBEXC = 0.0
+        self.LBC_1 = 0.0
+        self.LBC_2 = 0.0
+
+        # Rain drop distribution parameters
+        self.ALPHAR = 3.0
+        self.NUR = 1.0
+        self.LBEXR = 0.0
+        self.LBR = 0.0
+
+        # Cloud ice distribution parameters
+        self.ALPHAI = 1.0
+        self.NUI = 1.0
+        self.LBEXI = 0.0
+        self.LBI = 0.0
+
+        # Snow/agg. distribution parameters
+        self.ALPHAS = 1.0
+        self.NUS = 1.0
+        self.LBEXS = 0.0
+        self.LBS = 0.0
+        self.NS = 0.0
+
+        # Graupel distribution parameters
+        self.ALPHAG = 1.0
+        self.NUG = 1.0
+        self.LBEXG = 0.0
+        self.LBG = 0.0
+
+        self.FVELOS = 0.097
+        self.TRANS_MP_GAMMAS = 1.0
+        self.LBDAR_MAX = 1e5
+        self.LBDAS_MAX = 1e5
+        self.LBDAG_MAX = 1e5
+        self.LBDAS_MIN = 1e-10
+
+        self.V_RTMIN = 1e-20
+        self.C_RTMIN = 1e-20
+        self.R_RTMIN = 1e-20
+        self.I_RTMIN = 1e-20
+        self.S_RTMIN = 1e-15
+        self.G_RTMIN = 1e-15
+
+        self.CONC_SEA = 1e8
+        self.CONC_LAND = 3e8
+        self.CONC_URBAN = 5e8
+
+        # Statistical sedimentation - will be computed
+        self.GAC = 0.0
+        self.GC = 0.0
+        self.GAC2 = 0.0
+        self.GC2 = 0.0
+
+        self.RAYDEF0 = 0.0
+
+        # Call post_init to compute derived values
+        self.__post_init__()
 
     def __post_init__(self):
         # 2.2    Ice crystal characteristics
         if self.parami.PRISTINE_ICE == "PLAT":
             self.AI = 0.82
             self.BI = 2.5
-            self.C_I = 800
+            self.C_I = 800.0
             self.DI = 1.0
-            self.C1I = 1 / self.cst.PI
+            self.C1I = 1.0 / self.cst.PI
 
         elif self.parami.PRISTINE_ICE == "COLU":
             self.AI = 2.14e-3
@@ -468,7 +583,7 @@ class RainIceDescriptors:
             self.DI = 1.663
             self.C1I = 0.5
 
-        if self.parami.LSNOW_T:
+        if self.parami.LSNOW_T == 1:
             self.CS = 5.1
             self.DS = 0.27
             self.FVELOS = 25.14
@@ -521,7 +636,7 @@ class RainIceDescriptors:
         self.RAYDEF0 = max(1, 0.5 * (self.GAC / self.GC))
 
 
-@dataclass
+@cython.cclass
 class CloudPar:
     """Declaration of the model-n dependant Microphysic constants
 
@@ -533,5 +648,10 @@ class CloudPar:
 
     """
 
-    NSPLITR: int
-    NSPLITG: int
+    NSPLITR: cython.int
+    NSPLITG: cython.int
+
+    def __init__(self, NSPLITR: int, NSPLITG: int):
+        """Initialize CloudPar with split numbers."""
+        self.NSPLITR = NSPLITR
+        self.NSPLITG = NSPLITG
