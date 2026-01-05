@@ -75,3 +75,7 @@ build_fortran
 
 # examples
 examples
+
+# generated NetCDF files
+data/shallow_output.nc
+*_output.nc
