@@ -30,7 +30,7 @@ src/PHYEX/
 test/
 test_OLD/
 src/testprogs_data/fortran/
-src/dwarf_ice3.egg-info/Ò
+src/dwarf_ice3_gt4py.egg-info/
 output/
 dist/
 scripts
