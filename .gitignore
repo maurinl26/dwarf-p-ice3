@@ -79,9 +79,6 @@ PHYEX-IAL_CY50T1/aux
 PHYEX-IAL_CY50T1/conv 
 PHYEX-IAL_CY50T1/ext 
 
-# examples
-examples
-
 # generated NetCDF files
 data/shallow_output.nc
 *_output.nc
