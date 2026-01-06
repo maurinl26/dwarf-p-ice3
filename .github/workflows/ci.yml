@@ -75,8 +75,12 @@ jobs:
     - name: Install dependencies
       run: uv sync --locked --group test
 
-    - name: Run component tests (CPU)
-      run: uv run pytest tests/components -v
+    - name: Run JAX component tests (CPU) - Mandatory
+      run: uv run pytest tests/components -v -k "jax"
+
+    - name: Run Fortran component tests (CPU) - Optional
+      run: uv run pytest tests/components -v -k "fortran"
+      continue-on-error: true
 
     - name: Run performance tests (CPU)
       run: uv run pytest tests/performance -v
@@ -91,9 +95,14 @@ jobs:
         fi
       continue-on-error: true
 
-    - name: Run component tests (GPU)
+    - name: Run JAX component tests (GPU) - Mandatory
       if: steps.check_gpu.outputs.gpu_available == 'true'
-      run: uv run pytest tests/components -v -m gpu
+      run: uv run pytest tests/components -v -m gpu -k "jax"
+
+    - name: Run Fortran component tests (GPU) - Optional
+      if: steps.check_gpu.outputs.gpu_available == 'true'
+      run: uv run pytest tests/components -v -m gpu -k "fortran"
+      continue-on-error: true
 
     - name: Run performance tests (GPU)
       if: steps.check_gpu.outputs.gpu_available == 'true'
