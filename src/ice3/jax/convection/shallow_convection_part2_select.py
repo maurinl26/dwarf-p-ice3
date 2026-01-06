@@ -23,12 +23,9 @@ from typing import Optional
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import from stencils
-stencils_path = Path(__file__).parent.parent / "stencils"
-sys.path.insert(0, str(stencils_path))
-
-from convect_trigger_shal import ConvectionParameters
-from shallow_convection_part2 import (
+# Import from stencils package using absolute imports
+from ice3.jax.stencils.convect_trigger_shal import ConvectionParameters
+from .shallow_convection_part2 import (
     shallow_convection_part2,
     ShallowConvectionPart2Outputs,
 )

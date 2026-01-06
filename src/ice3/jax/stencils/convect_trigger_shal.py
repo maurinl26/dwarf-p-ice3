@@ -58,6 +58,9 @@ class ConvectionParameters:
     xaw: float = 1.0  # coefficient for W(surface)
     xbw: float = 0.4  # constant term (m/s)
 
+    # Smoothing option
+    llsmooth: bool = False  # apply smoothing at cloud top
+
 
 class TriggerOutputs(NamedTuple):
     """Output structure for convect_trigger_shal."""
@@ -227,16 +230,19 @@ def convect_trigger_shal(
         ipbl = kpbl_c.copy()
 
         # Construct mixed layer of at least XZPBL depth (in pressure)
-        # Loop from jkk to ike-1
+        # Loop from ikb+1 to ike-1 with conditional based on jkk
         def accumulate_layer(carry, jk):
             """Accumulate properties in mixed layer."""
             zdpthmix_a, zpresmix_a, zthlcl_a, zrvlcl_a, ipbl_a = carry
 
             # Index into auxiliary arrays (offset by ikb+1)
             jk_aux = jk - (ikb + 1)
-            mask = gwork1 & (zdpthmix_a < params.xzpbl) & (jk >= ikb + 1) & (jk < ike)
+            # JAX FIX: Add condition to only process when jk >= jkk
+            # This replaces the dynamic range jnp.arange(jkk, ike) with a fixed range + mask
+            mask = (gwork1 & (zdpthmix_a < params.xzpbl) & (jk >= jkk) &
+                   (jk >= ikb + 1) & (jk < ike))
 
-            # Accumulate weighted values
+            # Accumulate weighted values (only when mask is True)
             zdpthmix_new = jnp.where(mask, zdpthmix_a + zzzx1[:, jk_aux], zdpthmix_a)
             zpresmix_new = jnp.where(mask, zpresmix_a + zzppres[:, jk_aux], zpresmix_a)
             zthlcl_new = jnp.where(mask, zthlcl_a + zzpth[:, jk_aux], zthlcl_a)
@@ -245,10 +251,12 @@ def convect_trigger_shal(
 
             return (zdpthmix_new, zpresmix_new, zthlcl_new, zrvlcl_new, ipbl_new), None
 
+        # JAX FIX: Use fixed range (ikb+1 to ike) instead of dynamic range (jkk to ike)
+        # The jk >= jkk condition in the mask handles the dynamic start
         (zdpthmix, zpresmix, zthlcl, zrvlcl, ipbl), _ = lax.scan(
             accumulate_layer,
             (zdpthmix, zpresmix, zthlcl, zrvlcl, ipbl),
-            jnp.arange(jkk, ike)
+            jnp.arange(ikb + 1, ike)  # Fixed range
         )
 
         # Compute mixed layer mean values
@@ -311,10 +319,13 @@ def convect_trigger_shal(
         def find_lcl_level(carry, jk):
             """Find LCL level."""
             ilcl_a = carry
-            ilcl_new = jnp.where(gwork1 & (zplcl <= ppres[:, jk]), jk + 1, ilcl_a)
+            # JAX FIX: Add condition to only process when jk >= jkk
+            mask = gwork1 & (jk >= jkk) & (jk <= jt) & (zplcl <= ppres[:, jk])
+            ilcl_new = jnp.where(mask, jk + 1, ilcl_a)
             return ilcl_new, None
 
-        ilcl, _ = lax.scan(find_lcl_level, klcl_c, jnp.arange(jkk, jt + 1))
+        # JAX FIX: Use fixed range instead of dynamic range
+        ilcl, _ = lax.scan(find_lcl_level, klcl_c, jnp.arange(ikb, jt + 1))
 
         # ===== Interpolate to get precise LCL height and theta_v =====
         # Safe indexing with bounds checking
@@ -351,7 +362,9 @@ def convect_trigger_shal(
         jlclmin = jnp.min(jnp.where(gwork1, ilcl, ike))
         jlclmin = jnp.maximum(ikb, jlclmin - 1)
 
-        zcape = jnp.maximum(jlclmin - ikb, 0) * cst.g
+        # JAX FIX: zcape should be per-gridpoint array, not scalar
+        # Using minimum LCL across all points for computational stability
+        zcape = jnp.ones(nit) * jnp.maximum(jlclmin - ikb, 0) * cst.g
         zcap = jnp.zeros(nit)
         ztop = jnp.zeros(nit)
         zwork3 = jnp.zeros(nit)
@@ -364,30 +377,37 @@ def convect_trigger_shal(
             # Skip if jk is out of bounds
             jk_safe = jnp.clip(jk, 0, nkt - 1)
 
+            # JAX FIX: Add mask to only process when jl >= jlclmin
+            active_mask = gwork1 & (jl >= jlclmin) & (jl <= jt)
+
             # Buoyancy contribution (set to 0 below LCL)
             zx1 = (2.0 * ztheul / (pthes[:, jk_safe] + pthes[:, jl] + 1e-10) - 1.0) * \
                   (pz[:, jk_safe] - pz[:, jl])
             zx1 = jnp.where(jl < ilcl, 0.0, zx1)
+            zx1 = jnp.where(active_mask, zx1, 0.0)  # Only apply when active
 
-            zcape_new = zcape_a + cst.g * jnp.maximum(1.0, zx1)
-            zcap_new = zcap_a + zx1
+            zcape_new = jnp.where(active_mask, zcape_a + cst.g * jnp.maximum(1.0, zx1), zcape_a)
+            zcap_new = jnp.where(active_mask, zcap_a + zx1, zcap_a)
 
             # Check if updraft kinetic energy becomes negative
             zx2 = jnp.sign(params.xnhgam * cst.g * zcap_new + zwlclsqrent)
-            zwork3_new = jnp.maximum(-1.0, zwork3_a + jnp.minimum(0.0, zx2))
+            zwork3_new = jnp.where(active_mask,
+                                  jnp.maximum(-1.0, zwork3_a + jnp.minimum(0.0, zx2)),
+                                  zwork3_a)
 
             # Extract cloud top (where criterion first fulfilled)
             ztop_new = pz[:, jl] * 0.5 * (1.0 + zx2) * (1.0 + zwork3_new) + \
                       ztop_a * 0.5 * (1.0 - zx2)
-            ztop_new = jnp.maximum(ztop_new, ztop_a)
+            ztop_new = jnp.where(active_mask, jnp.maximum(ztop_new, ztop_a), ztop_a)
 
             return (zcape_new, zcap_new, ztop_new, zwork3_new), None
 
-        # Run CAPE loop from jlclmin to jt
+        # JAX FIX: Run CAPE loop with fixed range from ikb to jt
+        # The active_mask handles the dynamic start at jlclmin
         (zcape, zcap, ztop, zwork3), _ = lax.scan(
             cape_loop,
             (zcape, zcap, ztop, zwork3),
-            jnp.arange(jlclmin, jt + 1)
+            jnp.arange(ikb, jt + 1)  # Fixed range
         )
 
         # ===== Check trigger condition =====

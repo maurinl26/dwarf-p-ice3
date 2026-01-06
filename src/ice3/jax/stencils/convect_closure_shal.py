@@ -14,6 +14,7 @@ References
 - PHYEX Book 1 & 2 documentation
 """
 
+import jax
 import jax.numpy as jnp
 from jax import Array, lax
 from typing import Tuple, NamedTuple
@@ -252,10 +253,12 @@ def convect_closure_shal(
 
         return zadjmax_new, None
 
+    # JAX FIX: Use fixed range instead of dynamic range based on jdplmin/jlclmax
+    # Add condition in compute_zadjmax to only process when in valid range
     zadjmax, _ = lax.scan(
         compute_zadjmax,
         zadjmax,
-        jnp.arange(jnp.maximum(ikb, jdplmin + 1), jnp.minimum(ike + 1, jlclmax + 1))
+        jnp.arange(ikb, ike + 1)  # Fixed range
     )
 
     # Precompute pi values (Exner function)
@@ -314,10 +317,12 @@ def convect_closure_shal(
 
             return (pwsub_c, ztimec_new, zomg_c), None
 
+        # JAX FIX: Use fixed range instead of dynamic jctlmax
+        # The compute_omega function already has (jk <= kctl) condition
         (pwsub_iter, ztimec, zomg), _ = lax.scan(
             compute_omega,
             (pwsub_iter, ztimec, zomg),
-            jnp.arange(ikb + 1, jctlmax + 1)
+            jnp.arange(ikb + 1, ike + 1)  # Fixed range
         )
 
         # ===== Mass conservation check =====
@@ -341,6 +346,11 @@ def convect_closure_shal(
         ztimc = jnp.broadcast_to(ztimec[:, None], (nit, nkt))
 
         kftsteps = jnp.max(itstep)
+
+        # JAX FIX: Use fixed max fractional time steps for JAX compatibility
+        # The fractional_step function has (itstep >= jstep + 1) condition
+        # Typical values are < 100, but we use 100 as conservative upper bound
+        max_ftsteps = 100
 
         # ===== Fractional time step loop =====
         def fractional_step(carry_f, jstep):
@@ -410,10 +420,12 @@ def convect_closure_shal(
             mfin_init = {'thl': zthmfin, 'rw': zrwmfin, 'rc': zrcmfin, 'ri': zrimfin}
             mfout_init = {'thl': zthmfout, 'rw': zrwmfout, 'rc': zrcmfout, 'ri': zrimfout}
 
+            # JAX FIX: Use fixed range instead of dynamic jctlmax
+            # The compute_mass_flux function already has (jk <= kctl) condition
             (mfin_final, mfout_final), _ = lax.scan(
                 compute_mass_flux,
                 (mfin_init, mfout_init),
-                jnp.arange(ikb + 1, jctlmax + 1)
+                jnp.arange(ikb + 1, ike + 1)  # Fixed range
             )
 
             zthmfin = mfin_final['thl']
@@ -465,22 +477,25 @@ def convect_closure_shal(
                     jnp.where(gwork4, pric_new, pric_f[idx_i, jk_clip]),
                 )
 
+            # JAX FIX: Use fixed range instead of dynamic jctlmax
+            # The update_environment function already has (jk <= kctl) condition
             # Vectorized update over vertical levels
-            updates = jax.vmap(update_environment)(jnp.arange(ikb, jctlmax + 1))
+            updates = jax.vmap(update_environment)(jnp.arange(ikb, ike + 1))
 
             # Reconstruct full arrays
-            zthlc_new = zthlc_f.at[idx_i[:, None], jnp.arange(ikb, jctlmax + 1)[None, :]].set(updates[0].T)
-            prwc_new = prwc_f.at[idx_i[:, None], jnp.arange(ikb, jctlmax + 1)[None, :]].set(updates[1].T)
-            prcc_new = prcc_f.at[idx_i[:, None], jnp.arange(ikb, jctlmax + 1)[None, :]].set(updates[2].T)
-            pric_new = pric_f.at[idx_i[:, None], jnp.arange(ikb, jctlmax + 1)[None, :]].set(updates[3].T)
+            zthlc_new = zthlc_f.at[idx_i[:, None], jnp.arange(ikb, ike + 1)[None, :]].set(updates[0].T)
+            prwc_new = prwc_f.at[idx_i[:, None], jnp.arange(ikb, ike + 1)[None, :]].set(updates[1].T)
+            prcc_new = prcc_f.at[idx_i[:, None], jnp.arange(ikb, ike + 1)[None, :]].set(updates[2].T)
+            pric_new = pric_f.at[idx_i[:, None], jnp.arange(ikb, ike + 1)[None, :]].set(updates[3].T)
 
             return (zthlc_new, prwc_new, prcc_new, pric_new), None
 
+        # JAX FIX: Use fixed range for fractional time steps
         # Execute fractional time steps
         (zthlc_iter, prwc_iter, prcc_iter, pric_iter), _ = lax.scan(
             fractional_step,
             (zthlc_iter, prwc_iter, prcc_iter, pric_iter),
-            jnp.arange(kftsteps)
+            jnp.arange(max_ftsteps)  # Fixed upper bound
         )
 
         # ===== Convert enthalpy to theta =====
@@ -508,9 +523,11 @@ def convect_closure_shal(
 
             return jnp.where(gwork4, pthc_new, pthc_iter[idx_i, jk_clip])
 
+        # JAX FIX: Use fixed range instead of dynamic jctlmax
+        # The compute_theta function already has (jk <= kctl) condition
         # Vectorized theta computation
-        pthc_new_vals = jax.vmap(compute_theta)(jnp.arange(ikb + 1, jctlmax + 1))
-        pthc_iter = pthc_iter.at[idx_i[:, None], jnp.arange(ikb + 1, jctlmax + 1)[None, :]].set(pthc_new_vals.T)
+        pthc_new_vals = jax.vmap(compute_theta)(jnp.arange(ikb + 1, ike + 1))
+        pthc_iter = pthc_iter.at[idx_i[:, None], jnp.arange(ikb + 1, ike + 1)[None, :]].set(pthc_new_vals.T)
 
         # ===== Compute new LCL properties =====
         lcl_outputs = convect_closure_thrvlcl(
@@ -588,10 +605,12 @@ def convect_closure_shal(
 
             return (zcape_c, zthes1_c), None
 
+        # JAX FIX: Use fixed range instead of dynamic jlclmin and jctlmax
+        # The integrate_cape function already has (jk >= ilcl) & (jk <= kctl) condition
         (zcape, _), _ = lax.scan(
             integrate_cape,
             (zcape, zthes1),
-            jnp.arange(jlclmin, jctlmax + 1)
+            jnp.arange(ikb, ike + 1)  # Fixed range
         )
 
         # ===== Determine mass adjustment factor =====

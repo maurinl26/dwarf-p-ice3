@@ -24,14 +24,11 @@ from typing import NamedTuple, Optional
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import from stencils
-stencils_path = Path(__file__).parent.parent / "stencils"
-sys.path.insert(0, str(stencils_path))
-
-from convect_trigger_shal import ConvectionParameters
-from constants import PHYS_CONSTANTS
-from convect_updraft_shal import convect_updraft_shal
-from convect_closure_shal import convect_closure_shal
+# Import from stencils package using absolute imports
+from ice3.jax.stencils.convect_trigger_shal import ConvectionParameters
+from ice3.jax.stencils.constants import PHYS_CONSTANTS
+from ice3.jax.stencils.convect_updraft_shal import convect_updraft_shal
+from ice3.jax.stencils.convect_closure_shal import convect_closure_shal
 
 
 class ShallowConvectionPart2Outputs(NamedTuple):
@@ -225,9 +222,11 @@ def shallow_convection_part2(
     ppch1ten = jnp.zeros((nit, nkt, kch1))
 
     # ===== 3.2 Compute pressure difference =====
+    # Compute pressure difference between layers: dp[k] = p[k] - p[k+1]
+    # Valid from ikb+1 to ike (not ike+1, to stay within bounds)
     zdpres = jnp.zeros((nit, nkt))
-    zdpres = zdpres.at[:, ikb+1:ike+1].set(
-        ppabst[:, ikb:ike] - ppabst[:, ikb+1:ike+1]
+    zdpres = zdpres.at[:, ikb+1:ike].set(
+        ppabst[:, ikb:ike-1] - ppabst[:, ikb+1:ike]
     )
 
     # ===== 3.3 Compute environmental enthalpy and total water =====
@@ -445,8 +444,11 @@ def shallow_convection_part2(
     # Compute correction factors
     mask_corr = ictl > ikb + 1
     jkp = ictl
-    zw1_denom = cst.g / (ppabst[:, ikb] - ppabst[:, jkp] -
-                         0.5 * (zdpres[:, ikb+1] - zdpres[:, jkp+1]))
+    # Use vectorized indexing to get values at ictl for each column
+    idx_i = jnp.arange(nit)
+    jkp_clip = jnp.clip(jkp, 0, nkt - 1)
+    zw1_denom = cst.g / (ppabst[:, ikb] - ppabst[idx_i, jkp_clip] -
+                         0.5 * (zdpres[:, ikb+1] - zdpres[idx_i, jkp_clip+1]))
     zwork2 = jnp.where(mask_corr, zwork2 * zw1_denom, 0.0)
     zwork2b = jnp.where(mask_corr, zwork2b * zw1_denom, 0.0)
 

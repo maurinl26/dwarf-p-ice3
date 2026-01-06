@@ -24,15 +24,12 @@ from typing import NamedTuple, Optional
 import sys
 from pathlib import Path
 
-# Add parent directory to path to import from stencils
-stencils_path = Path(__file__).parent.parent / "stencils"
-sys.path.insert(0, str(stencils_path))
-
-from convect_trigger_shal import ConvectionParameters
-from constants import PHYS_CONSTANTS
-from shallow_convection_part1 import shallow_convection_part1
-from shallow_convection_part2 import shallow_convection_part2
-from shallow_convection_part2_select import shallow_convection_part2_select
+# Import from stencils package using absolute imports
+from ice3.jax.stencils.convect_trigger_shal import ConvectionParameters
+from ice3.jax.stencils.constants import PHYS_CONSTANTS
+from .shallow_convection_part1 import shallow_convection_part1
+from .shallow_convection_part2 import shallow_convection_part2
+from .shallow_convection_part2_select import shallow_convection_part2_select
 
 
 class ShallowConvectionOutputs(NamedTuple):
