@@ -29,6 +29,7 @@ dependencies = [
     "scipy>=1.15.3",
     "typer>=0.15.2",
     "xarray[io]>=2025.4.0",
+    "cython>=3.2.4"
 ]
 
 [build-system]
