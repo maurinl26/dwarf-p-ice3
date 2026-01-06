@@ -152,13 +152,36 @@ It can be downloaded :
     rm -f IAL_CY50T1.tar.gz
 ```
 
+## Available Implementations
+
+### JAX Backend (CPU/GPU)
+
+JAX implementations provide automatic differentiation and accelerated computing on CPU and GPU:
+
+- **ice_adjust** ([src/ice3/jax/ice_adjust.py](src/ice3/jax/ice_adjust.py)) - Microphysical adjustments with JAX backend
+- **rain_ice** ([src/ice3/jax/rain_ice.py](src/ice3/jax/rain_ice.py)) - One-moment microphysical processes with JAX backend
+- **shallow_convection** ([src/ice3/jax/convection/shallow_convection.py](src/ice3/jax/convection/shallow_convection.py)) - Shallow convection scheme with JAX backend
+
+JAX implementations support both CPU and GPU execution with automatic device selection.
+
+### Cython/Fortran Backend
+
+Python wrappers for Fortran implementations with Cython bindings for improved performance:
+
+- **ice_adjust** ([src/ice3/fortran/ice_adjust_cython.py](src/ice3/fortran/ice_adjust_cython.py)) - Ice adjust with Cython/Fortran backend
+- **rain_ice** ([src/ice3/fortran/rain_ice_cython.py](src/ice3/fortran/rain_ice_cython.py)) - Rain ice with Cython/Fortran backend
+
+These implementations leverage the original PHYEX Fortran code for maximum performance and reproducibility.
+
 ## Microphysical Adjustments (Ice Adjust)
 
-There are 2 components available for microphysical adjustments, under [/src/ice3/components](./src/ice3/components) directory:
+Ice adjust performs condensation and adjustments following supersaturation, mirroring PHYEX's ice_adjust.F90.
 
-- IceAdjust (ice_adjust.py) : performs condensation and adjustements following supersaturation, and is the mirror of PHYEX's ice_adjust.F90,
-- IceAdjustModular (ice_adjust_modular.py) : ice_adjust written with 4 stencils.
-  
+**Available backends:**
+- GT4Py (legacy)
+- JAX (CPU/GPU) - [src/ice3/jax/ice_adjust.py](src/ice3/jax/ice_adjust.py)
+- Cython/Fortran - [src/ice3/fortran/ice_adjust_cython.py](src/ice3/fortran/ice_adjust_cython.py)
+
 To launch ice_adjust (with cli):
 
 ```bash
@@ -166,25 +189,40 @@ To launch ice_adjust (with cli):
   gt:cpu_kfirst \
   ./data/ice_adjust/reference.nc \
   ./data/ice_adjust/run.nc \
-  track_ice_adjust.json --no-rebuild 
+  track_ice_adjust.json --no-rebuild
 ```
 
 ## Microphysical Processes (Rain Ice)
 
-There are 2 components available for rain_ice (one-moment microphysical processes computation), under [/src/ice3/components](./src/ice3/components) directory:
+Rain ice performs one-moment microphysical processes computation, including ice4_tendencies (equivalent to ice4_tendencies.F90).
 
-- RainIce (rain_ice.py) : rain_ice component,
-- Ice4Tendencies (ice4_tendencies.py) : the microphysical species computation of RainIce (equivalent to ice4_tendencies.F90).
+**Available backends:**
+- GT4Py (legacy)
+- JAX (CPU/GPU) - [src/ice3/jax/rain_ice.py](src/ice3/jax/rain_ice.py)
+- Cython/Fortran - [src/ice3/fortran/rain_ice_cython.py](src/ice3/fortran/rain_ice_cython.py)
 
 To launch rain_ice (with cli):
 
 ```bash
-    uv run standalone-model ice-adjust-split \
+    uv run standalone-model rain-ice \
     gt:cpu_kfirst \
-    ./data/ice_adjust/reference.nc \
-    ./data/ice_adjust/run.nc \
-    track_ice_adjust.json --no-rebuild 
+    ./data/rain_ice/reference.nc \
+    ./data/rain_ice/run.nc \
+    track_rain_ice.json --no-rebuild
 ```
+
+## Shallow Convection
+
+Shallow convection scheme implementing the shallow convection parameterization from PHYEX.
+
+**Available backends:**
+- JAX (CPU/GPU) - [src/ice3/jax/convection/shallow_convection.py](src/ice3/jax/convection/shallow_convection.py)
+- Fortran (reference) - PHYEX-IAL_CY50T1
+
+The JAX implementation is split into modular components:
+- [shallow_convection_part1.py](src/ice3/jax/convection/shallow_convection_part1.py)
+- [shallow_convection_part2.py](src/ice3/jax/convection/shallow_convection_part2.py)
+- [shallow_convection_part2_select.py](src/ice3/jax/convection/shallow_convection_part2_select.py)
 
 ## Unit tests for compilation and numerical reproducibility
 
@@ -259,84 +297,4 @@ Components under (components)[tests/components] are monitored with continuous be
 
 - intégration ice_adjust,
 - intégration rain_ice
-
-### (WIP) Lookup Tables
-
-Les lookup tables ne sont pas implémentées en gt4py (indexation dynamique), et restent à implémenter.
-
-- diagnostic sigma rc : [mode_sigrc_computation.F90](./src/ice3/stencils_fortran/mode_sigrc_computation.F90),
-
-```fortran
-DO JK = NKTB, NKTE
-  DO JIJ = NIJB, NIJE
-    
-    INQ1(JIJ,JK) = FLOOR(MIN(100.0, MAX(-100.0, 2.0 * ZQ1(JIJ,JK))))
-    INQ2 = MIN(MAX(-22, INQ1(JIJ,JK)), 10)
-    
-    ZINC = 2.0 * ZQ1(JIJ,JK) - REAL(INQ2)
-    PSIGRC(JIJ,JK) = MIN(1.0, (1.0 - ZINC) * SRC_1D(INQ2 + 23) + &
-                                     ZINC * SRC_1D(INQ2 + 24))
-    
-  END DO
-END DO
-```
-Le stencil est implémenté en cupy.
-A faire : vérifier l'intégration du stencil cupy.
-
-- processus rapides de formation du graupel, référence [mode_ice4_fast_rg.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rg.F90):
-      - collection de neige sur graupel,
-      - accrétion de pluie sur graupel.
-  
-- processus rapides de formation de neige, référence [mode_ice4_fast_rs.F90](./src/ice3/stencils_fortran/mode_ice4_fast_rs.F90) :
-      - givrage des gouttelettes,
-      - accrétion de pluie sur la neige.
-
-1. INTERP_MICRO_2D
-
-```fortran
-  KLEN=0
-  DO JL=1, KSIZE
-    IF (LDMASK(JL)) THEN
-      KLEN=KLEN+1
-
-      ! Indexes computation
-      ZINDEX1 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P11 * LOG(PIN1(JL)) + P12))
-      IINDEX1 = INT(ZINDEX1)
-      ZINDEX1 = ZINDEX1 - REAL(IINDEX1)
-  
-      ZINDEX2 = MAX(1.00001, MIN(REAL(KNUM1)-0.00001, P21 * LOG(PIN2(JL)) + P22))
-      IINDEX2 = INT(ZINDEX2)
-      ZINDEX2 = ZINDEX2 - REAL(IINDEX2)
-  
-      ! Interpolations
-      POUT1(JL) = ( PLT1(IINDEX1+1,IINDEX2+1)* ZINDEX2         &
-                   -PLT1(IINDEX1+1,IINDEX2  )*(ZINDEX2 - 1.0)) *  ZINDEX1 &
-                 -( PLT1(IINDEX1  ,IINDEX2+1)* ZINDEX2         &
-                   -PLT1(IINDEX1  ,IINDEX2  )*(ZINDEX2 - 1.0)) * (ZINDEX1 - 1.0)
-    ENDDO
-```
- 
-2. INTERP_MICRO_1D
-   
-```fortran
-  DO JL=1, KSIZE
-    IF (LDMASK(JL)) THEN
-      KLEN=KLEN+1
-
-      ! Index computation
-      ZINDEX = MAX(1.00001, MIN(REAL(KNUM)-0.00001, P1 * LOG(PIN(JL)) + P2))
-      IINDEX = INT(ZINDEX)
-      ZINDEX = ZINDEX - REAL(IINDEX)
-
-      ! Interpolations
-      POUT1(JL) = PLT1(IINDEX+1) *  ZINDEX       &
-                 -PLT1(IINDEX  ) * (ZINDEX - 1.0)
-   ENDDO
-```
-  
-
-Detailed issue : 
-
-GT4Py (cartesian) does not manage the interpolation on relative index "SRC_1D(INQ1 + 24)".
-
 
