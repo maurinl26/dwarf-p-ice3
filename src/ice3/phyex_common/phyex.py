@@ -305,12 +305,40 @@ class Phyex:
         self.INV_TSTEP = 1 / self.TSTEP
 
     def to_externals(self):
+        """
+        Convert configuration objects to a dictionary of external parameters.
+
+        This method handles both Python dataclasses and Cython classes by using
+        vars() to extract attributes as a dictionary.
+        """
+        def obj_to_dict(obj):
+            """Convert an object (dataclass or Cython class) to dict."""
+            try:
+                # Try asdict for dataclasses
+                return asdict(obj)
+            except TypeError:
+                # For Cython classes, use vars() to get __dict__
+                obj_dict = vars(obj)
+                # Filter out nested objects, keeping only primitive types and arrays
+                result = {}
+                for key, value in obj_dict.items():
+                    # Skip private attributes
+                    if key.startswith('_'):
+                        continue
+                    # Keep primitives and arrays, skip objects
+                    if isinstance(value, (int, float, str, bool, type(None))):
+                        result[key] = value
+                    elif hasattr(value, '__len__'):  # Arrays, lists, tuples
+                        result[key] = value
+                    # Skip other object types (nested classes, etc.)
+                return result
+
         externals = {}
-        externals.update(asdict(self.cst))
-        externals.update(asdict(self.param_icen))
-        externals.update(asdict(self.rain_ice_descrn))
-        externals.update(asdict(self.rain_ice_param))
-        externals.update(asdict(self.nebn))
+        externals.update(obj_to_dict(self.cst))
+        externals.update(obj_to_dict(self.param_icen))
+        externals.update(obj_to_dict(self.rain_ice_descrn))
+        externals.update(obj_to_dict(self.rain_ice_param))
+        externals.update(obj_to_dict(self.nebn))
         externals.update({"TSTEP": self.TSTEP, "NRR": self.NRR, "INV_TSTEP": self.INV_TSTEP})
 
         return externals

@@ -184,16 +184,16 @@ class TestIceAdjustJAXInitialization:
         """Test that constants are properly extracted."""
         ice_adjust = IceAdjustJAX(phyex=phyex)
         constants = ice_adjust.constants
-        
+
         # Check essential constants
         assert 'RD' in constants
         assert 'RV' in constants
         assert 'CPD' in constants
         assert 'LVTT' in constants
         assert 'LSTT' in constants
-        assert 'XTT' in constants
+        assert 'TT' in constants  # Triple point temperature (XTT in Fortran)
         assert 'TSTEP' in constants
-        
+
         # Check AROME-specific settings
         assert constants['TSTEP'] == 60.0
 

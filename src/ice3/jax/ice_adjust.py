@@ -25,9 +25,10 @@ log = logging.getLogger(__name__)
 def _make_hashable(obj):
     """Recursively convert objects to hashable types for JAX static args."""
     import numpy as np
-    
+
     if isinstance(obj, (jnp.ndarray, np.ndarray)):
-        return tuple(obj.tolist())
+        # Convert array to nested tuples (handles multi-dimensional arrays)
+        return _make_hashable(obj.tolist())
     elif isinstance(obj, dict):
         return FrozenDict({k: _make_hashable(v) for k, v in obj.items()})
     elif isinstance(obj, (list, tuple)):
