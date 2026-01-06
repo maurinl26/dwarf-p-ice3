@@ -43,6 +43,40 @@ jobs:
         uv run pytest tests/components -k "debug or numpy"
         uv run pytest tests/performance -k cpu
 
+  spack-package:
+    name: Update Spack package
+    runs-on: ubuntu-latest
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install Spack
+      run: |
+        git clone --depth=1 https://github.com/spack/spack.git ~/spack
+        echo "$HOME/spack/bin" >> $GITHUB_PATH
+
+    - name: Update Spack package
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "Updating Spack package for version $VERSION"
+        # Create package checksum
+        spack checksum dwarf-p-ice3@$VERSION || true
+        # Copy package.py to Spack repository
+        mkdir -p ~/spack/var/spack/repos/builtin/packages/dwarf-p-ice3
+        cp package.py ~/spack/var/spack/repos/builtin/packages/dwarf-p-ice3/
+
+    - name: Test Spack installation
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        spack spec dwarf-p-ice3@$VERSION
+
   build:
     name: Build distribution packages
     runs-on: ubuntu-latest
