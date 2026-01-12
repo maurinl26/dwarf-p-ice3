@@ -359,58 +359,78 @@ def shallow_convection_part2(
 
     # ===== 8.1 Compute grid scale tendencies =====
     # Convert adjusted values to tendencies: (adjusted - initial) / time
-    # Temperature tendency (convert theta to T)
-    pthc_tend = jnp.zeros((nit, nkt))
-    for jk in range(ikb, ike+1):
-        pthc_tend = pthc_tend.at[:, jk].set(
-            (pthc_adj[:, jk] - ptht[:, jk]) / ztimec *
-            (ppabst[:, jk] / cst.p00) ** prdocp
-        )
+    # VECTORIZED: Compute all tendencies at once for levels ikb:ike+1
 
-    # Water vapor tendency (total water - condensate)
-    prvc_tend = jnp.zeros((nit, nkt))
-    for jk in range(ikb, ike+1):
-        prvc_tend = prvc_tend.at[:, jk].set(
-            (prwc_adj[:, jk] - zrw[:, jk] +
-             jnp.maximum(0.0, prct[:, jk]) + jnp.maximum(0.0, prit[:, jk])) / ztimec
-        )
+    # Create mask for valid vertical levels (ikb to ike inclusive)
+    level_mask = (jnp.arange(nkt)[None, :] >= ikb) & (jnp.arange(nkt)[None, :] <= ike)
 
-    # Cloud water tendency
-    prcc_tend = jnp.zeros((nit, nkt))
-    for jk in range(ikb, ike+1):
-        prcc_tend = prcc_tend.at[:, jk].set(
-            (prcc_adj[:, jk] - jnp.maximum(0.0, prct[:, jk])) / ztimec
-        )
+    # Temperature tendency - VECTORIZED
+    pthc_tend = jnp.where(
+        level_mask,
+        (pthc_adj - ptht) / ztimec[:, None] * (ppabst / cst.p00) ** prdocp,
+        0.0
+    )
 
-    # Ice tendency
-    pric_tend = jnp.zeros((nit, nkt))
-    for jk in range(ikb, ike+1):
-        pric_tend = pric_tend.at[:, jk].set(
-            (pric_adj[:, jk] - jnp.maximum(0.0, prit[:, jk])) / ztimec
-        )
+    # Water vapor tendency - VECTORIZED
+    prvc_tend = jnp.where(
+        level_mask,
+        (prwc_adj - zrw + jnp.maximum(0.0, prct) + jnp.maximum(0.0, prit)) / ztimec[:, None],
+        0.0
+    )
+
+    # Cloud water tendency - VECTORIZED
+    prcc_tend = jnp.where(
+        level_mask,
+        (prcc_adj - jnp.maximum(0.0, prct)) / ztimec[:, None],
+        0.0
+    )
+
+    # Ice tendency - VECTORIZED
+    pric_tend = jnp.where(
+        level_mask,
+        (pric_adj - jnp.maximum(0.0, prit)) / ztimec[:, None],
+        0.0
+    )
 
     # ===== 8.2 Apply smoothing at cloud top =====
     if convection_params.llsmooth:
-        for ji in range(nit):
-            jk = ictl[ji]
-            jkm = jnp.maximum(2, ictl[ji] - 1)
-            jkp = jnp.maximum(2, ictl[ji] - 2)
+        # VECTORIZED smoothing at cloud top
+        # For each column, redistribute tendency from level ictl[ji] to levels ictl[ji]-1 and ictl[ji]-2
 
-            # Redistribute cloud top tendencies to lower levels
-            prvc_tend = prvc_tend.at[ji, jkm].add(0.5 * prvc_tend[ji, jk])
-            prcc_tend = prcc_tend.at[ji, jkm].add(0.5 * prcc_tend[ji, jk])
-            pric_tend = pric_tend.at[ji, jkm].add(0.5 * pric_tend[ji, jk])
-            pthc_tend = pthc_tend.at[ji, jkm].add(0.5 * pthc_tend[ji, jk])
+        # Get indices for all columns at once
+        ji_idx = jnp.arange(nit)  # Column indices [0, 1, 2, ..., nit-1]
+        jk_idx = ictl  # Cloud top level for each column
+        jkm_idx = jnp.maximum(2, ictl - 1)  # One level below cloud top (but not below level 2)
+        jkp_idx = jnp.maximum(2, ictl - 2)  # Two levels below cloud top (but not below level 2)
 
-            prvc_tend = prvc_tend.at[ji, jkp].add(0.3 * prvc_tend[ji, jk])
-            prcc_tend = prcc_tend.at[ji, jkp].add(0.3 * prcc_tend[ji, jk])
-            pric_tend = pric_tend.at[ji, jkp].add(0.3 * pric_tend[ji, jk])
-            pthc_tend = pthc_tend.at[ji, jkp].add(0.3 * pthc_tend[ji, jk])
+        # Clip indices to valid range [0, nkt-1]
+        jk_idx_clip = jnp.clip(jk_idx, 0, nkt - 1)
+        jkm_idx_clip = jnp.clip(jkm_idx, 0, nkt - 1)
+        jkp_idx_clip = jnp.clip(jkp_idx, 0, nkt - 1)
 
-            prvc_tend = prvc_tend.at[ji, jk].multiply(0.2)
-            prcc_tend = prcc_tend.at[ji, jk].multiply(0.2)
-            pric_tend = pric_tend.at[ji, jk].multiply(0.2)
-            pthc_tend = pthc_tend.at[ji, jk].multiply(0.2)
+        # Extract values at cloud top for all columns (shape: nit)
+        prvc_at_top = prvc_tend[ji_idx, jk_idx_clip]
+        prcc_at_top = prcc_tend[ji_idx, jk_idx_clip]
+        pric_at_top = pric_tend[ji_idx, jk_idx_clip]
+        pthc_at_top = pthc_tend[ji_idx, jk_idx_clip]
+
+        # Update level jkm (one below) - add 0.5 of cloud top value
+        prvc_tend = prvc_tend.at[ji_idx, jkm_idx_clip].add(0.5 * prvc_at_top)
+        prcc_tend = prcc_tend.at[ji_idx, jkm_idx_clip].add(0.5 * prcc_at_top)
+        pric_tend = pric_tend.at[ji_idx, jkm_idx_clip].add(0.5 * pric_at_top)
+        pthc_tend = pthc_tend.at[ji_idx, jkm_idx_clip].add(0.5 * pthc_at_top)
+
+        # Update level jkp (two below) - add 0.3 of cloud top value
+        prvc_tend = prvc_tend.at[ji_idx, jkp_idx_clip].add(0.3 * prvc_at_top)
+        prcc_tend = prcc_tend.at[ji_idx, jkp_idx_clip].add(0.3 * prcc_at_top)
+        pric_tend = pric_tend.at[ji_idx, jkp_idx_clip].add(0.3 * pric_at_top)
+        pthc_tend = pthc_tend.at[ji_idx, jkp_idx_clip].add(0.3 * pthc_at_top)
+
+        # Update cloud top level - multiply by 0.2 (keep only 20% of original)
+        prvc_tend = prvc_tend.at[ji_idx, jk_idx_clip].multiply(0.2)
+        prcc_tend = prcc_tend.at[ji_idx, jk_idx_clip].multiply(0.2)
+        pric_tend = pric_tend.at[ji_idx, jk_idx_clip].multiply(0.2)
+        pthc_tend = pthc_tend.at[ji_idx, jk_idx_clip].multiply(0.2)
 
     # ===== 8.3 Apply conservation correction =====
     # Compute vertical integrals (must be zero for conservation)
