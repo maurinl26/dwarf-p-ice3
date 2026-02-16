@@ -74,17 +74,21 @@ Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.i
 - Build :
 
 ```bash
-    sudo docker build -t ice3 ./dwarf-p-ice3/container
+  docker build --target jax-gpu --platform linux/amd64 -f container/Dockerfile -t ghcr.io/maurinl26/dwarf-p-ice3:jax-gpu .
+```
+
+```bash
+  docker push ghcr.io/maurinl26/dwarf-p-ice3:jax-gpu
 ```
 
 - Retrieve from ghcr.io :
   1. With docker :
     ```bash
-        docker pull ghcr.io/maurinl26/dwarf-p-ice3
+      docker pull ghcr.io/maurinl26/dwarf-p-ice3
     ```
   2. With singularity :
      ```
-         singularity pull docker://ghcr.io/maurinl26/dwarf-p-ice3
+      singularity pull docker://ghcr.io/maurinl26/dwarf-p-ice3
      ```
 
 ### Development Container (Devcontainer)
