@@ -18,8 +18,8 @@ RUN uv venv $VIRTUAL_ENV && \
 # ==========================================
 # 2. BASE GPU (NVIDIA CUDA)
 # ==========================================
-# JAX GPU nécessite CUDA runtime + cuDNN
-FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04 AS base-gpu-jax
+# JAX GPU : CUDA runtime suffit, cuDNN/cuPTI/NCCL fournis par les wheels Python
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS base-gpu-jax
 RUN apt-get update && apt-get install -y python3-pip curl git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
@@ -177,12 +177,15 @@ CMD ["python", "main.py"]
 
 # --- VARIANT B : JAX / GPU ---
 FROM base-gpu-jax AS jax-gpu
-# pip gère mieux les extras [cuda12] que uv (résolution des plugins CUDA)
-# --force-reinstall car base-gpu-jax a déjà installé jax CPU
-RUN pip install --no-cache-dir --force-reinstall "jax[cuda12]" && \
-    pip install --no-cache-dir "cupy-cuda12x>=13.5.0" && \
-    pip install --no-cache-dir --no-deps "cupy-xarray>=0.1.4"
-# Vérification que le GPU est bien détecté au build
+# uv ne résout pas les extras [cuda12] correctement : on installe explicitement
+# les plugins JAX CUDA et les wheels NVIDIA (cuDNN, cuPTI, NCCL, NVRTC)
+RUN uv pip install --no-cache-dir \
+    "jax>=0.5.3" "jaxlib>=0.5.3" \
+    "jax-cuda12-plugin>=0.5.3,<0.6" "jax-cuda12-pjrt>=0.5.3,<0.6" \
+    nvidia-cudnn-cu12 nvidia-cuda-cupti-cu12 nvidia-nccl-cu12 nvidia-cuda-nvrtc-cu12 \
+    "cupy-cuda12x>=13.5.0" && \
+    uv pip install --no-cache-dir --no-deps "cupy-xarray>=0.1.4"
+# Vérification que le plugin CUDA est bien installé
 RUN python3 -c "import jax_cuda12_plugin; print('CUDA plugin OK')"
 COPY . .
 ENV JAX_PLATFORM_NAME=cuda
