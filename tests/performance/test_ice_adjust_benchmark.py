@@ -27,9 +27,9 @@ except ImportError:
 
 # Try to import JAX implementation
 try:
+    import os
     import jax
-    # Force JAX to use CPU only
-    jax.config.update('jax_platform_name', 'cpu')
+    jax.config.update('jax_platform_name', os.environ.get('JAX_PLATFORM_NAME', 'cpu'))
     import jax.numpy as jnp
     from ice3.jax.ice_adjust import IceAdjustJAX
     from ice3.phyex_common.phyex import Phyex

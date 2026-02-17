@@ -7,9 +7,9 @@ from pathlib import Path
 
 # Try to import JAX implementation
 try:
+    import os
     import jax
-    # Force JAX to use CPU only
-    jax.config.update('jax_platform_name', 'cpu')
+    jax.config.update('jax_platform_name', os.environ.get('JAX_PLATFORM_NAME', 'cpu'))
     import jax.numpy as jnp
     from ice3.jax.turbulence.turb import turb_scheme
     from ice3.jax.turbulence.constants import TurbulenceConstants
