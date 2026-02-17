@@ -18,8 +18,8 @@ RUN uv venv $VIRTUAL_ENV && \
 # ==========================================
 # 2. BASE GPU (NVIDIA CUDA)
 # ==========================================
-# Pour JAX GPU, une base CUDA runtime suffit
-FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS base-gpu-jax
+# JAX GPU nécessite CUDA runtime + cuDNN
+FROM nvidia/cuda:12.2.2-cudnn8-runtime-ubuntu22.04 AS base-gpu-jax
 RUN apt-get update && apt-get install -y python3-pip curl git && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
@@ -33,19 +33,18 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN uv venv $VIRTUAL_ENV && \
     uv pip install --no-cache-dir -r pyproject.toml
 
-FROM nvcr.io/nvidia/nvhpc:23.9-devel-ubuntu22.04 AS base-gpu-acc
+FROM nvcr.io/nvidia/nvhpc:23.9-devel-cuda12.2-ubuntu22.04 AS base-gpu-acc
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # Install uv
 RUN pip3 install uv
 
-# Create venv and install dependencies
-COPY pyproject.toml uv.lock* ./
+# Create venv and install only build-system dependencies (not all runtime deps)
 ENV VIRTUAL_ENV="/app/.venv"
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN uv venv $VIRTUAL_ENV && \
-    uv pip install --no-cache-dir -r pyproject.toml
+    uv pip install --no-cache-dir "scikit-build-core>=0.10.0" "cython>=3.2.4" "numpy<2.0"
 
 # ==========================================
 # 3. BASE ROCm (AMD Radeon/Instinct)
@@ -178,13 +177,16 @@ CMD ["python", "main.py"]
 
 # --- VARIANT B : JAX / GPU ---
 FROM base-gpu-jax AS jax-gpu
-# Installation spécifique JAX CUDA et CuPy (binary wheels)
-RUN uv pip install --no-cache-dir "cupy-cuda12x>=13.5.0" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html && \
-    uv pip install --no-cache-dir --no-deps "cupy-xarray>=0.1.4" && \
-    uv pip install --no-cache-dir "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+# pip gère mieux les extras [cuda12] que uv (résolution des plugins CUDA)
+# --force-reinstall car base-gpu-jax a déjà installé jax CPU
+RUN pip install --no-cache-dir --force-reinstall "jax[cuda12]" && \
+    pip install --no-cache-dir "cupy-cuda12x>=13.5.0" && \
+    pip install --no-cache-dir --no-deps "cupy-xarray>=0.1.4"
+# Vérification que le GPU est bien détecté au build
+RUN python3 -c "import jax_cuda12_plugin; print('CUDA plugin OK')"
 COPY . .
-ENV JAX_PLATFORM_NAME=gpu
-CMD ["python3", "main.py"]
+ENV JAX_PLATFORM_NAME=cuda
+CMD ["sleep", "infinity"]
 
 # --- VARIANT C : CYTHON / CPU ---
 FROM base-cpu AS cython-cpu
@@ -194,13 +196,61 @@ ENV BUILD_TARGET=cpu
 RUN echo "Cython build skipped"
 CMD ["python", "main.py"]
 
-# --- VARIANT D : CYTHON / GPU (OpenACC) ---
-FROM base-gpu-acc AS cython-gpu
-COPY . .
+# --- VARIANT D : CYTHON / GPU (OpenACC) — Build stage ---
+FROM base-gpu-acc AS cython-gpu-builder
+COPY pyproject.toml uv.lock* CMakeLists.txt ./
+COPY src/ src/
+COPY PHYEX-IAL_CY50T1/ PHYEX-IAL_CY50T1/
 ENV BUILD_TARGET=gpu-acc
-# Le compilateur 'nvc' est utilisé automatiquement grâce à l'image nvhpc + setup.py
-RUN echo "Cython build skipped"
-CMD ["python3", "main.py"]
+# Build wheel only (no runtime deps needed)
+RUN uv pip wheel -v --no-deps --wheel-dir /app/dist .
+
+# --- VARIANT D : CYTHON / GPU (OpenACC) — Runtime stage ---
+FROM nvidia/cuda:12.2.0-runtime-ubuntu22.04 AS cython-gpu
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN pip3 install uv && uv venv /app/.venv
+
+ENV VIRTUAL_ENV="/app/.venv"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Installer uniquement les deps runtime nécessaires au variant Cython (pas de JAX)
+RUN uv pip install --no-cache-dir \
+    "numpy<2.0" \
+    "scipy>=1.15.3" \
+    "typer>=0.15.2" \
+    "xarray[io]>=2025.4.0" \
+    "cython>=3.2.4" \
+    "cupy-cuda12x>=13.5.0" \
+    "cupy-xarray>=0.1.4"
+
+# Installer le wheel compilé (sans ses deps, déjà installées ci-dessus)
+COPY --from=cython-gpu-builder /app/dist/*.whl /tmp/
+RUN uv pip install --no-cache-dir --no-deps /tmp/*.whl && rm -f /tmp/*.whl
+
+# Copier les libs runtime NVHPC OpenACC
+COPY --from=cython-gpu-builder /opt/nvidia/hpc_sdk/Linux_x86_64/23.9/compilers/lib/libnvc*.so* /usr/local/lib/
+COPY --from=cython-gpu-builder /opt/nvidia/hpc_sdk/Linux_x86_64/23.9/compilers/lib/libacchost.so* /usr/local/lib/
+COPY --from=cython-gpu-builder /opt/nvidia/hpc_sdk/Linux_x86_64/23.9/compilers/lib/libaccdevice.so* /usr/local/lib/
+COPY --from=cython-gpu-builder /opt/nvidia/hpc_sdk/Linux_x86_64/23.9/compilers/lib/libnvf*.so* /usr/local/lib/
+COPY --from=cython-gpu-builder /opt/nvidia/hpc_sdk/Linux_x86_64/23.9/compilers/lib/libpgmath.so* /usr/local/lib/
+COPY --from=cython-gpu-builder /opt/nvidia/hpc_sdk/Linux_x86_64/23.9/cuda/12.2/targets/x86_64-linux/lib/libcudadevrt.a /usr/local/lib/
+
+RUN ldconfig
+
+# Copier le code source du projet
+COPY . .
+
+ENV LD_LIBRARY_PATH="/usr/local/lib:/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+CMD ["sleep", "infinity"]
 
 # --- VARIANT E : JAX / ROCm (AMD GPU) ---
 FROM base-rocm AS jax-rocm
