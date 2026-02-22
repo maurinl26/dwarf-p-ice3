@@ -25,7 +25,7 @@ classifiers = [
 dependencies = [
     "jax>=0.5.3",
     "flax>=0.10.2",
-    "numpy<2.0",
+    "numpy<3.0",
     "scipy>=1.15.3",
     "typer>=0.15.2",
     "xarray[io]>=2025.4.0",
@@ -37,7 +37,7 @@ build-backend = 'scikit_build_core.build'
 requires = [
     'scikit-build-core>=0.10.0',
     'cython',
-    'numpy<2.0',
+    'numpy<3.0',
 ]
 
 [project.urls]
