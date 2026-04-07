@@ -2,55 +2,117 @@
 """
 SURFEX Offline Tight-Coupling - cffi + jax.pure_callback.
 
+Overview
+--------
+This module bridges the **Open SURFEX** land-surface model (CPU, compiled
+Fortran) with the JAX-based AROME atmospheric physics (GPU) through a zero-copy
+in-memory FFI coupling using Python's ``cffi`` and JAX's ``jax.pure_callback``.
+
+Scientific Schemes (Open SURFEX V9.1)
+--------------------------------------
+Open SURFEX is a mosaic surface model. Each atmospheric column is split into
+sub-tiles whose fractional coverage is described by ECOCLIMAP. The active
+schemes in the offline configuration are:
+
+**1. ISBA — Interaction Soil–Biosphere–Atmosphere** (Nature tiles)
+  The reference soil-vegetation-atmosphere transfer scheme.
+  Solves the surface energy balance:
+
+    Rn - H - LE - G = 0
+
+  where Rn (net radiation), H (sensible heat), LE (latent heat) and G (ground
+  heat flux) in W m⁻². Soil water is tracked through the multi-layer ISBA-DIF
+  diffusion scheme. Vegetation resistance uses A-gs photosynthesis in ISBA-A-gs
+  or a simpler Jarvis-type formulation.
+
+  Reference: Noilhan & Mahfouf (1996), Balsamo et al. (2009).
+
+**2. TEB — Town Energy Balance** (Urban tiles)
+  A single-canyon geometry model solving coupled energy budgets for roofs,
+  walls and road facets. TEB outputs an effective albedo, emissivity, and
+  surface heat / momentum fluxes that are homogenised with ISBA outputs.
+
+  Reference: Masson (2000), Lemonsu et al. (2004).
+
+**3. Flake** (Lake tiles)
+  A bulk freshwater lake model with a prognostic mixed-layer depth. Provides
+  lake surface temperature, evaporation, and sensible heat flux.
+
+  Reference: Mironov et al. (2010).
+
+**4. Sea / Sea-Ice** (Ocean tiles)
+  Sea-surface temperature is prescribed (from forcing or an SST analysis).
+  A simple sea-ice scheme computes flux corrections for ice-covered columns.
+  Surface roughness follows the Charnock (1955) relation over open ocean.
+
+Surface-to-Atmosphere Fluxes (bulk aerodynamic surrogate in the C shim)
+------------------------------------------------------------------------
+The Fortran shim ``surfex_c_api.F90`` contains a simplified **Bulk Aerodynamic**
+approximation that is active until the full SURFEX tile infrastructure is
+linked. The momentum, sensible-heat and latent-heat transfer coefficients
+follow MOST (Monin–Obukhov Similarity Theory) under the neutral limit:
+
+  C_D = C_H = C_E = (κ / ln(z / z₀))²
+
+  H  / (ρ Cp)  = CH · |U| · (θs − θa)     [K m s⁻¹]
+  LE / (ρ Lv)  = CE · |U| · (qs − qa)     [kg kg⁻¹ m s⁻¹]
+  τ_u = −CD · |U| · ua                     [m² s⁻²]
+
+where κ = 0.4 (von Kármán), z = 10 m (reference height), z₀ = 0.05 m
+(neutral roughness length), θs is a default surface potential temperature
+(295 K), qs is the saturation specific humidity at θs.
+
 Architecture
 ------------
-SURFEX runs exclusively on the **CPU** (compiled Fortran binary).
-The JAX physics orchestrator runs on the **GPU** (XLA/CUDA).
+  Layer 1 — Fortran/C API  (``surfex_c_api.F90``)
+      ISO_C_BINDING shim exposing ``c_surfex_step`` as a plain C symbol.
+      Compiled into ``libsurfex_offline.{so|dylib}`` via ``build_libsurfex.sh``.
 
-The coupling is achieved in three layers:
+  Layer 2 — cffi binding  (``_SurfexLib`` class)
+      Loads the shared library as a singleton at process start.
+      Uses the CFFI ABI mode: no header generation step needed.
+      Routes numpy arrays to/from the library in-memory (zero disk I/O).
 
-  Layer 1 — Fortran/C API  (surfex_c_api.F90)
-      ISO_C_BINDING shim that exposes `c_surfex_step` as a plain C symbol.
-      Compiled into `libsurfex_offline.{so|dylib}` via `build_libsurfex.sh`.
-
-  Layer 2 — cffi binding  (this file, `_SurfexLib` class)
-      Loads the shared library once at process start.
-      Defines the C header string that cffi uses to parse the ABI.
-      Routes numpy arrays to/from the library in-memory (no file I/O).
-
-  Layer 3 — JAX callback  (`SurfexJAX.__call__`)
-      `jax.pure_callback` suspends the GPU computation, moves the tensors
-      back to the Python host (numpy), calls the cffi binding, then
-      returns the results as JAX arrays back to the GPU.
+  Layer 3 — JAX callback  (``SurfexJAX.__call__``)
+      ``jax.pure_callback`` suspends the GPU computation, moves the
+      O(n_cols) surface-level arrays GPU → CPU, calls the cffi binding
+      synchronously, then returns results as JAX GPU arrays.
 
 Performance Notes
 -----------------
-* GPU→CPU transfers are minimised: only the lowest model level and surface
-  forcings are moved — small O(n_cols) arrays, not the full 3D state.
-* `jax.pure_callback` is non-blocking on the XLA side while the CPU is
-  in flight; it serialises only the surface step within the host thread.
-* For multi-node runs, set `vectorized=True` only if `c_surfex_step` is
-  thread-safe across column batches.
-
-Scientific References
----------------------
-Masson, V. et al. (2013) The SURFEXv7.2 land and ocean surface platform.
-  Geosci. Model Dev., 6, 929-960. https://doi.org/10.5194/gmd-6-929-2013
-
-Le Moigne, P. (ed) (2018) SURFEX scientific documentation.
-  CNRM Tech. Report. http://www.umr-cnrm.fr/surfex
-
-Deardorff, J. W. (1972) Bulk parameterizations of the land-surface with
-  and without vegetation. J. Appl. Meteor., 17, 1359-1374.
+* Only the lowest model level is exchanged (O(n_cols) floats), not the full
+  3-D state — transfer overhead is negligible at typical LAM resolutions.
+* The XLA computation graph is JIT-compiled end-to-end; SURFEX appears as
+  an opaque leaf, enabling XLA to optimize surrounding operations.
+* JAX async dispatch allows the GPU to continue executing other ops while
+  the CPU runs SURFEX (no explicit synchronization needed).
 
 Build Instructions
 ------------------
-1. Compile the shim:
+1. Compile the shim::
+
      cd /path/to/open-SURFEX-V9-1-0
      bash build_libsurfex.sh
-2. Set the library path:
-     export SURFEX_LIB=/path/to/open-SURFEX-V9-1-0/lib/libsurfex_offline.dylib
-3. Import this module — the library is loaded at class instantiation.
+     # → lib/libsurfex_offline.dylib  (macOS)
+     # → lib/libsurfex_offline.so     (Linux)
+
+2. Set the library path::
+
+     export SURFEX_LIB=/path/to/lib/libsurfex_offline.dylib
+
+3. Import — the library loads at first instantiation of ``SurfexJAX``.
+
+Scientific References
+---------------------
+- Masson, V. et al. (2013). The SURFEXv7.2 land and ocean surface platform.
+  *Geosci. Model Dev.*, 6, 929–960. https://doi.org/10.5194/gmd-6-929-2013
+- Noilhan, J. & Mahfouf, J.-F. (1996). ISBA land surface scheme.
+  *Global Planet. Change*, 13, 145–159.
+- Masson, V. (2000). A physically-based scheme for the urban energy balance.
+  *Bound.-Layer Meteor.*, 94, 357–397.
+- Mironov, D. et al. (2010). Implementation of the lake parameterisation
+  scheme FLake. *Boreal Env. Res.*, 15, 178–198.
+- Brutsaert, W. (1982). *Evaporation into the Atmosphere*. Reidel, 299 pp.
 """
 
 from __future__ import annotations
