@@ -72,6 +72,7 @@ Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.i
 [container](./container) is defined to run dwarf-p-ice3 inside a container with nvidia runtime and python dependencies.
 
 - Build :
+  - JAX GPU :
 
 ```bash
   docker build --target jax-gpu --platform linux/amd64 -f container/Dockerfile -t ghcr.io/maurinl26/dwarf-p-ice3:jax-gpu .
@@ -79,6 +80,16 @@ Tutorial on working with GPUs on Atos is found [here](https://confluence.ecmwf.i
 
 ```bash
   docker push ghcr.io/maurinl26/dwarf-p-ice3:jax-gpu
+```
+
+  - Cython/Fortran :
+
+```bash
+  docker build --target cython-fortran --platform linux/amd64 -f container/Dockerfile -t ghcr.io/maurinl26/dwarf-p-ice3:cython-fortran .
+```
+
+```bash
+  docker push ghcr.io/maurinl26/dwarf-p-ice3:cython-fortran
 ```
 
 - Retrieve from ghcr.io :
