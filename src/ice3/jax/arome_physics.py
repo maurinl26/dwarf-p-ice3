@@ -15,11 +15,13 @@ import jax
 import jax.numpy as jnp
 from jax import Array
 
-# Import the 4 submodules
+# Import the submodules
 from ice3.jax.ice_adjust import IceAdjustJAX
 from ice3.jax.convection.shallow_convection import shallow_convection, ShallowConvectionOutputs
 from ice3.jax.turbulence.turb import turb_scheme
 from ice3.jax.rain_ice import RainIceJAX
+from ice3.jax.ecrad_jax import EcRadJAX, EcRadState
+from ice3.jax.surfex_jax import SurfexJAX, SurfexState
 
 # Define a DataClass/NamedTuple representing the prognostic state
 class AromeState(NamedTuple):
@@ -60,6 +62,8 @@ class AromePhysicsOrchestrator:
         # Instantiate class-based modules
         self.ice_adjust = IceAdjustJAX(phyex=phyex, jit=True)
         self.rain_ice = RainIceJAX(constants=constants)
+        self.ecrad = EcRadJAX(use_jit=True)
+        self.surfex = SurfexJAX()
         
         # Vmapped turbulence module
         # turb_scheme takes 1D arrays (nz,) for fields
@@ -97,6 +101,49 @@ class AromePhysicsOrchestrator:
         cf_mf = jnp.zeros_like(state.pabst)
         rc_mf = jnp.zeros_like(state.pabst)
         ri_mf = jnp.zeros_like(state.pabst)
+
+        # -------------------------------------------------------------
+        # 0. Radiation and Surface (ecRad & SURFEX)
+        # -------------------------------------------------------------
+        # Create half-level pressure approximation for Radiation
+        pres_hl = jnp.pad(state.pabst, ((0,0), (1,0)), mode='edge')
+        ecrad_state = EcRadState(
+            pres=state.pabst,
+            pres_hl=pres_hl,
+            temp=state.pt,
+            q=state.prv,
+            q_liquid=state.prc,
+            q_ice=state.pri,
+            cloud_frac=jnp.zeros_like(state.pabst),
+            albedo_sw=jnp.full((nit,), 0.2),
+            emissivity_lw=jnp.full((nit,), 0.98),
+            cos_zenith=jnp.ones((nit,))
+        )
+        ecrad_fluxes, ecrad_diag = self.ecrad(ecrad_state, dt)
+        
+        # Execute the tight pure_callback to the CPU SURFEX driver
+        surfex_state = SurfexState(
+            t_a=state.pt[:, -1],           # Lowest model layer
+            q_a=state.prv[:, -1],
+            u_a=state.pu[:, -1],
+            v_a=state.pv[:, -1],
+            p_a=state.pabst[:, -1],
+            rhodref=state.prho_dry_ref[:, -1],
+            sw_down=ecrad_fluxes.sw_dn[:, -1],
+            lw_down=ecrad_fluxes.lw_dn[:, -1],
+            rain_rate=jnp.zeros((nit,)),    # Will be available recursively next step
+            snow_rate=jnp.zeros((nit,))
+        )
+        surf_fluxes = self.surfex(surfex_state, dt)
+        
+        # Override the input surface fluxes for turbulence later on
+        state = state._replace(
+            psurf_flux_th=surf_fluxes.surf_flux_th,
+            psurf_flux_rv=surf_fluxes.surf_flux_rv,
+            psurf_flux_u=surf_fluxes.surf_flux_u,
+            psurf_flux_v=surf_fluxes.surf_flux_v,
+        )
+        diagnostics['ecrad'] = ecrad_diag
 
         # -------------------------------------------------------------
         # 1. Cloud Adjustment (Ice Adjust)
