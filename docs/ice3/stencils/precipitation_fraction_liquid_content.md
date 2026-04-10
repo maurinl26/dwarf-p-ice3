@@ -1,1 +1,0 @@
-::: ice3.stencils.precipitation_fraction_liquid_content
