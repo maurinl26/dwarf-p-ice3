@@ -1,12 +1,8 @@
 .vscode
 .venv
 .idea
-namelists
 .claude
-
-dwarf-p-ice3
-dwarf_p_ice3.egg-info
-
+.coverage
 .dacecache/
 .venv-prod/
 .gt_cache/
@@ -15,10 +11,17 @@ dwarf_p_ice3.egg-info
 */__pycache__/*
 .idea/
 _dacegraphs/
-
 *.pyc
 venv*
 .venv*
+
+# Fortran legacy dependencies
+external
+namelists
+fort.1
+
+dwarf-p-ice3
+dwarf_p_ice3.egg-info
 
 # custom paths
 src/ice3/cython_bindings
@@ -55,7 +58,6 @@ tests/functions/
         tests/repro/
         tests/stencils/
         tests/utils/
-.coverage
 
 mode_*/
 cloud_fraction/

@@ -81,6 +81,7 @@ markers = [
     "cpu: run on dace:cpu backend",
     "gpu: run on dace:gpu backend",
     "dace: run on dace:cpu backend",
+    "physics: standalone AROME JAX physics tests",
 ]
 
 # Publishing to production PyPI (default)
