@@ -180,14 +180,16 @@ def convect_trigger_shal(
     ike = nkt - jcvext - 1
     jt = ike - 2
 
-    # Initialize outputs
+    # Initialize outputs — inherit float dtype from ppres so the function stays
+    # correct regardless of whether the caller uses float32 or float64.
+    _fdt = ppres.dtype
     otrig = jnp.zeros(nit, dtype=bool)
-    pthlcl = jnp.ones(nit)
-    ptlcl = jnp.ones(nit)
-    prvlcl = jnp.zeros(nit)
-    pwlcl = jnp.zeros(nit)
+    pthlcl = jnp.ones(nit, dtype=_fdt)
+    ptlcl = jnp.ones(nit, dtype=_fdt)
+    prvlcl = jnp.zeros(nit, dtype=_fdt)
+    pwlcl = jnp.zeros(nit, dtype=_fdt)
     pzlcl = pz[:, ikb]
-    pthvelcl = jnp.ones(nit)
+    pthvelcl = jnp.ones(nit, dtype=_fdt)
     klcl = jnp.full(nit, ikb, dtype=jnp.int32)
     kdpl = jnp.full(nit, ikb, dtype=jnp.int32)
     kpbl = jnp.full(nit, ikb, dtype=jnp.int32)
@@ -222,11 +224,11 @@ def convect_trigger_shal(
         zzdpl_new = jnp.where(gwork1, pz[:, jkk], zzdpl_c)
         idpl = jnp.where(gwork1, jkk, kdpl_c)
 
-        # Initialize mixed layer accumulation
-        zdpthmix = jnp.zeros(nit)
-        zpresmix = jnp.zeros(nit)
-        zthlcl = jnp.zeros(nit)
-        zrvlcl = jnp.zeros(nit)
+        # Initialize mixed layer accumulation — match input float dtype
+        zdpthmix = jnp.zeros(nit, dtype=_fdt)
+        zpresmix = jnp.zeros(nit, dtype=_fdt)
+        zthlcl = jnp.zeros(nit, dtype=_fdt)
+        zrvlcl = jnp.zeros(nit, dtype=_fdt)
         ipbl = kpbl_c.copy()
 
         # Construct mixed layer of at least XZPBL depth (in pressure)
@@ -368,10 +370,11 @@ def convect_trigger_shal(
 
         # JAX FIX: zcape should be per-gridpoint array, not scalar
         # Using minimum LCL across all points for computational stability
-        zcape = jnp.ones(nit) * jnp.maximum(jlclmin - ikb, 0) * cst.g
-        zcap = jnp.zeros(nit)
-        ztop = jnp.zeros(nit)
-        zwork3 = jnp.zeros(nit)
+        # Match input float dtype to avoid float64 contamination when x64 is on.
+        zcape = jnp.ones(nit, dtype=_fdt) * jnp.maximum(jlclmin - ikb, 0) * cst.g
+        zcap = jnp.zeros(nit, dtype=_fdt)
+        ztop = jnp.zeros(nit, dtype=_fdt)
+        zwork3 = jnp.zeros(nit, dtype=_fdt)
 
         def cape_loop(acc, jl):
             """Compute CAPE contribution from layer."""

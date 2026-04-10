@@ -23,9 +23,13 @@ class EcRadState(NamedTuple):
     """
     Input state for the active atmospheric columns.
     Typical dimensions: (n_columns, n_levels) unless specified.
+
+    Field naming follows the ice3/AROME convention (pabst = absolute pressure)
+    so that PMAP bridge code can access state.pabst uniformly across all
+    parameterisation inputs.
     """
-    pres: Array           # Pressure at layer centers (Pa)
-    pres_hl: Array        # Pressure at layer half-levels (Pa) (n_columns, n_levels+1)
+    pabst: Array          # Pressure at layer centers (Pa)
+    pabst_hl: Array       # Pressure at layer half-levels (Pa) (n_columns, n_levels+1)
     temp: Array           # Temperature (K)
     q: Array              # Specific humidity (kg/kg)
     q_liquid: Array       # Cloud liquid water mixing ratio (kg/kg)
@@ -151,7 +155,7 @@ class EcRadJAX:
         
         # dF = Flux(level+1) - Flux(level) -> downward is increasing pressure
         d_flux = net_flux[:, 1:] - net_flux[:, :-1]
-        d_pres = state.pres_hl[:, 1:] - state.pres_hl[:, :-1]
+        d_pres = state.pabst_hl[:, 1:] - state.pabst_hl[:, :-1]
         
         # dT/dt = (g / cp) * (dF_net / dp)
         # Factor applies correctly if d_flux and d_pres are consistent

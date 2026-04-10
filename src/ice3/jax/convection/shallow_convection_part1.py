@@ -239,10 +239,11 @@ def shallow_convection_part1(
     zepsa = xrv / xrd  # R_v / R_d
     zrdocp = xrd / xcpd  # R_d / C_p
 
-    # Initialize thermodynamic arrays
-    ptht = jnp.full((nit, nkt), 300.0)
-    psthv = jnp.full((nit, nkt), 300.0)
-    psthes = jnp.full((nit, nkt), 400.0)
+    # Initialize thermodynamic arrays — use full_like to inherit input dtype
+    # (avoids float64 promotion when jax_enable_x64=True is active)
+    ptht = jnp.full_like(ptt, 300.0)
+    psthv = jnp.full_like(ptt, 300.0)
+    psthes = jnp.full_like(ptt, 400.0)
 
     # Compute grid scale theta, theta_v, theta_es
     # Only for levels where pressure > 4000 Pa

@@ -138,8 +138,8 @@ class AromePhysicsOrchestrator:
         # Create half-level pressure approximation for Radiation
         pres_hl = jnp.pad(state.pabst, ((0,0), (1,0)), mode='edge')
         ecrad_state = EcRadState(
-            pres=state.pabst,
-            pres_hl=pres_hl,
+            pabst=state.pabst,
+            pabst_hl=pres_hl,
             temp=state.pt,
             q=state.prv,
             q_liquid=state.prc,

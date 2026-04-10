@@ -260,15 +260,11 @@ def shallow_convection(
     # Branch 1: fraction < threshold → part2_select (optimised sparse path)
     # Branch 2: fraction >= threshold → part2 (dense path)
 
-    branch_idx = jnp.where(
-        n_triggered == 0,
-        jnp.int32(0),
-        jnp.where(
-            fraction_triggered < use_select_threshold,
-            jnp.int32(1),
-            jnp.int32(2),
-        ),
-    )
+    # Two-way branch: no columns triggered → zeros; otherwise run dense part2.
+    # Note: the original three-way switch included a _select_convection branch that
+    # packed triggered columns with jnp.where(gtrig1) (dynamic size) — this is
+    # incompatible with jax.lax.switch which traces ALL branches.  The dense path
+    # is correct for all column fractions and avoids that constraint.
 
     def _no_convection(_):
         """No column triggered — return zero tendencies from part1."""
@@ -283,51 +279,8 @@ def shallow_convection(
             pch1ten=part1_outputs.pch1ten,
         )
 
-    def _select_convection(_):
-        """Sparse convection: pack triggered columns, run part2, unpack."""
-        out = shallow_convection_part2_select(
-            ppabst=ppabst,
-            pzz=pzz,
-            ptt=ptt,
-            prvt=prvt,
-            prct=prct,
-            prit=prit,
-            pch1=pch1,
-            prdocp=prdocp,
-            ptht=part1_outputs.ptht,
-            psthv=part1_outputs.psthv,
-            psthes=part1_outputs.psthes,
-            isdpl=part1_outputs.ksdpl,
-            ispbl=part1_outputs.kspbl,
-            islcl=part1_outputs.kslcl,
-            psthlcl=part1_outputs.psthlcl,
-            pstlcl=part1_outputs.pstlcl,
-            psrvlcl=part1_outputs.psrvlcl,
-            pswlcl=part1_outputs.pswlcl,
-            pszlcl=part1_outputs.pszlcl,
-            psthvelcl=part1_outputs.psthvelcl,
-            gtrig1=part1_outputs.otrig1,
-            kice=kice,
-            jcvexb=jcvexb,
-            jcvext=jcvext,
-            convection_params=convection_params,
-            osettadj=osettadj,
-            ptadjs=ptadjs,
-            och1conv=och1conv,
-        )
-        return ShallowConvectionOutputs(
-            ptten=out.pthc,
-            prvten=out.prvc,
-            prcten=out.prcc,
-            priten=out.pric,
-            kcltop=out.ictl,
-            kclbas=out.iminctl,
-            pumf=out.pumf,
-            pch1ten=out.ppch1ten,
-        )
-
     def _dense_convection(_):
-        """Widespread convection: run part2 on all columns."""
+        """Run part2 on all columns (safe for any trigger fraction)."""
         out = shallow_convection_part2(
             ppabst=ppabst,
             pzz=pzz,
@@ -369,8 +322,9 @@ def shallow_convection(
             pch1ten=out.ppch1ten,
         )
 
-    return jax.lax.switch(
-        branch_idx,
-        [_no_convection, _select_convection, _dense_convection],
+    return jax.lax.cond(
+        n_triggered == 0,
+        _no_convection,
+        _dense_convection,
         operand=None,
     )
