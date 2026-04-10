@@ -10,10 +10,16 @@ This module unifies the four physics modules:
 The orchestration mimics the sequence in APL_AROME.
 """
 
+import functools
 from typing import Dict, Tuple, NamedTuple, Optional
 import jax
 import jax.numpy as jnp
 from jax import Array
+
+# Apple Silicon / Metal note: Metal does not support float64 or int64.
+# All scan carries and index arrays must stay int32 / float32.
+# Nvidia CUDA: x64 is off by default; jax.config.update("jax_enable_x64", True)
+# would re-enable it, but should be avoided for cross-platform compatibility.
 
 # Import the submodules
 from ice3.jax.ice_adjust import IceAdjustJAX
@@ -68,24 +74,48 @@ class AromePhysicsOrchestrator:
         # Vmapped turbulence module
         # turb_scheme takes 1D arrays (nz,) for fields
         # We vmap over the batch dimension (axis 0)
-        self.vmap_turb_scheme = jax.jit(jax.vmap(
-            turb_scheme,
-            in_axes=(
-                0,0,0,0,0,0,0,0,   # zz, dzz, theta, thl, rt, rv, rc, ri
-                0,0,0,0,           # u, v, w, tke
-                0,0,0,             # thvref, pabst, exn
-                0,0,0,0,           # surf_flux_u, surf_flux_v, th, rv
-                None,              # dt (scalar)
-                None, None, None, None, None # constants, etc.
+        # in_axes must match the number of args passed at the call site (22):
+        #   zz, dzz, theta, thl, rt, rv, rc, ri  → 8  (batched, axis 0)
+        #   u, v, w, tke                          → 4  (batched, axis 0)
+        #   thvref, pabst, exn                    → 3  (batched, axis 0)
+        #   surf_flux_u/v/th/rv                   → 4  (batched, axis 0: shape (nit,)→scalar)
+        #   dt                                    → 1  (not batched: scalar)
+        #   turb_constants, phys_constants        → 2  (not batched: None)
+        # ximpl, xlini, tke_min use their defaults and are NOT passed → no in_axes entries.
+        self.vmap_turb_scheme = jax.jit(
+            jax.vmap(
+                turb_scheme,
+                in_axes=(
+                    0, 0, 0, 0, 0, 0, 0, 0,  # zz, dzz, theta, thl, rt, rv, rc, ri
+                    0, 0, 0, 0,              # u, v, w, tke
+                    0, 0, 0,                 # thvref, pabst, exn
+                    0, 0, 0, 0,              # surf_flux_u, surf_flux_v, surf_flux_th, surf_flux_rv
+                    None,                    # dt (scalar, broadcast to all columns)
+                    None, None,              # turb_constants, phys_constants (None → defaults)
+                ),
             ),
-            static_argnums=(17, 18)
-        ))
+        )
 
-    @jax.jit
+    @functools.partial(jax.jit, static_argnums=(0, 2))
     def step(self, state: AromeState, dt: float) -> Tuple[AromeState, Dict]:
         """
         Takes a time step for the AROME physical parameterizations.
         Shapes are (nit, nkt) for vertical fields, and (nit,) for surface fields.
+
+        JIT notes
+        ---------
+        * ``self`` is static (argnum 0): uses Python id-based hash so each
+          orchestrator instance gets its own compiled cache entry.
+        * ``dt`` is static (argnum 2): recompile only when the time step
+          length changes (rare).
+        * ``state`` (argnum 1) is a NamedTuple — JAX handles it as a pytree.
+        * shallow_convection uses ``jax.lax.switch`` so no Python conditionals
+          on traced values remain inside this function.
+
+        PMAP usage
+        ----------
+        Wrap with ``jax.pmap`` after construction.  The leading axis of every
+        field in ``state`` must equal the number of local devices.
         """
         nit, nkt = state.pabst.shape
         diagnostics = {}

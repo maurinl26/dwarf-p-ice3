@@ -18,6 +18,7 @@ The routine:
 """
 from __future__ import annotations
 
+import jax
 import jax.numpy as jnp
 from jax import Array
 from typing import NamedTuple, Optional
@@ -250,9 +251,27 @@ def shallow_convection(
     fraction_triggered = n_triggered / nit
 
     # ===== PART 2: Updraft, closure, and tendencies =====
-    # Decide which version to use based on fraction of triggered columns
-    if n_triggered == 0:
-        # No convection triggered - return zeros from part1
+    # Three-way branch on runtime values — must use jax.lax.switch so that
+    # step() can be JIT-compiled and pmap'd.  lax.switch traces all branches
+    # at compile time (to infer shapes/dtypes) but only executes the selected
+    # branch at runtime.
+    #
+    # Branch 0: n_triggered == 0  → return zero tendencies immediately
+    # Branch 1: fraction < threshold → part2_select (optimised sparse path)
+    # Branch 2: fraction >= threshold → part2 (dense path)
+
+    branch_idx = jnp.where(
+        n_triggered == 0,
+        jnp.int32(0),
+        jnp.where(
+            fraction_triggered < use_select_threshold,
+            jnp.int32(1),
+            jnp.int32(2),
+        ),
+    )
+
+    def _no_convection(_):
+        """No column triggered — return zero tendencies from part1."""
         return ShallowConvectionOutputs(
             ptten=part1_outputs.ptten,
             prvten=part1_outputs.prvten,
@@ -264,9 +283,9 @@ def shallow_convection(
             pch1ten=part1_outputs.pch1ten,
         )
 
-    elif fraction_triggered < use_select_threshold:
-        # Use optimized select version for sparse convection
-        part2_outputs = shallow_convection_part2_select(
+    def _select_convection(_):
+        """Sparse convection: pack triggered columns, run part2, unpack."""
+        out = shallow_convection_part2_select(
             ppabst=ppabst,
             pzz=pzz,
             ptt=ptt,
@@ -296,47 +315,62 @@ def shallow_convection(
             ptadjs=ptadjs,
             och1conv=och1conv,
         )
-    else:
-        # Use regular version for widespread convection
-        part2_outputs = shallow_convection_part2(
-            ppabst=ppabst,
-            pzz=pzz,
-            ptt=ptt,
-            prvt=prvt,
-            prct=prct,
-            prit=prit,
-            pch1=pch1,
-            prdocp=prdocp,
-            ptht=part1_outputs.ptht,
-            psthv=part1_outputs.psthv,
-            psthes=part1_outputs.psthes,
-            isdpl=part1_outputs.ksdpl,
-            ispbl=part1_outputs.kspbl,
-            islcl=part1_outputs.kslcl,
-            psthlcl=part1_outputs.psthlcl,
-            pstlcl=part1_outputs.pstlcl,
-            psrvlcl=part1_outputs.psrvlcl,
-            pswlcl=part1_outputs.pswlcl,
-            pszlcl=part1_outputs.pszlcl,
-            psthvelcl=part1_outputs.psthvelcl,
-            gtrig1=part1_outputs.otrig1,
-            kice=kice,
-            jcvexb=jcvexb,
-            jcvext=jcvext,
-            convection_params=convection_params,
-            osettadj=osettadj,
-            ptadjs=ptadjs,
-            och1conv=och1conv,
+        return ShallowConvectionOutputs(
+            ptten=out.pthc,
+            prvten=out.prvc,
+            prcten=out.prcc,
+            priten=out.pric,
+            kcltop=out.ictl,
+            kclbas=out.iminctl,
+            pumf=out.pumf,
+            pch1ten=out.ppch1ten,
         )
 
-    # Return combined outputs
-    return ShallowConvectionOutputs(
-        ptten=part2_outputs.pthc,
-        prvten=part2_outputs.prvc,
-        prcten=part2_outputs.prcc,
-        priten=part2_outputs.pric,
-        kcltop=part2_outputs.ictl,
-        kclbas=part2_outputs.iminctl,  # Use iminctl for kclbas
-        pumf=part2_outputs.pumf,
-        pch1ten=part2_outputs.ppch1ten,
+    def _dense_convection(_):
+        """Widespread convection: run part2 on all columns."""
+        out = shallow_convection_part2(
+            ppabst=ppabst,
+            pzz=pzz,
+            ptt=ptt,
+            prvt=prvt,
+            prct=prct,
+            prit=prit,
+            pch1=pch1,
+            prdocp=prdocp,
+            ptht=part1_outputs.ptht,
+            psthv=part1_outputs.psthv,
+            psthes=part1_outputs.psthes,
+            isdpl=part1_outputs.ksdpl,
+            ispbl=part1_outputs.kspbl,
+            islcl=part1_outputs.kslcl,
+            psthlcl=part1_outputs.psthlcl,
+            pstlcl=part1_outputs.pstlcl,
+            psrvlcl=part1_outputs.psrvlcl,
+            pswlcl=part1_outputs.pswlcl,
+            pszlcl=part1_outputs.pszlcl,
+            psthvelcl=part1_outputs.psthvelcl,
+            gtrig1=part1_outputs.otrig1,
+            kice=kice,
+            jcvexb=jcvexb,
+            jcvext=jcvext,
+            convection_params=convection_params,
+            osettadj=osettadj,
+            ptadjs=ptadjs,
+            och1conv=och1conv,
+        )
+        return ShallowConvectionOutputs(
+            ptten=out.pthc,
+            prvten=out.prvc,
+            prcten=out.prcc,
+            priten=out.pric,
+            kcltop=out.ictl,
+            kclbas=out.iminctl,
+            pumf=out.pumf,
+            pch1ten=out.ppch1ten,
+        )
+
+    return jax.lax.switch(
+        branch_idx,
+        [_no_convection, _select_convection, _dense_convection],
+        operand=None,
     )

@@ -247,7 +247,7 @@ def convect_trigger_shal(
             zpresmix_new = jnp.where(mask, zpresmix_a + zzppres[:, jk_aux], zpresmix_a)
             zthlcl_new = jnp.where(mask, zthlcl_a + zzpth[:, jk_aux], zthlcl_a)
             zrvlcl_new = jnp.where(mask, zrvlcl_a + zzprv[:, jk_aux], zrvlcl_a)
-            ipbl_new = jnp.where(mask, jk, ipbl_a)
+            ipbl_new = jnp.where(mask, jnp.int32(jk), ipbl_a)
 
             return (zdpthmix_new, zpresmix_new, zthlcl_new, zrvlcl_new, ipbl_new), None
 
@@ -256,7 +256,7 @@ def convect_trigger_shal(
         (zdpthmix, zpresmix, zthlcl, zrvlcl, ipbl), _ = lax.scan(
             accumulate_layer,
             (zdpthmix, zpresmix, zthlcl, zrvlcl, ipbl),
-            jnp.arange(ikb + 1, ike)  # Fixed range
+            jnp.arange(ikb + 1, ike, dtype=jnp.int32)  # Fixed range
         )
 
         # Compute mixed layer mean values
@@ -321,11 +321,14 @@ def convect_trigger_shal(
             ilcl_a = carry
             # JAX FIX: Add condition to only process when jk >= jkk
             mask = gwork1 & (jk >= jkk) & (jk <= jt) & (zplcl <= ppres[:, jk])
-            ilcl_new = jnp.where(mask, jk + 1, ilcl_a)
+            # Explicit int32 cast: on 64-bit platforms jk+1 could promote to
+            # int64, which would break the lax.scan carry dtype contract
+            # (carry init is int32 from klcl_c).
+            ilcl_new = jnp.where(mask, jnp.int32(jk) + jnp.int32(1), ilcl_a)
             return ilcl_new, None
 
         # JAX FIX: Use fixed range instead of dynamic range
-        ilcl, _ = lax.scan(find_lcl_level, klcl_c, jnp.arange(ikb, jt + 1))
+        ilcl, _ = lax.scan(find_lcl_level, klcl_c, jnp.arange(ikb, jt + 1, dtype=jnp.int32))
 
         # ===== Interpolate to get precise LCL height and theta_v =====
         # Safe indexing with bounds checking
@@ -359,8 +362,9 @@ def convect_trigger_shal(
 
         # ===== Estimate cloud top via CAPE calculation =====
         # Start from minimum LCL level
-        jlclmin = jnp.min(jnp.where(gwork1, ilcl, ike))
-        jlclmin = jnp.maximum(ikb, jlclmin - 1)
+        # Cast ike to int32 so jnp.where doesn't promote ilcl (int32) to int64
+        jlclmin = jnp.min(jnp.where(gwork1, ilcl, jnp.int32(ike)))
+        jlclmin = jnp.maximum(jnp.int32(ikb), jlclmin - jnp.int32(1))
 
         # JAX FIX: zcape should be per-gridpoint array, not scalar
         # Using minimum LCL across all points for computational stability
@@ -407,7 +411,7 @@ def convect_trigger_shal(
         (zcape, zcap, ztop, zwork3), _ = lax.scan(
             cape_loop,
             (zcape, zcap, ztop, zwork3),
-            jnp.arange(ikb, jt + 1)  # Fixed range
+            jnp.arange(ikb, jt + 1, dtype=jnp.int32)  # Fixed range
         )
 
         # ===== Check trigger condition =====
@@ -438,7 +442,7 @@ def convect_trigger_shal(
      klcl, kdpl, kpbl, _, _), _ = lax.scan(
         loop_over_jkk,
         initial_carry,
-        jnp.arange(ikb + 1, ike - 1)
+        jnp.arange(ikb + 1, ike - 1, dtype=jnp.int32)
     )
 
     return TriggerOutputs(

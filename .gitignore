@@ -2,6 +2,7 @@
 .venv
 .idea
 namelists
+.claude
 
 dwarf-p-ice3
 dwarf_p_ice3.egg-info
