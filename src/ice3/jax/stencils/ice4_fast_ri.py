@@ -61,31 +61,41 @@ def ice4_fast_ri(
     DI = constants["DI"]
     
     # Compute mask for Bergeron-Findeisen conditions
+    # ai > 0 guards against division-by-zero when the thermal/diffusion
+    # coefficient has not been computed (placeholder zeros).
     mask = (
-        (ssi > 0) & 
-        (rct > C_RTMIN) & 
-        (rit > I_RTMIN) & 
-        (cit > 1e-20) & 
+        (ssi > 0) &
+        (rct > C_RTMIN) &
+        (rit > I_RTMIN) &
+        (cit > 1e-20) &
+        (ai > 0) &
         ldcompute &
         (~ldsoft)
     )
-    
+
     # Compute ice crystal slope parameter lambda_i
+    # Guard cit against zero to prevent NaN in power computation.
+    cit_safe = jnp.where(cit > 1e-20, cit, 1e-20)
     lambda_i = jnp.minimum(
-        1e8, 
-        LBI * jnp.power(rhodref * rit / cit, LBEXI)
+        1e8,
+        LBI * jnp.power(rhodref * rit / cit_safe, LBEXI)
     )
-    
+
+    # Guard denominator against zero (ai=0 already excluded by mask above,
+    # but protect the unconditional computation from producing NaN/inf).
+    ai_safe = jnp.where(ai > 0, ai, 1.0)
+    lambda_i_safe = jnp.where(lambda_i > 0, lambda_i, 1.0)
+
     # Compute deposition rate with ventilation correction
     rc_beri_tnd_val = (
-        (ssi / (rhodref * ai))
+        (ssi / (rhodref * ai_safe))
         * cit
         * (
-            O0DEPI / lambda_i + 
-            O2DEPI * jnp.square(cj) / jnp.power(lambda_i, DI + 2.0)
+            O0DEPI / lambda_i_safe +
+            O2DEPI * jnp.square(cj) / jnp.power(lambda_i_safe, DI + 2.0)
         )
     )
-    
+
     # Initialize output and apply mask
     rc_beri_tnd = jnp.where(mask, rc_beri_tnd_val, 0.0)
     

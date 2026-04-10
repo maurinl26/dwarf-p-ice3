@@ -328,17 +328,26 @@ class SurfexState(NamedTuple):
     """
     Atmospheric forcing for the surface scheme.
     All fields have shape ``(n_columns,)`` — lowest atmospheric level only.
+
+    The ``psurf_flux_*`` fields carry the surface fluxes from the previous
+    time step (or the driver-prescribed bulk values).  They allow null stubs
+    (e.g. ``_NullSurfex``) to forward the existing fluxes unchanged, and let
+    the real ``SurfexJAX`` callback know the previous values for continuity.
     """
-    t_a: Array        # Air temperature (K)
-    q_a: Array        # Specific humidity (kg/kg)
-    u_a: Array        # Zonal wind (m/s)
-    v_a: Array        # Meridional wind (m/s)
-    p_a: Array        # Pressure (Pa)
-    rhodref: Array    # Air density (kg/m³)
-    sw_down: Array    # Downward shortwave flux from ecRad (W/m²)
-    lw_down: Array    # Downward longwave flux from ecRad (W/m²)
-    rain_rate: Array  # Liquid precipitation rate (kg/m²/s)
-    snow_rate: Array  # Solid precipitation rate (kg/m²/s)
+    t_a: Array           # Air temperature (K)
+    q_a: Array           # Specific humidity (kg/kg)
+    u_a: Array           # Zonal wind (m/s)
+    v_a: Array           # Meridional wind (m/s)
+    p_a: Array           # Pressure (Pa)
+    rhodref: Array       # Air density (kg/m³)
+    sw_down: Array       # Downward shortwave flux from ecRad (W/m²)
+    lw_down: Array       # Downward longwave flux from ecRad (W/m²)
+    rain_rate: Array     # Liquid precipitation rate (kg/m²/s)
+    snow_rate: Array     # Solid precipitation rate (kg/m²/s)
+    psurf_flux_th: Array # Previous-step kinematic sensible heat flux (K m/s)
+    psurf_flux_rv: Array # Previous-step kinematic moisture flux (kg/kg m/s)
+    psurf_flux_u: Array  # Previous-step surface momentum flux U (m²/s²)
+    psurf_flux_v: Array  # Previous-step surface momentum flux V (m²/s²)
 
 
 class SurfexFluxes(NamedTuple):

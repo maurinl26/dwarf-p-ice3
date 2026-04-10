@@ -125,7 +125,26 @@ def sedimentation_stat(
     EXSEDG = constants["EXSEDG"]
     RHOLW = constants["RHOLW"]
     
-    # Get shape (Assuming layout is (ngpblks, nproma, nflevg))
+    # Support both 2D (nit, nkt) and 3D (ng, nproma, nz) layouts.
+    # When 2D, expand to (nit, 1, nkt) and squeeze outputs back at the end.
+    _was_2d = rhodref.ndim == 2
+    if _was_2d:
+        nit = rhodref.shape[0]
+        rhodref = rhodref[:, jnp.newaxis, :]
+        dzz     = dzz[:, jnp.newaxis, :]
+        pabs_t  = pabs_t[:, jnp.newaxis, :]
+        th_t    = th_t[:, jnp.newaxis, :]
+        rcs     = rcs[:, jnp.newaxis, :]
+        rrs     = rrs[:, jnp.newaxis, :]
+        ris     = ris[:, jnp.newaxis, :]
+        rss     = rss[:, jnp.newaxis, :]
+        rgs     = rgs[:, jnp.newaxis, :]
+        # sea/town: override whatever rain_ice.py computed (built on wrong shape).
+        # Land-only assumption (sea=0, town=0) for the 2D path.
+        sea  = jnp.zeros((nit, 1, 1), dtype=rhodref.dtype)
+        town = jnp.zeros((nit, 1, 1), dtype=rhodref.dtype)
+
+    # Get shape (layout is (ngpblks, nproma, nflevg))
     ng = rhodref.shape[0]     # Number of blocks
     nproma = rhodref.shape[1] # Number of points
     nz = rhodref.shape[2]     # Number of vertical levels
@@ -347,6 +366,13 @@ def sedimentation_stat(
     inprs = fpr_s[:, :, 0] / RHOLW
     inprg = fpr_g[:, :, 0] / RHOLW
     
+    if _was_2d:
+        return (rcs_new[:, 0, :], rrs_new[:, 0, :], ris_new[:, 0, :],
+                rss_new[:, 0, :], rgs_new[:, 0, :],
+                fpr_c[:, 0, :], fpr_r[:, 0, :], fpr_i[:, 0, :],
+                fpr_s[:, 0, :], fpr_g[:, 0, :],
+                inprc[:, 0], inprr[:, 0], inpri[:, 0],
+                inprs[:, 0], inprg[:, 0])
     return (rcs_new, rrs_new, ris_new, rss_new, rgs_new,
             fpr_c, fpr_r, fpr_i, fpr_s, fpr_g,
             inprc, inprr, inpri, inprs, inprg)

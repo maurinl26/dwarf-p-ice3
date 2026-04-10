@@ -37,7 +37,7 @@ class ClosureOutputs(NamedTuple):
     puer: Array      # Updated updraft entrainment (kg/s), shape (nit, nkt)
     pudr: Array      # Updated updraft detrainment (kg/s), shape (nit, nkt)
     ptimec: Array    # Convection time step (s), shape (nit,)
-    kftsteps: int    # Maximum fractional time steps
+    kftsteps: Array  # Maximum fractional time steps (0-d int array)
 
 
 def convect_closure_shal(
@@ -204,14 +204,15 @@ def convect_closure_shal(
     nit, nkt = ppres.shape
     ikb = jcvexb
     ike = nkt - jcvext - 1
+    _fdt = ppres.dtype  # Pin float dtype to avoid float64 contamination when x64 is on
 
-    # Initialize outputs
-    zthlc = pthl.copy()
-    prwc = prw.copy()
-    prcc = jnp.maximum(0.0, prc)
-    pric = jnp.maximum(0.0, pri)
-    pthc = pth.copy()
-    pwsub = jnp.zeros_like(ppres)
+    # Initialize outputs — pin to _fdt so carry dtype is stable across x32/x64 modes
+    zthlc = pthl.astype(_fdt)
+    prwc = prw.astype(_fdt)
+    prcc = jnp.maximum(jnp.zeros(1, dtype=_fdt), prc).astype(_fdt)
+    pric = jnp.maximum(jnp.zeros(1, dtype=_fdt), pri).astype(_fdt)
+    pthc = pth.astype(_fdt)
+    pwsub = jnp.zeros_like(ppres, dtype=_fdt)
 
     # Save initial mass flux values
     zumf = pumf.copy()
@@ -219,13 +220,13 @@ def convect_closure_shal(
     zudr = pudr.copy()
 
     # Working arrays
-    zadj = jnp.ones(nit)
-    zwork5 = jnp.where(otrig1, 1.0, 0.0)
+    zadj = jnp.ones(nit, dtype=_fdt)
+    zwork5 = jnp.where(otrig1, jnp.ones(1, dtype=_fdt), jnp.zeros(1, dtype=_fdt))
     ilcl = klcl.copy()
 
     # Compute adjustment limits from mass conservation
     # The inflow can't exceed the mass in the layer
-    zadjmax = jnp.full(nit, 1000.0)
+    zadjmax = jnp.full(nit, 1000.0, dtype=_fdt)
 
     # Find min/max levels for optimization
     jctlmax = jnp.max(jnp.where(otrig1, kctl, ikb))
@@ -362,14 +363,14 @@ def convect_closure_shal(
             # ===== Compute mass flux convergence =====
             # This is the vectorized version for computational efficiency
 
-            zthmfin = jnp.zeros((nit, nkt))
-            zthmfout = jnp.zeros((nit, nkt))
-            zrwmfin = jnp.zeros((nit, nkt))
-            zrwmfout = jnp.zeros((nit, nkt))
-            zrcmfin = jnp.zeros((nit, nkt))
-            zrcmfout = jnp.zeros((nit, nkt))
-            zrimfin = jnp.zeros((nit, nkt))
-            zrimfout = jnp.zeros((nit, nkt))
+            zthmfin = jnp.zeros((nit, nkt), dtype=_fdt)
+            zthmfout = jnp.zeros((nit, nkt), dtype=_fdt)
+            zrwmfin = jnp.zeros((nit, nkt), dtype=_fdt)
+            zrwmfout = jnp.zeros((nit, nkt), dtype=_fdt)
+            zrcmfin = jnp.zeros((nit, nkt), dtype=_fdt)
+            zrcmfout = jnp.zeros((nit, nkt), dtype=_fdt)
+            zrimfin = jnp.zeros((nit, nkt), dtype=_fdt)
+            zrimfout = jnp.zeros((nit, nkt), dtype=_fdt)
 
             def compute_mass_flux(carry_mf, jk):
                 """Compute mass flux at level interfaces."""
@@ -548,7 +549,7 @@ def convect_closure_shal(
         zrvlcl = jnp.clip(zrvlcl, 0.0, 1.0)
 
         # ===== Compute adjusted CAPE =====
-        zcape = jnp.zeros(nit)
+        zcape = jnp.zeros(nit, dtype=_fdt)
         zpi = jnp.clip(zthlcl / ztlcl, 0.95, 1.5)
         zwork1 = cst.p00 / zpi ** zcpord
 
@@ -603,13 +604,14 @@ def convect_closure_shal(
             zcape_c = jnp.where(gwork3, zcape_new, zcape_c)
             zthes1_c = jnp.where(gwork3, zthes2, zthes1_c)
 
-            return (zcape_c, zthes1_c), None
+            return (zcape_c.astype(_fdt), zthes1_c.astype(_fdt)), None
 
         # JAX FIX: Use fixed range instead of dynamic jlclmin and jctlmax
         # The integrate_cape function already has (jk >= ilcl) & (jk <= kctl) condition
+        # Cast initial carry to _fdt to avoid float64 contamination from Python float literals
         (zcape, _), _ = lax.scan(
             integrate_cape,
-            (zcape, zthes1),
+            (zcape, zthes1.astype(_fdt)),
             jnp.arange(ikb, ike + 1)  # Fixed range
         )
 
@@ -639,9 +641,11 @@ def convect_closure_shal(
         )
 
         return (
-            zthlc_iter, prwc_iter, prcc_iter, pric_iter, pthc_iter,
-            pwsub_iter, pumf_new, puer_new, pudr_new, zadj_new,
-            gwork1_cont, ptimec_new
+            zthlc_iter.astype(_fdt), prwc_iter.astype(_fdt),
+            prcc_iter.astype(_fdt), pric_iter.astype(_fdt), pthc_iter.astype(_fdt),
+            pwsub_iter.astype(_fdt), pumf_new.astype(_fdt),
+            puer_new.astype(_fdt), pudr_new.astype(_fdt), zadj_new.astype(_fdt),
+            gwork1_cont, ptimec_new.astype(_fdt)
         ), kftsteps
 
     # Execute 4 adjustment iterations
@@ -668,5 +672,5 @@ def convect_closure_shal(
         puer=puer,
         pudr=pudr,
         ptimec=ptimec,
-        kftsteps=int(kftsteps),
+        kftsteps=kftsteps,
     )

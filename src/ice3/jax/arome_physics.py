@@ -136,6 +136,7 @@ class AromePhysicsOrchestrator:
         # 0. Radiation and Surface (ecRad & SURFEX)
         # -------------------------------------------------------------
         # Create half-level pressure approximation for Radiation
+        _fdt = state.pabst.dtype  # pin dtype to match input (prevents float64 promotion)
         pres_hl = jnp.pad(state.pabst, ((0,0), (1,0)), mode='edge')
         ecrad_state = EcRadState(
             pabst=state.pabst,
@@ -145,13 +146,15 @@ class AromePhysicsOrchestrator:
             q_liquid=state.prc,
             q_ice=state.pri,
             cloud_frac=jnp.zeros_like(state.pabst),
-            albedo_sw=jnp.full((nit,), 0.2),
-            emissivity_lw=jnp.full((nit,), 0.98),
-            cos_zenith=jnp.ones((nit,))
+            albedo_sw=jnp.full((nit,), 0.2, dtype=_fdt),
+            emissivity_lw=jnp.full((nit,), 0.98, dtype=_fdt),
+            cos_zenith=jnp.ones((nit,), dtype=_fdt),
         )
         ecrad_fluxes, ecrad_diag = self.ecrad(ecrad_state, dt)
-        
-        # Execute the tight pure_callback to the CPU SURFEX driver
+
+        # Execute the tight pure_callback to the CPU SURFEX driver.
+        # psurf_flux_* carry the current (driver-prescribed or previous-step)
+        # surface fluxes so that null stubs (_NullSurfex) can read the shape.
         surfex_state = SurfexState(
             t_a=state.pt[:, -1],           # Lowest model layer
             q_a=state.prv[:, -1],
@@ -161,18 +164,27 @@ class AromePhysicsOrchestrator:
             rhodref=state.prho_dry_ref[:, -1],
             sw_down=ecrad_fluxes.sw_dn[:, -1],
             lw_down=ecrad_fluxes.lw_dn[:, -1],
-            rain_rate=jnp.zeros((nit,)),    # Will be available recursively next step
-            snow_rate=jnp.zeros((nit,))
+            rain_rate=jnp.zeros((nit,), dtype=_fdt),
+            snow_rate=jnp.zeros((nit,), dtype=_fdt),
+            psurf_flux_th=state.psurf_flux_th,
+            psurf_flux_rv=state.psurf_flux_rv,
+            psurf_flux_u=state.psurf_flux_u,
+            psurf_flux_v=state.psurf_flux_v,
         )
         surf_fluxes = self.surfex(surfex_state, dt)
-        
-        # Override the input surface fluxes for turbulence later on
-        state = state._replace(
-            psurf_flux_th=surf_fluxes.surf_flux_th,
-            psurf_flux_rv=surf_fluxes.surf_flux_rv,
-            psurf_flux_u=surf_fluxes.surf_flux_u,
-            psurf_flux_v=surf_fluxes.surf_flux_v,
-        )
+
+        # Update AromeState surface fluxes only when real SURFEX is active.
+        # When _NullSurfex is used, the driver has already embedded the correct
+        # bulk-aerodynamic fluxes in AromeState — overwriting them with the
+        # stub's zeros would destroy the physical signal.
+        # isinstance() is evaluated at JIT trace time (self is static_argnums=0).
+        if isinstance(self.surfex, SurfexJAX):
+            state = state._replace(
+                psurf_flux_th=surf_fluxes.surf_flux_th,
+                psurf_flux_rv=surf_fluxes.surf_flux_rv,
+                psurf_flux_u=surf_fluxes.surf_flux_u,
+                psurf_flux_v=surf_fluxes.surf_flux_v,
+            )
         diagnostics['ecrad'] = ecrad_diag
 
         # -------------------------------------------------------------
@@ -188,24 +200,32 @@ class AromePhysicsOrchestrator:
             rvs=rvs, rcs=rcs, ris=ris, ths=ths,
             timestep=dt
         )
-        # Update state after adjustment
-        # Convert output temperature T to potential temperature TH = T / exn
-        pth_new = t_out / state.pexn
-        state = state._replace(pt=t_out, pth=pth_new, prv=rv_out, prc=rc_out, pri=ri_out)
+        # Update state after adjustment — cast to input dtype (_fdt) so that
+        # IceAdjustJAX returning float64 (when jax_enable_x64 is active)
+        # does not contaminate the rest of the computation.
+        t_out = t_out.astype(_fdt)
+        pth_new = (t_out / state.pexn).astype(_fdt)
+        state = state._replace(
+            pt=t_out, pth=pth_new,
+            prv=rv_out.astype(_fdt), prc=rc_out.astype(_fdt), pri=ri_out.astype(_fdt)
+        )
         diagnostics['cldfr'] = cldfr
 
         # -------------------------------------------------------------
         # 2. Shallow Convection
         # -------------------------------------------------------------
-        ptten = jnp.zeros_like(state.pt)
-        prvten = jnp.zeros_like(state.prv)
-        prcten = jnp.zeros_like(state.prc)
-        priten = jnp.zeros_like(state.pri)
+        # Use _fdt (= state.pabst.dtype = input dtype) so that ice_adjust
+        # returning float64 (when jax_enable_x64 is active) does not
+        # contaminate these initialisations via zeros_like(state.pt).
+        ptten = jnp.zeros((nit, nkt), dtype=_fdt)
+        prvten = jnp.zeros((nit, nkt), dtype=_fdt)
+        prcten = jnp.zeros((nit, nkt), dtype=_fdt)
+        priten = jnp.zeros((nit, nkt), dtype=_fdt)
         kcltop = jnp.zeros((nit,), dtype=jnp.int32)
         kclbas = jnp.zeros((nit,), dtype=jnp.int32)
-        pumf = jnp.zeros_like(state.pt)
-        pch1 = jnp.zeros((nit, nkt, 1))
-        pch1ten = jnp.zeros((nit, nkt, 1))
+        pumf = jnp.zeros((nit, nkt), dtype=_fdt)
+        pch1 = jnp.zeros((nit, nkt, 1), dtype=_fdt)
+        pch1ten = jnp.zeros((nit, nkt, 1), dtype=_fdt)
 
         shallow_out: ShallowConvectionOutputs = shallow_convection(
             ppabst=state.pabst,
@@ -269,6 +289,7 @@ class AromePhysicsOrchestrator:
         # RainIce expects a state dictionary
         rain_ice_state = {
             "th_t": state.pth,
+            "t": state.pt,
             "rv_t": state.prv,
             "rc_t": state.prc,
             "rr_t": state.prr,

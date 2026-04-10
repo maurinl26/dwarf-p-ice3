@@ -114,18 +114,19 @@ class EcRadJAX:
         JAX orchestration loop like AROME physics.
         """
         n_cols, n_levs = state.temp.shape
-        
+        _fdt = state.temp.dtype  # pin dtype to match input (prevents float64 when x64 is on)
+
         # -------------------------------------------------------------
         # 1. Simplified Flux Computations (Placeholders)
         # -------------------------------------------------------------
         # In a real JAX port of ecRad, this section would run McICA,
         # the RRTMG gas optics formulation, and the two-stream solvers.
-        
+
         # Output flux arrays
-        sw_dn = jnp.zeros((n_cols, n_levs + 1))
-        sw_up = jnp.zeros((n_cols, n_levs + 1))
-        lw_dn = jnp.zeros((n_cols, n_levs + 1))
-        lw_up = jnp.zeros((n_cols, n_levs + 1))
+        sw_dn = jnp.zeros((n_cols, n_levs + 1), dtype=_fdt)
+        sw_up = jnp.zeros((n_cols, n_levs + 1), dtype=_fdt)
+        lw_dn = jnp.zeros((n_cols, n_levs + 1), dtype=_fdt)
+        lw_up = jnp.zeros((n_cols, n_levs + 1), dtype=_fdt)
         
         # Solar forcing at Top of Atmosphere (approx 1361 W/m2)
         toa_sw_dn = state.cos_zenith * 1361.0 * (state.cos_zenith > 0)

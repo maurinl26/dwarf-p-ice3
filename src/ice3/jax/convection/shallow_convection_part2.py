@@ -205,6 +205,7 @@ def shallow_convection_part2(
     nit = ppabst.shape[0]
     nkt = ppabst.shape[1]
     kch1 = pch1.shape[2] if pch1.ndim == 3 else 0
+    _fdt = ppabst.dtype  # Pin float dtype to avoid float64 contamination when x64 is on
 
     # Physical constants
     cst = PHYS_CONSTANTS
@@ -214,17 +215,17 @@ def shallow_convection_part2(
     ike = nkt - jcvext
 
     # Initialize outputs for levels above computation domain
-    pumf = jnp.zeros((nit, nkt))
-    pthc = jnp.zeros((nit, nkt))
-    prvc = jnp.zeros((nit, nkt))
-    prcc = jnp.zeros((nit, nkt))
-    pric = jnp.zeros((nit, nkt))
-    ppch1ten = jnp.zeros((nit, nkt, kch1))
+    pumf = jnp.zeros((nit, nkt), dtype=_fdt)
+    pthc = jnp.zeros((nit, nkt), dtype=_fdt)
+    prvc = jnp.zeros((nit, nkt), dtype=_fdt)
+    prcc = jnp.zeros((nit, nkt), dtype=_fdt)
+    pric = jnp.zeros((nit, nkt), dtype=_fdt)
+    ppch1ten = jnp.zeros((nit, nkt, kch1), dtype=_fdt)
 
     # ===== 3.2 Compute pressure difference =====
     # Compute pressure difference between layers: dp[k] = p[k] - p[k+1]
     # Valid from ikb+1 to ike (not ike+1, to stay within bounds)
-    zdpres = jnp.zeros((nit, nkt))
+    zdpres = jnp.zeros((nit, nkt), dtype=_fdt)
     zdpres = zdpres.at[:, ikb+1:ike].set(
         ppabst[:, ikb:ike-1] - ppabst[:, ikb+1:ike]
     )
@@ -300,9 +301,9 @@ def shallow_convection_part2(
     ietl = updraft_outputs.ketl
 
     # Initialize downdraft arrays (no downdraft in shallow convection)
-    zdmf = jnp.zeros((nit, nkt))
-    zder = jnp.zeros((nit, nkt))
-    zddr = jnp.zeros((nit, nkt))
+    zdmf = jnp.zeros((nit, nkt), dtype=_fdt)
+    zder = jnp.zeros((nit, nkt), dtype=_fdt)
+    zddr = jnp.zeros((nit, nkt), dtype=_fdt)
     ilfs = jnp.full(nit, ikb, dtype=jnp.int32)
 
     # ===== Compute layer mass =====
@@ -310,9 +311,9 @@ def shallow_convection_part2(
     zlmass = zlmass.at[:, ikb].set(zlmass[:, ikb+1])
 
     # ===== 5. Set convective adjustment time =====
-    ztimec = jnp.full(nit, convection_params.xctime_shal)
+    ztimec = jnp.full(nit, convection_params.xctime_shal, dtype=_fdt)
     if osettadj:
-        ztimec = jnp.full(nit, ptadjs)
+        ztimec = jnp.full(nit, ptadjs, dtype=_fdt)
 
     # ===== 7. Closure - determine adjusted environmental values =====
     closure_outputs = convect_closure_shal(
@@ -435,8 +436,8 @@ def shallow_convection_part2(
     # ===== 8.3 Apply conservation correction =====
     # Compute vertical integrals (must be zero for conservation)
     jkm = ike
-    zwork2 = jnp.zeros(nit)   # Moisture integral
-    zwork2b = jnp.zeros(nit)  # Energy integral
+    zwork2 = jnp.zeros(nit, dtype=_fdt)   # Moisture integral
+    zwork2b = jnp.zeros(nit, dtype=_fdt)  # Energy integral
 
     for jk in range(ikb+1, jkm+1):
         jkp = jk + 1

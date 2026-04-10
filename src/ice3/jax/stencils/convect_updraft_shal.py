@@ -175,29 +175,30 @@ def convect_updraft_shal(
     zrdocp = cst.rd / cst.cpd  # ~0.286
     zice = float(kice)
     zeps0 = cst.rd / cst.rv  # ~0.622
+    _fdt = ppres.dtype  # Pin float dtype; avoids float64 carry contamination when x64 is on
 
     # Array dimensions
     nit, nkt = ppres.shape
     ikb = jcvexb
     ike = nkt - jcvext - 1
 
-    # Initialize outputs
-    pumf = jnp.zeros((nit, nkt))
-    puer = jnp.zeros((nit, nkt))
-    pudr = jnp.zeros((nit, nkt))
-    puthl = jnp.zeros((nit, nkt))
-    puthv = jnp.zeros((nit, nkt))
-    purw = jnp.zeros((nit, nkt))
-    purc = jnp.zeros((nit, nkt))
-    puri = jnp.zeros((nit, nkt))
-    pcape = jnp.zeros(nit)
+    # Initialize outputs — pin to _fdt so carry dtype stays stable across x32/x64 modes
+    pumf = jnp.zeros((nit, nkt), dtype=_fdt)
+    puer = jnp.zeros((nit, nkt), dtype=_fdt)
+    pudr = jnp.zeros((nit, nkt), dtype=_fdt)
+    puthl = jnp.zeros((nit, nkt), dtype=_fdt)
+    puthv = jnp.zeros((nit, nkt), dtype=_fdt)
+    purw = jnp.zeros((nit, nkt), dtype=_fdt)
+    purc = jnp.zeros((nit, nkt), dtype=_fdt)
+    puri = jnp.zeros((nit, nkt), dtype=_fdt)
+    pcape = jnp.zeros(nit, dtype=_fdt)
     kctl = jnp.full(nit, ikb, dtype=jnp.int32)
     ketl = klcl.copy()
 
-    # Initialize working arrays
-    zuw1 = pwlcl * pwlcl  # Square of vertical velocity at level k
-    ze1 = jnp.zeros(nit)  # Fractional entrainment at level k
-    zd1 = jnp.zeros(nit)  # Fractional detrainment at level k
+    # Initialize working arrays — pin to _fdt
+    zuw1 = (pwlcl * pwlcl).astype(_fdt)
+    ze1 = jnp.zeros(nit, dtype=_fdt)
+    zd1 = jnp.zeros(nit, dtype=_fdt)
     gwork2 = jnp.ones(nit, dtype=bool)  # Mask for active updrafts
 
     # Compute undilute updraft theta_e for CAPE (Bolton 1980)
@@ -236,7 +237,7 @@ def convect_updraft_shal(
     (pumf, puthl, puthv, purw), _ = lax.scan(
         set_level,
         (pumf, puthl, puthv, purw),
-        jnp.arange(ikb, ike + 1)
+        jnp.arange(ikb, ike + 1, dtype=jnp.int32)
     )
 
     # ===== Main updraft loop from LCL to CTL =====
@@ -290,7 +291,7 @@ def convect_updraft_shal(
 
         # ===== Compute entrainment/detrainment =====
         # Critical mixed fraction
-        zmixf = jnp.full(nit, 0.1)
+        zmixf = jnp.full(nit, 0.1, dtype=_fdt)
         zwork1_mix = zmixf * pthl[:, jkp] + (1.0 - zmixf) * puthl_c[:, jkp]
         zwork2_mix = zmixf * prw[:, jkp] + (1.0 - zmixf) * purw_c[:, jkp]
 
@@ -363,7 +364,9 @@ def convect_updraft_shal(
         zd1_new = jnp.where(gwork1, zd2, zd1_c)
 
         return ((pumf_c, puer_c, pudr_c, puthl_c, puthv_c, purw_c, purc_c, puri_c,
-                pcape_c, kctl_new, ketl_new, zuw1_new, ze1_new, zd1_new, gwork2_new), None)
+                pcape_c.astype(_fdt), kctl_new, ketl_new,
+                zuw1_new.astype(_fdt), ze1_new.astype(_fdt), zd1_new.astype(_fdt),
+                gwork2_new), None)
 
     # Execute main updraft loop
     initial_carry = (pumf, puer, pudr, puthl, puthv, purw, purc, puri,
@@ -373,7 +376,7 @@ def convect_updraft_shal(
      pcape, kctl, ketl, _, _, _, _), _ = lax.scan(
         updraft_loop_body,
         initial_carry,
-        jnp.arange(ikb + 1, ike)
+        jnp.arange(ikb + 1, ike, dtype=jnp.int32)
     )
 
     # ===== Post-processing =====
@@ -425,7 +428,7 @@ def convect_updraft_shal(
         zwork1_new = jnp.where(mask, zwork1_sum + pdpres[:, jk], zwork1_sum)
         return zwork1_new, None
 
-    zwork1_pdepth, _ = lax.scan(compute_linear_decrease, jnp.zeros(nit), jnp.arange(ikb, ike + 1))
+    zwork1_pdepth, _ = lax.scan(compute_linear_decrease, jnp.zeros(nit, dtype=ppres.dtype), jnp.arange(ikb, ike + 1, dtype=jnp.int32))
 
     # Detrainment rate per unit pressure
     zwork1_rate = pumf[idx_i, ketl_safe] / jnp.maximum(1.0, zwork1_pdepth)
@@ -445,7 +448,7 @@ def convect_updraft_shal(
 
         return (pudr_c, pumf_c), None
 
-    (pudr, pumf), _ = lax.scan(apply_linear_decrease, (pudr, pumf), jnp.arange(ikb + 1, ike + 1))
+    (pudr, pumf), _ = lax.scan(apply_linear_decrease, (pudr, pumf), jnp.arange(ikb + 1, ike + 1, dtype=jnp.int32))
 
     # ===== Source layer mass flux =====
     iwork = kpbl
@@ -470,7 +473,7 @@ def convect_updraft_shal(
 
         return (puer_c, pumf_c), None
 
-    (puer, pumf), _ = lax.scan(set_source_layer, (puer, pumf), jnp.arange(ikb, ike + 1))
+    (puer, pumf), _ = lax.scan(set_source_layer, (puer, pumf), jnp.arange(ikb, ike + 1, dtype=jnp.int32))
 
     # ===== Zero out if not triggered =====
     otrig_2d = otrig_out[:, None]  # Broadcast to (nit, 1)

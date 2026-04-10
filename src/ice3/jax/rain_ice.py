@@ -323,14 +323,19 @@ class RainIceJAX:
                 current_state, tendencies, dt, loop_state["t_elapsed"]
             )
             
-            # Update state variables
+            # Update state variables — cast back to carry dtype so that
+            # float64 tendencies (when jax_enable_x64 is active) don't
+            # break lax.while_loop's carry-type consistency contract.
             new_loop_state = loop_state.copy()
             for key in ["th_t", "rv_t", "rc_t", "rr_t", "ri_t", "rs_t", "rg_t"]:
                 tnd_key = key.replace("_t", "_tnd")
                 if tnd_key in tendencies:
-                    new_loop_state[key] = loop_state[key] + tendencies[tnd_key] * curr_delta_t
-            
-            new_loop_state["t_elapsed"] = loop_state["t_elapsed"] + curr_delta_t
+                    new_val = loop_state[key] + tendencies[tnd_key] * curr_delta_t
+                    new_loop_state[key] = new_val.astype(loop_state[key].dtype)
+
+            new_loop_state["t_elapsed"] = (loop_state["t_elapsed"] + curr_delta_t).astype(
+                loop_state["t_elapsed"].dtype
+            )
             new_loop_state["iteration"] = loop_state["iteration"] + 1
             new_loop_state["ldsoft"] = 1.0 # Enable soft mode after first iteration
             

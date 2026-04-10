@@ -123,20 +123,21 @@ def convect_closure_thrvlcl(
     nit, nkt = ppres.shape
     ikb = jcvexb
     ike = nkt - jcvext - 1
+    _fdt = ppres.dtype
 
     # Initialize output arrays
-    pthlcl = jnp.full(nit, 300.0)
-    prvlcl = jnp.zeros(nit)
+    pthlcl = jnp.full(nit, 300.0, dtype=_fdt)
+    prvlcl = jnp.zeros(nit, dtype=_fdt)
     pzlcl = pz[:, ikb]
-    ptlcl = jnp.full(nit, 300.0)
-    ptelcl = jnp.full(nit, 300.0)
+    ptlcl = jnp.full(nit, 300.0, dtype=_fdt)
+    ptelcl = jnp.full(nit, 300.0, dtype=_fdt)
     klcl = jnp.full(nit, ikb + 1, dtype=jnp.int32)
 
     # Working arrays
-    zdpthmix = jnp.zeros(nit)
-    zpresmix = jnp.zeros(nit)
-    ztmix = jnp.full(nit, 230.0)
-    zplcl = jnp.full(nit, 1e4)
+    zdpthmix = jnp.zeros(nit, dtype=_fdt)
+    zpresmix = jnp.zeros(nit, dtype=_fdt)
+    ztmix = jnp.full(nit, 230.0, dtype=_fdt)
+    zplcl = jnp.full(nit, 1e4, dtype=_fdt)
 
     # ===== 1. Construct mixed layer between DPL and PBL =====
     # Loop over vertical levels from ikb+1 to ike
@@ -170,7 +171,7 @@ def convect_closure_thrvlcl(
     (zdpthmix, zpresmix, pthlcl, prvlcl), _ = lax.scan(
         accumulate_mixed_layer,
         (zdpthmix, zpresmix, pthlcl, prvlcl),
-        jnp.arange(ikb + 1, ike)
+        jnp.arange(ikb + 1, ike, dtype=jnp.int32)
     )
 
     # Normalize by total pressure depth (only where owork1 is True)
@@ -249,8 +250,8 @@ def convect_closure_thrvlcl(
 
         # Update klcl where zplcl <= ppres and point is active
         mask = (zplcl <= ppres[idx_i, jk_clip]) & owork1
-        klcl_new = jnp.where(mask, jk + 1, klcl_a)
-        pzlcl_new = jnp.where(mask, pz[idx_i, jk + 1], klcl_a)
+        klcl_new = jnp.where(mask, jnp.int32(jk) + jnp.int32(1), klcl_a)
+        pzlcl_new = jnp.where(mask, pz[idx_i, jnp.int32(jk) + jnp.int32(1)], klcl_a)
 
         return klcl_new, pzlcl_new
 
@@ -261,7 +262,7 @@ def convect_closure_thrvlcl(
     klcl, pzlcl_scan = lax.scan(
         find_lcl_level,
         klcl,
-        jnp.arange(ikb, ike)
+        jnp.arange(ikb, ike, dtype=jnp.int32)
     )
 
     # Update pzlcl with the last valid value from scan

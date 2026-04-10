@@ -202,10 +202,10 @@ def convect_trigger_shal(
     # These are pressure differences and weighted values
     def compute_aux_arrays():
         """Compute auxiliary arrays once."""
-        zzzx1 = ppres[:, ikb+1:ike] - ppres[:, ikb+2:ike+1]  # dp between levels
-        zzppres = ppres[:, ikb+1:ike] * zzzx1
-        zzpth = pth[:, ikb+1:ike] * zzzx1
-        zzprv = jnp.maximum(0.0, prv[:, ikb+1:ike]) * zzzx1
+        zzzx1   = (ppres[:, ikb+1:ike] - ppres[:, ikb+2:ike+1]).astype(_fdt)
+        zzppres = (ppres[:, ikb+1:ike] * zzzx1).astype(_fdt)
+        zzpth   = (pth[:, ikb+1:ike]   * zzzx1).astype(_fdt)
+        zzprv   = (jnp.maximum(jnp.zeros(1, dtype=_fdt), prv[:, ikb+1:ike]) * zzzx1).astype(_fdt)
         return zzzx1, zzppres, zzpth, zzprv
 
     zzzx1, zzppres, zzpth, zzprv = compute_aux_arrays()
@@ -407,7 +407,8 @@ def convect_trigger_shal(
                       ztop_a * 0.5 * (1.0 - zx2)
             ztop_new = jnp.where(active_mask, jnp.maximum(ztop_new, ztop_a), ztop_a)
 
-            return (zcape_new, zcap_new, ztop_new, zwork3_new), None
+            return (zcape_new.astype(_fdt), zcap_new.astype(_fdt),
+                    ztop_new.astype(_fdt), zwork3_new.astype(_fdt)), None
 
         # JAX FIX: Run CAPE loop with fixed range from ikb to jt
         # The active_mask handles the dynamic start at jlclmin
@@ -434,8 +435,12 @@ def convect_trigger_shal(
         kpbl_new = jnp.where(trigger_cond, ipbl, kpbl_c)
         gtrig2_new = jnp.where(trigger_cond, False, gtrig2_c)
 
-        return ((otrig_new, pthlcl_new, ptlcl_new, prvlcl_new, pwlcl_new, pzlcl_new,
-                pthvelcl_new, klcl_new, kdpl_new, kpbl_new, zzdpl_new, gtrig2_new), None)
+        return ((otrig_new,
+                 pthlcl_new.astype(_fdt), ptlcl_new.astype(_fdt),
+                 prvlcl_new.astype(_fdt), pwlcl_new.astype(_fdt),
+                 pzlcl_new.astype(_fdt), pthvelcl_new.astype(_fdt),
+                 klcl_new, kdpl_new, kpbl_new,
+                 zzdpl_new.astype(_fdt), gtrig2_new), None)
 
     # Execute main loop over departure levels
     initial_carry = (otrig, pthlcl, ptlcl, prvlcl, pwlcl, pzlcl, pthvelcl,
