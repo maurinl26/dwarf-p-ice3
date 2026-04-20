@@ -134,7 +134,7 @@ jobs:
 
       - name: Upload Singularity artifact
         if: github.event_name != 'pull_request' && matrix.convert_singularity
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: singularity-${{ matrix.tag }}
           path: sif_out/dwarf_${{ matrix.tag }}.sif
