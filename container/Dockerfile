@@ -191,6 +191,27 @@ COPY . .
 ENV JAX_PLATFORM_NAME=cuda
 CMD ["sleep", "infinity"]
 
+# --- VARIANT B2 : RUNPOD (JAX / GPU + SSH) ---
+FROM jax-gpu AS runpod
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssh-server && rm -rf /var/lib/apt/lists/*
+RUN mkdir -p /var/run/sshd && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
+
+COPY . /opt/ice3/
+COPY container/runpod_startup.sh /opt/ice3/runpod_startup.sh
+RUN chmod +x /opt/ice3/runpod_startup.sh
+RUN uv pip install --no-cache-dir -e /opt/ice3/
+
+ENV JAX_PLATFORM_NAME=cuda
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV TASK=shell
+
+WORKDIR /workspace
+ENTRYPOINT ["/opt/ice3/runpod_startup.sh"]
+
 # --- VARIANT C : CYTHON / CPU ---
 FROM base-cpu AS cython-cpu
 COPY . .
@@ -203,7 +224,8 @@ CMD ["python", "main.py"]
 FROM base-gpu-acc AS cython-gpu-builder
 COPY pyproject.toml uv.lock* CMakeLists.txt ./
 COPY src/ src/
-COPY PHYEX-IAL_CY50T1/ PHYEX-IAL_CY50T1/
+COPY external/PHYEX-IAL_CY50T1/ external/PHYEX-IAL_CY50T1/
+COPY external/open-SURFEX-V9-1-0/bridge/ external/open-SURFEX-V9-1-0/bridge/
 ENV BUILD_TARGET=gpu-acc
 # Build wheel only (no runtime deps needed)
 RUN uv pip wheel -v --no-deps --wheel-dir /app/dist .
