@@ -120,7 +120,7 @@ from __future__ import annotations
 import os
 import ctypes
 from pathlib import Path
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Optional, Tuple
 
 import numpy as np
 import jax
@@ -462,4 +462,146 @@ class SurfexJAX:
             surf_flux_v=surf_flux_v,
             albedo=albedo,
             emissivity=emissivity,
+        )
+
+
+# ---------------------------------------------------------------------------
+# GPU path — OpenACC + CUDA graph via CuPy/DLPack bridge
+# ---------------------------------------------------------------------------
+
+# Tile-type constants (mirrors surfex_c_api_acc.F90 and _surfex_wrapper_acc.pyx)
+TILE_NATURE: int = 1
+TILE_SEA:    int = 2
+TILE_LAKE:   int = 3
+
+
+class SurfexJAXGPU:
+    """
+    SURFEX surface physics on GPU via OpenACC + CUDA graph (CuPy/DLPack bridge).
+
+    Replaces the CPU roundtrip of SurfexJAX (jax.pure_callback) when the
+    compiled _surfex_wrapper_acc Cython extension is available.
+
+    The CUDA graph is captured on the **first** call and replayed on all
+    subsequent calls — no Python overhead on the OpenACC kernels after warmup.
+
+    Parameters
+    ----------
+    n_cols : int
+        Number of atmospheric columns (fixed for the model run).
+    tile_type : np.ndarray of int32, shape (n_cols,)
+        Tile classification per column.  Use TILE_NATURE / TILE_SEA / TILE_LAKE.
+        Defaults to all-land (TILE_NATURE) if not supplied.
+
+    Usage
+    -----
+    >>> surfex = SurfexJAXGPU(n_cols=1024)
+    >>> fluxes  = surfex(state, dt=60.0)   # first call captures CUDA graph
+    >>> fluxes2 = surfex(state2, dt=60.0)  # subsequent calls replay graph
+    """
+
+    def __init__(
+        self,
+        n_cols: int,
+        tile_type: Optional[np.ndarray] = None,
+    ) -> None:
+        from _surfex_wrapper_acc import SurfexGPUWrapper  # Cython / OpenACC
+        if tile_type is None:
+            tile_type = np.ones(n_cols, dtype=np.int32) * TILE_NATURE
+        self._wrapper = SurfexGPUWrapper(n_cols, tile_type)
+
+    def __call__(self, state: SurfexState, dt: float) -> SurfexFluxes:
+        """
+        Execute SURFEX GPU surface physics step.
+
+        Arrays are exported to CuPy via DLPack (zero-copy D2D).
+        On the first call the CUDA graph is captured; replay on all others.
+
+        Parameters
+        ----------
+        state : SurfexState   Atmospheric forcing at the lowest model level.
+        dt    : float         Physics time step (seconds).
+
+        Returns
+        -------
+        SurfexFluxes  Surface fluxes as JAX GPU arrays.
+        """
+        out = self._wrapper(
+            t_a=jax.dlpack.to_dlpack(state.t_a),
+            q_a=jax.dlpack.to_dlpack(state.q_a),
+            u_a=jax.dlpack.to_dlpack(state.u_a),
+            v_a=jax.dlpack.to_dlpack(state.v_a),
+            p_a=jax.dlpack.to_dlpack(state.p_a),
+            rhodref=jax.dlpack.to_dlpack(state.rhodref),
+            sw_down=jax.dlpack.to_dlpack(state.sw_down),
+            lw_down=jax.dlpack.to_dlpack(state.lw_down),
+            rain_rate=jax.dlpack.to_dlpack(state.rain_rate),
+            snow_rate=jax.dlpack.to_dlpack(state.snow_rate),
+            dt=float(dt),
+        )
+        return SurfexFluxes(
+            surf_flux_th=jax.dlpack.from_dlpack(out['surf_flux_th']),
+            surf_flux_rv=jax.dlpack.from_dlpack(out['surf_flux_rv']),
+            surf_flux_u=jax.dlpack.from_dlpack(out['surf_flux_u']),
+            surf_flux_v=jax.dlpack.from_dlpack(out['surf_flux_v']),
+            albedo=jax.dlpack.from_dlpack(out['albedo']),
+            emissivity=jax.dlpack.from_dlpack(out['emissivity']),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Factory — selects the best available SURFEX backend
+# ---------------------------------------------------------------------------
+
+def make_surfex(
+    n_cols: int,
+    tile_type: Optional[np.ndarray] = None,
+) -> "SurfexJAXGPU | SurfexJAX | _NullSurfex":
+    """
+    Return the best available SURFEX backend for the current environment.
+
+    Priority:
+      1. SurfexJAXGPU  — OpenACC + CUDA graph (requires _surfex_wrapper_acc
+                         Cython extension built with nvfortran -acc)
+      2. SurfexJAX     — CPU pure_callback via libsurfex_offline shared lib
+      3. _NullSurfex   — analytical bulk-aerodynamic fallback (always works)
+
+    Parameters
+    ----------
+    n_cols    : int
+    tile_type : optional int32 array of shape (n_cols,) for GPU backend
+    """
+    try:
+        gpu = SurfexJAXGPU(n_cols, tile_type)
+        return gpu
+    except (ImportError, RuntimeError):
+        pass
+    try:
+        cpu = SurfexJAX()
+        return cpu
+    except Exception:
+        pass
+    return _NullSurfex()
+
+
+class _NullSurfex:
+    """
+    No-op SURFEX stub: re-propagates previous-step surface fluxes unchanged.
+
+    Used in unit tests and when no SURFEX backend is available.
+    AromePhysicsOrchestrator checks isinstance(self.surfex, SurfexJAX) at JIT
+    trace time (static_argnums=0), so this stub does NOT overwrite bulk-drag
+    fluxes already embedded in the AromeState.
+    """
+
+    def __call__(self, state: SurfexState, dt: float) -> SurfexFluxes:
+        nit  = state.psurf_flux_th.shape[0]
+        _fdt = state.psurf_flux_th.dtype
+        return SurfexFluxes(
+            surf_flux_th=state.psurf_flux_th,
+            surf_flux_rv=state.psurf_flux_rv,
+            surf_flux_u=state.psurf_flux_u,
+            surf_flux_v=state.psurf_flux_v,
+            albedo=jnp.full((nit,), 0.20, dtype=_fdt),
+            emissivity=jnp.full((nit,), 0.98, dtype=_fdt),
         )

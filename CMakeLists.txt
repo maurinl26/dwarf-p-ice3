@@ -11,6 +11,7 @@ project(PHYEX_ICE_ADJUST C Fortran)
 # OPENACC GPU ACCELERATION OPTION
 # ============================================================================
 option(ENABLE_OPENACC "Enable OpenACC GPU acceleration (requires NVIDIA HPC SDK)" OFF)
+option(ENABLE_SURFEX  "Build SURFEX GPU bridge (_surfex_wrapper_acc, requires ENABLE_OPENACC)" OFF)
 
 # Set Fortran compiler flags
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O2 -fPIC -cpp")
@@ -52,6 +53,9 @@ endif()
 
 # Define PHYEX source directory
 set(PHYEX_DIR ${CMAKE_SOURCE_DIR}/PHYEX-IAL_CY50T1)
+
+# Define SURFEX source directory
+set(SURFEX_DIR ${CMAKE_SOURCE_DIR}/open-SURFEX-V9-1-0)
 
 # Add stub include directory
 include_directories(${PHYEX_DIR}/stubs/include)
@@ -495,6 +499,65 @@ if(ENABLE_OPENACC)
 endif()
 
 # ============================================================================
+# SURFEX GPU BRIDGE (column-parallel OpenACC + CUDA graph capture)
+# Tiles: ISBA (nature), SEAFLUX/WATFLUX (sea), FLAKE (lake)
+# ============================================================================
+if(ENABLE_SURFEX AND ENABLE_OPENACC)
+    message(STATUS "Building SURFEX GPU bridge (_surfex_wrapper_acc)")
+
+    # Fortran shared library — column-parallel bulk physics with OpenACC
+    set(SURFEX_ACC_SOURCES
+        ${SURFEX_DIR}/bridge/surfex_c_api_acc.F90
+    )
+
+    add_library(surfex_acc SHARED ${SURFEX_ACC_SOURCES})
+
+    # Inherit OpenACC flags from parent target
+    if(CMAKE_Fortran_COMPILER_ID MATCHES "^(NVHPC|PGI)$")
+        target_compile_options(surfex_acc PRIVATE
+            -acc -Minfo=accel -gpu=managed -Minline -async
+        )
+    endif()
+
+    set_target_properties(surfex_acc PROPERTIES
+        VERSION 1.0.0
+        SOVERSION 1
+        PREFIX "lib"
+    )
+
+    # Cython extension — CUDA graph capture bridge
+    set(SURFEX_CYTHON_SRC ${SURFEX_DIR}/bridge/_surfex_wrapper_acc.pyx)
+    set(SURFEX_CYTHON_OUT ${CMAKE_CURRENT_BINARY_DIR}/_surfex_wrapper_acc.c)
+
+    add_custom_command(
+        OUTPUT ${SURFEX_CYTHON_OUT}
+        COMMAND ${Python_EXECUTABLE} -m cython
+            ${SURFEX_CYTHON_SRC}
+            -o ${SURFEX_CYTHON_OUT}
+        DEPENDS ${SURFEX_CYTHON_SRC}
+        COMMENT "Cythonizing _surfex_wrapper_acc.pyx (SURFEX GPU bridge)"
+    )
+
+    Python_add_library(_surfex_wrapper_acc MODULE ${SURFEX_CYTHON_OUT})
+    set_source_files_properties(${SURFEX_CYTHON_OUT} PROPERTIES LANGUAGE C)
+    target_link_libraries(_surfex_wrapper_acc PRIVATE surfex_acc)
+    target_include_directories(_surfex_wrapper_acc PRIVATE ${Python_NumPy_INCLUDE_DIRS})
+
+    if(CUPY_INCLUDE_DIR)
+        target_include_directories(_surfex_wrapper_acc PRIVATE ${CUPY_INCLUDE_DIR})
+    endif()
+
+    set_target_properties(_surfex_wrapper_acc PROPERTIES
+        PREFIX ""
+        OUTPUT_NAME "_surfex_wrapper_acc"
+        LINKER_LANGUAGE C
+    )
+
+elseif(ENABLE_SURFEX AND NOT ENABLE_OPENACC)
+    message(WARNING "ENABLE_SURFEX=ON requires ENABLE_OPENACC=ON. SURFEX GPU bridge will NOT be built.")
+endif()
+
+# ============================================================================
 # INSTALLATION RULES
 # ============================================================================
 
@@ -545,6 +608,13 @@ if(NOT SKBUILD)
     # Install GPU wrapper if built
     if(ENABLE_OPENACC)
         install(TARGETS _phyex_wrapper_acc
+            LIBRARY DESTINATION lib/python/ice3
+        )
+    endif()
+
+    # Install SURFEX GPU bridge if built
+    if(ENABLE_SURFEX AND ENABLE_OPENACC)
+        install(TARGETS surfex_acc _surfex_wrapper_acc
             LIBRARY DESTINATION lib/python/ice3
         )
     endif()
