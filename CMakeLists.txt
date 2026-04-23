@@ -52,10 +52,10 @@ if(APPLE)
 endif()
 
 # Define PHYEX source directory
-set(PHYEX_DIR ${CMAKE_SOURCE_DIR}/PHYEX-IAL_CY50T1)
+set(PHYEX_DIR ${CMAKE_SOURCE_DIR}/external/PHYEX-IAL_CY50T1)
 
 # Define SURFEX source directory
-set(SURFEX_DIR ${CMAKE_SOURCE_DIR}/open-SURFEX-V9-1-0)
+set(SURFEX_DIR ${CMAKE_SOURCE_DIR}/external/open-SURFEX-V9-1-0)
 
 # Add stub include directory
 include_directories(${PHYEX_DIR}/stubs/include)

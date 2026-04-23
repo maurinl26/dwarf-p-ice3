@@ -96,43 +96,48 @@ explicit = true
 dace = { git = "https://github.com/GridTools/dace.git", rev = "romanc/stree-to-sdfg" }
 
 [tool.scikit-build]
-# CMake configuration (only used when building Fortran bindings)
-# To build with Fortran support: pip install -e ".[fortran]"
 cmake.version = ">=3.15"
-
-# Use Unix Makefiles generator instead of Ninja
 cmake.build-type = "Release"
 
-# Configure CMake arguments
+# Default build: CPU only, gfortran.
+# GPU build (OpenACC + SURFEX): set environment overrides before pip install:
+#
+#   export SKBUILD_CMAKE_ARGS="-DCMAKE_Fortran_COMPILER=nvfortran;-DENABLE_OPENACC=ON;-DENABLE_SURFEX=ON"
+#   pip install -e ".[gpu]"
+#
 cmake.args = [
     "-DCMAKE_Fortran_COMPILER=gfortran",
     "-G", "Unix Makefiles",
     "-DCMAKE_MAKE_PROGRAM=/usr/bin/make",
+    "-DENABLE_OPENACC=OFF",
+    "-DENABLE_SURFEX=OFF",
 ]
 
-# Verbose output during build
 build.verbose = true
-
-# Disable ninja - use make as fallback
 ninja.make-fallback = true
-
-# Build directory
 build-dir = "build/{wheel_tag}"
 
-# Install the compiled library to the package
-install.components = ["ice_adjust_phyex", "_phyex_wrapper", "_phyex_wrapper_acc"]
-
-# Ensure Fortran sources and Cython wrapper are included
-sdist.include = [
-    "CMakeLists.txt",
-    "PHYEX-IAL_CY50T1/**/*.F90",
-    "PHYEX-IAL_CY50T1/**/*.f90",
-    "PHYEX-IAL_CY50T1/**/*.h",
-    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper.pyx",
-    "PHYEX-IAL_CY50T1/bridge/_phyex_wrapper_acc.pyx",
+# CPU-only install components (default).
+# GPU build adds surfex_acc + _surfex_wrapper_acc via SKBUILD_INSTALL_COMPONENTS.
+install.components = [
+    "ice_adjust_phyex",
+    "_phyex_wrapper",
+    "_phyex_wrapper_acc",
 ]
 
-# Install the library to the ice3 package directory
+sdist.include = [
+    "CMakeLists.txt",
+    # PHYEX physics (microphysics, turbulence, convection)
+    "external/PHYEX-IAL_CY50T1/**/*.F90",
+    "external/PHYEX-IAL_CY50T1/**/*.f90",
+    "external/PHYEX-IAL_CY50T1/**/*.h",
+    "external/PHYEX-IAL_CY50T1/bridge/_phyex_wrapper.pyx",
+    "external/PHYEX-IAL_CY50T1/bridge/_phyex_wrapper_acc.pyx",
+    # SURFEX GPU bridge (OpenACC column-parallel surface physics)
+    "external/open-SURFEX-V9-1-0/bridge/surfex_c_api_acc.F90",
+    "external/open-SURFEX-V9-1-0/bridge/_surfex_wrapper_acc.pyx",
+]
+
 wheel.install-dir = "ice3"
 
 [dependency-groups]

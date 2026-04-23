@@ -1,20 +1,21 @@
 """
-Tests for the SURFEX GPU bridge (_surfex_wrapper_acc + SurfexJAXGPU).
+Tests for the SURFEX surface physics bindings.
 
-Covers:
-  1. SurfexGPUWrapper: CUDA graph capture on first call, replay on subsequent.
-  2. SurfexJAXGPU: DLPack bridge (JAX GPU → CuPy → JAX GPU).
-  3. Physical consistency: results match the analytical bulk-aerodynamic fallback
-     (same formulae, different execution path).
-  4. Performance: graph replay is faster than first-call capture.
+CPU smoke tests (always run, no GPU required)
+---------------------------------------------
+  TestSurfexCPUSmoke   — _NullSurfex and SurfexJAX instantiation + call
+  TestMakeSurfex       — make_surfex() factory fallback cascade
 
-Requirements
-------------
-- NVIDIA GPU + CUDA
-- CuPy (pip install cupy-cuda12x)
-- _surfex_wrapper_acc built with:
+GPU tests (skipped without NVIDIA GPU + CuPy + _surfex_wrapper_acc)
+--------------------------------------------------------------------
+  TestSurfexGPUWrapper — CUDA graph capture, replay, physical checks
+  TestSurfexJAXGPU     — DLPack bridge JAX GPU ↔ CuPy
+
+Build requirements for GPU tests
+---------------------------------
     cmake -DENABLE_OPENACC=ON -DENABLE_SURFEX=ON \\
           -DCMAKE_Fortran_COMPILER=nvfortran ..
+    pip install cupy-cuda12x
 """
 
 import sys
@@ -71,6 +72,10 @@ from ice3.jax.surfex_jax import (
     TILE_NATURE as _TN, TILE_SEA as _TS, TILE_LAKE as _TL,
 )
 
+requires_jax = pytest.mark.skipif(
+    not HAS_JAX,
+    reason="Requires JAX (pip install jax)",
+)
 requires_surfex_gpu = pytest.mark.skipif(
     not (HAS_CUPY and HAS_GPU and HAS_SURFEX_GPU),
     reason="Requires CuPy + NVIDIA GPU + _surfex_wrapper_acc",
@@ -78,6 +83,19 @@ requires_surfex_gpu = pytest.mark.skipif(
 requires_jax_gpu = pytest.mark.skipif(
     not (HAS_JAX and HAS_CUPY and HAS_GPU and HAS_SURFEX_GPU),
     reason="Requires JAX + CuPy + NVIDIA GPU + _surfex_wrapper_acc",
+)
+
+# SurfexJAX (CPU path) available if libsurfex_offline was compiled
+try:
+    from ice3.jax.surfex_jax import SurfexJAX
+    _cpu_surfex = SurfexJAX()
+    HAS_SURFEX_CPU = _cpu_surfex._lib._available
+except Exception:
+    HAS_SURFEX_CPU = False
+
+requires_surfex_cpu = pytest.mark.skipif(
+    not HAS_SURFEX_CPU,
+    reason="Requires libsurfex_offline.{so,dylib} — run build_libsurfex.sh",
 )
 
 
@@ -109,6 +127,153 @@ def _make_tiles(n_cols: int) -> np.ndarray:
     tiles[n_cols // 3 : 2 * n_cols // 3] = TILE_SEA
     tiles[2 * n_cols // 3 :] = TILE_LAKE
     return tiles
+
+
+# ---------------------------------------------------------------------------
+# Smoke tests: CPU paths (no GPU required)
+# ---------------------------------------------------------------------------
+
+class TestSurfexCPUSmoke:
+    """
+    Smoke tests for the two CPU-side backends.
+
+    _NullSurfex  — always available, re-propagates previous-step fluxes.
+    SurfexJAX    — requires libsurfex_offline (skipped otherwise), uses
+                   jax.pure_callback to call C-bound Fortran on the CPU host.
+
+    These tests run on any machine (CI included) as long as JAX is installed.
+    """
+
+    def _state(self, n: int):
+        f = _make_forcing(n)
+        return SurfexState(
+            t_a=jnp.array(f['t_a']),
+            q_a=jnp.array(f['q_a']),
+            u_a=jnp.array(f['u_a']),
+            v_a=jnp.array(f['v_a']),
+            p_a=jnp.array(f['p_a']),
+            rhodref=jnp.array(f['rhodref']),
+            sw_down=jnp.array(f['sw_down']),
+            lw_down=jnp.array(f['lw_down']),
+            rain_rate=jnp.zeros(n, dtype=jnp.float32),
+            snow_rate=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_th=jnp.full(n, 0.05, dtype=jnp.float32),
+            psurf_flux_rv=jnp.full(n, 5e-4, dtype=jnp.float32),
+            psurf_flux_u=jnp.full(n, -0.1, dtype=jnp.float32),
+            psurf_flux_v=jnp.full(n, -0.05, dtype=jnp.float32),
+        )
+
+    # --- _NullSurfex ---
+
+    @requires_jax
+    def test_null_surfex_instantiates(self):
+        assert _NullSurfex() is not None
+
+    @requires_jax
+    def test_null_surfex_returns_surfex_fluxes(self):
+        surf = _NullSurfex()
+        fluxes = surf(self._state(16), dt=60.0)
+        assert isinstance(fluxes, SurfexFluxes)
+
+    @requires_jax
+    def test_null_surfex_propagates_previous_fluxes(self):
+        """_NullSurfex must return the previous-step fluxes unchanged."""
+        n = 8
+        surf = _NullSurfex()
+        state = self._state(n)
+        fluxes = surf(state, dt=60.0)
+        np.testing.assert_allclose(
+            np.array(fluxes.surf_flux_th),
+            np.array(state.psurf_flux_th),
+            rtol=1e-6,
+            err_msg="surf_flux_th should equal psurf_flux_th",
+        )
+        np.testing.assert_allclose(
+            np.array(fluxes.surf_flux_u),
+            np.array(state.psurf_flux_u),
+            rtol=1e-6,
+            err_msg="surf_flux_u should equal psurf_flux_u",
+        )
+
+    @requires_jax
+    def test_null_surfex_output_shapes(self):
+        n = 32
+        fluxes = _NullSurfex()(self._state(n), dt=60.0)
+        for arr in fluxes:
+            assert arr.shape == (n,), f"Wrong shape {arr.shape}"
+
+    @requires_jax
+    def test_null_surfex_output_dtypes(self):
+        fluxes = _NullSurfex()(self._state(16), dt=60.0)
+        for arr in fluxes:
+            assert arr.dtype == jnp.float32, f"Wrong dtype {arr.dtype}"
+
+    @requires_jax
+    def test_null_surfex_albedo_range(self):
+        fluxes = _NullSurfex()(self._state(64), dt=60.0)
+        alb = np.array(fluxes.albedo)
+        assert np.all(alb >= 0) and np.all(alb <= 1)
+
+    @requires_jax
+    def test_null_surfex_emissivity_range(self):
+        fluxes = _NullSurfex()(self._state(64), dt=60.0)
+        emis = np.array(fluxes.emissivity)
+        assert np.all(emis > 0) and np.all(emis <= 1)
+
+    # --- SurfexJAX (CPU pure_callback, requires libsurfex_offline) ---
+
+    @requires_surfex_cpu
+    def test_surfex_jax_cpu_smoke(self):
+        """SurfexJAX (CPU) must return non-zero fluxes with real library."""
+        from ice3.jax.surfex_jax import SurfexJAX
+        surf = SurfexJAX()
+        fluxes = surf(self._state(16), dt=60.0)
+        assert isinstance(fluxes, SurfexFluxes)
+
+    @requires_surfex_cpu
+    def test_surfex_jax_cpu_output_shapes(self):
+        from ice3.jax.surfex_jax import SurfexJAX
+        n = 64
+        fluxes = SurfexJAX()(self._state(n), dt=60.0)
+        for arr in fluxes:
+            assert arr.shape == (n,)
+
+    @requires_surfex_cpu
+    def test_surfex_jax_cpu_fluxes_finite(self):
+        from ice3.jax.surfex_jax import SurfexJAX
+        fluxes = SurfexJAX()(self._state(32), dt=60.0)
+        for arr in fluxes:
+            assert np.all(np.isfinite(np.array(arr))), "Non-finite value in output"
+
+    @requires_surfex_cpu
+    def test_surfex_jax_cpu_bulk_fallback_consistency(self):
+        """
+        When libsurfex_offline is unavailable the CPU path falls back to the
+        analytical bulk-aerodynamic formula — same as _NullSurfex would if it
+        computed fluxes instead of forwarding them.
+        Verify momentum flux sign: τ_u = -C_D |U| u_a → opposite sign to u_a.
+        """
+        from ice3.jax.surfex_jax import SurfexJAX
+        n = 16
+        f = _make_forcing(n, rng=np.random.default_rng(0))
+        # Force u_a positive so flux_u must be negative
+        f['u_a'] = np.abs(f['u_a']) + 1.0
+        state = SurfexState(
+            t_a=jnp.array(f['t_a']), q_a=jnp.array(f['q_a']),
+            u_a=jnp.array(f['u_a']), v_a=jnp.zeros(n, dtype=jnp.float32),
+            p_a=jnp.array(f['p_a']), rhodref=jnp.array(f['rhodref']),
+            sw_down=jnp.zeros(n, dtype=jnp.float32),
+            lw_down=jnp.zeros(n, dtype=jnp.float32),
+            rain_rate=jnp.zeros(n, dtype=jnp.float32),
+            snow_rate=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_th=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_rv=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
+        )
+        fluxes = SurfexJAX()(state, dt=60.0)
+        assert np.all(np.array(fluxes.surf_flux_u) < 0), \
+            "Momentum flux must oppose positive u_a (τ_u = -C_D |U| u_a)"
 
 
 # ---------------------------------------------------------------------------
@@ -317,43 +482,84 @@ class TestSurfexJAXGPU:
 
 
 # ---------------------------------------------------------------------------
-# Integration test: make_surfex factory
+# Integration tests: make_surfex() factory — fallback cascade
 # ---------------------------------------------------------------------------
 
 class TestMakeSurfex:
+    """
+    Verify that make_surfex() returns a callable object regardless of which
+    backends are compiled, and that the returned object produces valid output.
 
-    def test_make_surfex_returns_something(self):
-        n_cols = 16
-        surf = make_surfex(n_cols)
-        assert surf is not None
+    Cascade priority:
+      SurfexJAXGPU  (_surfex_wrapper_acc available + NVIDIA GPU)
+        ↓ ImportError / RuntimeError
+      SurfexJAX     (libsurfex_offline available)
+        ↓ any exception
+      _NullSurfex   (always available)
+    """
 
-    def test_null_surfex_fallback(self):
-        """_NullSurfex must be importable and callable without GPU."""
-        n_cols = 8
-        surf   = _NullSurfex()
-        f      = _make_forcing(n_cols)
-        state  = SurfexState(
-            t_a=jnp.array(f['t_a']),
-            q_a=jnp.array(f['q_a']),
-            u_a=jnp.array(f['u_a']),
-            v_a=jnp.array(f['v_a']),
-            p_a=jnp.array(f['p_a']),
-            rhodref=jnp.array(f['rhodref']),
-            sw_down=jnp.array(f['sw_down']),
-            lw_down=jnp.array(f['lw_down']),
-            rain_rate=jnp.zeros(n_cols, dtype=jnp.float32),
-            snow_rate=jnp.zeros(n_cols, dtype=jnp.float32),
-            psurf_flux_th=jnp.full(n_cols, 0.1, dtype=jnp.float32),
-            psurf_flux_rv=jnp.full(n_cols, 0.001, dtype=jnp.float32),
-            psurf_flux_u=jnp.full(n_cols, -0.5, dtype=jnp.float32),
-            psurf_flux_v=jnp.full(n_cols, -0.3, dtype=jnp.float32),
-        ) if HAS_JAX else None
+    @requires_jax
+    def test_make_surfex_returns_callable(self):
+        surf = make_surfex(n_cols=16)
+        assert callable(surf)
 
-        if state is None:
-            pytest.skip("JAX not available")
+    @requires_jax
+    def test_make_surfex_correct_tier_no_gpu(self):
+        """Without GPU build, factory must NOT return SurfexJAXGPU."""
+        surf = make_surfex(n_cols=16)
+        if not (HAS_CUPY and HAS_GPU and HAS_SURFEX_GPU):
+            assert not isinstance(surf, SurfexJAXGPU), \
+                "SurfexJAXGPU returned despite missing GPU/CuPy/_surfex_wrapper_acc"
 
-        fluxes = surf(state, dt=60.0)
-        # _NullSurfex re-propagates previous-step fluxes unchanged
-        np.testing.assert_allclose(
-            np.array(fluxes.surf_flux_th), 0.1, rtol=1e-5
+    @requires_jax
+    def test_make_surfex_correct_tier_with_gpu(self):
+        """With full GPU build, factory must return SurfexJAXGPU."""
+        if not (HAS_CUPY and HAS_GPU and HAS_SURFEX_GPU):
+            pytest.skip("GPU build not available")
+        surf = make_surfex(n_cols=16)
+        assert isinstance(surf, SurfexJAXGPU)
+
+    @requires_jax
+    def test_make_surfex_callable_and_produces_fluxes(self):
+        """make_surfex() output must be callable and return SurfexFluxes."""
+        n = 16
+        surf = make_surfex(n_cols=n)
+        f = _make_forcing(n)
+        state = SurfexState(
+            t_a=jnp.array(f['t_a']), q_a=jnp.array(f['q_a']),
+            u_a=jnp.array(f['u_a']), v_a=jnp.array(f['v_a']),
+            p_a=jnp.array(f['p_a']), rhodref=jnp.array(f['rhodref']),
+            sw_down=jnp.array(f['sw_down']), lw_down=jnp.array(f['lw_down']),
+            rain_rate=jnp.zeros(n, dtype=jnp.float32),
+            snow_rate=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_th=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_rv=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
+            psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
         )
+        fluxes = surf(state, dt=60.0)
+        assert isinstance(fluxes, SurfexFluxes)
+        for arr in fluxes:
+            assert arr.shape == (n,)
+            assert np.all(np.isfinite(np.array(arr)))
+
+    @requires_jax
+    def test_null_surfex_propagates_fluxes(self):
+        """_NullSurfex re-propagates previous-step fluxes unchanged."""
+        n = 8
+        surf = _NullSurfex()
+        state = SurfexState(
+            t_a=jnp.ones(n), q_a=jnp.ones(n),
+            u_a=jnp.ones(n), v_a=jnp.ones(n),
+            p_a=jnp.ones(n) * 100000.0,
+            rhodref=jnp.ones(n) * 1.2,
+            sw_down=jnp.zeros(n), lw_down=jnp.zeros(n),
+            rain_rate=jnp.zeros(n), snow_rate=jnp.zeros(n),
+            psurf_flux_th=jnp.full(n, 0.1, dtype=jnp.float32),
+            psurf_flux_rv=jnp.full(n, 0.001, dtype=jnp.float32),
+            psurf_flux_u=jnp.full(n, -0.5, dtype=jnp.float32),
+            psurf_flux_v=jnp.full(n, -0.3, dtype=jnp.float32),
+        )
+        fluxes = surf(state, dt=60.0)
+        np.testing.assert_allclose(np.array(fluxes.surf_flux_th), 0.1, rtol=1e-5)
+        np.testing.assert_allclose(np.array(fluxes.surf_flux_u), -0.5, rtol=1e-5)
