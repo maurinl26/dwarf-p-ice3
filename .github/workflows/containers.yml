@@ -15,7 +15,7 @@ env:
 jobs:
   build-and-push:
     name: Build ${{ matrix.tag }}
-    runs-on: self-hosted
+    runs-on: ${{ matrix.runner || 'self-hosted' }}
     strategy:
       fail-fast: false
       matrix:
@@ -47,6 +47,13 @@ jobs:
             tag: cy-rocm
             platforms: linux/amd64
             convert_singularity: true
+
+          # RunPod deployment (JAX GPU + SSH entrypoint)
+          - target: runpod
+            tag: runpod
+            platforms: linux/amd64
+            convert_singularity: false
+            runner: ubuntu-latest
 
           # HPC-specific variants (from hpc-build.yml)
           - target: target-jax
