@@ -38,7 +38,6 @@ src/testprogs_data/fortran/
 src/dwarf_ice3_gt4py.egg-info/
 output/
 dist/
-scripts
 src/testprogs_data/fortran/build
 src/testprogs_data/fortran/.fcm-make
 src/testprogs_data/main_ice_adjust
