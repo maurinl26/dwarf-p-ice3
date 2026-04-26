@@ -76,7 +76,7 @@ BENCH_TASKS = {"bench"}
 
 IMAGE = os.environ.get(
     "ICE3_IMAGE",
-    "ghcr.io/maurinl26/dwarf-p-ice3:runpod-dev",
+    "ghcr.io/maurinl26/dwarf-p-ice3:runpod",
 )
 TEMPLATE_NAME  = "ice3-runpod-dev"
 VOLUME_NAME    = "ice3-workspace"
