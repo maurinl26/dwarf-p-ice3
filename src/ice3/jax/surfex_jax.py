@@ -554,7 +554,7 @@ class SurfexJAXGPU:
 # ---------------------------------------------------------------------------
 
 def make_surfex(
-    n_cols: int,
+    n_cols: Optional[int] = None,
     tile_type: Optional[np.ndarray] = None,
 ) -> "SurfexJAXGPU | SurfexJAX | _NullSurfex":
     """
@@ -571,11 +571,12 @@ def make_surfex(
     n_cols    : int
     tile_type : optional int32 array of shape (n_cols,) for GPU backend
     """
-    try:
-        gpu = SurfexJAXGPU(n_cols, tile_type)
-        return gpu
-    except (ImportError, RuntimeError):
-        pass
+    if n_cols is not None:
+        try:
+            gpu = SurfexJAXGPU(n_cols, tile_type)
+            return gpu
+        except (ImportError, RuntimeError):
+            pass
     try:
         cpu = SurfexJAX()
         return cpu

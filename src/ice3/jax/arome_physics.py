@@ -27,7 +27,7 @@ from ice3.jax.convection.shallow_convection import shallow_convection, ShallowCo
 from ice3.jax.turbulence.turb import turb_scheme
 from ice3.jax.rain_ice import RainIceJAX
 from ice3.jax.ecrad_jax import EcRadJAX, EcRadState
-from ice3.jax.surfex_jax import SurfexJAX, SurfexState
+from ice3.jax.surfex_jax import SurfexJAX, SurfexJAXGPU, SurfexState, make_surfex
 
 # Define a DataClass/NamedTuple representing the prognostic state
 class AromeState(NamedTuple):
@@ -62,14 +62,15 @@ class AromeState(NamedTuple):
     prho_dry_ref: Array
 
 class AromePhysicsOrchestrator:
-    def __init__(self, constants: Dict, phyex=None):
+    def __init__(self, constants: Dict, phyex=None, n_cols: Optional[int] = None):
         self.constants = constants
-        
+
         # Instantiate class-based modules
         self.ice_adjust = IceAdjustJAX(phyex=phyex, jit=True)
         self.rain_ice = RainIceJAX(constants=constants)
         self.ecrad = EcRadJAX(use_jit=True)
-        self.surfex = SurfexJAX()
+        # make_surfex tries GPU path (needs n_cols), falls back to CPU pure_callback
+        self.surfex = make_surfex(n_cols=n_cols)
         
         # Vmapped turbulence module
         # turb_scheme takes 1D arrays (nz,) for fields
@@ -178,7 +179,7 @@ class AromePhysicsOrchestrator:
         # bulk-aerodynamic fluxes in AromeState — overwriting them with the
         # stub's zeros would destroy the physical signal.
         # isinstance() is evaluated at JIT trace time (self is static_argnums=0).
-        if isinstance(self.surfex, SurfexJAX):
+        if isinstance(self.surfex, (SurfexJAX, SurfexJAXGPU)):
             state = state._replace(
                 psurf_flux_th=surf_fluxes.surf_flux_th,
                 psurf_flux_rv=surf_fluxes.surf_flux_rv,

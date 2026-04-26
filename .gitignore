@@ -51,6 +51,7 @@ tests/utils/
 # utilities
 *.log
 *.sh
+!container/*.sh
 *.mod
 *.o
 *.cfg
