@@ -15,6 +15,7 @@ _dacegraphs/
 *.pyc
 venv*
 .venv*
+.env
 
 # Fortran legacy dependencies
 external
