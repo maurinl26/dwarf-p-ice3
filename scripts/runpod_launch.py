@@ -11,7 +11,9 @@ TASK choices:
     test-surfex     SURFEX GPU bridge full suite
     test-components All component tests
     test-physics    AromePhysics standalone end-to-end
+    validate-gpu    Scientific validation: CPU vs GPU (PHYEX + SURFEX) + invariants
     bench           Performance benchmarks → /workspace/bench.json
+    bench-gpu       GPU benchmarks (IceAdjust + SURFEX) → /workspace/bench_gpu.json
     shell           Interactive bash, no auto-run
 
 Requirements:
@@ -67,12 +69,14 @@ VALID_TASKS = [
     "test-surfex",
     "test-components",
     "test-physics",
+    "validate-gpu",
     "bench",
+    "bench-gpu",
     "shell",
 ]
 
-# Tasks that produce /workspace/bench.json (auto-fetched after run).
-BENCH_TASKS = {"bench"}
+# Tasks that produce a /workspace/<task>.json file (auto-fetched after run).
+BENCH_TASKS = {"bench", "bench-gpu"}
 
 IMAGE = os.environ.get(
     "ICE3_IMAGE",
@@ -480,17 +484,23 @@ def _maybe_fetch_bench(task: str, host: str, port: int, priv_key: str, ssh_e: st
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     local_dir = "benchmarks/"
     os.makedirs(local_dir, exist_ok=True)
-    local_path = f"{local_dir}bench_{ts}.json"
+    # Timestamped archive copy
+    local_path = f"{local_dir}{task.replace('-', '_')}_{ts}.json"
+    remote_json = _log_file(task).replace(".log", ".json")
     print(f"\nFetching bench results → {local_path}")
     result = subprocess.run([
         "rsync", "-avz", "-e", ssh_e,
-        f"root@{host}:{_log_file('bench').replace('.log', '.json')}",
+        f"root@{host}:{remote_json}",
         local_path,
     ])
     if result.returncode == 0:
         print(f"  Saved: {local_path}")
+        # Also write a stable "latest" copy so bench_gpu.yml can always find it
+        latest_path = f"{local_dir}{task.replace('-', '_')}_latest.json"
+        subprocess.run(["cp", local_path, latest_path])
+        print(f"  Latest: {latest_path}")
     else:
-        print("  WARNING: could not fetch bench.json (pod may still be running)")
+        print(f"  WARNING: could not fetch {remote_json} (pod may still be running)")
 
 
 # ---------------------------------------------------------------------------
@@ -514,7 +524,7 @@ def main() -> None:
         ]),
     )
 
-    parser.add_argument("--task",   default="smoke-cpu", choices=VALID_TASKS,
+    parser.add_argument("--task", default="smoke-cpu", choices=VALID_TASKS,
                         help="Task to run on the pod (default: smoke-cpu)")
     parser.add_argument("--ssh-key", default="~/.ssh/id_ed25519.pub", metavar="PATH",
                         help="Path to SSH public key")
