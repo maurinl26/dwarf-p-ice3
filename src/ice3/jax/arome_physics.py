@@ -171,6 +171,7 @@ class AromePhysicsOrchestrator:
             psurf_flux_rv=state.psurf_flux_rv,
             psurf_flux_u=state.psurf_flux_u,
             psurf_flux_v=state.psurf_flux_v,
+            t_skin=jnp.zeros((nit,), dtype=_fdt),
         )
         surf_fluxes = self.surfex(surfex_state, dt)
 

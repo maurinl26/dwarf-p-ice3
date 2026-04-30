@@ -134,6 +134,7 @@ _CDEF = """
 void c_surfex_step(
     int    n_cols,
     double dt,
+    double *t_skin,
     double *t_a,
     double *q_a,
     double *u_a,
@@ -247,6 +248,7 @@ class _SurfexLib:
         self,
         n_cols: int,
         dt: float,
+        t_skin: np.ndarray,
         t_a: np.ndarray,
         q_a: np.ndarray,
         u_a: np.ndarray,
@@ -261,10 +263,11 @@ class _SurfexLib:
         """
         Calls `c_surfex_step` in the shared library and returns output arrays.
         All inputs and outputs are 64-bit float numpy arrays of shape (n_cols,).
+        ``t_skin`` holds Netatmo-analysed skin temperatures; 0.0 = use Fortran default.
         """
         if not self._available:
             return _bulk_aerodynamic_fallback(
-                n_cols, t_a, q_a, u_a, v_a, p_a, rhodref
+                n_cols, t_skin, t_a, q_a, u_a, v_a, p_a, rhodref
             )
 
         ffi = self._ffi
@@ -277,6 +280,7 @@ class _SurfexLib:
         def _c64(arr):
             return np.ascontiguousarray(arr, dtype=np.float64)
 
+        t_skin_64 = _c64(t_skin)
         t_a, q_a, u_a, v_a = _c64(t_a), _c64(q_a), _c64(u_a), _c64(v_a)
         p_a, rhodref       = _c64(p_a),  _c64(rhodref)
         sw_down, lw_down   = _c64(sw_down), _c64(lw_down)
@@ -291,6 +295,7 @@ class _SurfexLib:
 
         lib.c_surfex_step(
             n_cols, dt,
+            _ptr(t_skin_64),
             _ptr(t_a), _ptr(q_a), _ptr(u_a), _ptr(v_a),
             _ptr(p_a), _ptr(rhodref),
             _ptr(sw_down), _ptr(lw_down),
@@ -311,7 +316,7 @@ class _SurfexLib:
 
 
 def _bulk_aerodynamic_fallback(
-    n_cols, t_a, q_a, u_a, v_a, p_a, rhodref
+    n_cols, t_skin, t_a, q_a, u_a, v_a, p_a, rhodref
 ) -> Tuple[np.ndarray, ...]:
     """
     Neutral-stability Bulk Aerodynamic fluxes as a library-free fallback.
@@ -320,6 +325,9 @@ def _bulk_aerodynamic_fallback(
       C_D = (kappa / ln(z/z0))^2
       H   = rho * Cp * C_H * |U| * (Ts - Ta)
       LE  = rho * Lv * C_E * |U| * (qs - qa)
+
+    ``t_skin`` (float64, shape (n_cols,)) holds the Netatmo-analysed skin
+    temperature; sentinel 0.0 means "use default 295 K" for that column.
     """
     kappa, z, z0 = 0.4, 10.0, 0.05
     Cp, Ts_default = 1004.0, 295.0
@@ -327,7 +335,8 @@ def _bulk_aerodynamic_fallback(
     wspd = np.maximum(np.sqrt(u_a**2 + v_a**2), 0.01)
     theta_a = t_a * (1e5 / p_a) ** (287.05 / Cp)
 
-    flux_th = cd * wspd * (Ts_default - theta_a)
+    ts_col = np.where(t_skin > 0.0, t_skin, Ts_default)
+    flux_th = cd * wspd * (ts_col - theta_a)
     flux_rv = cd * wspd * np.maximum(0.0, 0.018 - q_a)
     flux_u  = -cd * wspd * u_a
     flux_v  = -cd * wspd * v_a
@@ -354,6 +363,11 @@ class SurfexState(NamedTuple):
     time step (or the driver-prescribed bulk values).  They allow null stubs
     (e.g. ``_NullSurfex``) to forward the existing fluxes unchanged, and let
     the real ``SurfexJAX`` callback know the previous values for continuity.
+
+    ``t_skin`` is the Netatmo-analysed skin temperature produced by
+    :class:`ice3.jax.netatmo_oi.NetatmoOI`.  A sentinel value of 0.0 means
+    "use the tile-type Fortran default for this column" — allowing columns
+    without Netatmo observations to run unchanged.
     """
     t_a: Array           # Air temperature (K)
     q_a: Array           # Specific humidity (kg/kg)
@@ -369,6 +383,7 @@ class SurfexState(NamedTuple):
     psurf_flux_rv: Array # Previous-step kinematic moisture flux (kg/kg m/s)
     psurf_flux_u: Array  # Previous-step surface momentum flux U (m²/s²)
     psurf_flux_v: Array  # Previous-step surface momentum flux V (m²/s²)
+    t_skin: Array        # Netatmo-analysed skin temperature (K); 0.0 = use Fortran default
 
 
 class SurfexFluxes(NamedTuple):
@@ -418,6 +433,7 @@ class SurfexJAX:
         self,
         t_a, q_a, u_a, v_a, p_a, rhodref,
         sw_down, lw_down, rain_rate, snow_rate,
+        t_skin,
         dt: float,
     ):
         """
@@ -427,6 +443,7 @@ class SurfexJAX:
         n_cols = t_a.shape[0]
         return self._lib.call(
             n_cols, float(dt),
+            t_skin,
             t_a, q_a, u_a, v_a, p_a, rhodref,
             sw_down, lw_down, rain_rate, snow_rate,
         )
@@ -473,6 +490,7 @@ class SurfexJAX:
             state.p_a, state.rhodref,
             state.sw_down, state.lw_down,
             state.rain_rate, state.snow_rate,
+            state.t_skin,
             vmap_method="sequential",
         )
 
@@ -562,7 +580,8 @@ class SurfexJAXGPU:
 
     def _run(self, dt: float,
              t_a, q_a, u_a, v_a, p_a, rhodref,
-             sw_down, lw_down, rain_rate, snow_rate):
+             sw_down, lw_down, rain_rate, snow_rate,
+             t_skin):
         """
         Executes inside io_callback: arrays are concrete XLA buffers here.
 
@@ -590,6 +609,7 @@ class SurfexJAXGPU:
             lw_down=jax.dlpack.to_dlpack(lw_down),
             rain_rate=jax.dlpack.to_dlpack(rain_rate),
             snow_rate=jax.dlpack.to_dlpack(snow_rate),
+            t_skin=jax.dlpack.to_dlpack(t_skin),
             dt=float(dt),
         )
 
@@ -638,6 +658,7 @@ class SurfexJAXGPU:
             state.p_a, state.rhodref,
             state.sw_down, state.lw_down,
             state.rain_rate, state.snow_rate,
+            state.t_skin,
             ordered=True,
         )
 

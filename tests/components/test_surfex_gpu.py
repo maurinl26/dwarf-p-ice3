@@ -161,6 +161,7 @@ class TestSurfexCPUSmoke:
             psurf_flux_rv=jnp.full(n, 5e-4, dtype=jnp.float32),
             psurf_flux_u=jnp.full(n, -0.1, dtype=jnp.float32),
             psurf_flux_v=jnp.full(n, -0.05, dtype=jnp.float32),
+            t_skin=jnp.zeros(n, dtype=jnp.float32),
         )
 
     # --- _NullSurfex ---
@@ -270,6 +271,7 @@ class TestSurfexCPUSmoke:
             psurf_flux_rv=jnp.zeros(n, dtype=jnp.float32),
             psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
             psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
+            t_skin=jnp.zeros(n, dtype=jnp.float32),
         )
         fluxes = SurfexJAX()(state, dt=60.0)
         assert np.all(np.array(fluxes.surf_flux_u) < 0), \
@@ -443,6 +445,7 @@ class TestSurfexJAXGPU:
             psurf_flux_rv=jnp.zeros(n_cols, dtype=jnp.float32),
             psurf_flux_u=jnp.zeros(n_cols, dtype=jnp.float32),
             psurf_flux_v=jnp.zeros(n_cols, dtype=jnp.float32),
+            t_skin=jnp.zeros(n_cols, dtype=jnp.float32),
         )
 
     @requires_jax_gpu
@@ -541,6 +544,7 @@ class TestSurfexJAXGPU:
             psurf_flux_rv=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
             psurf_flux_u=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
             psurf_flux_v=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            t_skin=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
         )
 
         pmapped = jax.pmap(lambda st: s(st, dt=60.0))
@@ -614,6 +618,7 @@ class TestMakeSurfex:
             psurf_flux_rv=jnp.zeros(n, dtype=jnp.float32),
             psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
             psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
+            t_skin=jnp.zeros(n, dtype=jnp.float32),
         )
         fluxes = surf(state, dt=60.0)
         assert isinstance(fluxes, SurfexFluxes)
@@ -637,6 +642,7 @@ class TestMakeSurfex:
             psurf_flux_rv=jnp.full(n, 0.001, dtype=jnp.float32),
             psurf_flux_u=jnp.full(n, -0.5, dtype=jnp.float32),
             psurf_flux_v=jnp.full(n, -0.3, dtype=jnp.float32),
+            t_skin=jnp.zeros(n, dtype=jnp.float32),
         )
         fluxes = surf(state, dt=60.0)
         np.testing.assert_allclose(np.array(fluxes.surf_flux_th), 0.1, rtol=1e-5)
