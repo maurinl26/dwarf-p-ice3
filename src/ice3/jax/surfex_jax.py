@@ -158,32 +158,53 @@ def _locate_library() -> Path:
     """
     Resolve the path to `libsurfex_offline.{so,dylib}`.
 
-    Priority:
+    Search order:
       1. $SURFEX_LIB environment variable (explicit override)
-      2. <project_root>/open-SURFEX-V9-1-0/lib/ (default install location)
+      2. <ice3_package_root>/      — CMake install target (pip install)
+      3. <project_root>/external/open-SURFEX-V9-1-0/lib/ — build_libsurfex.sh output
     """
+    suffixes = ("dylib", "so")
+
     if env := os.environ.get("SURFEX_LIB"):
         p = Path(env)
         if p.exists():
             return p
         raise FileNotFoundError(
             f"SURFEX_LIB={env} does not exist. "
-            "Run build_libsurfex.sh first."
+            "Run build_libsurfex.sh first or set SURFEX_LIB correctly."
         )
 
-    # Auto-detect: walk up from this file looking for open-SURFEX-V9-1-0
+    # 2. Next to the ice3 package root (CMake install destination)
+    #    surfex_jax.py lives in <ice3_root>/jax/, library installs at <ice3_root>/
+    pkg_root = Path(__file__).resolve().parent.parent
+    for suffix in suffixes:
+        lib = pkg_root / f"libsurfex_offline.{suffix}"
+        if lib.exists():
+            return lib
+
+    # 3. Auto-detect build_libsurfex.sh output: walk up looking for open-SURFEX-V9-1-0
     here = Path(__file__).resolve()
     for parent in here.parents:
-        candidate = parent.parent / "open-SURFEX-V9-1-0" / "lib"
-        for suffix in ("dylib", "so"):
+        candidate = parent / "external" / "open-SURFEX-V9-1-0" / "lib"
+        for suffix in suffixes:
             lib = candidate / f"libsurfex_offline.{suffix}"
+            if lib.exists():
+                return lib
+        # Also try the old layout (parent.parent)
+        candidate2 = parent.parent / "open-SURFEX-V9-1-0" / "lib"
+        for suffix in suffixes:
+            lib = candidate2 / f"libsurfex_offline.{suffix}"
             if lib.exists():
                 return lib
 
     raise FileNotFoundError(
         "Cannot locate libsurfex_offline.{so,dylib}.\n"
-        "Build with:  bash /path/to/open-SURFEX-V9-1-0/build_libsurfex.sh\n"
-        "Then set:    export SURFEX_LIB=/path/to/lib/libsurfex_offline.dylib"
+        "Option A — quick build:\n"
+        "  cd /path/to/external/open-SURFEX-V9-1-0\n"
+        "  bash build_libsurfex.sh\n"
+        "  export SURFEX_LIB=$(pwd)/lib/libsurfex_offline.so\n"
+        "Option B — cmake (CPU-only, ENABLE_SURFEX=ON, ENABLE_OPENACC=OFF):\n"
+        "  pip install -e . -C cmake.args='-DENABLE_SURFEX=ON'"
     )
 
 
@@ -482,13 +503,17 @@ class SurfexJAXGPU:
     Replaces the CPU roundtrip of SurfexJAX (jax.pure_callback) when the
     compiled _surfex_wrapper_acc Cython extension is available.
 
-    The CUDA graph is captured on the **first** call and replayed on all
-    subsequent calls — no Python overhead on the OpenACC kernels after warmup.
+    JIT / pmap safety
+    -----------------
+    All DLPack operations are deferred to ``jax.experimental.io_callback``
+    so they execute against concrete XLA buffers, not abstract tracers.
+    One ``SurfexGPUWrapper`` is created per local CUDA device at init time,
+    enabling safe use under ``jax.pmap`` with no shared-buffer races.
 
     Parameters
     ----------
     n_cols : int
-        Number of atmospheric columns (fixed for the model run).
+        Number of atmospheric columns per device (fixed for the model run).
     tile_type : np.ndarray of int32, shape (n_cols,)
         Tile classification per column.  Use TILE_NATURE / TILE_SEA / TILE_LAKE.
         Defaults to all-land (TILE_NATURE) if not supplied.
@@ -505,17 +530,87 @@ class SurfexJAXGPU:
         n_cols: int,
         tile_type: Optional[np.ndarray] = None,
     ) -> None:
+        import cupy as cp
         from _surfex_wrapper_acc import SurfexGPUWrapper  # Cython / OpenACC
+
         if tile_type is None:
             tile_type = np.ones(n_cols, dtype=np.int32) * TILE_NATURE
-        self._wrapper = SurfexGPUWrapper(n_cols, tile_type)
+
+        self._n_cols = n_cols
+
+        # One wrapper per local GPU device, keyed by CUDA device id.
+        # This allows safe use under jax.pmap: each device replica uses its
+        # own stable CuPy buffers rather than sharing them across replicas.
+        gpu_devs = [d for d in jax.local_devices() if d.platform == 'gpu']
+        if not gpu_devs:
+            # Eager mode or CPU-only JAX backend — try device 0 directly
+            if not cp.cuda.is_available():
+                raise RuntimeError(
+                    "SurfexJAXGPU requires an NVIDIA GPU. "
+                    "Use make_surfex() for automatic backend selection."
+                )
+            self._wrappers = {0: SurfexGPUWrapper(n_cols, tile_type)}
+        else:
+            self._wrappers: dict = {}
+            for dev in gpu_devs:
+                with cp.cuda.Device(dev.id):
+                    self._wrappers[dev.id] = SurfexGPUWrapper(n_cols, tile_type)
+
+    # ------------------------------------------------------------------
+    # Host-side callback (runs inside jax.experimental.io_callback)
+    # ------------------------------------------------------------------
+
+    def _run(self, dt: float,
+             t_a, q_a, u_a, v_a, p_a, rhodref,
+             sw_down, lw_down, rain_rate, snow_rate):
+        """
+        Executes inside io_callback: arrays are concrete XLA buffers here.
+
+        Device selection: when running under pmap each replica's arrays live
+        on a distinct CUDA device.  We identify the device via the JAX array
+        descriptor and dispatch to the per-device SurfexGPUWrapper.
+        """
+        # Identify CUDA device from the first input array.
+        # Use len check to avoid the overhead on single-GPU runs.
+        if len(self._wrappers) == 1:
+            wrapper = next(iter(self._wrappers.values()))
+        else:
+            # t_a.devices() returns frozenset[jax.Device]; one element under pmap
+            device_id = next(iter(t_a.devices())).id
+            wrapper = self._wrappers[device_id]
+
+        out = wrapper(
+            t_a=jax.dlpack.to_dlpack(t_a),
+            q_a=jax.dlpack.to_dlpack(q_a),
+            u_a=jax.dlpack.to_dlpack(u_a),
+            v_a=jax.dlpack.to_dlpack(v_a),
+            p_a=jax.dlpack.to_dlpack(p_a),
+            rhodref=jax.dlpack.to_dlpack(rhodref),
+            sw_down=jax.dlpack.to_dlpack(sw_down),
+            lw_down=jax.dlpack.to_dlpack(lw_down),
+            rain_rate=jax.dlpack.to_dlpack(rain_rate),
+            snow_rate=jax.dlpack.to_dlpack(snow_rate),
+            dt=float(dt),
+        )
+
+        def _j(dlp): return jax.dlpack.from_dlpack(dlp)
+        return (
+            _j(out['surf_flux_th']),
+            _j(out['surf_flux_rv']),
+            _j(out['surf_flux_u']),
+            _j(out['surf_flux_v']),
+            _j(out['albedo']),
+            _j(out['emissivity']),
+        )
 
     def __call__(self, state: SurfexState, dt: float) -> SurfexFluxes:
         """
-        Execute SURFEX GPU surface physics step.
+        Execute SURFEX GPU surface physics step inside JIT/pmap.
 
-        Arrays are exported to CuPy via DLPack (zero-copy D2D).
-        On the first call the CUDA graph is captured; replay on all others.
+        Uses ``jax.experimental.io_callback(ordered=True)`` so the DLPack
+        operations run after XLA has materialised the input buffers and before
+        downstream ops consume the results.  Safe to call inside
+        ``@jax.jit`` and ``jax.pmap``.
 
         Parameters
         ----------
@@ -524,28 +619,35 @@ class SurfexJAXGPU:
 
         Returns
         -------
-        SurfexFluxes  Surface fluxes as JAX GPU arrays.
+        SurfexFluxes  Surface fluxes as JAX GPU arrays (float32, shape (n_cols,)).
         """
-        out = self._wrapper(
-            t_a=jax.dlpack.to_dlpack(state.t_a),
-            q_a=jax.dlpack.to_dlpack(state.q_a),
-            u_a=jax.dlpack.to_dlpack(state.u_a),
-            v_a=jax.dlpack.to_dlpack(state.v_a),
-            p_a=jax.dlpack.to_dlpack(state.p_a),
-            rhodref=jax.dlpack.to_dlpack(state.rhodref),
-            sw_down=jax.dlpack.to_dlpack(state.sw_down),
-            lw_down=jax.dlpack.to_dlpack(state.lw_down),
-            rain_rate=jax.dlpack.to_dlpack(state.rain_rate),
-            snow_rate=jax.dlpack.to_dlpack(state.snow_rate),
-            dt=float(dt),
+        n_cols = self._n_cols
+        out_shapes = tuple(
+            jax.ShapeDtypeStruct((n_cols,), jnp.float32) for _ in range(6)
         )
+
+        # Close over dt (scalar, static in jit) so io_callback receives only
+        # JAX arrays as positional arguments.
+        def _bound_run(*arrays):
+            return self._run(dt, *arrays)
+
+        outputs = jax.experimental.io_callback(
+            _bound_run,
+            out_shapes,
+            state.t_a, state.q_a, state.u_a, state.v_a,
+            state.p_a, state.rhodref,
+            state.sw_down, state.lw_down,
+            state.rain_rate, state.snow_rate,
+            ordered=True,
+        )
+
         return SurfexFluxes(
-            surf_flux_th=jax.dlpack.from_dlpack(out['surf_flux_th']),
-            surf_flux_rv=jax.dlpack.from_dlpack(out['surf_flux_rv']),
-            surf_flux_u=jax.dlpack.from_dlpack(out['surf_flux_u']),
-            surf_flux_v=jax.dlpack.from_dlpack(out['surf_flux_v']),
-            albedo=jax.dlpack.from_dlpack(out['albedo']),
-            emissivity=jax.dlpack.from_dlpack(out['emissivity']),
+            surf_flux_th=outputs[0],
+            surf_flux_rv=outputs[1],
+            surf_flux_u=outputs[2],
+            surf_flux_v=outputs[3],
+            albedo=outputs[4],
+            emissivity=outputs[5],
         )
 
 

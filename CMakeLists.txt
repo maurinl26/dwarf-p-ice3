@@ -554,7 +554,24 @@ if(ENABLE_SURFEX AND ENABLE_OPENACC)
     )
 
 elseif(ENABLE_SURFEX AND NOT ENABLE_OPENACC)
-    message(WARNING "ENABLE_SURFEX=ON requires ENABLE_OPENACC=ON. SURFEX GPU bridge will NOT be built.")
+    message(STATUS "Building SURFEX CPU library (libsurfex_offline, no OpenACC)")
+
+    set(SURFEX_CPU_SRC ${SURFEX_DIR}/bridge/surfex_c_api.F90)
+
+    add_library(surfex_offline SHARED ${SURFEX_CPU_SRC})
+    set_target_properties(surfex_offline PROPERTIES
+        VERSION 1.0.0
+        SOVERSION 1
+        PREFIX "lib"
+        OUTPUT_NAME "surfex_offline"
+    )
+
+    # Install alongside the package so _locate_library() can auto-detect it
+    install(TARGETS surfex_offline
+        LIBRARY DESTINATION ${SKBUILD_PLATLIB_DIR}/ice3
+    )
+
+    message(STATUS "  Set SURFEX_LIB=<install>/ice3/libsurfex_offline.so to use it")
 endif()
 
 # ============================================================================

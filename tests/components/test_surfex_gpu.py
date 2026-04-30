@@ -478,7 +478,85 @@ class TestSurfexJAXGPU:
         s      = SurfexJAXGPU(n_cols=n_cols, tile_type=tiles)
         state  = self._make_jax_state(n_cols)
         s(state, dt=60.0)
-        assert s._wrapper.is_graph_captured
+        # Each per-device wrapper must have its graph captured after the first call
+        assert all(w.is_graph_captured for w in s._wrappers.values())
+
+    @requires_jax_gpu
+    def test_jit_compatible(self):
+        """SurfexJAXGPU.__call__ must work inside jax.jit without ConcretizationTypeError."""
+        n_cols = 64
+        tiles  = _make_tiles(n_cols)
+        s      = SurfexJAXGPU(n_cols=n_cols, tile_type=tiles)
+        state  = self._make_jax_state(n_cols)
+
+        # Wrap in jit — this must NOT raise ConcretizationTypeError
+        jit_call = jax.jit(lambda st: s(st, dt=60.0))
+        fluxes = jit_call(state)
+
+        assert isinstance(fluxes, SurfexFluxes)
+        for field in fluxes:
+            assert field.shape == (n_cols,)
+            assert np.all(np.isfinite(np.array(field))), "Non-finite output in JIT call"
+
+    @requires_jax_gpu
+    def test_jit_second_call_reproduces(self):
+        """JIT-compiled SURFEX must give identical results on the second call."""
+        n_cols = 64
+        tiles  = _make_tiles(n_cols)
+        s      = SurfexJAXGPU(n_cols=n_cols, tile_type=tiles)
+        state  = self._make_jax_state(n_cols)
+        jit_call = jax.jit(lambda st: s(st, dt=60.0))
+
+        f1 = jit_call(state)
+        f2 = jit_call(state)
+        np.testing.assert_array_equal(
+            np.array(f1.surf_flux_th), np.array(f2.surf_flux_th),
+            err_msg="surf_flux_th differs between JIT call 1 and 2",
+        )
+
+    @requires_jax_gpu
+    def test_pmap_two_devices(self):
+        """SurfexJAXGPU must work under jax.pmap across all available GPU devices."""
+        gpu_devs = [d for d in jax.local_devices() if d.platform == 'gpu']
+        n_devs = len(gpu_devs)
+        if n_devs < 2:
+            pytest.skip(f"Need ≥2 GPU devices for pmap test, found {n_devs}")
+
+        n_cols = 64
+        tiles  = _make_tiles(n_cols)
+        s      = SurfexJAXGPU(n_cols=n_cols, tile_type=tiles)
+
+        # Build a batched state: leading axis = n_devs
+        f = _make_forcing(n_cols)
+        def _bat(arr):
+            return jnp.stack([jnp.array(arr)] * n_devs)
+
+        state = SurfexState(
+            t_a=_bat(f['t_a']), q_a=_bat(f['q_a']),
+            u_a=_bat(f['u_a']), v_a=_bat(f['v_a']),
+            p_a=_bat(f['p_a']), rhodref=_bat(f['rhodref']),
+            sw_down=_bat(f['sw_down']), lw_down=_bat(f['lw_down']),
+            rain_rate=_bat(f['rain_rate']), snow_rate=_bat(f['snow_rate']),
+            psurf_flux_th=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            psurf_flux_rv=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            psurf_flux_u=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            psurf_flux_v=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+        )
+
+        pmapped = jax.pmap(lambda st: s(st, dt=60.0))
+        fluxes = pmapped(state)
+
+        assert fluxes.surf_flux_th.shape == (n_devs, n_cols)
+        for field in fluxes:
+            assert np.all(np.isfinite(np.array(field))), "Non-finite output in pmap call"
+
+        # Both devices must return the same result (same input)
+        np.testing.assert_allclose(
+            np.array(fluxes.surf_flux_th[0]),
+            np.array(fluxes.surf_flux_th[1]),
+            rtol=1e-5,
+            err_msg="pmap devices return different surf_flux_th for identical input",
+        )
 
 
 # ---------------------------------------------------------------------------
