@@ -83,7 +83,20 @@ jobs:
       continue-on-error: true
 
     - name: Run performance tests (CPU)
-      run: uv run pytest tests/performance -v
+      run: uv run pytest tests/performance -v --benchmark-json=bench_cpu.json
+
+    - name: Install Bencher CLI
+      uses: bencherdev/bencher@main
+
+    - name: Submit CPU benchmarks to Bencher
+      run: |
+        bencher run \
+          --project "${{ env.BENCHER_PROJECT }}" \
+          --token "${{ secrets.BENCHER_API_TOKEN }}" \
+          --testbed "${{ env.BENCHER_TESTBED }}" \
+          --adapter "${{ env.BENCHER_ADAPTER }}" \
+          --file bench_cpu.json
+      continue-on-error: true
 
     - name: Check GPU availability
       id: check_gpu

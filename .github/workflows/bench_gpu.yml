@@ -1,0 +1,57 @@
+name: GPU Benchmark Bencher
+
+# Triggered when RunPod auto-fetches bench_gpu_latest.json via runpod_launch.py
+# or manually to submit historical results.
+on:
+  push:
+    paths:
+      - "benchmarks/bench_gpu_latest.json"
+  workflow_dispatch:
+    inputs:
+      bench_file:
+        description: "Path to benchmark JSON (relative to repo root)"
+        required: false
+        default: "benchmarks/bench_gpu_latest.json"
+
+permissions:
+  contents: read
+
+env:
+  BENCHER_PROJECT: dwarf-p-ice3
+  BENCHER_ADAPTER: python_pytest
+  BENCHER_TESTBED: a100-80gb
+
+jobs:
+  submit-gpu-benchmarks:
+    name: Submit GPU benchmarks to Bencher
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve benchmark file path
+        id: bench_path
+        run: |
+          FILE="${{ github.event.inputs.bench_file || 'benchmarks/bench_gpu_latest.json' }}"
+          echo "path=$FILE" >> $GITHUB_OUTPUT
+
+      - name: Check benchmark file exists
+        run: |
+          if [[ ! -f "${{ steps.bench_path.outputs.path }}" ]]; then
+            echo "Benchmark file not found: ${{ steps.bench_path.outputs.path }}"
+            exit 1
+          fi
+          echo "Found: ${{ steps.bench_path.outputs.path }}"
+          wc -l "${{ steps.bench_path.outputs.path }}"
+
+      - name: Install Bencher CLI
+        uses: bencherdev/bencher@main
+
+      - name: Submit GPU benchmarks to Bencher
+        run: |
+          bencher run \
+            --project "${{ env.BENCHER_PROJECT }}" \
+            --token "${{ secrets.BENCHER_API_TOKEN }}" \
+            --testbed "${{ env.BENCHER_TESTBED }}" \
+            --adapter "${{ env.BENCHER_ADAPTER }}" \
+            --file "${{ steps.bench_path.outputs.path }}"

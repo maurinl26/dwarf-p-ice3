@@ -144,6 +144,28 @@ case "${TASK}" in
         log "Benchmark results: /workspace/bench.json"
         ;;
 
+    validate-gpu)
+        log "Scientific validation GPU (PHYEX + SURFEX CPU vs GPU + physical invariants)..."
+        cd /opt/ice3
+        JAX_PLATFORM_NAME=cuda \
+        pytest tests/physics/ \
+               tests/components/test_phyex_jax_gpu.py::TestIceAdjustJAXGPU \
+               tests/components/test_surfex_gpu.py::TestSurfexJAXGPU \
+               -v --tb=short \
+               2>&1 | tee /workspace/validate_gpu.log
+        ;;
+
+    bench-gpu)
+        log "GPU benchmarks (IceAdjust + SURFEX throughput + speedup)..."
+        cd /opt/ice3
+        JAX_PLATFORM_NAME=cuda \
+        pytest tests/performance/test_gpu_benchmark.py \
+               -v --tb=short \
+               --benchmark-json=/workspace/bench_gpu.json \
+               2>&1 | tee /workspace/bench_gpu.log
+        log "Results: /workspace/bench_gpu.json"
+        ;;
+
     shell | "")
         log "Interactive mode. Pod ready."
         log ""
@@ -160,7 +182,11 @@ case "${TASK}" in
         log ""
         log "  Functional / integration:"
         log "    TASK=test-physics  AromePhysics standalone end-to-end (~10 min)"
-        log "    TASK=bench         Performance benchmarks → /workspace/bench.json (~15 min)"
+        log ""
+        log "  Validation & benchmarks:"
+        log "    TASK=validate-gpu  CPU vs GPU + physics invariants (~5 min)"
+        log "    TASK=bench         CPU performance benchmarks → /workspace/bench.json (~15 min)"
+        log "    TASK=bench-gpu     GPU benchmarks → /workspace/bench_gpu.json (~10 min)"
         log ""
         log "  Logs: /workspace/<task>.log"
         log ""
@@ -168,7 +194,7 @@ case "${TASK}" in
         ;;
 
     *)
-        die "Unknown TASK='${TASK}'. Valid: shell | smoke-cpu | smoke-gpu | test-phyex | test-surfex | test-components | test-physics | bench"
+        die "Unknown TASK='${TASK}'. Valid: shell | smoke-cpu | smoke-gpu | test-phyex | test-surfex | test-components | test-physics | validate-gpu | bench | bench-gpu"
         ;;
 esac
 
