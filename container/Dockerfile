@@ -202,7 +202,7 @@ RUN mkdir -p /var/run/sshd && \
 COPY . /opt/ice3/
 COPY container/runpod_startup.sh /opt/ice3/runpod_startup.sh
 RUN chmod +x /opt/ice3/runpod_startup.sh
-RUN uv pip install --no-cache-dir -e /opt/ice3/
+RUN uv pip install --no-cache-dir -e "/opt/ice3/[test]"
 
 ENV JAX_PLATFORM_NAME=cuda
 ENV NVIDIA_VISIBLE_DEVICES=all
