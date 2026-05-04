@@ -507,6 +507,10 @@ if(ENABLE_SURFEX AND ENABLE_OPENACC)
 
     # Fortran shared library — column-parallel bulk physics with OpenACC
     set(SURFEX_ACC_SOURCES
+        ${SURFEX_DIR}/bridge/isba_fluxes_acc.F90
+        ${SURFEX_DIR}/bridge/hydro_soil_acc.F90
+        ${SURFEX_DIR}/bridge/ice_soilfr_acc.F90
+        ${SURFEX_DIR}/bridge/hydro_snow_acc.F90
         ${SURFEX_DIR}/bridge/surfex_c_api_acc.F90
     )
 

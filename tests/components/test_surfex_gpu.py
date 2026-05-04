@@ -69,6 +69,7 @@ except ImportError:
 # Tile constants also exported from surfex_jax
 from ice3.jax.surfex_jax import (
     SurfexState, SurfexFluxes, SurfexJAXGPU, _NullSurfex, make_surfex,
+    _jax_bulk_aerodynamic_fallback,
     TILE_NATURE as _TN, TILE_SEA as _TS, TILE_LAKE as _TL,
 )
 
@@ -162,6 +163,16 @@ class TestSurfexCPUSmoke:
             psurf_flux_u=jnp.full(n, -0.1, dtype=jnp.float32),
             psurf_flux_v=jnp.full(n, -0.05, dtype=jnp.float32),
             t_skin=jnp.zeros(n, dtype=jnp.float32),
+            wg1=jnp.zeros(n, dtype=jnp.float32),
+            wg2=jnp.zeros(n, dtype=jnp.float32),
+            wg3=jnp.zeros(n, dtype=jnp.float32),
+            wgi1=jnp.zeros(n, dtype=jnp.float32),
+            wgi2=jnp.zeros(n, dtype=jnp.float32),
+            tg1=jnp.zeros(n, dtype=jnp.float32),
+            tg2=jnp.zeros(n, dtype=jnp.float32),
+            wsnow1=jnp.zeros(n, dtype=jnp.float32),
+            rho1=jnp.zeros(n, dtype=jnp.float32),
+            alb=jnp.zeros(n, dtype=jnp.float32),
         )
 
     # --- _NullSurfex ---
@@ -173,7 +184,7 @@ class TestSurfexCPUSmoke:
     @requires_jax
     def test_null_surfex_returns_surfex_fluxes(self):
         surf = _NullSurfex()
-        fluxes = surf(self._state(16), dt=60.0)
+        fluxes, _ = surf(self._state(16), dt=60.0)
         assert isinstance(fluxes, SurfexFluxes)
 
     @requires_jax
@@ -182,7 +193,7 @@ class TestSurfexCPUSmoke:
         n = 8
         surf = _NullSurfex()
         state = self._state(n)
-        fluxes = surf(state, dt=60.0)
+        fluxes, _ = surf(state, dt=60.0)
         np.testing.assert_allclose(
             np.array(fluxes.surf_flux_th),
             np.array(state.psurf_flux_th),
@@ -199,25 +210,25 @@ class TestSurfexCPUSmoke:
     @requires_jax
     def test_null_surfex_output_shapes(self):
         n = 32
-        fluxes = _NullSurfex()(self._state(n), dt=60.0)
+        fluxes, _ = _NullSurfex()(self._state(n), dt=60.0)
         for arr in fluxes:
             assert arr.shape == (n,), f"Wrong shape {arr.shape}"
 
     @requires_jax
     def test_null_surfex_output_dtypes(self):
-        fluxes = _NullSurfex()(self._state(16), dt=60.0)
+        fluxes, _ = _NullSurfex()(self._state(16), dt=60.0)
         for arr in fluxes:
             assert arr.dtype == jnp.float32, f"Wrong dtype {arr.dtype}"
 
     @requires_jax
     def test_null_surfex_albedo_range(self):
-        fluxes = _NullSurfex()(self._state(64), dt=60.0)
+        fluxes, _ = _NullSurfex()(self._state(64), dt=60.0)
         alb = np.array(fluxes.albedo)
         assert np.all(alb >= 0) and np.all(alb <= 1)
 
     @requires_jax
     def test_null_surfex_emissivity_range(self):
-        fluxes = _NullSurfex()(self._state(64), dt=60.0)
+        fluxes, _ = _NullSurfex()(self._state(64), dt=60.0)
         emis = np.array(fluxes.emissivity)
         assert np.all(emis > 0) and np.all(emis <= 1)
 
@@ -228,21 +239,21 @@ class TestSurfexCPUSmoke:
         """SurfexJAX (CPU) must return non-zero fluxes with real library."""
         from ice3.jax.surfex_jax import SurfexJAX
         surf = SurfexJAX()
-        fluxes = surf(self._state(16), dt=60.0)
+        fluxes, _ = surf(self._state(16), dt=60.0)
         assert isinstance(fluxes, SurfexFluxes)
 
     @requires_surfex_cpu
     def test_surfex_jax_cpu_output_shapes(self):
         from ice3.jax.surfex_jax import SurfexJAX
         n = 64
-        fluxes = SurfexJAX()(self._state(n), dt=60.0)
+        fluxes, _ = SurfexJAX()(self._state(n), dt=60.0)
         for arr in fluxes:
             assert arr.shape == (n,)
 
     @requires_surfex_cpu
     def test_surfex_jax_cpu_fluxes_finite(self):
         from ice3.jax.surfex_jax import SurfexJAX
-        fluxes = SurfexJAX()(self._state(32), dt=60.0)
+        fluxes, _ = SurfexJAX()(self._state(32), dt=60.0)
         for arr in fluxes:
             assert np.all(np.isfinite(np.array(arr))), "Non-finite value in output"
 
@@ -272,8 +283,18 @@ class TestSurfexCPUSmoke:
             psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
             psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
             t_skin=jnp.zeros(n, dtype=jnp.float32),
+            wg1=jnp.zeros(n, dtype=jnp.float32),
+            wg2=jnp.zeros(n, dtype=jnp.float32),
+            wg3=jnp.zeros(n, dtype=jnp.float32),
+            wgi1=jnp.zeros(n, dtype=jnp.float32),
+            wgi2=jnp.zeros(n, dtype=jnp.float32),
+            tg1=jnp.zeros(n, dtype=jnp.float32),
+            tg2=jnp.zeros(n, dtype=jnp.float32),
+            wsnow1=jnp.zeros(n, dtype=jnp.float32),
+            rho1=jnp.zeros(n, dtype=jnp.float32),
+            alb=jnp.zeros(n, dtype=jnp.float32),
         )
-        fluxes = SurfexJAX()(state, dt=60.0)
+        fluxes, _ = SurfexJAX()(state, dt=60.0)
         assert np.all(np.array(fluxes.surf_flux_u) < 0), \
             "Momentum flux must oppose positive u_a (τ_u = -C_D |U| u_a)"
 
@@ -460,7 +481,7 @@ class TestSurfexJAXGPU:
         tiles  = _make_tiles(n_cols)
         s      = SurfexJAXGPU(n_cols=n_cols, tile_type=tiles)
         state  = self._make_jax_state(n_cols)
-        fluxes = s(state, dt=60.0)
+        fluxes, next_state = s(state, dt=60.0)
         assert isinstance(fluxes, SurfexFluxes)
 
     @requires_jax_gpu
@@ -469,7 +490,7 @@ class TestSurfexJAXGPU:
         tiles  = _make_tiles(n_cols)
         s      = SurfexJAXGPU(n_cols=n_cols, tile_type=tiles)
         state  = self._make_jax_state(n_cols)
-        fluxes = s(state, dt=60.0)
+        fluxes, next_state = s(state, dt=60.0)
         for field in fluxes:
             assert field.shape == (n_cols,), f"Wrong shape: {field.shape}"
             assert field.dtype == jnp.float32, f"Wrong dtype: {field.dtype}"
@@ -494,7 +515,7 @@ class TestSurfexJAXGPU:
 
         # Wrap in jit — this must NOT raise ConcretizationTypeError
         jit_call = jax.jit(lambda st: s(st, dt=60.0))
-        fluxes = jit_call(state)
+        fluxes, _ = jit_call(state)
 
         assert isinstance(fluxes, SurfexFluxes)
         for field in fluxes:
@@ -510,8 +531,8 @@ class TestSurfexJAXGPU:
         state  = self._make_jax_state(n_cols)
         jit_call = jax.jit(lambda st: s(st, dt=60.0))
 
-        f1 = jit_call(state)
-        f2 = jit_call(state)
+        f1, _ = jit_call(state)
+        f2, _ = jit_call(state)
         np.testing.assert_array_equal(
             np.array(f1.surf_flux_th), np.array(f2.surf_flux_th),
             err_msg="surf_flux_th differs between JIT call 1 and 2",
@@ -545,10 +566,20 @@ class TestSurfexJAXGPU:
             psurf_flux_u=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
             psurf_flux_v=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
             t_skin=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            wg1=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            wg2=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            wg3=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            wgi1=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            wgi2=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            tg1=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            tg2=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            wsnow1=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            rho1=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
+            alb=jnp.zeros((n_devs, n_cols), dtype=jnp.float32),
         )
 
         pmapped = jax.pmap(lambda st: s(st, dt=60.0))
-        fluxes = pmapped(state)
+        fluxes, _ = pmapped(state)
 
         assert fluxes.surf_flux_th.shape == (n_devs, n_cols)
         for field in fluxes:
@@ -619,9 +650,19 @@ class TestMakeSurfex:
             psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
             psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
             t_skin=jnp.zeros(n, dtype=jnp.float32),
+            wg1=jnp.zeros(n, dtype=jnp.float32),
+            wg2=jnp.zeros(n, dtype=jnp.float32),
+            wg3=jnp.zeros(n, dtype=jnp.float32),
+            wgi1=jnp.zeros(n, dtype=jnp.float32),
+            wgi2=jnp.zeros(n, dtype=jnp.float32),
+            tg1=jnp.zeros(n, dtype=jnp.float32),
+            tg2=jnp.zeros(n, dtype=jnp.float32),
+            wsnow1=jnp.zeros(n, dtype=jnp.float32),
+            rho1=jnp.zeros(n, dtype=jnp.float32),
+            alb=jnp.zeros(n, dtype=jnp.float32),
         )
         jit_surf = jax.jit(lambda st: surf(st, dt=60.0))
-        fluxes = jit_surf(state)
+        fluxes, _ = jit_surf(state)
         assert isinstance(fluxes, SurfexFluxes)
         for arr in fluxes:
             assert arr.shape == (n,)
@@ -644,7 +685,142 @@ class TestMakeSurfex:
             psurf_flux_u=jnp.full(n, -0.5, dtype=jnp.float32),
             psurf_flux_v=jnp.full(n, -0.3, dtype=jnp.float32),
             t_skin=jnp.zeros(n, dtype=jnp.float32),
+            wg1=jnp.zeros(n, dtype=jnp.float32),
+            wg2=jnp.zeros(n, dtype=jnp.float32),
+            wg3=jnp.zeros(n, dtype=jnp.float32),
+            wgi1=jnp.zeros(n, dtype=jnp.float32),
+            wgi2=jnp.zeros(n, dtype=jnp.float32),
+            tg1=jnp.zeros(n, dtype=jnp.float32),
+            tg2=jnp.zeros(n, dtype=jnp.float32),
+            wsnow1=jnp.zeros(n, dtype=jnp.float32),
+            rho1=jnp.zeros(n, dtype=jnp.float32),
+            alb=jnp.zeros(n, dtype=jnp.float32),
         )
-        fluxes = surf(state, dt=60.0)
+        fluxes, _ = surf(state, dt=60.0)
         np.testing.assert_allclose(np.array(fluxes.surf_flux_th), 0.1, rtol=1e-5)
         np.testing.assert_allclose(np.array(fluxes.surf_flux_u), -0.5, rtol=1e-5)
+
+
+# ---------------------------------------------------------------------------
+# Prognostic Evolution tests
+# ---------------------------------------------------------------------------
+
+def _make_prognostic_state(n: int) -> "SurfexState":
+    """Build a SurfexState with physically meaningful initial soil/snow values."""
+    f = _make_forcing(n)
+    return SurfexState(
+        t_a=jnp.array(f['t_a']),
+        q_a=jnp.array(f['q_a']),
+        u_a=jnp.array(f['u_a']),
+        v_a=jnp.array(f['v_a']),
+        p_a=jnp.array(f['p_a']),
+        rhodref=jnp.array(f['rhodref']),
+        sw_down=jnp.array(f['sw_down']),
+        lw_down=jnp.array(f['lw_down']),
+        rain_rate=jnp.zeros(n, dtype=jnp.float32),
+        snow_rate=jnp.zeros(n, dtype=jnp.float32),
+        psurf_flux_th=jnp.zeros(n, dtype=jnp.float32),
+        psurf_flux_rv=jnp.zeros(n, dtype=jnp.float32),
+        psurf_flux_u=jnp.zeros(n, dtype=jnp.float32),
+        psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
+        t_skin=jnp.zeros(n, dtype=jnp.float32),
+        # Initial soil state: loamy soil at field capacity
+        wg1=jnp.full(n, 0.25, dtype=jnp.float32),
+        wg2=jnp.full(n, 0.28, dtype=jnp.float32),
+        wg3=jnp.full(n, 0.30, dtype=jnp.float32),
+        wgi1=jnp.zeros(n, dtype=jnp.float32),
+        wgi2=jnp.zeros(n, dtype=jnp.float32),
+        tg1=jnp.full(n, 285.0, dtype=jnp.float32),
+        tg2=jnp.full(n, 280.0, dtype=jnp.float32),
+        # Initial snow state: bare ground (no snow)
+        wsnow1=jnp.zeros(n, dtype=jnp.float32),
+        rho1=jnp.full(n, 300.0, dtype=jnp.float32),   # kg/m³ (unused when wsnow1=0)
+        alb=jnp.full(n, 0.15, dtype=jnp.float32),     # bare soil albedo
+    )
+
+
+class TestPrognosticEvolution:
+    """
+    Verify that prognostic variables are correctly threaded between time steps.
+
+    These tests do NOT require a GPU — they run against the analytical fallback
+    (``_jax_bulk_aerodynamic_fallback``) and ``_NullSurfex``.  They serve to
+    confirm that the ``SurfexState`` return machinery works end-to-end.
+    """
+
+    @requires_jax
+    def test_returns_state_of_correct_shape(self):
+        """Backend must return a SurfexState with the same shapes as input."""
+        n = 16
+        surf = make_surfex(n_cols=n)
+        state = _make_prognostic_state(n)
+        _, next_state = surf(state, dt=60.0)
+
+        assert isinstance(next_state, SurfexState)
+        for field in next_state:
+            assert field.shape == (n,), \
+                f"Shape mismatch in SurfexState field: expected ({n},), got {field.shape}"
+
+    @requires_jax
+    def test_prognostic_state_is_finite(self):
+        """All returned state variables must be finite (no NaN/Inf)."""
+        n = 16
+        surf = make_surfex(n_cols=n)
+        state = _make_prognostic_state(n)
+        _, next_state = surf(state, dt=60.0)
+
+        for arr in next_state:
+            assert np.all(np.isfinite(np.array(arr))), \
+                "Non-finite value detected in returned SurfexState"
+
+    @requires_jax
+    def test_multi_step_state_threading(self):
+        """SurfexState must thread correctly across N consecutive time steps."""
+        n = 16
+        N_STEPS = 10
+        dt = 60.0
+        surf = make_surfex(n_cols=n)
+        state = _make_prognostic_state(n)
+
+        for step in range(N_STEPS):
+            fluxes, state = surf(state, dt=dt)
+            # Fluxes must remain finite throughout
+            for arr in fluxes:
+                assert np.all(np.isfinite(np.array(arr))), \
+                    f"Non-finite flux at step {step}"
+            # Prognostic state must remain finite throughout
+            for arr in state:
+                assert np.all(np.isfinite(np.array(arr))), \
+                    f"Non-finite state at step {step}"
+
+    @requires_jax
+    def test_null_surfex_preserves_soil_state(self):
+        """_NullSurfex must return the soil/snow state fields unchanged."""
+        n = 8
+        surf = _NullSurfex()
+        state = _make_prognostic_state(n)
+        _, next_state = surf(state, dt=60.0)
+
+        # _NullSurfex returns the input state unmodified
+        np.testing.assert_array_equal(
+            np.array(next_state.wg1), np.array(state.wg1),
+            err_msg="_NullSurfex must not modify wg1",
+        )
+        np.testing.assert_array_equal(
+            np.array(next_state.tg1), np.array(state.tg1),
+            err_msg="_NullSurfex must not modify tg1",
+        )
+
+    @requires_jax
+    def test_analytical_fallback_threads_state_unchanged(self):
+        """Analytical fallback must pass soil/snow state through unchanged."""
+        n = 16
+        state = _make_prognostic_state(n)
+        _, next_state = _jax_bulk_aerodynamic_fallback(state)
+
+        np.testing.assert_array_equal(
+            np.array(next_state.wg1), np.array(state.wg1),
+        )
+        np.testing.assert_array_equal(
+            np.array(next_state.tg2), np.array(state.tg2),
+        )

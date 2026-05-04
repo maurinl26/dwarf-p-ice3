@@ -150,7 +150,17 @@ void c_surfex_step(
     double *surf_flux_u,
     double *surf_flux_v,
     double *albedo,
-    double *emissivity
+    double *emissivity,
+    double *wg1,
+    double *wg2,
+    double *wg3,
+    double *wgi1,
+    double *wgi2,
+    double *tg1,
+    double *tg2,
+    double *wsnow1,
+    double *rho1,
+    double *alb
 );
 """
 
@@ -259,6 +269,16 @@ class _SurfexLib:
         lw_down: np.ndarray,
         rain_rate: np.ndarray,
         snow_rate: np.ndarray,
+        wg1: np.ndarray,
+        wg2: np.ndarray,
+        wg3: np.ndarray,
+        wgi1: np.ndarray,
+        wgi2: np.ndarray,
+        tg1: np.ndarray,
+        tg2: np.ndarray,
+        wsnow1: np.ndarray,
+        rho1: np.ndarray,
+        alb: np.ndarray,
     ) -> Tuple[np.ndarray, ...]:
         """
         Calls `c_surfex_step` in the shared library and returns output arrays.
@@ -303,6 +323,10 @@ class _SurfexLib:
             _ptr(surf_flux_th), _ptr(surf_flux_rv),
             _ptr(surf_flux_u),  _ptr(surf_flux_v),
             _ptr(albedo), _ptr(emissivity),
+            _ptr(_c64(wg1)), _ptr(_c64(wg2)), _ptr(_c64(wg3)),
+            _ptr(_c64(wgi1)), _ptr(_c64(wgi2)),
+            _ptr(_c64(tg1)), _ptr(_c64(tg2)),
+            _ptr(_c64(wsnow1)), _ptr(_c64(rho1)), _ptr(_c64(alb))
         )
 
         return (
@@ -312,11 +336,23 @@ class _SurfexLib:
             surf_flux_v.astype(np.float32),
             albedo.astype(np.float32),
             emissivity.astype(np.float32),
+            wg1.astype(np.float32),
+            wg2.astype(np.float32),
+            wg3.astype(np.float32),
+            wgi1.astype(np.float32),
+            wgi2.astype(np.float32),
+            tg1.astype(np.float32),
+            tg2.astype(np.float32),
+            wsnow1.astype(np.float32),
+            rho1.astype(np.float32),
+            alb.astype(np.float32),
         )
 
 
 def _bulk_aerodynamic_fallback(
-    n_cols, t_skin, t_a, q_a, u_a, v_a, p_a, rhodref
+    n_cols, t_skin, t_a, q_a, u_a, v_a, p_a, rhodref,
+    wg1=None, wg2=None, wg3=None, wgi1=None, wgi2=None,
+    tg1=None, tg2=None, wsnow1=None, rho1=None, alb=None
 ) -> Tuple[np.ndarray, ...]:
     """
     Neutral-stability Bulk Aerodynamic fluxes as a library-free fallback.
@@ -350,7 +386,7 @@ def _bulk_aerodynamic_fallback(
     )
 
 
-def _jax_bulk_aerodynamic_fallback(state: "SurfexState") -> "SurfexFluxes":
+def _jax_bulk_aerodynamic_fallback(state: "SurfexState") -> Tuple["SurfexFluxes", "SurfexState"]:
     """Pure JAX equivalent of _bulk_aerodynamic_fallback."""
     kappa, z, z0 = 0.4, 10.0, 0.05
     Cp, Ts_default = 1004.0, 295.0
@@ -368,7 +404,7 @@ def _jax_bulk_aerodynamic_fallback(state: "SurfexState") -> "SurfexFluxes":
     alb  = jnp.full((n_cols,), 0.2, dtype=jnp.float32)
     emis = jnp.full((n_cols,), 0.98, dtype=jnp.float32)
 
-    return SurfexFluxes(
+    fluxes = SurfexFluxes(
         surf_flux_th=flux_th.astype(jnp.float32),
         surf_flux_rv=flux_rv.astype(jnp.float32),
         surf_flux_u=flux_u.astype(jnp.float32),
@@ -376,6 +412,7 @@ def _jax_bulk_aerodynamic_fallback(state: "SurfexState") -> "SurfexFluxes":
         albedo=alb,
         emissivity=emis,
     )
+    return fluxes, state
 
 
 # ---------------------------------------------------------------------------
@@ -412,6 +449,16 @@ class SurfexState(NamedTuple):
     psurf_flux_u: Array  # Previous-step surface momentum flux U (m²/s²)
     psurf_flux_v: Array  # Previous-step surface momentum flux V (m²/s²)
     t_skin: Array        # Netatmo-analysed skin temperature (K); 0.0 = use Fortran default
+    wg1: Array           # Soil moisture layer 1
+    wg2: Array           # Soil moisture layer 2
+    wg3: Array           # Soil moisture layer 3
+    wgi1: Array          # Soil ice layer 1
+    wgi2: Array          # Soil ice layer 2
+    tg1: Array           # Soil temperature layer 1
+    tg2: Array           # Soil temperature layer 2
+    wsnow1: Array        # Snow mass
+    rho1: Array          # Snow density
+    alb: Array           # Snow albedo
 
 
 class SurfexFluxes(NamedTuple):
@@ -462,6 +509,7 @@ class SurfexJAX:
         t_a, q_a, u_a, v_a, p_a, rhodref,
         sw_down, lw_down, rain_rate, snow_rate,
         t_skin,
+        wg1, wg2, wg3, wgi1, wgi2, tg1, tg2, wsnow1, rho1, alb,
         dt: float,
     ):
         """
@@ -474,9 +522,10 @@ class SurfexJAX:
             t_skin,
             t_a, q_a, u_a, v_a, p_a, rhodref,
             sw_down, lw_down, rain_rate, snow_rate,
+            wg1, wg2, wg3, wgi1, wgi2, tg1, tg2, wsnow1, rho1, alb
         )
 
-    def __call__(self, state: SurfexState, dt: float) -> SurfexFluxes:
+    def __call__(self, state: SurfexState, dt: float) -> Tuple[SurfexFluxes, SurfexState]:
         """
         Execute a SURFEX time step inside JIT-compiled JAX code.
 
@@ -503,7 +552,7 @@ class SurfexJAX:
         # Output shape specs — all (n_cols,) float32
         result_shapes = tuple(
             jax.ShapeDtypeStruct((n_cols,), jnp.float32)
-            for _ in range(6)
+            for _ in range(16)
         )
 
         # Bind dt into the host function via closure (scalar, not a JAX array)
@@ -514,6 +563,7 @@ class SurfexJAX:
             surf_flux_th, surf_flux_rv,
             surf_flux_u,  surf_flux_v,
             albedo, emissivity,
+            wg1, wg2, wg3, wgi1, wgi2, tg1, tg2, wsnow1, rho1, alb
         ) = jax.pure_callback(
             _bound_host,
             result_shapes,
@@ -522,10 +572,14 @@ class SurfexJAX:
             state.sw_down, state.lw_down,
             state.rain_rate, state.snow_rate,
             state.t_skin,
+            state.wg1, state.wg2, state.wg3,
+            state.wgi1, state.wgi2,
+            state.tg1, state.tg2,
+            state.wsnow1, state.rho1, state.alb,
             vmap_method="sequential",
         )
 
-        return SurfexFluxes(
+        fluxes = SurfexFluxes(
             surf_flux_th=surf_flux_th,
             surf_flux_rv=surf_flux_rv,
             surf_flux_u=surf_flux_u,
@@ -533,6 +587,20 @@ class SurfexJAX:
             albedo=albedo,
             emissivity=emissivity,
         )
+        
+        next_state = SurfexState(
+            t_a=state.t_a, q_a=state.q_a, u_a=state.u_a, v_a=state.v_a,
+            p_a=state.p_a, rhodref=state.rhodref,
+            sw_down=state.sw_down, lw_down=state.lw_down,
+            rain_rate=state.rain_rate, snow_rate=state.snow_rate,
+            psurf_flux_th=surf_flux_th, psurf_flux_rv=surf_flux_rv,
+            psurf_flux_u=surf_flux_u, psurf_flux_v=surf_flux_v,
+            t_skin=state.t_skin,
+            wg1=wg1, wg2=wg2, wg3=wg3, wgi1=wgi1, wgi2=wgi2,
+            tg1=tg1, tg2=tg2, wsnow1=wsnow1, rho1=rho1, alb=alb,
+        )
+        
+        return fluxes, next_state
 
 
 # ---------------------------------------------------------------------------
@@ -612,7 +680,8 @@ class SurfexJAXGPU:
     def _run(self, dt: float,
              t_a, q_a, u_a, v_a, p_a, rhodref,
              sw_down, lw_down, rain_rate, snow_rate,
-             t_skin):
+             t_skin,
+             wg1, wg2, wg3, wgi1, wgi2, tg1, tg2, wsnow1, rho1, alb):
         """
         Executes inside io_callback: arrays are concrete XLA buffers here.
 
@@ -641,6 +710,16 @@ class SurfexJAXGPU:
             rain_rate=jax.dlpack.to_dlpack(rain_rate),
             snow_rate=jax.dlpack.to_dlpack(snow_rate),
             t_skin=jax.dlpack.to_dlpack(t_skin),
+            wg1=jax.dlpack.to_dlpack(wg1),
+            wg2=jax.dlpack.to_dlpack(wg2),
+            wg3=jax.dlpack.to_dlpack(wg3),
+            wgi1=jax.dlpack.to_dlpack(wgi1),
+            wgi2=jax.dlpack.to_dlpack(wgi2),
+            tg1=jax.dlpack.to_dlpack(tg1),
+            tg2=jax.dlpack.to_dlpack(tg2),
+            wsnow1=jax.dlpack.to_dlpack(wsnow1),
+            rho1=jax.dlpack.to_dlpack(rho1),
+            alb=jax.dlpack.to_dlpack(alb),
             dt=float(dt),
         )
 
@@ -652,9 +731,13 @@ class SurfexJAXGPU:
             _j(out['surf_flux_v']),
             _j(out['albedo']),
             _j(out['emissivity']),
+            _j(out['wg1']), _j(out['wg2']), _j(out['wg3']),
+            _j(out['wgi1']), _j(out['wgi2']),
+            _j(out['tg1']), _j(out['tg2']),
+            _j(out['wsnow1']), _j(out['rho1']), _j(out['alb']),
         )
 
-    def __call__(self, state: SurfexState, dt: float) -> SurfexFluxes:
+    def __call__(self, state: SurfexState, dt: float) -> Tuple[SurfexFluxes, SurfexState]:
         """
         Execute SURFEX GPU surface physics step inside JIT/pmap.
 
@@ -670,11 +753,12 @@ class SurfexJAXGPU:
 
         Returns
         -------
-        SurfexFluxes  Surface fluxes as JAX GPU arrays (float32, shape (n_cols,)).
+        Tuple[SurfexFluxes, SurfexState]
+            Surface fluxes and updated prognostic state as JAX GPU arrays.
         """
         n_cols = self._n_cols
         out_shapes = tuple(
-            jax.ShapeDtypeStruct((n_cols,), jnp.float32) for _ in range(6)
+            jax.ShapeDtypeStruct((n_cols,), jnp.float32) for _ in range(16)
         )
 
         # Close over dt (scalar, static in jit) so io_callback receives only
@@ -690,10 +774,14 @@ class SurfexJAXGPU:
             state.sw_down, state.lw_down,
             state.rain_rate, state.snow_rate,
             state.t_skin,
+            state.wg1, state.wg2, state.wg3,
+            state.wgi1, state.wgi2,
+            state.tg1, state.tg2,
+            state.wsnow1, state.rho1, state.alb,
             ordered=True,
         )
 
-        return SurfexFluxes(
+        fluxes = SurfexFluxes(
             surf_flux_th=outputs[0],
             surf_flux_rv=outputs[1],
             surf_flux_u=outputs[2],
@@ -701,6 +789,21 @@ class SurfexJAXGPU:
             albedo=outputs[4],
             emissivity=outputs[5],
         )
+        
+        next_state = SurfexState(
+            t_a=state.t_a, q_a=state.q_a, u_a=state.u_a, v_a=state.v_a,
+            p_a=state.p_a, rhodref=state.rhodref,
+            sw_down=state.sw_down, lw_down=state.lw_down,
+            rain_rate=state.rain_rate, snow_rate=state.snow_rate,
+            psurf_flux_th=outputs[0], psurf_flux_rv=outputs[1],
+            psurf_flux_u=outputs[2], psurf_flux_v=outputs[3],
+            t_skin=state.t_skin,
+            wg1=outputs[6], wg2=outputs[7], wg3=outputs[8],
+            wgi1=outputs[9], wgi2=outputs[10],
+            tg1=outputs[11], tg2=outputs[12],
+            wsnow1=outputs[13], rho1=outputs[14], alb=outputs[15],
+        )
+        return fluxes, next_state
 
 
 # ---------------------------------------------------------------------------
@@ -749,10 +852,10 @@ class _NullSurfex:
     fluxes already embedded in the AromeState.
     """
 
-    def __call__(self, state: SurfexState, dt: float) -> SurfexFluxes:
+    def __call__(self, state: SurfexState, dt: float) -> Tuple[SurfexFluxes, SurfexState]:
         nit  = state.psurf_flux_th.shape[0]
         _fdt = state.psurf_flux_th.dtype
-        return SurfexFluxes(
+        fluxes = SurfexFluxes(
             surf_flux_th=state.psurf_flux_th,
             surf_flux_rv=state.psurf_flux_rv,
             surf_flux_u=state.psurf_flux_u,
@@ -760,3 +863,4 @@ class _NullSurfex:
             albedo=jnp.full((nit,), 0.20, dtype=_fdt),
             emissivity=jnp.full((nit,), 0.98, dtype=_fdt),
         )
+        return fluxes, state
