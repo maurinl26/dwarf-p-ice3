@@ -18,7 +18,11 @@ venv*
 .env
 
 # Fortran legacy dependencies
-external
+external/*
+!external/PHYEX-IAL_CY50T1/
+!external/open-SURFEX-V9-1-0/
+external/open-SURFEX-V9-1-0/*
+!external/open-SURFEX-V9-1-0/bridge/
 namelists
 fort.1
 
