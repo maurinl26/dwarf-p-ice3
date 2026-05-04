@@ -39,6 +39,10 @@
 
 MODULE surfex_c_api_acc_mod
   USE ISO_C_BINDING, ONLY : C_INT, C_FLOAT, C_DOUBLE, C_PTR, C_F_POINTER
+  USE isba_fluxes_acc_mod, ONLY : ISBA_FLUXES_ACC
+  USE hydro_soil_acc_mod, ONLY : HYDRO_SOIL_ACC
+  USE ice_soilfr_acc_mod, ONLY : ICE_SOILFR_ACC
+  USE hydro_snow_acc_mod, ONLY : HYDRO_SNOW_ACC
   IMPLICIT NONE
 
   ! Tile-type flags (must match Python-side constants)
@@ -103,6 +107,78 @@ CONTAINS
   END SUBROUTINE isba_col_flux
 
   ! ---------------------------------------------------------------------------
+  ! Mock ISBA-3L + D95 pipeline (Option C: hardcoded constants)
+  ! ---------------------------------------------------------------------------
+  PURE SUBROUTINE mock_isba_col_flux(DT, TS, TA, QA, UA, VA, P_A, RHODREF, &
+                                     SW_DOWN, LW_DOWN, RAIN_RATE, SNOW_RATE, &
+                                     WG1, WG2, WG3, WGI1, WGI2, TG1, TG2, &
+                                     WSNOW1, RHO1, ALB_SN, &
+                                     FLUX_TH, FLUX_RV, FLUX_U, FLUX_V, ALBEDO_OUT)
+    !$acc routine seq
+    REAL(C_FLOAT), INTENT(IN)  :: DT, TS, TA, QA, UA, VA, P_A, RHODREF
+    REAL(C_FLOAT), INTENT(IN)  :: SW_DOWN, LW_DOWN, RAIN_RATE, SNOW_RATE
+    REAL(C_FLOAT), INTENT(INOUT) :: WG1, WG2, WG3, WGI1, WGI2, TG1, TG2
+    REAL(C_FLOAT), INTENT(INOUT) :: WSNOW1, RHO1, ALB_SN
+    REAL(C_FLOAT), INTENT(OUT) :: FLUX_TH, FLUX_RV, FLUX_U, FLUX_V, ALBEDO_OUT
+
+    ! Hardcoded physiography constants for a generic loamy soil with grass
+    REAL(C_FLOAT) :: PWSAT=0.43, PWFC=0.32, PWWILT=0.17
+    REAL(C_FLOAT) :: XC1=1.0, XC2=0.5, XWGEQ=0.2, XCT=1.0E-5, XCG=2.0E-6
+    REAL(C_FLOAT) :: XWDRAIN=0.001, XC4B=5.0, XDG1=0.01, XDG2=1.0, PD_G3=2.0
+    REAL(C_FLOAT) :: XC3_1=0.1, XC3_2=0.05, XC4REF=10.0
+    REAL(C_FLOAT) :: XCPS=1.0E6, XRESA=50.0, XVEG=0.9, XPSNG=0.0, XPSNV=0.0
+    REAL(C_FLOAT) :: XPSN=0.0, XHV=1.0, XRS=100.0, XFFROZEN=0.0, XFF=0.0
+    REAL(C_FLOAT) :: XSRSFC=0.0, PALBT=0.2, PEMIST=0.97
+    REAL(C_FLOAT) :: PEXNA, PEXNS, PHUG, PHUI, PLEG_DELTA, PLEGI_DELTA, PDELTA, PF5
+    REAL(C_FLOAT) :: PCS, PTSM, PFROZEN1, PQSAT, PDQSAT, PSNOW_THRUFAL
+    
+    ! Flux outputs from ISBA_FLUXES_ACC
+    REAL(C_FLOAT) :: PRN, PH, PLE, PLEG, PLEGI, PLEV, PLES, PLER, PLETR, PEVAP, PEPOT, PGFLUX
+    REAL(C_FLOAT) :: PMELTADV, PMELT, PLE_FLOOD, PLEI_FLOOD, XTG1_OUT, WSNOW1_OUT
+    REAL(C_FLOAT) :: PRUNOFF, PDRAIN, PPG, PEVAPCOR, PDWGI1, PDWGI2, PLEGI_FR
+
+    ! 1. Mock inputs for ICE_SOILFR and ISBA_FLUXES
+    PEXNA = (P_A / 100000.0) ** (287.05/1004.0)
+    PEXNS = 1.0
+    PHUG  = 1.0; PHUI = 1.0; PLEG_DELTA = 1.0; PLEGI_DELTA = 0.0; PDELTA = 0.0; PF5 = 1.0
+    PCS = 2.0E6; PTSM = TG1; PFROZEN1 = 0.0; PSNOW_THRUFAL = 0.0
+    PQSAT = QA; PDQSAT = 0.0 ! Simplification
+    PPG = RAIN_RATE; PEVAPCOR = 0.0
+
+    ! 2. Soil Freezing
+    CALL ICE_SOILFR_ACC(DT, 1, TG1, TG2, WG1, WG2, WGI1, WGI2, PWSAT, &
+                        XCG, XCT, XDG1, XDG2, PDWGI1, PDWGI2, PLEGI_FR)
+                        
+    ! 3. Soil Moisture
+    CALL HYDRO_SOIL_ACC(DT, 0.0, 0.0, PPG, PEVAPCOR, PD_G3, PWSAT, PWFC, &
+                        PDWGI1, PDWGI2, PLEGI_FR, WG3, PRUNOFF, PDRAIN, PWWILT, &
+                        WG1, WG2, WGI1, WGI2, TG1, TG2, &
+                        XC1, XC2, XWGEQ, XCT, XCG, XWDRAIN, XC4B, &
+                        XDG1, XDG2, XC3_1, XC3_2, XC4REF, 2, 1)
+
+    ! 4. Snow Scheme
+    CALL HYDRO_SNOW_ACC(DT, 0, 0.0, SNOW_RATE, 0.0, PMELT, PPG, WSNOW1, ALB_SN, RHO1)
+
+    ! 5. Energy Balance & Fluxes
+    CALL ISBA_FLUXES_ACC(DT, SW_DOWN, LW_DOWN, TA, QA, RHODREF, &
+                         PEXNS, PEXNA, PHUG, PHUI, PLEG_DELTA, PLEGI_DELTA, PDELTA, PF5, &
+                         PCS, PTSM, PFROZEN1, PALBT, PEMIST, PQSAT, PDQSAT, PSNOW_THRUFAL, &
+                         TG1, XCPS, XRESA, XVEG, XPSNG, 2.5E6, 2.8E6, XPSN, XPSNV, &
+                         XHV, XRS, XFFROZEN, XFF, XCT, WSNOW1, XSRSFC, 1, 3, &
+                         PRN, PH, PLE, PLEG, PLEGI, PLEV, PLES, PLER, PLETR, PEVAP, PEPOT, &
+                         PGFLUX, PMELTADV, PMELT, PLE_FLOOD, PLEI_FLOOD, XTG1_OUT, WSNOW1_OUT)
+
+    ! Convert H and LE into kinematic fluxes (approx)
+    FLUX_TH = PH / (RHODREF * 1004.0)
+    FLUX_RV = PLE / (RHODREF * 2.5E6)
+    
+    ! Drag is still mocked via bulk formulation
+    CALL isba_col_flux(TS, TA, QA, UA, VA, RHODREF, FLUX_TH, FLUX_RV, FLUX_U, FLUX_V)
+
+    ALBEDO_OUT = PALBT
+  END SUBROUTINE mock_isba_col_flux
+
+  ! ---------------------------------------------------------------------------
   ! Column-wise SEAFLUX bulk (Charnock roughness + Louis heat transfer)
   ! ---------------------------------------------------------------------------
   PURE SUBROUTINE seaflux_col_flux(TS, TA, QA, UA, VA, RHODREF, &
@@ -164,7 +240,9 @@ CONTAINS
       ptr_rain_rate, ptr_snow_rate,                                  &
       ptr_surf_flux_th, ptr_surf_flux_rv,                           &
       ptr_surf_flux_u,  ptr_surf_flux_v,                            &
-      ptr_albedo, ptr_emissivity                                    &
+      ptr_albedo, ptr_emissivity,                                   &
+      ptr_wg1, ptr_wg2, ptr_wg3, ptr_wgi1, ptr_wgi2,                &
+      ptr_tg1, ptr_tg2, ptr_wsnow1, ptr_rho1, ptr_alb               &
   ) BIND(C, name="c_surfex_step_acc")
 
     INTEGER(C_INT), VALUE, INTENT(IN) :: n_cols
@@ -192,6 +270,16 @@ CONTAINS
     TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_surf_flux_v
     TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_albedo
     TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_emissivity
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_wg1
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_wg2
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_wg3
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_wgi1
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_wgi2
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_tg1
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_tg2
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_wsnow1
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_rho1
+    TYPE(C_PTR), VALUE, INTENT(IN) :: ptr_alb
 
     ! Fortran pointers into GPU managed memory
     INTEGER(C_INT), POINTER, DIMENSION(:) :: f_tile
@@ -203,6 +291,10 @@ CONTAINS
     REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_surf_flux_th, f_surf_flux_rv
     REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_surf_flux_u, f_surf_flux_v
     REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_albedo, f_emissivity
+    REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_wg1, f_wg2, f_wg3
+    REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_wgi1, f_wgi2
+    REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_tg1, f_tg2
+    REAL(C_FLOAT),  POINTER, DIMENSION(:) :: f_wsnow1, f_rho1, f_alb
 
     INTEGER :: JC
     REAL(C_FLOAT) :: TS_COL  ! effective skin temperature for this column
@@ -226,6 +318,16 @@ CONTAINS
     CALL C_F_POINTER(ptr_surf_flux_v,  f_surf_flux_v,  [n_cols])
     CALL C_F_POINTER(ptr_albedo,       f_albedo,       [n_cols])
     CALL C_F_POINTER(ptr_emissivity,   f_emissivity,   [n_cols])
+    CALL C_F_POINTER(ptr_wg1,          f_wg1,          [n_cols])
+    CALL C_F_POINTER(ptr_wg2,          f_wg2,          [n_cols])
+    CALL C_F_POINTER(ptr_wg3,          f_wg3,          [n_cols])
+    CALL C_F_POINTER(ptr_wgi1,         f_wgi1,         [n_cols])
+    CALL C_F_POINTER(ptr_wgi2,         f_wgi2,         [n_cols])
+    CALL C_F_POINTER(ptr_tg1,          f_tg1,          [n_cols])
+    CALL C_F_POINTER(ptr_tg2,          f_tg2,          [n_cols])
+    CALL C_F_POINTER(ptr_wsnow1,       f_wsnow1,       [n_cols])
+    CALL C_F_POINTER(ptr_rho1,         f_rho1,         [n_cols])
+    CALL C_F_POINTER(ptr_alb,          f_alb,          [n_cols])
 
     ! --- GPU-parallel column loop (OpenACC) ---
     ! async(1) required: acc_set_cuda_stream(1, stream_ptr) binds queue 1
@@ -235,7 +337,9 @@ CONTAINS
     !$acc&               f_rain_rate, f_snow_rate,                          &
     !$acc&               f_surf_flux_th, f_surf_flux_rv,                    &
     !$acc&               f_surf_flux_u, f_surf_flux_v,                      &
-    !$acc&               f_albedo, f_emissivity)
+    !$acc&               f_albedo, f_emissivity,                            &
+    !$acc&               f_wg1, f_wg2, f_wg3, f_wgi1, f_wgi2,               &
+    !$acc&               f_tg1, f_tg2, f_wsnow1, f_rho1, f_alb)
 
     !$acc parallel loop async(1) private(JC, TS_COL)
     DO JC = 1, n_cols
@@ -255,14 +359,20 @@ CONTAINS
       SELECT CASE (f_tile(JC))
 
         CASE (TILE_NATURE)
-          CALL isba_col_flux(                    &
-              TS_COL,                            &
+          CALL mock_isba_col_flux(               &
+              REAL(dt, C_FLOAT), TS_COL,         &
               f_t_a(JC), f_q_a(JC),             &
               f_u_a(JC), f_v_a(JC),             &
-              f_rhodref(JC),                     &
+              f_p_a(JC), f_rhodref(JC),         &
+              f_sw_down(JC), f_lw_down(JC),     &
+              f_rain_rate(JC), f_snow_rate(JC), &
+              f_wg1(JC), f_wg2(JC), f_wg3(JC),  &
+              f_wgi1(JC), f_wgi2(JC),           &
+              f_tg1(JC), f_tg2(JC),             &
+              f_wsnow1(JC), f_rho1(JC), f_alb(JC), &
               f_surf_flux_th(JC), f_surf_flux_rv(JC), &
-              f_surf_flux_u(JC),  f_surf_flux_v(JC))
-          f_albedo(JC)     = XALB_LAND
+              f_surf_flux_u(JC),  f_surf_flux_v(JC), &
+              f_albedo(JC))
           f_emissivity(JC) = XEMIS_LAND
 
         CASE (TILE_SEA)

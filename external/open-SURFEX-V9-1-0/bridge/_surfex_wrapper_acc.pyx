@@ -97,7 +97,18 @@ cdef extern void c_surfex_step_acc(
     void  *ptr_surf_flux_u,
     void  *ptr_surf_flux_v,
     void  *ptr_albedo,
-    void  *ptr_emissivity
+    void  *ptr_emissivity,
+    # prognostic state variables — GPU device pointers (float32, IN/OUT)
+    void  *ptr_wg1,
+    void  *ptr_wg2,
+    void  *ptr_wg3,
+    void  *ptr_wgi1,
+    void  *ptr_wgi2,
+    void  *ptr_tg1,
+    void  *ptr_tg2,
+    void  *ptr_wsnow1,
+    void  *ptr_rho1,
+    void  *ptr_alb
 ) nogil
 
 # acc_set_cuda_stream: NVIDIA OpenACC runtime API
@@ -168,6 +179,16 @@ cdef class SurfexGPUWrapper:
     cdef object _buf_surf_flux_v
     cdef object _buf_albedo
     cdef object _buf_emissivity
+    cdef object _buf_wg1
+    cdef object _buf_wg2
+    cdef object _buf_wg3
+    cdef object _buf_wgi1
+    cdef object _buf_wgi2
+    cdef object _buf_tg1
+    cdef object _buf_tg2
+    cdef object _buf_wsnow1
+    cdef object _buf_rho1
+    cdef object _buf_alb
 
     cdef object _stream            # cupy.cuda.Stream
     cdef object _graph             # cupy.cuda.graph.Graph (captured)
@@ -255,6 +276,16 @@ cdef class SurfexGPUWrapper:
         cdef uintptr_t ptr_fv       = self._buf_surf_flux_v.data.ptr
         cdef uintptr_t ptr_alb      = self._buf_albedo.data.ptr
         cdef uintptr_t ptr_emis     = self._buf_emissivity.data.ptr
+        cdef uintptr_t ptr_wg1      = self._buf_wg1.data.ptr
+        cdef uintptr_t ptr_wg2      = self._buf_wg2.data.ptr
+        cdef uintptr_t ptr_wg3      = self._buf_wg3.data.ptr
+        cdef uintptr_t ptr_wgi1     = self._buf_wgi1.data.ptr
+        cdef uintptr_t ptr_wgi2     = self._buf_wgi2.data.ptr
+        cdef uintptr_t ptr_tg1      = self._buf_tg1.data.ptr
+        cdef uintptr_t ptr_tg2      = self._buf_tg2.data.ptr
+        cdef uintptr_t ptr_wsnow1   = self._buf_wsnow1.data.ptr
+        cdef uintptr_t ptr_rho1     = self._buf_rho1.data.ptr
+        cdef uintptr_t ptr_alb_sn   = self._buf_alb.data.ptr
 
         with nogil:
             c_surfex_step_acc(
@@ -268,7 +299,12 @@ cdef class SurfexGPUWrapper:
                 <void*>ptr_rain,   <void*>ptr_snow,
                 <void*>ptr_th,     <void*>ptr_rv,
                 <void*>ptr_fu,     <void*>ptr_fv,
-                <void*>ptr_alb,    <void*>ptr_emis
+                <void*>ptr_alb,    <void*>ptr_emis,
+                <void*>ptr_wg1,    <void*>ptr_wg2,
+                <void*>ptr_wg3,    <void*>ptr_wgi1,
+                <void*>ptr_wgi2,   <void*>ptr_tg1,
+                <void*>ptr_tg2,    <void*>ptr_wsnow1,
+                <void*>ptr_rho1,   <void*>ptr_alb_sn
             )
 
     # ------------------------------------------------------------------
@@ -277,8 +313,9 @@ cdef class SurfexGPUWrapper:
     def __call__(self,
                  t_a, q_a, u_a, v_a, p_a, rhodref,
                  sw_down, lw_down, rain_rate, snow_rate,
-                 double dt,
-                 t_skin=None):
+                 t_skin,
+                 wg1, wg2, wg3, wgi1, wgi2, tg1, tg2, wsnow1, rho1, alb,
+                 double dt):
         """
         Execute SURFEX surface physics on GPU.
 
@@ -309,11 +346,17 @@ cdef class SurfexGPUWrapper:
         cp.copyto(self._buf_lw_down,  cp.from_dlpack(lw_down))
         cp.copyto(self._buf_rain_rate, cp.from_dlpack(rain_rate))
         cp.copyto(self._buf_snow_rate, cp.from_dlpack(snow_rate))
-
-        # -- Netatmo skin temperature (optional; zeros = use Fortran default) --
-        if t_skin is not None:
-            cp.copyto(self._buf_t_skin, cp.from_dlpack(t_skin))
-        # else: leave _buf_t_skin at its current value (zeros on first call)
+        cp.copyto(self._buf_t_skin, cp.from_dlpack(t_skin))
+        cp.copyto(self._buf_wg1, cp.from_dlpack(wg1))
+        cp.copyto(self._buf_wg2, cp.from_dlpack(wg2))
+        cp.copyto(self._buf_wg3, cp.from_dlpack(wg3))
+        cp.copyto(self._buf_wgi1, cp.from_dlpack(wgi1))
+        cp.copyto(self._buf_wgi2, cp.from_dlpack(wgi2))
+        cp.copyto(self._buf_tg1, cp.from_dlpack(tg1))
+        cp.copyto(self._buf_tg2, cp.from_dlpack(tg2))
+        cp.copyto(self._buf_wsnow1, cp.from_dlpack(wsnow1))
+        cp.copyto(self._buf_rho1, cp.from_dlpack(rho1))
+        cp.copyto(self._buf_alb, cp.from_dlpack(alb))
 
         # -- (Re)capture graph if needed --
         if not self._captured or dt != self._captured_dt:
@@ -330,6 +373,16 @@ cdef class SurfexGPUWrapper:
             'surf_flux_v':  self._buf_surf_flux_v.toDlpack(),
             'albedo':       self._buf_albedo.toDlpack(),
             'emissivity':   self._buf_emissivity.toDlpack(),
+            'wg1': self._buf_wg1.toDlpack(),
+            'wg2': self._buf_wg2.toDlpack(),
+            'wg3': self._buf_wg3.toDlpack(),
+            'wgi1': self._buf_wgi1.toDlpack(),
+            'wgi2': self._buf_wgi2.toDlpack(),
+            'tg1': self._buf_tg1.toDlpack(),
+            'tg2': self._buf_tg2.toDlpack(),
+            'wsnow1': self._buf_wsnow1.toDlpack(),
+            'rho1': self._buf_rho1.toDlpack(),
+            'alb': self._buf_alb.toDlpack(),
         }
 
     @property
