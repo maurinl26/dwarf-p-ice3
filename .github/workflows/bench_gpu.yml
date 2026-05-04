@@ -54,4 +54,6 @@ jobs:
             --token "${{ secrets.BENCHER_API_TOKEN }}" \
             --testbed "${{ env.BENCHER_TESTBED }}" \
             --adapter "${{ env.BENCHER_ADAPTER }}" \
+            --branch "${{ github.ref_name }}" \
+            --hash "${{ github.sha }}" \
             --file "${{ steps.bench_path.outputs.path }}"

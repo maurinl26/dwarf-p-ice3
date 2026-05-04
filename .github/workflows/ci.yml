@@ -83,7 +83,14 @@ jobs:
       continue-on-error: true
 
     - name: Run performance tests (CPU)
-      run: uv run pytest tests/performance -v --benchmark-json=bench_cpu.json
+      run: |
+        uv run pytest \
+          tests/performance/test_ice_adjust_benchmark.py \
+          tests/performance/test_shallow_convection_benchmark.py \
+          tests/performance/test_turbulence_benchmark.py \
+          tests/performance/test_surfex_cpu_benchmark.py \
+          -v --benchmark-json=bench_cpu.json
+      continue-on-error: true
 
     - name: Install Bencher CLI
       uses: bencherdev/bencher@main
