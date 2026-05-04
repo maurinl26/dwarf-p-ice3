@@ -620,7 +620,8 @@ class TestMakeSurfex:
             psurf_flux_v=jnp.zeros(n, dtype=jnp.float32),
             t_skin=jnp.zeros(n, dtype=jnp.float32),
         )
-        fluxes = surf(state, dt=60.0)
+        jit_surf = jax.jit(lambda st: surf(st, dt=60.0))
+        fluxes = jit_surf(state)
         assert isinstance(fluxes, SurfexFluxes)
         for arr in fluxes:
             assert arr.shape == (n,)

@@ -350,6 +350,34 @@ def _bulk_aerodynamic_fallback(
     )
 
 
+def _jax_bulk_aerodynamic_fallback(state: "SurfexState") -> "SurfexFluxes":
+    """Pure JAX equivalent of _bulk_aerodynamic_fallback."""
+    kappa, z, z0 = 0.4, 10.0, 0.05
+    Cp, Ts_default = 1004.0, 295.0
+    cd = (kappa / jnp.log(z / z0)) ** 2
+    wspd = jnp.maximum(jnp.sqrt(state.u_a**2 + state.v_a**2), 0.01)
+    theta_a = state.t_a * (1e5 / state.p_a) ** (287.05 / Cp)
+
+    ts_col = jnp.where(state.t_skin > 0.0, state.t_skin, Ts_default)
+    flux_th = cd * wspd * (ts_col - theta_a)
+    flux_rv = cd * wspd * jnp.maximum(0.0, 0.018 - state.q_a)
+    flux_u  = -cd * wspd * state.u_a
+    flux_v  = -cd * wspd * state.v_a
+
+    n_cols = state.t_a.shape[0]
+    alb  = jnp.full((n_cols,), 0.2, dtype=jnp.float32)
+    emis = jnp.full((n_cols,), 0.98, dtype=jnp.float32)
+
+    return SurfexFluxes(
+        surf_flux_th=flux_th.astype(jnp.float32),
+        surf_flux_rv=flux_rv.astype(jnp.float32),
+        surf_flux_u=flux_u.astype(jnp.float32),
+        surf_flux_v=flux_v.astype(jnp.float32),
+        albedo=alb,
+        emissivity=emis,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Public data types
 # ---------------------------------------------------------------------------
@@ -467,6 +495,9 @@ class SurfexJAX:
         SurfexFluxes
             Surface fluxes on the same device as ``state``.
         """
+        if not self._lib._available:
+            return _jax_bulk_aerodynamic_fallback(state)
+
         n_cols = state.t_a.shape[0]
 
         # Output shape specs — all (n_cols,) float32
