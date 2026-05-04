@@ -182,7 +182,7 @@ FROM base-gpu-jax AS jax-gpu
 RUN uv pip install --no-cache-dir \
     "jax>=0.5.3" "jaxlib>=0.5.3" \
     "jax-cuda12-plugin>=0.5.3,<0.6" "jax-cuda12-pjrt>=0.5.3,<0.6" \
-    nvidia-cudnn-cu12 nvidia-cuda-cupti-cu12 nvidia-nccl-cu12 nvidia-cuda-nvrtc-cu12 \
+    nvidia-cudnn-cu12 nvidia-cuda-cupti-cu12 nvidia-nccl-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-nvcc-cu12 \
     "cupy-cuda12x>=13.5.0" && \
     uv pip install --no-cache-dir --no-deps "cupy-xarray>=0.1.4"
 # Vérification que le plugin CUDA est bien installé
