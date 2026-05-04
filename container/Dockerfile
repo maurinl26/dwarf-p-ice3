@@ -194,7 +194,7 @@ CMD ["sleep", "infinity"]
 # --- VARIANT B2 : RUNPOD (JAX / GPU + SSH) ---
 FROM jax-gpu AS runpod
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    openssh-server && rm -rf /var/lib/apt/lists/*
+    openssh-server build-essential gfortran cmake make libgomp1 python3-dev && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /var/run/sshd && \
     echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
     echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
