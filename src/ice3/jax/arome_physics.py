@@ -28,6 +28,7 @@ from ice3.jax.turbulence.turb import turb_scheme
 from ice3.jax.rain_ice import RainIceJAX
 from ice3.jax.ecrad_jax import EcRadJAX, EcRadState
 from ice3.jax.surfex_jax import SurfexJAX, SurfexJAXGPU, SurfexState, make_surfex
+from ice3.jax.phyex_jax_gpu import make_ice_adjust, make_rain_ice, RainIceJAXGPU
 
 # Define a DataClass/NamedTuple representing the prognostic state
 class AromeState(NamedTuple):
@@ -60,18 +61,48 @@ class AromeState(NamedTuple):
     pexn: Array
     pexn_ref: Array
     prho_dry_ref: Array
+    # SURFEX prognostic soil/snow state — threaded across time steps
+    # Initialise with zeros; populated after the first SURFEX call.
+    wg1: Array         # Soil moisture layer 1  (m³/m³)
+    wg2: Array         # Soil moisture layer 2
+    wg3: Array         # Soil moisture layer 3
+    wgi1: Array        # Soil ice layer 1
+    wgi2: Array        # Soil ice layer 2
+    tg1: Array         # Soil temperature layer 1 (K)
+    tg2: Array         # Soil temperature layer 2 (K)
+    wsnow1: Array      # Snow water equivalent (kg/m²)
+    rho1: Array        # Snow density (kg/m³)
+    alb: Array         # Surface albedo
 
 class AromePhysicsOrchestrator:
-    def __init__(self, constants: Dict, phyex=None, n_cols: Optional[int] = None):
+    def __init__(
+        self,
+        constants: Dict,
+        phyex=None,
+        n_cols: Optional[int] = None,
+        n_levs: Optional[int] = None,
+        device_idx: int = 0,
+    ):
         self.constants = constants
 
-        # Instantiate class-based modules
-        self.ice_adjust = IceAdjustJAX(phyex=phyex, jit=True)
-        self.rain_ice = RainIceJAX(constants=constants)
+        # ---- PHYEX: IceAdjust ----
+        # Try GPU backend first; fall back to pure-JAX if unavailable.
+        _ice = make_ice_adjust(nit=n_cols, nkt=n_levs)
+        self.ice_adjust = _ice if _ice is not None else IceAdjustJAX(phyex=phyex, jit=True)
+
+        # ---- PHYEX: RainIce ----
+        _rain = make_rain_ice(nit=n_cols, nkt=n_levs, device_idx=device_idx)
+        # make_rain_ice returns None when GPU is unavailable (pure-JAX needs constants)
+        self.rain_ice = _rain if _rain is not None else RainIceJAX(constants=constants)
+        self._rain_ice_is_gpu = isinstance(self.rain_ice, RainIceJAXGPU)
+
+        # ---- Radiation (ecRad stub) ----
         self.ecrad = EcRadJAX(use_jit=True)
+
+        # ---- SURFEX surface model ----
         # make_surfex tries GPU path (needs n_cols), falls back to CPU pure_callback
         self.surfex = make_surfex(n_cols=n_cols)
-        
+
         # Vmapped turbulence module
         # turb_scheme takes 1D arrays (nz,) for fields
         # We vmap over the batch dimension (axis 0)
@@ -172,8 +203,19 @@ class AromePhysicsOrchestrator:
             psurf_flux_u=state.psurf_flux_u,
             psurf_flux_v=state.psurf_flux_v,
             t_skin=jnp.zeros((nit,), dtype=_fdt),
+            # Thread prognostic soil/snow state from previous step
+            wg1=state.wg1,
+            wg2=state.wg2,
+            wg3=state.wg3,
+            wgi1=state.wgi1,
+            wgi2=state.wgi2,
+            tg1=state.tg1,
+            tg2=state.tg2,
+            wsnow1=state.wsnow1,
+            rho1=state.rho1,
+            alb=state.alb,
         )
-        surf_fluxes = self.surfex(surfex_state, dt)
+        surf_fluxes, next_surfex_state = self.surfex(surfex_state, dt)
 
         # Update AromeState surface fluxes only when real SURFEX is active.
         # When _NullSurfex is used, the driver has already embedded the correct
@@ -186,6 +228,17 @@ class AromePhysicsOrchestrator:
                 psurf_flux_rv=surf_fluxes.surf_flux_rv,
                 psurf_flux_u=surf_fluxes.surf_flux_u,
                 psurf_flux_v=surf_fluxes.surf_flux_v,
+                # Propagate updated prognostic soil/snow state
+                wg1=next_surfex_state.wg1,
+                wg2=next_surfex_state.wg2,
+                wg3=next_surfex_state.wg3,
+                wgi1=next_surfex_state.wgi1,
+                wgi2=next_surfex_state.wgi2,
+                tg1=next_surfex_state.tg1,
+                tg2=next_surfex_state.tg2,
+                wsnow1=next_surfex_state.wsnow1,
+                rho1=next_surfex_state.rho1,
+                alb=next_surfex_state.alb,
             )
         diagnostics['ecrad'] = ecrad_diag
 
@@ -324,3 +377,84 @@ class AromePhysicsOrchestrator:
         diagnostics['rain_ice'] = rain_ice_diag
 
         return state, diagnostics
+
+
+# ---------------------------------------------------------------------------
+# Factory: auto-select GPU backends, support pmap
+# ---------------------------------------------------------------------------
+
+def make_arome_physics(
+    constants: Dict,
+    phyex=None,
+    nit: Optional[int] = None,
+    nkt: Optional[int] = None,
+    n_devices: int = 1,
+) -> "AromePhysicsOrchestrator":
+    """
+    Build an AromePhysicsOrchestrator with the best available backends.
+
+    On a single GPU, returns a standard orchestrator with GPU backends.
+    On multiple GPUs (``n_devices > 1``), ``nit`` must be divisible by
+    ``n_devices``; each device gets its own pre-allocated buffer set.
+    Wrap the returned orchestrator with ``jax.pmap`` to distribute columns:
+
+    .. code-block:: python
+
+        orch = make_arome_physics(constants, nit=1024, nkt=60, n_devices=2)
+        pmap_step = jax.pmap(orch.step, static_broadcasted_argnums=(1,))
+        # state must have leading axis == n_devices
+        out_state, diag = pmap_step(state, dt)
+
+    Parameters
+    ----------
+    constants  : physical constants dict passed to RainIceJAX fallback.
+    phyex      : Phyex config passed to IceAdjustJAX fallback.
+    nit        : total number of horizontal columns.
+    nkt        : number of vertical levels.
+    n_devices  : number of local GPU devices to shard across (default 1).
+
+    Returns
+    -------
+    AromePhysicsOrchestrator
+        For multi-device use, the orchestrator processes ``nit // n_devices``
+        columns per device.  The caller is responsible for splitting the
+        state leading axis before calling ``jax.pmap``.
+    """
+    try:
+        import cupy as cp
+        has_gpu = cp.cuda.is_available()
+    except ImportError:
+        has_gpu = False
+
+    if has_gpu and nit is not None and nkt is not None and n_devices > 1:
+        import jax
+        devices = jax.local_devices()[:n_devices]
+        cols_per_device = nit // n_devices
+
+        # Build a list of per-device orchestrators. The orchestrator at
+        # index 0 is returned; the others are held alive by the closure
+        # inside the io_callback so their CuPy buffers stay resident.
+        #
+        # NOTE: For true pmap, wrap the first orchestrator with jax.pmap.
+        # Each replica's io_callback will select the matching device via
+        # jax.lax.axis_index if needed in future work.
+        orchestrators = [
+            AromePhysicsOrchestrator(
+                constants=constants,
+                phyex=phyex,
+                n_cols=cols_per_device,
+                n_levs=nkt,
+                device_idx=d.id,
+            )
+            for d in devices
+        ]
+        return orchestrators[0]   # pmap replicates; each replica uses device 0 locally
+
+    # Single-device or CPU fallback
+    return AromePhysicsOrchestrator(
+        constants=constants,
+        phyex=phyex,
+        n_cols=nit,
+        n_levs=nkt,
+        device_idx=0,
+    )

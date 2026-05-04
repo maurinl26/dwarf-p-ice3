@@ -203,10 +203,10 @@ def ice_adjust(
         
         if FRAC_ICE_ADJUST == 3:
             # Default Mode (S)
-            frac_tmp = jnp.clip(frac_tmp, 0.0, 1.0)
+            frac_tmp = jnp.clip(frac_tmp, min=0.0, max=1.0)
         elif FRAC_ICE_ADJUST == 0:
             # AROME mode - temperature-based
-            frac_tmp = jnp.clip((TMAXMIX - t) / (TMAXMIX - TMINMIX), 0.0, 1.0)
+            frac_tmp = jnp.clip((TMAXMIX - t) / (TMAXMIX - TMINMIX), min=0.0, max=1.0)
         
         # Supersaturation coefficients
         qsl = RD / RV * pv / (pabs - pv)
@@ -251,7 +251,7 @@ def ice_adjust(
             # Cloud fraction
             cldfr = jnp.where(
                 cond_tmp >= 1e-12,
-                jnp.clip(0.5 + 0.36 * jnp.arctan(1.55 * q1), 0.0, 1.0),
+                jnp.clip(0.5 + 0.36 * jnp.arctan(1.55 * q1), min=0.0, max=1.0),
                 0.0
             )
             
@@ -262,8 +262,14 @@ def ice_adjust(
             if not OCND2:
                 rc_out = (1.0 - frac_tmp) * cond_tmp  # liquid
                 ri_out = frac_tmp * cond_tmp  # solid
+                # Clamp condensate to non-negative and cap at total available
+                # water (mirrors Fortran XNEG budget — cond_tmp can exceed rt
+                # in supersaturated columns with large sigma).
+                rc_out = jnp.clip(rc_out, min=0.0, max=rt)
+                ri_out = jnp.clip(ri_out, min=0.0, max=rt - rc_out)
                 t = t + ((rc_out - rc) * lv + (ri_out - ri) * ls) / cph
-                rv_out = rt - rc_out - ri_out * prifact
+                # rv_out = total_water - condensed; clamp to >= 0
+                rv_out = jnp.maximum(0.0, rt - rc_out - ri_out * prifact)
     
     # 5.0 Compute the variation of mixing ratios
     w1 = (rc_out - rc) / dt
